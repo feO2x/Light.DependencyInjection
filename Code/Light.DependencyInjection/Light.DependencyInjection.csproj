@@ -38,6 +38,7 @@
     <Compile Include="ICreationDescription.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Singleton.cs" />
+    <Compile Include="Transient.cs" />
     <Compile Include="TypeKey.cs" />
   </ItemGroup>
   <ItemGroup>

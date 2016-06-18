@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class SingletonTests
+    public sealed class ResolveTests
     {
         [Fact]
         public void ResolveSingleton()
@@ -14,7 +14,21 @@ namespace Light.DependencyInjection.Tests
             var first = diContainer.Resolve<Dummy>();
             var second = diContainer.Resolve<Dummy>();
 
+            first.Should().NotBeNull();
             first.Should().BeSameAs(second);
+        }
+
+        [Fact]
+        public void ResolveTransient()
+        {
+            var diContainer = new DiContainer();
+
+            var first = diContainer.Resolve<Dummy>();
+            var second = diContainer.Resolve<Dummy>();
+
+            first.Should().NotBeNull();
+            second.Should().NotBeNull();
+            first.Should().NotBeSameAs(second);
         }
 
         public class Dummy { }
