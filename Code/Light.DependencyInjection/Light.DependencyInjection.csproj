@@ -34,7 +34,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DiContainer.cs" />
+    <Compile Include="ICreationDescription.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Singleton.cs" />
+    <Compile Include="TypeKey.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Light.GuardClauses, Version=1.1.0.0, Culture=neutral, PublicKeyToken=573727035c45e5b3, processorArchitecture=MSIL">
