@@ -43,6 +43,7 @@
     <Compile Include="Singleton.cs" />
     <Compile Include="Transient.cs" />
     <Compile Include="TypeAnalyzer.cs" />
+    <Compile Include="TypeInstantiationInfo.cs" />
     <Compile Include="TypeKey.cs" />
     <Compile Include="TypeRegistrationException.cs" />
   </ItemGroup>

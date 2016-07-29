@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection
@@ -24,16 +25,22 @@ namespace Light.DependencyInjection
 
         public T Resolve<T>()
         {
-            var type = typeof(T);
+            return (T) Resolve(typeof(T));
+        }
+
+        public object Resolve(Type type)
+        {
+            type.MustNotBeNull(nameof(type));
+
             var typeKey = new TypeKey(type);
             IRegistration registration;
             if (_registrations.TryGetValue(typeKey, out registration) == false)
             {
-                registration = new Transient(typeof(T));
+                registration = new Transient(type);
                 _registrations.Add(typeKey, registration);
             }
 
-            return (T) registration.Create(this);
+            return registration.Create(this);
         }
     }
 }
