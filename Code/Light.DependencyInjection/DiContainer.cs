@@ -5,20 +5,20 @@ namespace Light.DependencyInjection
 {
     public sealed class DiContainer
     {
-        private readonly IDictionary<TypeKey, ICreationDescription> _mappings;
+        private readonly IDictionary<TypeKey, IRegistration> _registrations;
 
-        public DiContainer() : this(new Dictionary<TypeKey, ICreationDescription>()) { }
+        public DiContainer() : this(new Dictionary<TypeKey, IRegistration>()) { }
 
-        public DiContainer(IDictionary<TypeKey, ICreationDescription> mappings)
+        public DiContainer(IDictionary<TypeKey, IRegistration> registrations)
         {
-            mappings.MustNotBeNull(nameof(mappings));
+            registrations.MustNotBeNull(nameof(registrations));
 
-            _mappings = mappings;
+            _registrations = registrations;
         }
 
         public DiContainer RegisterSingleton<T>()
         {
-            _mappings.Add(new TypeKey(typeof(T)), new Singleton(typeof(T)));
+            _registrations.Add(new TypeKey(typeof(T)), new Singleton(typeof(T)));
             return this;
         }
 
@@ -26,14 +26,14 @@ namespace Light.DependencyInjection
         {
             var type = typeof(T);
             var typeKey = new TypeKey(type);
-            ICreationDescription creationDescription;
-            if (_mappings.TryGetValue(typeKey, out creationDescription) == false)
+            IRegistration registration;
+            if (_registrations.TryGetValue(typeKey, out registration) == false)
             {
-                creationDescription = new Transient(typeof(T));
-                _mappings.Add(typeKey, creationDescription);
+                registration = new Transient(typeof(T));
+                _registrations.Add(typeKey, registration);
             }
 
-            return (T) creationDescription.Create(this);
+            return (T) registration.Create(this);
         }
     }
 }

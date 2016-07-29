@@ -3,7 +3,7 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection
 {
-    public sealed class Transient : ICreationDescription
+    public sealed class Transient : IRegistration
     {
         private readonly Type _type;
 

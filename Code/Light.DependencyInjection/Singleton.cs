@@ -3,7 +3,7 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection
 {
-    public sealed class Singleton : ICreationDescription
+    public sealed class Singleton : IRegistration
     {
         private readonly Type _targetType;
         private object _instance;

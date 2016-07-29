@@ -1,6 +1,6 @@
 ﻿namespace Light.DependencyInjection
 {
-    public interface ICreationDescription
+    public interface IRegistration
     {
         object Create(DiContainer container);
     }
