@@ -8,7 +8,7 @@ namespace Light.DependencyInjection.Tests
 {
     public sealed class CompileObjectCreationFunctionTests
     {
-        [Fact(DisplayName = "CompileObjectCreationFunction creates a dynamic delegate that accepts an object array and calls the target constructor using the array's items as parameter.")]
+        [Fact(DisplayName = "CompileObjectCreationFunction creates a dynamic delegate for a constructor with parameters that accepts an object array and calls the target constructor using the array's items as parameter.")]
         public void ConstructorWithParameters()
         {
             var compiledCreationFunction = typeof(B).GetTypeInfo()
@@ -29,6 +29,18 @@ namespace Light.DependencyInjection.Tests
             instanceOfB.Value.Should().Be(42);
         }
 
+        [Fact(DisplayName = "CompileObjectCreationFunction creates a dynamic delegate for a default constructor where the object array used as a parameter can be passed in as null.")]
+        public void DefaultConstructor()
+        {
+            var compiledCreationFunction = typeof(A).GetTypeInfo()
+                                                    .DeclaredConstructors
+                                                    .First()
+                                                    .CompileObjectCreationFunction();
+
+            var createdObject = compiledCreationFunction(null);
+
+            createdObject.Should().BeOfType<A>();
+        }
 
         public class A { }
 

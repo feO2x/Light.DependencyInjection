@@ -14,9 +14,10 @@ namespace Light.DependencyInjection
             constructorInfo.MustNotBeNull(nameof(constructorInfo));
 
             var constructorParameterInfos = constructorInfo.GetParameters();
-            // TODO: check if it is the default constructor
 
             var parameterExpression = Expression.Parameter(typeof(object[]));
+            if (constructorParameterInfos.Length == 0)
+                return Expression.Lambda<Func<object[], object>>(Expression.New(constructorInfo), parameterExpression).Compile();
 
             var argumentExpressions = new List<Expression>();
             for (var i = 0; i < constructorParameterInfos.Length; i++)
