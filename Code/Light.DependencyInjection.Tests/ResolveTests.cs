@@ -32,6 +32,19 @@ namespace Light.DependencyInjection.Tests
             first.Should().NotBeSameAs(second);
         }
 
+        [Fact(DisplayName = "The DI container must be able to resolve a type depending on other objects / values. These values must be resolved recursively.")]
+        public void ResolveRecursively()
+        {
+            _container.RegisterSingleton<A>()
+                      .RegisterTransient<C>();
+
+            var firstC = _container.Resolve<C>();
+            var secondC = _container.Resolve<C>();
+
+            firstC.Should().NotBeSameAs(secondC);
+            firstC.ReferenceToA.Should().BeSameAs(secondC.ReferenceToA);
+        }
+
         [Fact(DisplayName = "The DI container must create a transient registration and use it  when resolve is called for a non-registered type.")]
         public void ResolveDefaultTransient()
         {
@@ -39,6 +52,5 @@ namespace Light.DependencyInjection.Tests
 
             _container.Registrations.Should().ContainSingle(registration => registration.TargetType == typeof(A) && registration is TransientRegistration);
         }
-
     }
 }

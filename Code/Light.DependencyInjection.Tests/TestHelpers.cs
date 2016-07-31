@@ -13,4 +13,14 @@
             Value = value;
         }
     }
+
+    public class C
+    {
+        public readonly A ReferenceToA;
+
+        public C(A referenceToA)
+        {
+            ReferenceToA = referenceToA;
+        }
+    }
 }
