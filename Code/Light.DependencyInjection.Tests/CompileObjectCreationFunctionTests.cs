@@ -42,18 +42,6 @@ namespace Light.DependencyInjection.Tests
             createdObject.Should().BeOfType<A>();
         }
 
-        public class A { }
-
-        public class B
-        {
-            public readonly A OtherObject;
-            public readonly int Value;
-
-            public B(A otherObject, int value)
-            {
-                OtherObject = otherObject;
-                Value = value;
-            }
-        }
+        
     }
 }

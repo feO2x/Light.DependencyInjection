@@ -78,5 +78,7 @@ namespace Light.DependencyInjection
 
             return registration.GetInstance(this);
         }
+
+        public ICollection<Registration> Registrations => _registrations.Values;
     }
 }

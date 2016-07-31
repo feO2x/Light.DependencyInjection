@@ -69,7 +69,8 @@
   <ItemGroup>
     <Compile Include="CompileObjectCreationFunctionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SimpleResolveTests.cs" />
+    <Compile Include="ResolveTests.cs" />
+    <Compile Include="TestHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
