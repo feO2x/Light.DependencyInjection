@@ -6,20 +6,56 @@ namespace Light.DependencyInjection
 {
     public sealed class DiContainer
     {
-        private readonly IDictionary<TypeKey, IRegistration> _registrations;
+        private readonly IDictionary<TypeKey, Registration> _registrations;
+        private TypeAnalyzer _typeAnalyzer = new TypeAnalyzer();
+        private IDefaultRegistrationFactory _defaultRegistrationFactory = new TransientRegistrationFactory();
 
-        public DiContainer() : this(new Dictionary<TypeKey, IRegistration>()) { }
+        public DiContainer() : this(new Dictionary<TypeKey, Registration>()) { }
 
-        public DiContainer(IDictionary<TypeKey, IRegistration> registrations)
+        public DiContainer(IDictionary<TypeKey, Registration> registrations)
         {
             registrations.MustNotBeNull(nameof(registrations));
 
             _registrations = registrations;
         }
 
-        public DiContainer RegisterSingleton<T>()
+        public TypeAnalyzer TypeAnalyzer
         {
-            _registrations.Add(new TypeKey(typeof(T)), new Singleton(typeof(T)));
+            get { return _typeAnalyzer; }
+            set
+            {
+                value.MustNotBeNull(nameof(value));
+                _typeAnalyzer = value;
+            }
+        }
+
+        public IDefaultRegistrationFactory DefaultRegistrationFactory
+        {
+            get { return _defaultRegistrationFactory; }
+            set
+            {
+                value.MustNotBeNull(nameof(value));
+                _defaultRegistrationFactory = value;
+            }
+        }
+
+        public DiContainer RegisterSingleton<T>(string registrationName = null)
+        {
+            return RegisterSingleton(typeof(T), registrationName);
+        }
+
+        public DiContainer RegisterSingleton(Type type, string registrationName = null)
+        {
+            type.MustNotBeNull(nameof(type));
+
+            return Register(new SingletonRegistration(_typeAnalyzer.CreateInfoFor(type), registrationName));
+        }
+
+        public DiContainer Register(Registration registration)
+        {
+            registration.MustNotBeNull();
+
+            _registrations.Add(new TypeKey(registration.TargetType, registration.RegistrationName), registration);
             return this;
         }
 
@@ -33,14 +69,14 @@ namespace Light.DependencyInjection
             type.MustNotBeNull(nameof(type));
 
             var typeKey = new TypeKey(type);
-            IRegistration registration;
-            if (_registrations.TryGetValue(typeKey, out registration) == false)
-            {
-                registration = new Transient(type);
-                _registrations.Add(typeKey, registration);
-            }
+            Registration registration;
+            if (_registrations.TryGetValue(typeKey, out registration))
+                return registration.GetInstance(this);
 
-            return registration.Create(this);
+            registration = _defaultRegistrationFactory.CreateDefaultRegistration(_typeAnalyzer.CreateInfoFor(type));
+            _registrations.Add(typeKey, registration);
+
+            return registration.GetInstance(this);
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Reflection;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection
 {
-    public class TypeInstantiationInfo
+    public struct TypeInstantiationInfo
     {
         public readonly Type TargetType;
         public readonly MethodBase TargetCreationMethodInfo;
@@ -20,6 +21,7 @@ namespace Light.DependencyInjection
             _createObject = createObject;
         }
 
+        [Pure]
         public object InstatiateObject(DiContainer container)
         {
             var methodParameters = TargetCreationMethodInfo.GetParameters();
