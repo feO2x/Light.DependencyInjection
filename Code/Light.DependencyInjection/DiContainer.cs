@@ -7,8 +7,8 @@ namespace Light.DependencyInjection
     public sealed class DiContainer
     {
         private readonly IDictionary<TypeKey, Registration> _registrations;
-        private TypeAnalyzer _typeAnalyzer = new TypeAnalyzer();
         private IDefaultRegistrationFactory _defaultRegistrationFactory = new TransientRegistrationFactory();
+        private TypeAnalyzer _typeAnalyzer = new TypeAnalyzer();
 
         public DiContainer() : this(new Dictionary<TypeKey, Registration>()) { }
 
@@ -39,6 +39,8 @@ namespace Light.DependencyInjection
             }
         }
 
+        public ICollection<Registration> Registrations => _registrations.Values;
+
         public DiContainer RegisterSingleton<T>(string registrationName = null)
         {
             return RegisterSingleton(typeof(T), registrationName);
@@ -51,6 +53,18 @@ namespace Light.DependencyInjection
             return Register(new SingletonRegistration(_typeAnalyzer.CreateInfoFor(type), registrationName));
         }
 
+        public DiContainer RegisterTransient<T>(string registrationName = null)
+        {
+            return RegisterTransient(typeof(T), registrationName);
+        }
+
+        public DiContainer RegisterTransient(Type type, string registrationName = null)
+        {
+            type.MustNotBeNull(nameof(type));
+
+            return Register(new TransientRegistration(_typeAnalyzer.CreateInfoFor(type), registrationName));
+        }
+
         public DiContainer Register(Registration registration)
         {
             registration.MustNotBeNull();
@@ -59,16 +73,16 @@ namespace Light.DependencyInjection
             return this;
         }
 
-        public T Resolve<T>()
+        public T Resolve<T>(string registrationName = null)
         {
-            return (T) Resolve(typeof(T));
+            return (T) Resolve(typeof(T), registrationName);
         }
 
-        public object Resolve(Type type)
+        public object Resolve(Type type, string registrationName = null)
         {
             type.MustNotBeNull(nameof(type));
 
-            var typeKey = new TypeKey(type);
+            var typeKey = new TypeKey(type, registrationName);
             Registration registration;
             if (_registrations.TryGetValue(typeKey, out registration))
                 return registration.GetInstance(this);
@@ -78,7 +92,5 @@ namespace Light.DependencyInjection
 
             return registration.GetInstance(this);
         }
-
-        public ICollection<Registration> Registrations => _registrations.Values;
     }
 }
