@@ -65,11 +65,31 @@ namespace Light.DependencyInjection
             return Register(new TransientRegistration(_typeAnalyzer.CreateInfoFor(type), registrationName));
         }
 
+        public DiContainer RegisterTransient<TAbstract, TConcrete>(string registrationName = null) where TConcrete : TAbstract
+        {
+            Register(new TransientRegistration(_typeAnalyzer.CreateInfoFor(typeof(TConcrete)), registrationName), typeof(TAbstract));
+            return this;
+        }
+
+        public DiContainer Register(Registration registration, params Type[] abstractionTypes)
+        {
+            Register(registration);
+
+            foreach (var abstractionType in abstractionTypes)
+            {
+                registration.TargetType.MustInheritFromOrImplement(abstractionType);
+                _registrations.Add(new TypeKey(abstractionType, registration.RegistrationName), registration);
+            }
+
+            return this;
+        }
+
         public DiContainer Register(Registration registration)
         {
             registration.MustNotBeNull();
 
             _registrations.Add(new TypeKey(registration.TargetType, registration.RegistrationName), registration);
+
             return this;
         }
 

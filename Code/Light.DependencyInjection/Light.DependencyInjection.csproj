@@ -36,6 +36,7 @@
   <ItemGroup>
     <Compile Include="ConstructorWithMostParametersSelector.cs" />
     <Compile Include="DiContainer.cs" />
+    <Compile Include="GuardClausesExtensions.cs" />
     <Compile Include="IConstructorSelector.cs" />
     <Compile Include="IDefaultRegistrationFactory.cs" />
     <Compile Include="Registration.cs" />

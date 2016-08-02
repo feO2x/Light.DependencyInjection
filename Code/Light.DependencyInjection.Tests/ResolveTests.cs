@@ -45,7 +45,18 @@ namespace Light.DependencyInjection.Tests
             firstC.ReferenceToA.Should().BeSameAs(secondC.ReferenceToA);
         }
 
-        [Fact(DisplayName = "The DI container must create a transient registration and use it  when resolve is called for a non-registered type.")]
+        [Fact(DisplayName = "The DI container must be able to resolve a concrete type for a polymorphic abstraction when this mapping was registered with it beforehand.")]
+        public void AbstractionMapping()
+        {
+            _container.RegisterSingleton<A>()
+                      .RegisterTransient<IC, C>();
+
+            var interfaceReference = _container.Resolve<IC>();
+
+            interfaceReference.Should().BeOfType<C>();
+        }
+
+        [Fact(DisplayName = "The DI container must create a transient registration and use it  when Resolve is called for a non-registered type.")]
         public void ResolveDefaultTransient()
         {
             _container.Resolve<A>();

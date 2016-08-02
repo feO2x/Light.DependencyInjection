@@ -1,4 +1,6 @@
-﻿namespace Light.DependencyInjection.Tests
+﻿using Light.GuardClauses;
+
+namespace Light.DependencyInjection.Tests
 {
     public class A { }
 
@@ -9,17 +11,23 @@
 
         public B(A otherObject, int value)
         {
+            otherObject.MustNotBeNull(nameof(otherObject));
+
             OtherObject = otherObject;
             Value = value;
         }
     }
 
-    public class C
+    public interface IC { }
+
+    public class C : IC
     {
         public readonly A ReferenceToA;
 
         public C(A referenceToA)
         {
+            referenceToA.MustNotBeNull(nameof(referenceToA));
+
             ReferenceToA = referenceToA;
         }
     }
