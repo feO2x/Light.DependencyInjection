@@ -19,16 +19,6 @@ namespace Light.DependencyInjection
             _registrations = registrations;
         }
 
-        public TypeAnalyzer TypeAnalyzer
-        {
-            get { return _typeAnalyzer; }
-            set
-            {
-                value.MustNotBeNull(nameof(value));
-                _typeAnalyzer = value;
-            }
-        }
-
         public IDefaultRegistrationFactory DefaultRegistrationFactory
         {
             get { return _defaultRegistrationFactory; }
@@ -40,6 +30,16 @@ namespace Light.DependencyInjection
         }
 
         public ICollection<Registration> Registrations => _registrations.Values;
+
+        public TypeAnalyzer Analyzer
+        {
+            get { return _typeAnalyzer; }
+            set
+            {
+                value.MustNotBeNull(nameof(value));
+                _typeAnalyzer = value;
+            }
+        }
 
         public DiContainer RegisterSingleton<T>(string registrationName = null)
         {
@@ -111,6 +111,11 @@ namespace Light.DependencyInjection
             _registrations.Add(typeKey, registration);
 
             return registration.GetInstance(this);
+        }
+
+        public DiContainer RegisterInstance(object instance, string registrationName = null)
+        {
+            return Register(new ExternallyCreatedInstanceRegistration(instance, registrationName));
         }
     }
 }

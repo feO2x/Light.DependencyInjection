@@ -24,7 +24,7 @@ namespace Light.DependencyInjection
 
             var typeInfo = type.GetTypeInfo();
             var targetConstructor = _constructorSelector.SelectTargetConstructor(typeInfo);
-            return new TypeInstantiationInfo(type, targetConstructor, targetConstructor.CompileObjectCreationFunction());
+            return TypeInstantiationInfo.FromTypeInstantiatedByDiContainer(type, targetConstructor, targetConstructor.CompileObjectCreationFunction());
         }
     }
 }

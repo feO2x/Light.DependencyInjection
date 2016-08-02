@@ -56,6 +56,17 @@ namespace Light.DependencyInjection.Tests
             interfaceReference.Should().BeOfType<C>();
         }
 
+        [Fact]
+        public void RegisterInstance()
+        {
+            var instance = new A();
+            _container.RegisterInstance(instance);
+
+            var resolvedInstance = _container.Resolve<A>();
+
+            resolvedInstance.Should().BeSameAs(instance);
+        }
+
         [Fact(DisplayName = "The DI container must create a transient registration and use it  when Resolve is called for a non-registered type.")]
         public void ResolveDefaultTransient()
         {
