@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection
@@ -77,10 +79,20 @@ namespace Light.DependencyInjection
             if (_registrations.TryGetValue(typeKey, out registration))
                 return registration.GetInstance(this);
 
+            CheckIfTypeIsInstantiable(type);
+
             registration = _defaultRegistrationFactory.CreateDefaultRegistration(_typeTypeAnalyzer.CreateInfoFor(type));
             _registrations.Add(typeKey, registration);
 
             return registration.GetInstance(this);
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckIfTypeIsInstantiable(Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsInterface || typeInfo.IsAbstract || typeInfo.IsEnum || typeInfo.BaseType == typeof(MulticastDelegate))
+                throw new TypeRegistrationException($"The specified type \"{type}\" could not be resolved because there is no concrete type registered that should be returned for this polymorphic abstraction.", type);
         }
     }
 }

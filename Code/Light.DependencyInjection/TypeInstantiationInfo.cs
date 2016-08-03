@@ -69,7 +69,7 @@ namespace Light.DependencyInjection
         private void CheckKind()
         {
             if (Kind == TypeInstantiationKind.CreatedExternally)
-                throw new InvalidOperationException($"You must not call instantiate object on this instance for type {TargetType} because the requested object is not created by the DI Container, but passed in from external source (e.g. via DiContainer.RegisterInstance).");
+                throw new InvalidOperationException($"You must not call instantiate object on this instance for type {TargetType} because the requested object is not created by the DI Container, but passed in from an external source (e.g. via DiContainer.RegisterInstance).");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using Xunit;
 
 namespace Light.DependencyInjection.Tests
@@ -73,6 +74,15 @@ namespace Light.DependencyInjection.Tests
             _container.Resolve<A>();
 
             _container.Registrations.Should().ContainSingle(registration => registration.TargetType == typeof(A) && registration is TransientRegistration);
+        }
+
+        [Fact(DisplayName = "The DI container must throw an exception when Resolve is called on an abstract type that was not registered before.")]
+        public void ResolveAbstractionError()
+        {
+            Action act = () => _container.Resolve<IC>();
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The specified type \"{typeof(IC)}\" could not be resolved because there is no concrete type registered that should be returned for this polymorphic abstraction.");
         }
     }
 }
