@@ -8,7 +8,7 @@ namespace Light.DependencyInjection
     {
         private readonly IDictionary<TypeKey, Registration> _registrations;
         private IDefaultRegistrationFactory _defaultRegistrationFactory = new TransientRegistrationFactory();
-        private TypeAnalyzer _typeAnalyzer = new TypeAnalyzer();
+        private TypeAnalyzer _typeTypeAnalyzer = new TypeAnalyzer();
 
         public DiContainer() : this(new Dictionary<TypeKey, Registration>()) { }
 
@@ -31,44 +31,14 @@ namespace Light.DependencyInjection
 
         public ICollection<Registration> Registrations => _registrations.Values;
 
-        public TypeAnalyzer Analyzer
+        public TypeAnalyzer TypeAnalyzer
         {
-            get { return _typeAnalyzer; }
+            get { return _typeTypeAnalyzer; }
             set
             {
                 value.MustNotBeNull(nameof(value));
-                _typeAnalyzer = value;
+                _typeTypeAnalyzer = value;
             }
-        }
-
-        public DiContainer RegisterSingleton<T>(string registrationName = null)
-        {
-            return RegisterSingleton(typeof(T), registrationName);
-        }
-
-        public DiContainer RegisterSingleton(Type type, string registrationName = null)
-        {
-            type.MustNotBeNull(nameof(type));
-
-            return Register(new SingletonRegistration(_typeAnalyzer.CreateInfoFor(type), registrationName));
-        }
-
-        public DiContainer RegisterTransient<T>(string registrationName = null)
-        {
-            return RegisterTransient(typeof(T), registrationName);
-        }
-
-        public DiContainer RegisterTransient(Type type, string registrationName = null)
-        {
-            type.MustNotBeNull(nameof(type));
-
-            return Register(new TransientRegistration(_typeAnalyzer.CreateInfoFor(type), registrationName));
-        }
-
-        public DiContainer RegisterTransient<TAbstract, TConcrete>(string registrationName = null) where TConcrete : TAbstract
-        {
-            Register(new TransientRegistration(_typeAnalyzer.CreateInfoFor(typeof(TConcrete)), registrationName), typeof(TAbstract));
-            return this;
         }
 
         public DiContainer Register(Registration registration, params Type[] abstractionTypes)
@@ -78,7 +48,7 @@ namespace Light.DependencyInjection
             foreach (var abstractionType in abstractionTypes)
             {
                 registration.TargetType.MustInheritFromOrImplement(abstractionType);
-                _registrations.Add(new TypeKey(abstractionType, registration.RegistrationName), registration);
+                _registrations.Add(new TypeKey(abstractionType, registration.Name), registration);
             }
 
             return this;
@@ -88,7 +58,7 @@ namespace Light.DependencyInjection
         {
             registration.MustNotBeNull();
 
-            _registrations.Add(new TypeKey(registration.TargetType, registration.RegistrationName), registration);
+            _registrations.Add(new TypeKey(registration.TargetType, registration.Name), registration);
 
             return this;
         }
@@ -107,15 +77,10 @@ namespace Light.DependencyInjection
             if (_registrations.TryGetValue(typeKey, out registration))
                 return registration.GetInstance(this);
 
-            registration = _defaultRegistrationFactory.CreateDefaultRegistration(_typeAnalyzer.CreateInfoFor(type));
+            registration = _defaultRegistrationFactory.CreateDefaultRegistration(_typeTypeAnalyzer.CreateInfoFor(type));
             _registrations.Add(typeKey, registration);
 
             return registration.GetInstance(this);
-        }
-
-        public DiContainer RegisterInstance(object instance, string registrationName = null)
-        {
-            return Register(new ExternallyCreatedInstanceRegistration(instance, registrationName));
         }
     }
 }

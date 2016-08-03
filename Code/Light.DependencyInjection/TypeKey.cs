@@ -7,22 +7,22 @@ namespace Light.DependencyInjection
     public struct TypeKey : IEquatable<TypeKey>
     {
         public readonly Type Type;
-        public readonly string OptionalName;
-        private readonly int _hashCode;
+        public readonly string RegistrationName;
+        public readonly int HashCode;
 
-        public TypeKey(Type type, string optionalName = null)
+        public TypeKey(Type type, string registrationName = null)
         {
             type.MustNotBeNull(nameof(type));
 
             Type = type;
-            OptionalName = optionalName;
-            _hashCode = optionalName == null ? type.GetHashCode() : Equality.CreateHashCode(type, optionalName);
+            RegistrationName = registrationName;
+            HashCode = registrationName == null ? type.GetHashCode() : Equality.CreateHashCode(type, registrationName);
         }
 
         public bool Equals(TypeKey other)
         {
             return Type == other.Type &&
-                   OptionalName == other.OptionalName;
+                   RegistrationName == other.RegistrationName;
         }
 
         public override bool Equals(object obj)
@@ -36,10 +36,19 @@ namespace Light.DependencyInjection
                 return false;
             }
         }
-
         public override int GetHashCode()
         {
-            return _hashCode;
+            return HashCode;
+        }
+
+        public static bool operator ==(TypeKey first, TypeKey second)
+        {
+            return first.EqualsValueWithHashCode(second);
+        }
+
+        public static bool operator !=(TypeKey first, TypeKey second)
+        {
+            return !(first == second);
         }
     }
 }
