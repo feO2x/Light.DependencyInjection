@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using FluentAssertions;
 using Xunit;
 
@@ -91,6 +93,23 @@ namespace Light.DependencyInjection.Tests
             _container.RegisterTransient<A>(options => options.WithRegistrationName("Foo"));
 
             _container.Registrations.Should().ContainSingle(registration => registration.Name == "Foo");
+        }
+
+        [Fact(DisplayName = "Clients must be able to change the constructor that is used to instantiate the target object.")]
+        public void OptionsSelectDefaultConstructor()
+        {
+            _container.RegisterTransient<D>(options => options.UseDefaultConstructor());
+
+            _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.TargetCreationMethodInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First());
+        }
+
+        [Fact(DisplayName = "UseDefaultConstructor must throw a TypeRegistrationException when the target type has no default constructor.")]
+        public void OptionsErroneousDefaultConstructor()
+        {
+            Action act = () => _container.RegisterTransient<B>(options => options.UseDefaultConstructor());
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"You specified that the DI container should use the default constructor of type \"{typeof(B)}\", but this type contains no default constructor.");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Light.GuardClauses;
+﻿using System.Collections.Generic;
+using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Tests
 {
@@ -29,6 +30,23 @@ namespace Light.DependencyInjection.Tests
             referenceToA.MustNotBeNull(nameof(referenceToA));
 
             ReferenceToA = referenceToA;
+        }
+    }
+
+    public class D
+    {
+        public readonly IList<int> Collection;
+
+        public D() : this(new List<int>())
+        {
+            
+        }
+
+        public D(IList<int> collection)
+        {
+            collection.MustNotBeNull(nameof(collection));
+
+            Collection = collection;
         }
     }
 }

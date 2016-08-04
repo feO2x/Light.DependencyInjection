@@ -50,6 +50,7 @@
     <Compile Include="TransientRegistrationFactory.cs" />
     <Compile Include="TypeAnalyzer.cs" />
     <Compile Include="TypeInstantiationInfo.cs" />
+    <Compile Include="TypeInstantiationInfoBuilder.cs" />
     <Compile Include="TypeInstantiationKind.cs" />
     <Compile Include="TypeKey.cs" />
     <Compile Include="TypeRegistrationException.cs" />
