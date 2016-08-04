@@ -4,5 +4,6 @@
     {
         IRegistrationOptions WithRegistrationName(string registrationName);
         IRegistrationOptions UseDefaultConstructor();
+        IRegistrationOptions UseConstructorWithParameter<T>();
     }
 }

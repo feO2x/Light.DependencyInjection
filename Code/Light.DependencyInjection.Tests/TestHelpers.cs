@@ -36,6 +36,7 @@ namespace Light.DependencyInjection.Tests
     public class D
     {
         public readonly IList<int> Collection;
+        public readonly int SomeNumber = 42;
 
         public D() : this(new List<int>())
         {
@@ -47,6 +48,11 @@ namespace Light.DependencyInjection.Tests
             collection.MustNotBeNull(nameof(collection));
 
             Collection = collection;
+        }
+
+        public D(IList<int> collection, int number) : this(collection)
+        {
+            SomeNumber = number;
         }
     }
 }

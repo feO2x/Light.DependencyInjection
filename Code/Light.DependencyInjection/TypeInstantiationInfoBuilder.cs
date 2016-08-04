@@ -33,14 +33,23 @@ namespace Light.DependencyInjection
 
         public IRegistrationOptions UseDefaultConstructor()
         {
-            var targetConstructor = typeof(T).GetTypeInfo()
-                                             .DeclaredConstructors
-                                             .FirstOrDefault(constructor => constructor.GetParameters().Length == 0);
+            var targetConstructor = _targetTypeInfo.DeclaredConstructors
+                                                   .FirstOrDefault(constructor => constructor.GetParameters().Length == 0);
             targetConstructor.MustNotBeNull(exception: 
                 () => new TypeRegistrationException($"You specified that the DI container should use the default constructor of type \"{_targetType}\", but this type contains no default constructor.", _targetType));
 
-            _compiledCreationMethod = targetConstructor.CompileObjectCreationFunction();
-            _creationMethodInfo = targetConstructor;
+            AssignConstructor(targetConstructor);
+
+            return this;
+        }
+
+        public IRegistrationOptions UseConstructorWithParameter<TArgument>()
+        {
+            var targetConstructor = _targetTypeInfo.DeclaredConstructors.FindConstructorWithArgumentTypes(typeof(TArgument));
+            targetConstructor.MustNotBeNull(exception:
+                () => new TypeRegistrationException($"You specified that the DI container should use the constructor with a single argument of type \"{typeof(TArgument)}\", but type \"{_targetType}\" does not contain such a constructor.", _targetType));
+
+            AssignConstructor(targetConstructor);
 
             return this;
         }
@@ -58,6 +67,11 @@ namespace Light.DependencyInjection
                 return;
 
             var targetConstructor = _constructorSelector.SelectTargetConstructor(typeof(T).GetTypeInfo());
+            AssignConstructor(targetConstructor);
+        }
+
+        private void AssignConstructor(ConstructorInfo targetConstructor)
+        {
             _compiledCreationMethod = targetConstructor.CompileObjectCreationFunction();
             _creationMethodInfo = targetConstructor;
         }

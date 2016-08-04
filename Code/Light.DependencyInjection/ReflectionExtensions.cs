@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Light.GuardClauses;
+using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection
 {
@@ -28,6 +30,43 @@ namespace Light.DependencyInjection
 
             var newExpression = Expression.New(constructorInfo, argumentExpressions);
             return Expression.Lambda<Func<object[], object>>(newExpression, parameterExpression).Compile();
+        }
+
+        public static ConstructorInfo FindConstructorWithArgumentTypes(this IEnumerable<ConstructorInfo> constructors, params Type[] parameterTypes)
+        {
+            // ReSharper disable PossibleMultipleEnumeration
+            constructors.MustNotBeNull(nameof(constructors));
+            parameterTypes.MustNotBeNullOrEmpty(nameof(parameterTypes));
+
+            var constructorList = constructors.AsList();
+            // ReSharper restore PossibleMultipleEnumeration
+            if (constructorList.Count == 0)
+                return null;
+
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var i = 0; i < constructorList.Count; i++)
+            {
+                var constructorInfo = constructorList[i];
+                var parameterInfos = constructorInfo.GetParameters();
+                if (parameterInfos.Length != parameterTypes.Length)
+                    continue;
+
+                if (CheckParameterEquality(parameterInfos, parameterTypes))
+                    return constructorInfo;
+            }
+
+            return null;
+        }
+
+        private static bool CheckParameterEquality(ParameterInfo[] parameterInfos, Type[] parameterTypes)
+        {
+            for (var i = 0; i < parameterInfos.Length; i++)
+            {
+                if (parameterInfos[i].ParameterType != parameterTypes[i])
+                    return false;
+            }
+
+            return true;
         }
     }
 }
