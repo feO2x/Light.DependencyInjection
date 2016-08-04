@@ -84,5 +84,13 @@ namespace Light.DependencyInjection.Tests
             act.ShouldThrow<TypeRegistrationException>()
                .And.Message.Should().Contain($"The specified type \"{typeof(IC)}\" could not be resolved because there is no concrete type registered that should be returned for this polymorphic abstraction.");
         }
+
+        [Fact(DisplayName = "Clients must be able to change the registration name using the options object when calling ResolveTransient.")]
+        public void OptionsRegistrationName()
+        {
+            _container.RegisterTransient<A>(options => options.WithRegistrationName("Foo"));
+
+            _container.Registrations.Should().ContainSingle(registration => registration.Name == "Foo");
+        }
     }
 }

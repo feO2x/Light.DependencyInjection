@@ -5,6 +5,17 @@ namespace Light.DependencyInjection
 {
     public static class DiContainerExtensions
     {
+        public static DiContainer RegisterTransient<T>(this DiContainer diContainer, Action<IRegistrationOptions> configureOptions)
+        {
+            diContainer.MustNotBeNull(nameof(diContainer));
+            configureOptions.MustNotBeNull(nameof(diContainer));
+
+            var options = new TypeInstantiationInfoBuilder<T>(diContainer.TypeAnalyzer.ConstructorSelector);
+            configureOptions(options);
+
+            return diContainer.Register(new TransientRegistration(options.Build(), options.RegistrationName));
+        }
+
         public static DiContainer RegisterTransient<T>(this DiContainer diContainer, string registrationName = null)
         {
             return RegisterTransient(diContainer, typeof(T), registrationName);
