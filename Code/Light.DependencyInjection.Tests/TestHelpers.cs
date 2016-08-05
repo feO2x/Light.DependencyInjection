@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Tests
@@ -53,6 +54,42 @@ namespace Light.DependencyInjection.Tests
         public D(IList<int> collection, int number) : this(collection)
         {
             SomeNumber = number;
+        }
+    }
+
+    public class E
+    {
+        public readonly int Number1 = -42;
+        public readonly uint Number2 = 42;
+        public readonly string Text = "Foo";
+        public readonly DateTime Date = new DateTime(2016, 8, 5);
+        public readonly double Number3 = 42.778;
+
+        public E() { }
+
+        public E(int number1)
+        {
+            Number1 = number1;
+        }
+
+        public E(int number1, uint number2) : this (number1)
+        {
+            Number2 = number2;
+        }
+
+        public E(int number1, uint number2, string text) : this(number1, number2)
+        {
+            Text = text;
+        }
+
+        public E(int number1, uint number2, string text, DateTime date) : this(number1, number2, text)
+        {
+            Date = date;
+        }
+
+        public E(int number1, uint number2, string text, DateTime date, double number3) : this(number1, number2, text, date)
+        {
+            Number3 = number3;
         }
     }
 }

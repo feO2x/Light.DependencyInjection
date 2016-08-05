@@ -47,7 +47,18 @@ namespace Light.DependencyInjection
         {
             var targetConstructor = _targetTypeInfo.DeclaredConstructors.FindConstructorWithArgumentTypes(typeof(TArgument));
             targetConstructor.MustNotBeNull(exception:
-                () => new TypeRegistrationException($"You specified that the DI container should use the constructor with a single argument of type \"{typeof(TArgument)}\", but type \"{_targetType}\" does not contain such a constructor.", _targetType));
+                () => new TypeRegistrationException($"You specified that the DI container should use the constructor with a single parameter of type \"{typeof(TArgument)}\", but type \"{_targetType}\" does not contain such a constructor.", _targetType));
+
+            AssignConstructor(targetConstructor);
+
+            return this;
+        }
+
+        public IRegistrationOptions UseConstructorWithParameters<T1, T2>()
+        {
+            var targetConstructor = _targetTypeInfo.DeclaredConstructors.FindConstructorWithArgumentTypes(typeof(T1), typeof(T2));
+            targetConstructor.MustNotBeNull(exception:
+                () => new TypeRegistrationException($"You specified that the DI container should use the constructor with the type parameters \"{typeof(T1)}\" and \"{typeof(T2)}\", but type \"{_targetType}\" does not contain such a constructor.", _targetType));
 
             AssignConstructor(targetConstructor);
 
