@@ -32,18 +32,31 @@ namespace Light.DependencyInjection
             return Expression.Lambda<Func<object[], object>>(newExpression, parameterExpression).Compile();
         }
 
-        public static ConstructorInfo FindConstructorWithArgumentTypes(this IEnumerable<ConstructorInfo> constructors, params Type[] parameterTypes)
+        public static ConstructorInfo FindDefaultConstructor(this IEnumerable<ConstructorInfo> constructors)
         {
-            // ReSharper disable PossibleMultipleEnumeration
-            constructors.MustNotBeNull(nameof(constructors));
-            parameterTypes.MustNotBeNullOrEmpty(nameof(parameterTypes));
-
             var constructorList = constructors.AsList();
-            // ReSharper restore PossibleMultipleEnumeration
+
             if (constructorList.Count == 0)
                 return null;
 
-            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var i = 0; i < constructorList.Count; i++)
+            {
+                var constructor = constructorList[i];
+                if (constructor.GetParameters().Length == 0)
+                    return constructor;
+            }
+
+            return null;
+        }
+
+        public static ConstructorInfo FindConstructorWithArgumentTypes(this IEnumerable<ConstructorInfo> constructors, params Type[] parameterTypes)
+        {
+            parameterTypes.MustNotBeNull(nameof(parameterTypes));
+
+            var constructorList = constructors.AsList();
+            if (constructorList.Count == 0)
+                return null;
+
             for (var i = 0; i < constructorList.Count; i++)
             {
                 var constructorInfo = constructorList[i];

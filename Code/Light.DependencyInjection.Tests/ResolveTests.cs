@@ -60,7 +60,7 @@ namespace Light.DependencyInjection.Tests
             interfaceReference.Should().BeOfType<C>();
         }
 
-        [Fact]
+        [Fact(DisplayName = "The client must be able to register an instance that is handled as a singleton by the DI container.")]
         public void RegisterInstance()
         {
             var instance = new A();
@@ -104,15 +104,6 @@ namespace Light.DependencyInjection.Tests
             _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.TargetCreationMethodInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First());
         }
 
-        [Fact(DisplayName = "UseDefaultConstructor must throw a TypeRegistrationException when the target type has no default constructor.")]
-        public void OptionsErroneousDefaultConstructor()
-        {
-            Action act = () => _container.RegisterTransient<B>(options => options.UseDefaultConstructor());
-
-            act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"You specified that the DI container should use the default constructor of type \"{typeof(B)}\", but this type contains no default constructor.");
-        }
-
         [Fact(DisplayName = "Clients must be able to choose a constructor with a single parameter that the DI container uses to instantiate the target type.")]
         public void OptionsConstructorWithOneParameter()
         {
@@ -121,30 +112,12 @@ namespace Light.DependencyInjection.Tests
             _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.TargetCreationMethodInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 1));
         }
 
-        [Fact(DisplayName = "UseConstructorWithParameter must throw a TypeRegistrationException when the target type does not contain the specified constructor.")]
-        public void OptionsErroneousConstructorWithOneParameter()
-        {
-            Action act = () => _container.RegisterTransient<B>(options => options.UseConstructorWithParameter<A>());
-
-            act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"You specified that the DI container should use the constructor with a single parameter of type \"{typeof(A)}\", but type \"{typeof(B)}\" does not contain such a constructor.");
-        }
-
         [Fact(DisplayName = "Clients must be able to choose a constructor with two parameters that the DI container uses to instantiate the target type.")]
         public void OptionsConstructorWithTwoParameters()
         {
             _container.RegisterTransient<E>(options => options.UseConstructorWithParameters<int, uint>());
 
             _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.TargetCreationMethodInfo == typeof(E).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 2));
-        }
-
-        [Fact(DisplayName = "UseConstructorWithParameters must throw a TypeRegistrationException when the target type does not contain the specified constructor.")]
-        public void OptionsErroneousConstructorWithTwoParameters()
-        {
-            Action act = () => _container.RegisterTransient<A>(options => options.UseConstructorWithParameters<B, C>());
-
-            act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"You specified that the DI container should use the constructor with the type parameters \"{typeof(B)}\" and \"{typeof(C)}\", but type \"{typeof(A)}\" does not contain such a constructor.");
         }
     }
 }

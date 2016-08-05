@@ -10,10 +10,10 @@ namespace Light.DependencyInjection
             diContainer.MustNotBeNull(nameof(diContainer));
             configureOptions.MustNotBeNull(nameof(diContainer));
 
-            var options = new TypeInstantiationInfoBuilder<T>(diContainer.TypeAnalyzer.ConstructorSelector);
+            var options = new RegistrationOptions<T>(diContainer.TypeAnalyzer.ConstructorSelector);
             configureOptions(options);
 
-            return diContainer.Register(new TransientRegistration(options.Build(), options.RegistrationName));
+            return diContainer.Register(new TransientRegistration(options.CreateTypeInstantiationInfo(), options.RegistrationName));
         }
 
         public static DiContainer RegisterTransient<T>(this DiContainer diContainer, string registrationName = null)
