@@ -9,10 +9,10 @@ namespace Light.DependencyInjection.FrameworkExtensions
     public static class GuardClausesExtensions
     {
         [Conditional(Check.CompileAssertionsSymbol)]
-        public static void MustInheritFromOrImplement(this Type parameter, Type baseType, string parameterName = null, string message = null, Func<Exception> exception = null)
+        public static void MustInheritFromOrImplement(this Type parameter, Type baseType)
         {
-            parameter.MustNotBeNull();
-            baseType.MustNotBeNull();
+            parameter.MustNotBeNull(nameof(parameter));
+            baseType.MustNotBeNull(nameof(baseType));
 
             var baseTypeInfo = baseType.GetTypeInfo();
             var parameterTypeInfo = parameter.GetTypeInfo();
@@ -29,7 +29,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
             else if (baseTypeInfo.IsInterface && parameterTypeInfo.ImplementedInterfaces.Contains(baseType))
                 return;
 
-            throw new TypeRegistrationException($"The concrete type \"{parameter}\" does not inherit from or implement type \"{baseType}\"", parameter);
+            throw new TypeRegistrationException($"The concrete type \"{parameter}\" does not inherit from or implement type \"{baseType}\".", parameter);
         }
     }
 }

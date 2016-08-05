@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Light.DependencyInjection.Registrations
@@ -17,5 +18,8 @@ namespace Light.DependencyInjection.Registrations
         IRegistrationOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6>();
         IRegistrationOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7>();
         IRegistrationOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7, T8>();
+        IRegistrationOptions MapTypeToAbstractions(params Type[] abstractionTypes);
+        IRegistrationOptions MapTypeToAbstractions(IEnumerable<Type> abstractionTypes);
+        IRegistrationOptions MapTypeToAllImplementedInterfaces();
     }
 }

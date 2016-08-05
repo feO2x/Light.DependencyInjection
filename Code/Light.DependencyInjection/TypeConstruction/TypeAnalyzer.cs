@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Light.DependencyInjection.FrameworkExtensions;
 using Light.GuardClauses;
@@ -9,6 +10,12 @@ namespace Light.DependencyInjection.TypeConstruction
     {
         private IConstructorSelector _constructorSelector = new ConstructorWithMostParametersSelector();
 
+        private IReadOnlyList<Type> _ignoredAbstractionTypes = new[]
+                                                               {
+                                                                   typeof(IDisposable)
+                                                               };
+
+
         public IConstructorSelector ConstructorSelector
         {
             get { return _constructorSelector; }
@@ -16,6 +23,16 @@ namespace Light.DependencyInjection.TypeConstruction
             {
                 value.MustNotBeNull(nameof(value));
                 _constructorSelector = value;
+            }
+        }
+
+        public IReadOnlyList<Type> IgnoredAbstractionTypes
+        {
+            get { return _ignoredAbstractionTypes; }
+            set
+            {
+                value.MustNotBeNull(nameof(value));
+                _ignoredAbstractionTypes = value;
             }
         }
 

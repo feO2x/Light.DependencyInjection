@@ -46,7 +46,7 @@ namespace Light.DependencyInjection
             }
         }
 
-        public DiContainer Register(Registration registration, params Type[] abstractionTypes)
+        public DiContainer Register(Registration registration, IEnumerable<Type> abstractionTypes)
         {
             Register(registration);
 
@@ -57,6 +57,11 @@ namespace Light.DependencyInjection
             }
 
             return this;
+        }
+
+        public DiContainer Register(Registration registration, params Type[] abstractionTypes)
+        {
+            return Register(registration, (IEnumerable<Type>) abstractionTypes);
         }
 
         public DiContainer Register(Registration registration)

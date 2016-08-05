@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using Light.DependencyInjection.FrameworkExtensions;
@@ -8,23 +10,31 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public sealed class RegistrationOptions<T> : IRegistrationOptions
+    public sealed class RegistrationOptions : IRegistrationOptions
     {
+        private readonly HashSet<Type> _abstractionTypes = new HashSet<Type>();
         private readonly IConstructorSelector _constructorSelector;
-        private readonly Type _targetType = typeof(T);
-        private readonly TypeInfo _targetTypeInfo = typeof(T).GetTypeInfo();
+        private readonly IReadOnlyList<Type> _ignoredAbstractionTypes;
+        private readonly Type _targetType;
+        private readonly TypeInfo _targetTypeInfo;
         private Func<object[], object> _compiledCreationMethod;
         private MethodBase _creationMethodInfo;
         private string _registrationName;
 
-        public RegistrationOptions(IConstructorSelector constructorSelector)
+        public RegistrationOptions(Type targetType, IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes)
         {
+            targetType.MustNotBeNull(nameof(targetType));
             constructorSelector.MustNotBeNull(nameof(constructorSelector));
+            ignoredAbstractionTypes.MustNotBeNull(nameof(ignoredAbstractionTypes));
 
+            _targetType = targetType;
+            _targetTypeInfo = targetType.GetTypeInfo();
             _constructorSelector = constructorSelector;
+            _ignoredAbstractionTypes = ignoredAbstractionTypes;
         }
 
         public string RegistrationName => _registrationName;
+        public IEnumerable<Type> AbstractionTypes => _abstractionTypes;
 
         public IRegistrationOptions WithRegistrationName(string registrationName)
         {
@@ -101,6 +111,32 @@ namespace Light.DependencyInjection.Registrations
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7), typeof(T8));
         }
 
+        public IRegistrationOptions MapTypeToAbstractions(params Type[] abstractionTypes)
+        {
+            return MapTypeToAbstractions((IEnumerable<Type>) abstractionTypes);
+        }
+
+        public IRegistrationOptions MapTypeToAbstractions(IEnumerable<Type> abstractionTypes)
+        {
+            // ReSharper disable PossibleMultipleEnumeration
+            abstractionTypes.MustNotBeNull(nameof(abstractionTypes));
+
+            foreach (var abstractionType in abstractionTypes)
+            {
+                if (_ignoredAbstractionTypes.Contains(abstractionType))
+                    continue;
+
+                _abstractionTypes.Add(abstractionType);
+            }
+            return this;
+            // ReSharper restore PossibleMultipleEnumeration
+        }
+
+        public IRegistrationOptions MapTypeToAllImplementedInterfaces()
+        {
+            return MapTypeToAbstractions(_targetTypeInfo.ImplementedInterfaces);
+        }
+
         [Conditional(Check.CompileAssertionsSymbol)]
         private void EnsureTargetConstructorIsNotNull(ConstructorInfo targetConstructor, Type[] parameterTypes)
         {
@@ -125,7 +161,7 @@ namespace Light.DependencyInjection.Registrations
         {
             AssignCreationMethodIfNeccessary();
 
-            return TypeInstantiationInfo.FromTypeInstantiatedByDiContainer(typeof(T), _creationMethodInfo, _compiledCreationMethod);
+            return TypeInstantiationInfo.FromTypeInstantiatedByDiContainer(_targetType, _creationMethodInfo, _compiledCreationMethod);
         }
 
         private void AssignCreationMethodIfNeccessary()
@@ -133,7 +169,7 @@ namespace Light.DependencyInjection.Registrations
             if (_creationMethodInfo != null)
                 return;
 
-            var targetConstructor = _constructorSelector.SelectTargetConstructor(typeof(T).GetTypeInfo());
+            var targetConstructor = _constructorSelector.SelectTargetConstructor(_targetTypeInfo);
             AssignConstructor(targetConstructor);
         }
 

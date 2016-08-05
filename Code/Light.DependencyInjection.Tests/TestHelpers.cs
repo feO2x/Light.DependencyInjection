@@ -57,7 +57,7 @@ namespace Light.DependencyInjection.Tests
         }
     }
 
-    public class E
+    public class E : A, IE, IF, IG
     {
         public readonly int Number1 = -42;
         public readonly uint Number2 = 42;
@@ -92,4 +92,8 @@ namespace Light.DependencyInjection.Tests
             Number3 = number3;
         }
     }
+
+    public interface IE { }
+    public interface IF { }
+    public interface IG { }
 }

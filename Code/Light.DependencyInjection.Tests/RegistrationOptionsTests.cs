@@ -63,9 +63,9 @@ namespace Light.DependencyInjection.Tests
                 new object[] { new Action(() => CreateRegistrationOptions<E>().UseConstructorWithParameters<int, uint, string, DateTime, double, Guid, string, short>()), typeof(E), new[] { typeof(int), typeof(uint), typeof(string), typeof(DateTime), typeof(double), typeof(Guid), typeof(string), typeof(short) } }
             };
 
-        private static RegistrationOptions<T> CreateRegistrationOptions<T>()
+        private static RegistrationOptions CreateRegistrationOptions<T>()
         {
-            return new RegistrationOptions<T>(new ConstructorWithMostParametersSelector());
+            return new RegistrationOptions(typeof(T), new ConstructorWithMostParametersSelector(), new[] { typeof(IDisposable) });
         }
     }
 }

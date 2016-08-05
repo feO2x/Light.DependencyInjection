@@ -130,5 +130,38 @@ namespace Light.DependencyInjection.Tests
 
             _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.TargetCreationMethodInfo == targetConstructor);
         }
+
+        [Fact(DisplayName = "Clients must be able to register a type with mappings to all of its implemented interfaces.")]
+        public void MapAllInterfaces()
+        {
+            _container.RegisterTransient<E>(options => options.MapTypeToAllImplementedInterfaces()
+                                                              .UseDefaultConstructor());
+
+            var resolvedInstances = new object[]
+                                    {
+                                        _container.Resolve<IE>(),
+                                        _container.Resolve<IF>(),
+                                        _container.Resolve<IG>(),
+                                        _container.Resolve<E>()
+                                    };
+
+            resolvedInstances.Should().ContainItemsAssignableTo<E>();
+        }
+
+        [Fact(DisplayName = "Clients must be able to register a type with mappings to specified base types")]
+        public void MapSpecificTypes()
+        {
+            _container.RegisterTransient<E>(options => options.MapTypeToAbstractions(typeof(IE), typeof(A))
+                                                              .UseDefaultConstructor());
+
+            var resolvedInstances = new object[]
+                                    {
+                                        _container.Resolve<IE>(),
+                                        _container.Resolve<A>(),
+                                        _container.Resolve<E>()
+                                    };
+
+            resolvedInstances.Should().ContainItemsAssignableTo<E>();
+        }
     }
 }
