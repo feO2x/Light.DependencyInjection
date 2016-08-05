@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Reflection;
+using Light.DependencyInjection.FrameworkExtensions;
 using Light.GuardClauses;
 
-namespace Light.DependencyInjection
+namespace Light.DependencyInjection.TypeConstruction
 {
     public sealed class TypeAnalyzer
     {

@@ -1,4 +1,5 @@
 ﻿using System;
+using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection

@@ -1,4 +1,4 @@
-﻿namespace Light.DependencyInjection
+﻿namespace Light.DependencyInjection.TypeConstruction
 {
     public enum TypeInstantiationKind
     {

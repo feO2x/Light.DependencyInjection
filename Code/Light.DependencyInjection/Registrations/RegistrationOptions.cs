@@ -2,9 +2,11 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
+using Light.DependencyInjection.FrameworkExtensions;
+using Light.DependencyInjection.TypeConstruction;
 using Light.GuardClauses;
 
-namespace Light.DependencyInjection
+namespace Light.DependencyInjection.Registrations
 {
     public sealed class RegistrationOptions<T> : IRegistrationOptions
     {

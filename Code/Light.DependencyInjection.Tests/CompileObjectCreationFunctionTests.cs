@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Reflection;
 using FluentAssertions;
+using Light.DependencyInjection.FrameworkExtensions;
 using Light.GuardClauses;
 using Xunit;
 

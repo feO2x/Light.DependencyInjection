@@ -2,7 +2,7 @@
 using Light.GuardClauses;
 using Light.GuardClauses.FrameworkExtensions;
 
-namespace Light.DependencyInjection
+namespace Light.DependencyInjection.Registrations
 {
     public struct TypeKey : IEquatable<TypeKey>
     {

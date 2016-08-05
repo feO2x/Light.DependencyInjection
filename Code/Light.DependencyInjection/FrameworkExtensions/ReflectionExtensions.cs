@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Light.GuardClauses;
 using Light.GuardClauses.FrameworkExtensions;
 
-namespace Light.DependencyInjection
+namespace Light.DependencyInjection.FrameworkExtensions
 {
     public static class ReflectionExtensions
     {

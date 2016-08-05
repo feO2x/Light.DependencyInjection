@@ -1,7 +1,8 @@
 ﻿using System;
+using Light.DependencyInjection.TypeConstruction;
 using Light.GuardClauses.FrameworkExtensions;
 
-namespace Light.DependencyInjection
+namespace Light.DependencyInjection.Registrations
 {
     public abstract class Registration : IEquatable<Registration>
     {

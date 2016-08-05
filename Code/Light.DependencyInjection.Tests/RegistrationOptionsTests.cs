@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Text;
 using FluentAssertions;
+using Light.DependencyInjection.FrameworkExtensions;
+using Light.DependencyInjection.Registrations;
+using Light.DependencyInjection.TypeConstruction;
 using Xunit;
 using TestData = System.Collections.Generic.IEnumerable<object[]>;
 

@@ -3,7 +3,7 @@ using System.Text;
 using Light.GuardClauses;
 using Light.GuardClauses.FrameworkExtensions;
 
-namespace Light.DependencyInjection
+namespace Light.DependencyInjection.FrameworkExtensions
 {
     public static class StringBuilderExtensions
     {

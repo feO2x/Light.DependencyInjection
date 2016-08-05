@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Light.DependencyInjection
+namespace Light.DependencyInjection.Registrations
 {
     public interface IRegistrationOptions
     {

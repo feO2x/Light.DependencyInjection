@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Light.DependencyInjection.FrameworkExtensions;
+using Light.DependencyInjection.Registrations;
+using Light.DependencyInjection.TypeConstruction;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection

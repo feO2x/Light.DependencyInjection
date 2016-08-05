@@ -1,4 +1,6 @@
-﻿namespace Light.DependencyInjection
+﻿using Light.DependencyInjection.TypeConstruction;
+
+namespace Light.DependencyInjection.Registrations
 {
     public sealed class TransientRegistration : Registration
     {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using FluentAssertions;
+using Light.DependencyInjection.Registrations;
 using Xunit;
 
 namespace Light.DependencyInjection.Tests

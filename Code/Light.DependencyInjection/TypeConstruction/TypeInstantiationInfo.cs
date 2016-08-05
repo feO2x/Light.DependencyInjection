@@ -4,7 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Reflection;
 using Light.GuardClauses;
 
-namespace Light.DependencyInjection
+namespace Light.DependencyInjection.TypeConstruction
 {
     public struct TypeInstantiationInfo
     {

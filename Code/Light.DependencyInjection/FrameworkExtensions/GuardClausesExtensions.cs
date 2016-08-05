@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Light.GuardClauses;
 
-namespace Light.DependencyInjection
+namespace Light.DependencyInjection.FrameworkExtensions
 {
     public static class GuardClausesExtensions
     {
