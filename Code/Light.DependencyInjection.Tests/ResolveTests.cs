@@ -119,5 +119,15 @@ namespace Light.DependencyInjection.Tests
 
             _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.TargetCreationMethodInfo == typeof(E).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 2));
         }
+
+        [Fact(DisplayName = "Clients must be able to pass a ConstructorInfo directly to the options that the DI container will use to instantiate the target type.")]
+        public void OptionsPassingConstructorInfo()
+        {
+            var targetConstructor = typeof(E).GetTypeInfo().DeclaredConstructors.ElementAt(2);
+
+            _container.RegisterTransient<E>(options => options.UseConstructor(targetConstructor));
+
+            _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.TargetCreationMethodInfo == targetConstructor);
+        }
     }
 }
