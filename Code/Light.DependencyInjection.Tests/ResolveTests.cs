@@ -102,7 +102,7 @@ namespace Light.DependencyInjection.Tests
         {
             _container.RegisterTransient<D>(options => options.UseDefaultConstructor());
 
-            _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.TargetCreationMethodInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First());
+            _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.CreationMethodInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First());
         }
 
         [Fact(DisplayName = "Clients must be able to choose a constructor with a single parameter that the DI container uses to instantiate the target type.")]
@@ -110,7 +110,7 @@ namespace Light.DependencyInjection.Tests
         {
             _container.RegisterTransient<D>(options => options.UseConstructorWithParameter<IList<int>>());
 
-            _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.TargetCreationMethodInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 1));
+            _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.CreationMethodInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 1));
         }
 
         [Fact(DisplayName = "Clients must be able to choose a constructor with two parameters that the DI container uses to instantiate the target type.")]
@@ -118,7 +118,7 @@ namespace Light.DependencyInjection.Tests
         {
             _container.RegisterTransient<E>(options => options.UseConstructorWithParameters<int, uint>());
 
-            _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.TargetCreationMethodInfo == typeof(E).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 2));
+            _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.CreationMethodInfo == typeof(E).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 2));
         }
 
         [Fact(DisplayName = "Clients must be able to pass a ConstructorInfo directly to the options that the DI container will use to instantiate the target type.")]
@@ -128,7 +128,7 @@ namespace Light.DependencyInjection.Tests
 
             _container.RegisterTransient<E>(options => options.UseConstructor(targetConstructor));
 
-            _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.TargetCreationMethodInfo == targetConstructor);
+            _container.Registrations.Should().ContainSingle(registration => registration.TypeInstantiationInfo.CreationMethodInfo == targetConstructor);
         }
 
         [Fact(DisplayName = "Clients must be able to register a type with mappings to all of its implemented interfaces.")]
@@ -162,6 +162,19 @@ namespace Light.DependencyInjection.Tests
                                     };
 
             resolvedInstances.Should().ContainItemsAssignableTo<E>();
+        }
+
+        [Fact(DisplayName = "Clients must be able to register a static factory method instead of a constructor that the DI container uses to instantiate the target type.")]
+        public void ResolveWithStaticFactoryMethod()
+        {
+            _container.RegisterTransient<F>(options => options.UseStaticFactoryMethod(new Func<string, int, F>(F.Create)))
+                      .RegisterInstance("Hello")
+                      .RegisterInstance(3);
+
+            var instanceOfF = _container.Resolve<F>();
+
+            instanceOfF.Text.Should().Be(_container.Resolve<string>());
+            instanceOfF.Number.Should().Be(_container.Resolve<int>());
         }
     }
 }

@@ -10,17 +10,17 @@ namespace Light.DependencyInjection.TypeConstruction
     {
         public readonly TypeInstantiationKind Kind;
         public readonly Type TargetType;
-        public readonly MethodBase TargetCreationMethodInfo;
-        private readonly Func<object[], object> _createObject;
+        public readonly MethodBase CreationMethodInfo;
+        private readonly Func<object[], object> _standardizedInstantiationFunction;
 
-        private TypeInstantiationInfo(Type targetType, MethodBase creationMethodInfo, Func<object[], object> createObject)
+        private TypeInstantiationInfo(Type targetType, MethodBase creationMethodInfo, Func<object[], object> standardizedInstantiationFunction)
         {
             targetType.MustNotBeNull(nameof(targetType));
             creationMethodInfo.MustNotBeNull(nameof(creationMethodInfo));
 
             TargetType = targetType;
-            TargetCreationMethodInfo = creationMethodInfo;
-            _createObject = createObject;
+            CreationMethodInfo = creationMethodInfo;
+            _standardizedInstantiationFunction = standardizedInstantiationFunction;
             Kind = TypeInstantiationKind.CreatedByDiContainer;
         }
 
@@ -29,8 +29,8 @@ namespace Light.DependencyInjection.TypeConstruction
             targetType.MustNotBeNull(nameof(targetType));
 
             TargetType = targetType;
-            TargetCreationMethodInfo = null;
-            _createObject = null;
+            CreationMethodInfo = null;
+            _standardizedInstantiationFunction = null;
             Kind = TypeInstantiationKind.CreatedExternally;
         }
 
@@ -51,10 +51,10 @@ namespace Light.DependencyInjection.TypeConstruction
         {
             CheckKind();
 
-            var methodParameters = TargetCreationMethodInfo.GetParameters();
+            var methodParameters = CreationMethodInfo.GetParameters();
 
             if (methodParameters.Length == 0)
-                return _createObject(null);
+                return _standardizedInstantiationFunction(null);
 
             var parameters = new object[methodParameters.Length];
             for (var i = 0; i < methodParameters.Length; i++)
@@ -62,7 +62,7 @@ namespace Light.DependencyInjection.TypeConstruction
                 parameters[i] = container.Resolve(methodParameters[i].ParameterType);
             }
 
-            return _createObject(parameters);
+            return _standardizedInstantiationFunction(parameters);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]

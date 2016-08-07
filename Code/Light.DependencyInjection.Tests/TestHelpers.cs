@@ -96,4 +96,27 @@ namespace Light.DependencyInjection.Tests
     public interface IE { }
     public interface IF { }
     public interface IG { }
+
+    public class F : IF
+    {
+        public readonly string Text;
+        public readonly int Number;
+
+        private F(string text, int number)
+        {
+            text.MustNotBeNullOrWhiteSpace();
+            number.MustNotBeLessThan(0);
+
+            Text = text;
+            Number = number;
+        }
+
+        public static F Create(string text, int number)
+        {
+            text = string.IsNullOrWhiteSpace(text) ? "Foo" : text;
+            number = number < 0 ? 42 : number;
+
+            return new F(text, number);
+        }
+    }
 }

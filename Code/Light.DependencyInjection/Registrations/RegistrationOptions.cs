@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Light.DependencyInjection.FrameworkExtensions;
@@ -17,7 +18,7 @@ namespace Light.DependencyInjection.Registrations
         private readonly IReadOnlyList<Type> _ignoredAbstractionTypes;
         private readonly Type _targetType;
         private readonly TypeInfo _targetTypeInfo;
-        private Func<object[], object> _compiledCreationMethod;
+        private Func<object[], object> _standardizedInstantiationFunction;
         private MethodBase _creationMethodInfo;
         private string _registrationName;
 
@@ -137,6 +138,50 @@ namespace Light.DependencyInjection.Registrations
             return MapTypeToAbstractions(_targetTypeInfo.ImplementedInterfaces);
         }
 
+        public IRegistrationOptions UseStaticFactoryMethod(Expression<Func<object>> callStaticMethodExpression)
+        {
+            var methodInfo = callStaticMethodExpression.ExtractStaticFactoryMethod(_targetType);
+            AssignStaticCreationMethod(methodInfo);
+            return this;
+        }
+
+        public IRegistrationOptions UseStaticFactoryMethod(Delegate staticMethodDelegate)
+        {
+            staticMethodDelegate.MustNotBeNull();
+
+            var methodInfo = staticMethodDelegate.GetMethodInfo();
+            CheckStaticCreationMethodFromDelegate(methodInfo, _targetType);
+            AssignStaticCreationMethod(methodInfo);
+            return this;
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckStaticCreationMethodFromDelegate(MethodInfo methodInfo, Type targetType)
+        {
+            if (methodInfo.IsPublicStaticCreationMethodForType(targetType))
+                return;
+
+            throw new TypeRegistrationException($"The specified delegate does not describe a public, static method that returns an instance of type {targetType}.", targetType);
+        }
+
+        public IRegistrationOptions UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo)
+        {
+            staticFactoryMethodInfo.MustNotBeNull(nameof(staticFactoryMethodInfo));
+            CheckStaticCreationMethodInfo(staticFactoryMethodInfo, _targetType);
+
+            AssignStaticCreationMethod(staticFactoryMethodInfo);
+            return this;
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckStaticCreationMethodInfo(MethodInfo methodInfo, Type targetType)
+        {
+            if (methodInfo.IsPublicStaticCreationMethodForType(targetType))
+                return;
+
+            throw new TypeRegistrationException($"The specified method info does not describe a public, static method that returns an instance of type {targetType}", targetType);
+        }
+
         [Conditional(Check.CompileAssertionsSymbol)]
         private void EnsureTargetConstructorIsNotNull(ConstructorInfo targetConstructor, Type[] parameterTypes)
         {
@@ -161,7 +206,7 @@ namespace Light.DependencyInjection.Registrations
         {
             AssignCreationMethodIfNeccessary();
 
-            return TypeInstantiationInfo.FromTypeInstantiatedByDiContainer(_targetType, _creationMethodInfo, _compiledCreationMethod);
+            return TypeInstantiationInfo.FromTypeInstantiatedByDiContainer(_targetType, _creationMethodInfo, _standardizedInstantiationFunction);
         }
 
         private void AssignCreationMethodIfNeccessary()
@@ -175,8 +220,14 @@ namespace Light.DependencyInjection.Registrations
 
         private void AssignConstructor(ConstructorInfo targetConstructor)
         {
-            _compiledCreationMethod = targetConstructor.CompileObjectCreationFunction();
+            _standardizedInstantiationFunction = targetConstructor.CompileStandardizedInstantiationFunction();
             _creationMethodInfo = targetConstructor;
+        }
+
+        private void AssignStaticCreationMethod(MethodInfo staticCreationMethod)
+        {
+            _standardizedInstantiationFunction = staticCreationMethod.CompileStandardizedInstantiationFunction();
+            _creationMethodInfo = staticCreationMethod;
         }
     }
 }

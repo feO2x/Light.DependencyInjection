@@ -15,7 +15,7 @@ namespace Light.DependencyInjection.Tests
             var compiledCreationFunction = typeof(B).GetTypeInfo()
                                                     .DeclaredConstructors
                                                     .First()
-                                                    .CompileObjectCreationFunction();
+                                                    .CompileStandardizedInstantiationFunction();
 
             var parameters = new object[]
                              {
@@ -36,7 +36,7 @@ namespace Light.DependencyInjection.Tests
             var compiledCreationFunction = typeof(A).GetTypeInfo()
                                                     .DeclaredConstructors
                                                     .First()
-                                                    .CompileObjectCreationFunction();
+                                                    .CompileStandardizedInstantiationFunction();
 
             var createdObject = compiledCreationFunction(null);
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Light.DependencyInjection.Registrations
@@ -21,5 +22,8 @@ namespace Light.DependencyInjection.Registrations
         IRegistrationOptions MapTypeToAbstractions(params Type[] abstractionTypes);
         IRegistrationOptions MapTypeToAbstractions(IEnumerable<Type> abstractionTypes);
         IRegistrationOptions MapTypeToAllImplementedInterfaces();
+        IRegistrationOptions UseStaticFactoryMethod(Expression<Func<object>> callStaticMethodExpression);
+        IRegistrationOptions UseStaticFactoryMethod(Delegate staticMethodDelegate);
+        IRegistrationOptions UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo);
     }
 }
