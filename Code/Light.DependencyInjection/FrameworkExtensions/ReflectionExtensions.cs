@@ -119,7 +119,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
                 methodCallExpression.Method.IsPublicStaticCreationMethodForType(targetType))
                 return;
 
-            throw new TypeRegistrationException($"Your expression to select a static factory method for type {targetType} is wrong. A valid example would be \"() => MyType.Create(default(string), default(Foo))\".", targetType);
+            throw new TypeRegistrationException($"Your expression to select a static factory method for type {targetType} does not describe a public static method. A valid example would be \"() => MyType.Create(default(string), default(Foo))\".", targetType);
         }
 
         public static bool IsPublicStaticCreationMethodForType(this MethodInfo methodInfo, Type targetType)

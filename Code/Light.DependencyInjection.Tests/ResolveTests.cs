@@ -5,6 +5,7 @@ using System.Reflection;
 using FluentAssertions;
 using Light.DependencyInjection.Registrations;
 using Xunit;
+using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
 namespace Light.DependencyInjection.Tests
 {
@@ -164,10 +165,11 @@ namespace Light.DependencyInjection.Tests
             resolvedInstances.Should().ContainItemsAssignableTo<E>();
         }
 
-        [Fact(DisplayName = "Clients must be able to register a static factory method instead of a constructor that the DI container uses to instantiate the target type.")]
-        public void ResolveWithStaticFactoryMethod()
+        [Theory(DisplayName = "Clients must be able to register a static factory method instead of a constructor that the DI container uses to instantiate the target type.")]
+        [MemberData(nameof(ResolveWithStaticFactoryMethodData))]
+        public void ResolveWithStaticFactoryMethod(Action<IRegistrationOptions> configureStaticMethod)
         {
-            _container.RegisterTransient<F>(options => options.UseStaticFactoryMethod(new Func<string, int, F>(F.Create)))
+            _container.RegisterTransient<F>(configureStaticMethod)
                       .RegisterInstance("Hello")
                       .RegisterInstance(3);
 
@@ -176,5 +178,13 @@ namespace Light.DependencyInjection.Tests
             instanceOfF.Text.Should().Be(_container.Resolve<string>());
             instanceOfF.Number.Should().Be(_container.Resolve<int>());
         }
+
+        public static readonly TestData ResolveWithStaticFactoryMethodData =
+            new[]
+            {
+                new object[] { new Action<IRegistrationOptions>(options => options.UseStaticFactoryMethod(new Func<string, int, F>(F.Create))) },
+                new object[] { new Action<IRegistrationOptions>(options => options.UseStaticFactoryMethod(() => F.Create(default(string), default(int)))) },
+                new object[] { new Action<IRegistrationOptions>(options => options.UseStaticFactoryMethod(typeof(F).GetRuntimeMethod("Create", new[] { typeof(string), typeof(int) }))) }
+            };
     }
 }
