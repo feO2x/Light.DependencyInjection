@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Light.GuardClauses;
@@ -130,6 +131,63 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return methodInfo.IsStatic &&
                    methodInfo.IsPublic &&
                    methodInfo.ReturnType == targetType;
+        }
+
+        public static PropertyInfo ExtractSettableInstancePropertyInfo<T, TProperty>(this Expression<Func<T, TProperty>> expression, Type targetType)
+        {
+            expression.MustNotBeNull(nameof(expression));
+
+            var memberExpression = expression.Body as MemberExpression;
+            CheckPropertyExpressionDowncast(memberExpression, targetType);
+
+            // ReSharper disable once PossibleNullReferenceException
+            var propertyInfo = memberExpression.Member as PropertyInfo;
+            CheckPropertyInfo(propertyInfo, targetType);
+
+            // ReSharper disable once PossibleNullReferenceException
+            return propertyInfo;
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckPropertyExpressionDowncast(Expression expression, Type targetType)
+        {
+            if (expression == null)
+                throw new TypeRegistrationException($"The specified expression does not describe a settable instance property of type \"{targetType}\". Please use an expression like the following one: \"o => o.Property\".", targetType);
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckPropertyInfo(PropertyInfo propertyInfo, Type targetType)
+        {
+            if (propertyInfo != null && propertyInfo.CanWrite && propertyInfo.SetMethod.IsStatic == false &&  propertyInfo.GetIndexParameters().Any() == false)
+                return;
+            throw new TypeRegistrationException($"The specified expression does not describe a settable instance property of type \"{targetType}\". Please use an expression like the following one: \"o => o.Property\".", targetType);
+        }
+
+        public static FieldInfo ExtractSettableInstanceFieldInfo<T, TField>(this Expression<Func<T, TField>> expression, Type targetType)
+        {
+            expression.MustNotBeNull(nameof(expression));
+
+            var memberExpression = expression.Body as MemberExpression;
+            CheckFieldExpressionDowncast(memberExpression, targetType);
+            // ReSharper disable once PossibleNullReferenceException
+            var fieldInfo = memberExpression.Member as FieldInfo;
+            CheckFieldInfo(fieldInfo, targetType);
+
+            // ReSharper disable once PossibleNullReferenceException
+            return fieldInfo;
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckFieldExpressionDowncast(MemberExpression expression, Type targetType)
+        {
+            if (expression == null)
+                throw new TypeRegistrationException($"The specified expression does not describe a settable instance field of type \"{targetType}\". Please use an expression like the following one: \"o => o.Field\".", targetType);
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckFieldInfo(FieldInfo fieldInfo, Type targetType)
+        {
+            
         }
     }
 }

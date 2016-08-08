@@ -8,7 +8,7 @@ namespace Light.DependencyInjection.Registrations
 
         public override object GetInstance(DiContainer container)
         {
-            return TypeInstantiationInfo.InstatiateObject(container);
+            return TypeInstantiationInfo.InstantiateObjectAndBuildUp(container);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Reflection;
@@ -12,8 +13,11 @@ namespace Light.DependencyInjection.TypeConstruction
         public readonly Type TargetType;
         public readonly MethodBase CreationMethodInfo;
         private readonly Func<object[], object> _standardizedInstantiationFunction;
+        private readonly List<InstanceInjection> _instanceInjections;
 
-        private TypeInstantiationInfo(Type targetType, MethodBase creationMethodInfo, Func<object[], object> standardizedInstantiationFunction)
+        public IReadOnlyList<InstanceInjection> InstanceInjections => _instanceInjections;
+
+        private TypeInstantiationInfo(Type targetType, MethodBase creationMethodInfo, Func<object[], object> standardizedInstantiationFunction, List<InstanceInjection> instanceInjections)
         {
             targetType.MustNotBeNull(nameof(targetType));
             creationMethodInfo.MustNotBeNull(nameof(creationMethodInfo));
@@ -22,6 +26,7 @@ namespace Light.DependencyInjection.TypeConstruction
             CreationMethodInfo = creationMethodInfo;
             _standardizedInstantiationFunction = standardizedInstantiationFunction;
             Kind = TypeInstantiationKind.CreatedByDiContainer;
+            _instanceInjections = instanceInjections;
         }
 
         private TypeInstantiationInfo(Type targetType)
@@ -32,11 +37,12 @@ namespace Light.DependencyInjection.TypeConstruction
             CreationMethodInfo = null;
             _standardizedInstantiationFunction = null;
             Kind = TypeInstantiationKind.CreatedExternally;
+            _instanceInjections = null;
         }
 
-        public static TypeInstantiationInfo FromTypeInstantiatedByDiContainer(Type targetType, MethodBase creationMethod, Func<object[], object> createObject)
+        public static TypeInstantiationInfo FromTypeInstantiatedByDiContainer(Type targetType, MethodBase creationMethod, Func<object[], object> createObject, List<InstanceInjection> instanceInjections)
         {
-            return new TypeInstantiationInfo(targetType, creationMethod, createObject);
+            return new TypeInstantiationInfo(targetType, creationMethod, createObject, instanceInjections);
         }
 
         public static TypeInstantiationInfo FromExternalInstance(object instance)
@@ -47,7 +53,7 @@ namespace Light.DependencyInjection.TypeConstruction
         }
 
         [Pure]
-        public object InstatiateObject(DiContainer container)
+        public object InstantiateObject(DiContainer container)
         {
             CheckKind();
 
@@ -56,13 +62,33 @@ namespace Light.DependencyInjection.TypeConstruction
             if (methodParameters.Length == 0)
                 return _standardizedInstantiationFunction(null);
 
-            var parameters = new object[methodParameters.Length];
+            var creationArguments = new object[methodParameters.Length];
+
             for (var i = 0; i < methodParameters.Length; i++)
             {
-                parameters[i] = container.Resolve(methodParameters[i].ParameterType);
+                creationArguments[i] = container.Resolve(methodParameters[i].ParameterType);
             }
 
-            return _standardizedInstantiationFunction(parameters);
+            return _standardizedInstantiationFunction(creationArguments);
+        }
+
+        [Pure]
+        public object InstantiateObjectAndBuildUp(DiContainer container)
+        {
+            var newInstance = InstantiateObject(container);
+            PerformInstanceInjection(newInstance, container);
+            return newInstance;
+        }
+
+        public void PerformInstanceInjection(object targetObject, DiContainer container)
+        {
+            if (_instanceInjections == null)
+                return;
+
+            foreach (var instanceInjection in _instanceInjections)
+            {
+                instanceInjection.InjectValue(targetObject, container.Resolve(instanceInjection.MemberType));
+            }
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]

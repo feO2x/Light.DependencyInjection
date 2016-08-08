@@ -11,25 +11,25 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public sealed class RegistrationOptions : IRegistrationOptions
+    public sealed class RegistrationOptions<T> : IRegistrationOptions<T>
     {
         private readonly HashSet<Type> _abstractionTypes = new HashSet<Type>();
         private readonly IConstructorSelector _constructorSelector;
         private readonly IReadOnlyList<Type> _ignoredAbstractionTypes;
         private readonly Type _targetType;
         private readonly TypeInfo _targetTypeInfo;
-        private Func<object[], object> _standardizedInstantiationFunction;
         private MethodBase _creationMethodInfo;
+        private List<InstanceInjection> _instanceInjections;
         private string _registrationName;
+        private Func<object[], object> _standardizedInstantiationFunction;
 
-        public RegistrationOptions(Type targetType, IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes)
+        public RegistrationOptions(IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes)
         {
-            targetType.MustNotBeNull(nameof(targetType));
             constructorSelector.MustNotBeNull(nameof(constructorSelector));
             ignoredAbstractionTypes.MustNotBeNull(nameof(ignoredAbstractionTypes));
 
-            _targetType = targetType;
-            _targetTypeInfo = targetType.GetTypeInfo();
+            _targetType = typeof(T);
+            _targetTypeInfo = _targetType.GetTypeInfo();
             _constructorSelector = constructorSelector;
             _ignoredAbstractionTypes = ignoredAbstractionTypes;
         }
@@ -37,7 +37,7 @@ namespace Light.DependencyInjection.Registrations
         public string RegistrationName => _registrationName;
         public IEnumerable<Type> AbstractionTypes => _abstractionTypes;
 
-        public IRegistrationOptions WithRegistrationName(string registrationName)
+        public IRegistrationOptions<T> WithRegistrationName(string registrationName)
         {
             registrationName.MustNotBeNullOrEmpty(nameof(registrationName));
 
@@ -45,7 +45,7 @@ namespace Light.DependencyInjection.Registrations
             return this;
         }
 
-        public IRegistrationOptions UseConstructor(ConstructorInfo constructorInfo)
+        public IRegistrationOptions<T> UseConstructor(ConstructorInfo constructorInfo)
         {
             constructorInfo.MustNotBeNull(nameof(constructorInfo));
 
@@ -53,7 +53,7 @@ namespace Light.DependencyInjection.Registrations
             return this;
         }
 
-        public IRegistrationOptions UseDefaultConstructor()
+        public IRegistrationOptions<T> UseDefaultConstructor()
         {
             var targetConstructor = _targetTypeInfo.DeclaredConstructors.FindDefaultConstructor();
             EnsureTargetConstructorIsNotNull(targetConstructor, null);
@@ -61,7 +61,7 @@ namespace Light.DependencyInjection.Registrations
             return this;
         }
 
-        public IRegistrationOptions UseConstructorWithParameters(params Type[] parameterTypes)
+        public IRegistrationOptions<T> UseConstructorWithParameters(params Type[] parameterTypes)
         {
             parameterTypes.MustNotBeNull(nameof(parameterTypes));
 
@@ -72,52 +72,52 @@ namespace Light.DependencyInjection.Registrations
             return this;
         }
 
-        public IRegistrationOptions UseConstructorWithParameter<TArgument>()
+        public IRegistrationOptions<T> UseConstructorWithParameter<TArgument>()
         {
             return UseConstructorWithParameters(typeof(TArgument));
         }
 
-        public IRegistrationOptions UseConstructorWithParameters<T1, T2>()
+        public IRegistrationOptions<T> UseConstructorWithParameters<T1, T2>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2));
         }
 
-        public IRegistrationOptions UseConstructorWithParameters<T1, T2, T3>()
+        public IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3));
         }
 
-        public IRegistrationOptions UseConstructorWithParameters<T1, T2, T3, T4>()
+        public IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3, T4>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4));
         }
 
-        public IRegistrationOptions UseConstructorWithParameters<T1, T2, T3, T4, T5>()
+        public IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3, T4, T5>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5));
         }
 
-        public IRegistrationOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6>()
+        public IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6));
         }
 
-        public IRegistrationOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7>()
+        public IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7));
         }
 
-        public IRegistrationOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7, T8>()
+        public IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7, T8>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7), typeof(T8));
         }
 
-        public IRegistrationOptions MapTypeToAbstractions(params Type[] abstractionTypes)
+        public IRegistrationOptions<T> MapTypeToAbstractions(params Type[] abstractionTypes)
         {
             return MapTypeToAbstractions((IEnumerable<Type>) abstractionTypes);
         }
 
-        public IRegistrationOptions MapTypeToAbstractions(IEnumerable<Type> abstractionTypes)
+        public IRegistrationOptions<T> MapTypeToAbstractions(IEnumerable<Type> abstractionTypes)
         {
             // ReSharper disable PossibleMultipleEnumeration
             abstractionTypes.MustNotBeNull(nameof(abstractionTypes));
@@ -133,25 +133,42 @@ namespace Light.DependencyInjection.Registrations
             // ReSharper restore PossibleMultipleEnumeration
         }
 
-        public IRegistrationOptions MapTypeToAllImplementedInterfaces()
+        public IRegistrationOptions<T> MapTypeToAllImplementedInterfaces()
         {
             return MapTypeToAbstractions(_targetTypeInfo.ImplementedInterfaces);
         }
 
-        public IRegistrationOptions UseStaticFactoryMethod(Expression<Func<object>> callStaticMethodExpression)
+        public IRegistrationOptions<T> UseStaticFactoryMethod(Expression<Func<object>> callStaticMethodExpression)
         {
             var methodInfo = callStaticMethodExpression.ExtractStaticFactoryMethod(_targetType);
             AssignStaticCreationMethod(methodInfo);
             return this;
         }
 
-        public IRegistrationOptions UseStaticFactoryMethod(Delegate staticMethodDelegate)
+        public IRegistrationOptions<T> UseStaticFactoryMethod(Delegate staticMethodDelegate)
         {
             staticMethodDelegate.MustNotBeNull();
 
             var methodInfo = staticMethodDelegate.GetMethodInfo();
             CheckStaticCreationMethodFromDelegate(methodInfo, _targetType);
             AssignStaticCreationMethod(methodInfo);
+            return this;
+        }
+
+        public IRegistrationOptions<T> UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo)
+        {
+            staticFactoryMethodInfo.MustNotBeNull(nameof(staticFactoryMethodInfo));
+            CheckStaticCreationMethodInfo(staticFactoryMethodInfo, _targetType);
+
+            AssignStaticCreationMethod(staticFactoryMethodInfo);
+            return this;
+        }
+
+        public IRegistrationOptions<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression)
+        {
+            selectPropertyExpression.MustNotBeNull(nameof(selectPropertyExpression));
+
+            AddInstanceInjection(new PropertyInjection(selectPropertyExpression.ExtractSettableInstancePropertyInfo(_targetType)));
             return this;
         }
 
@@ -164,13 +181,52 @@ namespace Light.DependencyInjection.Registrations
             throw new TypeRegistrationException($"The specified delegate does not describe a public, static method that returns an instance of type {targetType}.", targetType);
         }
 
-        public IRegistrationOptions UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo)
+        public IRegistrationOptions<T> AddPropertyInjection(PropertyInfo propertyInfo)
         {
-            staticFactoryMethodInfo.MustNotBeNull(nameof(staticFactoryMethodInfo));
-            CheckStaticCreationMethodInfo(staticFactoryMethodInfo, _targetType);
+            propertyInfo.MustNotBeNull(nameof(propertyInfo));
+            CheckPropertyInfo(propertyInfo, _targetType);
 
-            AssignStaticCreationMethod(staticFactoryMethodInfo);
+            AddInstanceInjection(new PropertyInjection(propertyInfo));
             return this;
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckPropertyInfo(PropertyInfo propertyInfo, Type targetType)
+        {
+            if (propertyInfo.DeclaringType != targetType)
+                throw new TypeRegistrationException($"The propery info you provided does not belong to the target type \"{targetType}\".", targetType);
+        }
+
+        public IRegistrationOptions<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression)
+        {
+            selectFieldExpression.MustNotBeNull();
+
+            AddInstanceInjection(new FieldInjection(selectFieldExpression.ExtractSettableInstanceFieldInfo(_targetType)));
+            return this;
+        }
+
+        public IRegistrationOptions<T> AddFieldInjection(FieldInfo fieldInfo)
+        {
+            fieldInfo.MustNotBeNull(nameof(fieldInfo));
+            CheckFieldInfo(fieldInfo, _targetType);
+
+            AddInstanceInjection(new FieldInjection(fieldInfo));
+            return this;
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckFieldInfo(FieldInfo fieldInfo, Type targetType)
+        {
+            if (fieldInfo.DeclaringType != targetType)
+                throw new TypeRegistrationException($"The field info you provided does not belong to the target type \"{targetType}\".", targetType);
+        }
+
+        private void AddInstanceInjection(InstanceInjection instanceInjection)
+        {
+            if (_instanceInjections == null)
+                _instanceInjections = new List<InstanceInjection>();
+
+            _instanceInjections.Add(instanceInjection);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
@@ -206,7 +262,7 @@ namespace Light.DependencyInjection.Registrations
         {
             AssignCreationMethodIfNeccessary();
 
-            return TypeInstantiationInfo.FromTypeInstantiatedByDiContainer(_targetType, _creationMethodInfo, _standardizedInstantiationFunction);
+            return TypeInstantiationInfo.FromTypeInstantiatedByDiContainer(_targetType, _creationMethodInfo, _standardizedInstantiationFunction, _instanceInjections);
         }
 
         private void AssignCreationMethodIfNeccessary()

@@ -167,9 +167,9 @@ namespace Light.DependencyInjection.Tests
 
         [Theory(DisplayName = "Clients must be able to register a static factory method instead of a constructor that the DI container uses to instantiate the target type.")]
         [MemberData(nameof(ResolveWithStaticFactoryMethodData))]
-        public void ResolveWithStaticFactoryMethod(Action<IRegistrationOptions> configureStaticMethod)
+        public void ResolveWithStaticFactoryMethod(Action<IRegistrationOptions<F>> configureStaticMethod)
         {
-            _container.RegisterTransient<F>(configureStaticMethod)
+            _container.RegisterTransient(configureStaticMethod)
                       .RegisterInstance("Hello")
                       .RegisterInstance(3);
 
@@ -182,9 +182,19 @@ namespace Light.DependencyInjection.Tests
         public static readonly TestData ResolveWithStaticFactoryMethodData =
             new[]
             {
-                new object[] { new Action<IRegistrationOptions>(options => options.UseStaticFactoryMethod(new Func<string, int, F>(F.Create))) },
-                new object[] { new Action<IRegistrationOptions>(options => options.UseStaticFactoryMethod(() => F.Create(default(string), default(int)))) },
-                new object[] { new Action<IRegistrationOptions>(options => options.UseStaticFactoryMethod(typeof(F).GetRuntimeMethod("Create", new[] { typeof(string), typeof(int) }))) }
+                new object[] { new Action<IRegistrationOptions<F>>(options => options.UseStaticFactoryMethod(new Func<string, int, F>(F.Create))) },
+                new object[] { new Action<IRegistrationOptions<F>>(options => options.UseStaticFactoryMethod(() => F.Create(default(string), default(int)))) },
+                new object[] { new Action<IRegistrationOptions<F>>(options => options.UseStaticFactoryMethod(typeof(F).GetRuntimeMethod("Create", new[] { typeof(string), typeof(int) }))) }
             };
+
+        [Fact(DisplayName = "Clients must be able to configure property injections that the DI container performs after an instance of the target type was created.")]
+        public void PropertyInjection()
+        {
+            _container.RegisterTransient<G>(options => options.AddPropertyInjection(o => o.ReferenceToA));
+
+            var instanceOfG = _container.Resolve<G>();
+
+            instanceOfG.ReferenceToA.Should().NotBeNull();
+        }
     }
 }

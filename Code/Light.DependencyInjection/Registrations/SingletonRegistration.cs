@@ -15,7 +15,7 @@ namespace Light.DependencyInjection.Registrations
                 lock (this)
                 {
                     if (_instance == null)
-                        _instance = TypeInstantiationInfo.InstatiateObject(container);
+                        _instance = TypeInstantiationInfo.InstantiateObjectAndBuildUp(container);
                 }
             }
             return _instance;

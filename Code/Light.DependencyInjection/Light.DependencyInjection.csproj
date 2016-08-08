@@ -39,6 +39,7 @@
     <Compile Include="DiContainerExtensions.cs" />
     <Compile Include="Registrations\ExternallyCreatedInstanceRegistration.cs" />
     <Compile Include="FrameworkExtensions\GuardClausesExtensions.cs" />
+    <Compile Include="TypeConstruction\FieldInjection.cs" />
     <Compile Include="TypeConstruction\IConstructorSelector.cs" />
     <Compile Include="Registrations\IDefaultRegistrationFactory.cs" />
     <Compile Include="Registrations\IRegistrationOptions.cs" />
@@ -49,6 +50,8 @@
     <Compile Include="FrameworkExtensions\StringBuilderExtensions.cs" />
     <Compile Include="Registrations\TransientRegistration.cs" />
     <Compile Include="Registrations\TransientRegistrationFactory.cs" />
+    <Compile Include="TypeConstruction\InstanceInjection.cs" />
+    <Compile Include="TypeConstruction\PropertyInjection.cs" />
     <Compile Include="TypeConstruction\TypeAnalyzer.cs" />
     <Compile Include="TypeConstruction\TypeInstantiationInfo.cs" />
     <Compile Include="Registrations\RegistrationOptions.cs" />

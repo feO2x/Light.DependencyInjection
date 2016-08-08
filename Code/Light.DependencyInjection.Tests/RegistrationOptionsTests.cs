@@ -101,9 +101,9 @@ namespace Light.DependencyInjection.Tests
             return new A();
         }
 
-        private static RegistrationOptions CreateRegistrationOptions<T>()
+        private static RegistrationOptions<T> CreateRegistrationOptions<T>()
         {
-            return new RegistrationOptions(typeof(T), new ConstructorWithMostParametersSelector(), new[] { typeof(IDisposable) });
+            return new RegistrationOptions<T>(new ConstructorWithMostParametersSelector(), new[] { typeof(IDisposable) });
         }
     }
 }

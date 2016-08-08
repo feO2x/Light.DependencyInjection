@@ -5,25 +5,26 @@ using System.Reflection;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public interface IRegistrationOptions
+    public interface IRegistrationOptions<T>
     {
-        IRegistrationOptions WithRegistrationName(string registrationName);
-        IRegistrationOptions UseConstructor(ConstructorInfo constructorInfo);
-        IRegistrationOptions UseDefaultConstructor();
-        IRegistrationOptions UseConstructorWithParameters(params Type[] parameterTypes);
-        IRegistrationOptions UseConstructorWithParameter<TParameter>();
-        IRegistrationOptions UseConstructorWithParameters<T1, T2>();
-        IRegistrationOptions UseConstructorWithParameters<T1, T2, T3>();
-        IRegistrationOptions UseConstructorWithParameters<T1, T2, T3, T4>();
-        IRegistrationOptions UseConstructorWithParameters<T1, T2, T3, T4, T5>();
-        IRegistrationOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6>();
-        IRegistrationOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7>();
-        IRegistrationOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7, T8>();
-        IRegistrationOptions MapTypeToAbstractions(params Type[] abstractionTypes);
-        IRegistrationOptions MapTypeToAbstractions(IEnumerable<Type> abstractionTypes);
-        IRegistrationOptions MapTypeToAllImplementedInterfaces();
-        IRegistrationOptions UseStaticFactoryMethod(Expression<Func<object>> callStaticMethodExpression);
-        IRegistrationOptions UseStaticFactoryMethod(Delegate staticMethodDelegate);
-        IRegistrationOptions UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo);
+        IRegistrationOptions<T> WithRegistrationName(string registrationName);
+        IRegistrationOptions<T> UseConstructor(ConstructorInfo constructorInfo);
+        IRegistrationOptions<T> UseDefaultConstructor();
+        IRegistrationOptions<T> UseConstructorWithParameters(params Type[] parameterTypes);
+        IRegistrationOptions<T> UseConstructorWithParameter<TParameter>();
+        IRegistrationOptions<T> UseConstructorWithParameters<T1, T2>();
+        IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3>();
+        IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3, T4>();
+        IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3, T4, T5>();
+        IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6>();
+        IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7>();
+        IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7, T8>();
+        IRegistrationOptions<T> MapTypeToAbstractions(params Type[] abstractionTypes);
+        IRegistrationOptions<T> MapTypeToAbstractions(IEnumerable<Type> abstractionTypes);
+        IRegistrationOptions<T> MapTypeToAllImplementedInterfaces();
+        IRegistrationOptions<T> UseStaticFactoryMethod(Expression<Func<object>> callStaticMethodExpression);
+        IRegistrationOptions<T> UseStaticFactoryMethod(Delegate staticMethodDelegate);
+        IRegistrationOptions<T> UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo);
+        IRegistrationOptions<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression);
     }
 }

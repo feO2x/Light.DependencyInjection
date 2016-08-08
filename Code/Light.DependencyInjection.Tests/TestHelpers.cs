@@ -119,4 +119,19 @@ namespace Light.DependencyInjection.Tests
             return new F(text, number);
         }
     }
+
+    public class G : IG
+    {
+        private A _referenceToA;
+
+        public A ReferenceToA
+        {
+            get { return _referenceToA;}
+            set
+            {
+                value.MustNotBeNull(nameof(value));
+                _referenceToA = value;
+            }
+        }
+    }
 }
