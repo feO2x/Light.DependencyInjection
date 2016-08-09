@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Light.GuardClauses;
@@ -151,16 +150,24 @@ namespace Light.DependencyInjection.FrameworkExtensions
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckPropertyExpressionDowncast(Expression expression, Type targetType)
         {
-            if (expression == null)
-                throw new TypeRegistrationException($"The specified expression does not describe a settable instance property of type \"{targetType}\". Please use an expression like the following one: \"o => o.Property\".", targetType);
+            if (expression != null)
+                return;
+
+            throw new TypeRegistrationException($"The specified expression does not describe a settable instance property of type \"{targetType}\". Please use an expression like the following one: \"o => o.Property\".", targetType);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckPropertyInfo(PropertyInfo propertyInfo, Type targetType)
         {
-            if (propertyInfo != null && propertyInfo.CanWrite && propertyInfo.SetMethod.IsStatic == false &&  propertyInfo.GetIndexParameters().Any() == false)
-                return;
-            throw new TypeRegistrationException($"The specified expression does not describe a settable instance property of type \"{targetType}\". Please use an expression like the following one: \"o => o.Property\".", targetType);
+            if (propertyInfo.IsPublicSettableInstancePropertyInfo() == false)
+                throw new TypeRegistrationException($"The specified expression does not describe a settable instance property of type \"{targetType}\". Please use an expression like the following one: \"o => o.Property\".", targetType);
+            if (propertyInfo.DeclaringType != targetType)
+                throw new TypeRegistrationException($"The property info you provided does not belong to the target type \"{targetType}\".", targetType);
+        }
+
+        public static bool IsPublicSettableInstancePropertyInfo(this PropertyInfo propertyInfo)
+        {
+            return propertyInfo != null && propertyInfo.CanWrite && propertyInfo.SetMethod.IsStatic == false && propertyInfo.GetIndexParameters().Length == 0;
         }
 
         public static FieldInfo ExtractSettableInstanceFieldInfo<T, TField>(this Expression<Func<T, TField>> expression, Type targetType)
@@ -180,14 +187,24 @@ namespace Light.DependencyInjection.FrameworkExtensions
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckFieldExpressionDowncast(MemberExpression expression, Type targetType)
         {
-            if (expression == null)
-                throw new TypeRegistrationException($"The specified expression does not describe a settable instance field of type \"{targetType}\". Please use an expression like the following one: \"o => o.Field\".", targetType);
+            if (expression != null)
+                return;
+
+            throw new TypeRegistrationException($"The specified expression does not describe a settable instance field of type \"{targetType}\". Please use an expression like the following one: \"o => o.Field\".", targetType);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckFieldInfo(FieldInfo fieldInfo, Type targetType)
         {
-            
+            if (fieldInfo.IsPublicSettableInstanceFieldInfo() == false)
+                throw new TypeRegistrationException($"The specified expression does not describe a settable instance field of type \"{targetType}\". Please use an expression like the following one: \"o => o.Field\".", targetType);
+            if (fieldInfo.DeclaringType != targetType)
+                throw new TypeRegistrationException($"The field info you provided does not belong to the target type \"{targetType}\".", targetType);
+        }
+
+        public static bool IsPublicSettableInstanceFieldInfo(this FieldInfo fieldInfo)
+        {
+            return fieldInfo != null && fieldInfo.IsPublic && fieldInfo.IsStatic == false && fieldInfo.IsInitOnly == false;
         }
     }
 }

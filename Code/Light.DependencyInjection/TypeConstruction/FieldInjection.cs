@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Reflection;
+using Light.DependencyInjection.FrameworkExtensions;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
@@ -17,8 +18,7 @@ namespace Light.DependencyInjection.TypeConstruction
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckFieldInfo(FieldInfo fieldInfo)
         {
-            if (fieldInfo.IsStatic == false &&
-                fieldInfo.IsPublic)
+            if (fieldInfo.IsPublicSettableInstanceFieldInfo())
                 return;
 
             throw new TypeRegistrationException($"The field info \"{fieldInfo}\" does not describe a public instance field.", fieldInfo.DeclaringType);

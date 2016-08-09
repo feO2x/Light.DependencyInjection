@@ -134,4 +134,22 @@ namespace Light.DependencyInjection.Tests
             }
         }
     }
+
+    public class H
+    {
+        public bool BooleanValue;
+        public static A StaticInstance;
+    }
+
+    public class I
+    {
+        public I(string text)
+        {
+            Text = text;
+        }
+
+        public string Text { get; }
+
+        public static int SomeStaticNumber { get; set; }
+    }
 }

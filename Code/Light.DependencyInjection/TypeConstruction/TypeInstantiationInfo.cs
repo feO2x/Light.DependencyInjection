@@ -73,7 +73,7 @@ namespace Light.DependencyInjection.TypeConstruction
         }
 
         [Pure]
-        public object InstantiateObjectAndBuildUp(DiContainer container)
+        public object InstantiateObjectAndPerformInstanceInjections(DiContainer container)
         {
             var newInstance = InstantiateObject(container);
             PerformInstanceInjection(newInstance, container);

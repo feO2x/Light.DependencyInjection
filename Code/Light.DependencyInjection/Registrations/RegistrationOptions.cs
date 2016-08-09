@@ -193,8 +193,10 @@ namespace Light.DependencyInjection.Registrations
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckPropertyInfo(PropertyInfo propertyInfo, Type targetType)
         {
-            if (propertyInfo.DeclaringType != targetType)
-                throw new TypeRegistrationException($"The propery info you provided does not belong to the target type \"{targetType}\".", targetType);
+            if (propertyInfo.DeclaringType == targetType)
+                return;
+
+            throw new TypeRegistrationException($"The property info you provided does not belong to the target type \"{targetType}\".", targetType);
         }
 
         public IRegistrationOptions<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression)
@@ -217,8 +219,10 @@ namespace Light.DependencyInjection.Registrations
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckFieldInfo(FieldInfo fieldInfo, Type targetType)
         {
-            if (fieldInfo.DeclaringType != targetType)
-                throw new TypeRegistrationException($"The field info you provided does not belong to the target type \"{targetType}\".", targetType);
+            if (fieldInfo.DeclaringType == targetType)
+                return;
+
+            throw new TypeRegistrationException($"The field info you provided does not belong to the target type \"{targetType}\".", targetType);
         }
 
         private void AddInstanceInjection(InstanceInjection instanceInjection)

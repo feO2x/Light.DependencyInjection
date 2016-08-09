@@ -26,5 +26,8 @@ namespace Light.DependencyInjection.Registrations
         IRegistrationOptions<T> UseStaticFactoryMethod(Delegate staticMethodDelegate);
         IRegistrationOptions<T> UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo);
         IRegistrationOptions<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression);
+        IRegistrationOptions<T> AddPropertyInjection(PropertyInfo propertyInfo);
+        IRegistrationOptions<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression);
+        IRegistrationOptions<T> AddFieldInjection(FieldInfo fieldInfo);
     }
 }

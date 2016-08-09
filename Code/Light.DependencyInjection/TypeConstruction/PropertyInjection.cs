@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Reflection;
+using Light.DependencyInjection.FrameworkExtensions;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
@@ -18,9 +19,7 @@ namespace Light.DependencyInjection.TypeConstruction
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckPropertyInfo(PropertyInfo propertyInfo)
         {
-            if (propertyInfo.SetMethod != null &&
-                propertyInfo.SetMethod.IsPublic &&
-                propertyInfo.SetMethod.IsStatic == false)
+            if (propertyInfo.IsPublicSettableInstancePropertyInfo())
                 return;
 
             throw new TypeRegistrationException($"The property info \"{propertyInfo}\" does not describe a public instance property with a setter.", propertyInfo.DeclaringType);

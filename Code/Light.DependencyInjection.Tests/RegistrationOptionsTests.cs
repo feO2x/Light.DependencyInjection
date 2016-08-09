@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Reflection;
 using System.Text;
 using FluentAssertions;
@@ -100,6 +101,68 @@ namespace Light.DependencyInjection.Tests
         {
             return new A();
         }
+
+        [Theory(DisplayName = "AddPropertyInjection must throw a TypeRegistrationException when the PropertyInfo does not point to a public settable instance property.")]
+        [MemberData(nameof(PropertyInfoExpressionErroneousData))]
+        public void PropertyInfoExpressionErroneous(Action act, Type targetType)
+        {
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The specified expression does not describe a settable instance property of type \"{targetType}\". Please use an expression like the following one: \"o => o.Property\".");
+        }
+
+        public static readonly TestData PropertyInfoExpressionErroneousData =
+            new[]
+            {
+                new object[] { new Action(() => CreateRegistrationOptions<H>().AddPropertyInjection(h => h.BooleanValue)), typeof(H) },
+                new object[] { new Action(() => CreateRegistrationOptions<I>().AddPropertyInjection(i => i.Text)), typeof(I) },
+                new object[] { new Action(() => CreateRegistrationOptions<I>().AddPropertyInjection(i => I.SomeStaticNumber)), typeof(I) },
+                new object[] { new Action(() => CreateRegistrationOptions<ArrayList>().AddPropertyInjection(list => list[0])), typeof(ArrayList) }
+            };
+
+        [Theory(DisplayName = "AddPropertyInjection must throw a TypeRegistrationException when the PropertyInfo does not describe a property of the target type.")]
+        [MemberData(nameof(PropertyInfoDoesNotBelongToTargetTypeData))]
+        public void PropertyInfoDoesNotBelongToTargetType(Action act, Type targetType)
+        {
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The property info you provided does not belong to the target type \"{targetType}\".");
+        }
+
+        public static readonly TestData PropertyInfoDoesNotBelongToTargetTypeData =
+            new[]
+            {
+                new object[] { new Action(() => CreateRegistrationOptions<A>().AddPropertyInjection(a => new G().ReferenceToA)), typeof(A) },
+                new object[] { new Action(() => CreateRegistrationOptions<A>().AddPropertyInjection(typeof(G).GetRuntimeProperty("ReferenceToA"))), typeof(A) }
+            };
+
+        [Theory(DisplayName = "AddFieldInjection must throw a TypeRegistrationException when the FieldInfo does not point to a public instance field that is not read-only.")]
+        [MemberData(nameof(FieldInfoExpressionErroneousData))]
+        public void FieldInfoExpressionErroneous(Action act, Type targetType)
+        {
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The specified expression does not describe a settable instance field of type \"{targetType}\". Please use an expression like the following one: \"o => o.Field\".");
+        }
+
+        public static readonly TestData FieldInfoExpressionErroneousData =
+            new[]
+            {
+                new object[] { new Action(() => CreateRegistrationOptions<F>().AddFieldInjection(f => f.Number)), typeof(F) },
+                new object[] { new Action(() => CreateRegistrationOptions<H>().AddFieldInjection(h => H.StaticInstance)), typeof(H) }
+            };
+
+        [Theory(DisplayName = "AddFieldInjection must throw a TypeRegistrationException when the FieldInfo does not describe a field of the target type.")]
+        [MemberData(nameof(FieldInfoExpressionDoesNotBelongToTargetTypeData))]
+        public void FieldInfoExpressionDoesNotBelongToTargetType(Action act, Type targetType)
+        {
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The field info you provided does not belong to the target type \"{targetType}\".");
+        }
+
+        public static readonly TestData FieldInfoExpressionDoesNotBelongToTargetTypeData =
+            new[]
+            {
+                new object[] { new Action(() => CreateRegistrationOptions<A>().AddFieldInjection(a => new H().BooleanValue)), typeof(A) },
+                new object[] { new Action(() => CreateRegistrationOptions<A>().AddFieldInjection(typeof(H).GetRuntimeField("BooleanValue"))), typeof(A) }
+            };
 
         private static RegistrationOptions<T> CreateRegistrationOptions<T>()
         {
