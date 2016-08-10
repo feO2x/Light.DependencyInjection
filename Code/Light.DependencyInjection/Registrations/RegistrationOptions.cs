@@ -164,11 +164,37 @@ namespace Light.DependencyInjection.Registrations
             return this;
         }
 
-        public IRegistrationOptions<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression)
+        public IRegistrationOptions<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression, string resolvedRegistrationName = null)
         {
             selectPropertyExpression.MustNotBeNull(nameof(selectPropertyExpression));
 
-            AddInstanceInjection(new PropertyInjection(selectPropertyExpression.ExtractSettableInstancePropertyInfo(_targetType)));
+            AddInstanceInjection(new PropertyInjection(selectPropertyExpression.ExtractSettableInstancePropertyInfo(_targetType), resolvedRegistrationName));
+            return this;
+        }
+
+        public IRegistrationOptions<T> AddPropertyInjection(PropertyInfo propertyInfo, string resolvedRegistrationName = null)
+        {
+            propertyInfo.MustNotBeNull(nameof(propertyInfo));
+            CheckPropertyInfo(propertyInfo, _targetType);
+
+            AddInstanceInjection(new PropertyInjection(propertyInfo, resolvedRegistrationName));
+            return this;
+        }
+
+        public IRegistrationOptions<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression, string resolvedRegistrationName = null)
+        {
+            selectFieldExpression.MustNotBeNull();
+
+            AddInstanceInjection(new FieldInjection(selectFieldExpression.ExtractSettableInstanceFieldInfo(_targetType), resolvedRegistrationName));
+            return this;
+        }
+
+        public IRegistrationOptions<T> AddFieldInjection(FieldInfo fieldInfo, string resolvedRegistrationName = null)
+        {
+            fieldInfo.MustNotBeNull(nameof(fieldInfo));
+            CheckFieldInfo(fieldInfo, _targetType);
+
+            AddInstanceInjection(new FieldInjection(fieldInfo, resolvedRegistrationName));
             return this;
         }
 
@@ -181,15 +207,6 @@ namespace Light.DependencyInjection.Registrations
             throw new TypeRegistrationException($"The specified delegate does not describe a public, static method that returns an instance of type {targetType}.", targetType);
         }
 
-        public IRegistrationOptions<T> AddPropertyInjection(PropertyInfo propertyInfo)
-        {
-            propertyInfo.MustNotBeNull(nameof(propertyInfo));
-            CheckPropertyInfo(propertyInfo, _targetType);
-
-            AddInstanceInjection(new PropertyInjection(propertyInfo));
-            return this;
-        }
-
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckPropertyInfo(PropertyInfo propertyInfo, Type targetType)
         {
@@ -197,23 +214,6 @@ namespace Light.DependencyInjection.Registrations
                 return;
 
             throw new TypeRegistrationException($"The property info you provided does not belong to the target type \"{targetType}\".", targetType);
-        }
-
-        public IRegistrationOptions<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression)
-        {
-            selectFieldExpression.MustNotBeNull();
-
-            AddInstanceInjection(new FieldInjection(selectFieldExpression.ExtractSettableInstanceFieldInfo(_targetType)));
-            return this;
-        }
-
-        public IRegistrationOptions<T> AddFieldInjection(FieldInfo fieldInfo)
-        {
-            fieldInfo.MustNotBeNull(nameof(fieldInfo));
-            CheckFieldInfo(fieldInfo, _targetType);
-
-            AddInstanceInjection(new FieldInjection(fieldInfo));
-            return this;
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
@@ -262,11 +262,13 @@ namespace Light.DependencyInjection.Registrations
             throw new TypeRegistrationException(message, _targetType);
         }
 
-        public TypeInstantiationInfo CreateTypeInstantiationInfo()
+        public TypeCreationInfo BuildTypeCreationInfo()
         {
             AssignCreationMethodIfNeccessary();
 
-            return TypeInstantiationInfo.FromTypeInstantiatedByDiContainer(_targetType, _creationMethodInfo, _standardizedInstantiationFunction, _instanceInjections);
+            return TypeCreationInfo.FromTypeInstantiatedByDiContainer(_targetType,
+                                                                      new TypeInstantiationInfo(_targetType, _creationMethodInfo, _standardizedInstantiationFunction, _creationMethodInfo.CreateDefaultParameterDependencies()),
+                                                                      _instanceInjections == null ? null : new InstanceInjectionInfo(_instanceInjections));
         }
 
         private void AssignCreationMethodIfNeccessary()

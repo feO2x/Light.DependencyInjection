@@ -4,9 +4,9 @@ namespace Light.DependencyInjection.Registrations
 {
     public sealed class TransientRegistrationFactory : IDefaultRegistrationFactory
     {
-        public Registration CreateDefaultRegistration(TypeInstantiationInfo typeInstantiationInfo)
+        public Registration CreateDefaultRegistration(TypeCreationInfo typeCreationInfo)
         {
-            return new TransientRegistration(typeInstantiationInfo);
+            return new TransientRegistration(typeCreationInfo);
         }
     }
 }

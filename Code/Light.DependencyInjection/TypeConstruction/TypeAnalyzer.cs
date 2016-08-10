@@ -36,13 +36,18 @@ namespace Light.DependencyInjection.TypeConstruction
             }
         }
 
-        public TypeInstantiationInfo CreateInfoFor(Type type)
+        public TypeCreationInfo CreateInfoFor(Type type)
         {
             type.MustNotBeNull(nameof(type));
 
             var typeInfo = type.GetTypeInfo();
             var targetConstructor = _constructorSelector.SelectTargetConstructor(typeInfo);
-            return TypeInstantiationInfo.FromTypeInstantiatedByDiContainer(type, targetConstructor, targetConstructor.CompileStandardizedInstantiationFunction(), null);
+            return TypeCreationInfo.FromTypeInstantiatedByDiContainer(type,
+                                                                      new TypeInstantiationInfo(type,
+                                                                                                targetConstructor,
+                                                                                                targetConstructor.CompileStandardizedInstantiationFunction(),
+                                                                                                targetConstructor.CreateDefaultParameterDependencies()),
+                                                                      null);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Light.DependencyInjection
     {
         private readonly IDictionary<TypeKey, Registration> _registrations;
         private IDefaultRegistrationFactory _defaultRegistrationFactory = new TransientRegistrationFactory();
-        private TypeAnalyzer _typeTypeAnalyzer = new TypeAnalyzer();
+        private TypeAnalyzer _typeAnalyzer = new TypeAnalyzer();
 
         public DiContainer() : this(new Dictionary<TypeKey, Registration>()) { }
 
@@ -38,11 +38,11 @@ namespace Light.DependencyInjection
 
         public TypeAnalyzer TypeAnalyzer
         {
-            get { return _typeTypeAnalyzer; }
+            get { return _typeAnalyzer; }
             set
             {
                 value.MustNotBeNull(nameof(value));
-                _typeTypeAnalyzer = value;
+                _typeAnalyzer = value;
             }
         }
 
@@ -89,7 +89,7 @@ namespace Light.DependencyInjection
 
             CheckIfTypeIsInstantiable(type);
 
-            registration = _defaultRegistrationFactory.CreateDefaultRegistration(_typeTypeAnalyzer.CreateInfoFor(type));
+            registration = _defaultRegistrationFactory.CreateDefaultRegistration(_typeAnalyzer.CreateInfoFor(type));
             _registrations.Add(typeKey, registration);
 
             return registration.GetInstance(this);

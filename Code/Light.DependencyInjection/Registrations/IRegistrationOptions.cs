@@ -25,9 +25,9 @@ namespace Light.DependencyInjection.Registrations
         IRegistrationOptions<T> UseStaticFactoryMethod(Expression<Func<object>> callStaticMethodExpression);
         IRegistrationOptions<T> UseStaticFactoryMethod(Delegate staticMethodDelegate);
         IRegistrationOptions<T> UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo);
-        IRegistrationOptions<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression);
-        IRegistrationOptions<T> AddPropertyInjection(PropertyInfo propertyInfo);
-        IRegistrationOptions<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression);
-        IRegistrationOptions<T> AddFieldInjection(FieldInfo fieldInfo);
+        IRegistrationOptions<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression, string resolvedRegistrationName = null);
+        IRegistrationOptions<T> AddPropertyInjection(PropertyInfo propertyInfo, string resolvedRegistrationName = null);
+        IRegistrationOptions<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression, string resolvedRegistrationName = null);
+        IRegistrationOptions<T> AddFieldInjection(FieldInfo fieldInfo, string resolvedRegistrationName = null);
     }
 }

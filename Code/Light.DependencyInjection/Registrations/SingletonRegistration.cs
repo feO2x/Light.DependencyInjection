@@ -6,7 +6,7 @@ namespace Light.DependencyInjection.Registrations
     {
         private object _instance;
 
-        public SingletonRegistration(TypeInstantiationInfo typeInstantiationInfo, string registrationName = null) : base(typeInstantiationInfo, registrationName) { }
+        public SingletonRegistration(TypeCreationInfo typeCreationInfo, string registrationName = null) : base(typeCreationInfo, registrationName) { }
 
         public override object GetInstance(DiContainer container)
         {
@@ -15,7 +15,7 @@ namespace Light.DependencyInjection.Registrations
                 lock (this)
                 {
                     if (_instance == null)
-                        _instance = TypeInstantiationInfo.InstantiateObjectAndPerformInstanceInjections(container);
+                        _instance = TypeCreationInfo.CreateInstance(container);
                 }
             }
             return _instance;

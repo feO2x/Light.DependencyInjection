@@ -14,7 +14,7 @@ namespace Light.DependencyInjection
             var options = new RegistrationOptions<T>(diContainer.TypeAnalyzer.ConstructorSelector, diContainer.TypeAnalyzer.IgnoredAbstractionTypes);
             configureOptions(options);
 
-            return diContainer.Register(new TransientRegistration(options.CreateTypeInstantiationInfo(), options.RegistrationName), options.AbstractionTypes);
+            return diContainer.Register(new TransientRegistration(options.BuildTypeCreationInfo(), options.RegistrationName), options.AbstractionTypes);
         }
 
         public static DiContainer RegisterTransient<T>(this DiContainer diContainer, string registrationName = null)

@@ -4,6 +4,6 @@ namespace Light.DependencyInjection.Registrations
 {
     public interface IDefaultRegistrationFactory
     {
-        Registration CreateDefaultRegistration(TypeInstantiationInfo typeInstantiationInfo);
+        Registration CreateDefaultRegistration(TypeCreationInfo typeInstantiationInfo);
     }
 }

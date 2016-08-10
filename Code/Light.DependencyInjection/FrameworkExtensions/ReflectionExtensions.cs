@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Light.DependencyInjection.TypeConstruction;
 using Light.GuardClauses;
 using Light.GuardClauses.FrameworkExtensions;
 
@@ -205,6 +207,18 @@ namespace Light.DependencyInjection.FrameworkExtensions
         public static bool IsPublicSettableInstanceFieldInfo(this FieldInfo fieldInfo)
         {
             return fieldInfo != null && fieldInfo.IsPublic && fieldInfo.IsStatic == false && fieldInfo.IsInitOnly == false;
+        }
+
+        public static List<ParameterDependency> CreateDefaultParameterDependencies(this MethodBase methodInfo)
+        {
+            methodInfo.MustNotBeNull(nameof(methodInfo));
+
+            var parameterInfos = methodInfo.GetParameters();
+            if (parameterInfos.Length == 0)
+                return null;
+
+            return parameterInfos.Select(info => new ParameterDependency(info))
+                                 .ToList();
         }
     }
 }

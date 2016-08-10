@@ -9,7 +9,7 @@ namespace Light.DependencyInjection.TypeConstruction
     {
         private readonly PropertyInfo _propertyInfo;
 
-        public PropertyInjection(PropertyInfo propertyInfo) : base(propertyInfo.Name, propertyInfo.PropertyType)
+        public PropertyInjection(PropertyInfo propertyInfo, string resolvedRegistrationName = null) : base(propertyInfo.Name, propertyInfo.PropertyType, resolvedRegistrationName)
         {
             CheckPropertyInfo(propertyInfo);
 

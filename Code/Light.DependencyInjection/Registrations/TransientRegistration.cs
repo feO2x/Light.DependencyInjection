@@ -4,11 +4,11 @@ namespace Light.DependencyInjection.Registrations
 {
     public sealed class TransientRegistration : Registration
     {
-        public TransientRegistration(TypeInstantiationInfo typeInstantiationInfo, string registrationName = null) : base(typeInstantiationInfo, registrationName) { }
+        public TransientRegistration(TypeCreationInfo typeCreationInfo, string registrationName = null) : base(typeCreationInfo, registrationName) { }
 
         public override object GetInstance(DiContainer container)
         {
-            return TypeInstantiationInfo.InstantiateObjectAndPerformInstanceInjections(container);
+            return TypeCreationInfo.CreateInstance(container);
         }
     }
 }

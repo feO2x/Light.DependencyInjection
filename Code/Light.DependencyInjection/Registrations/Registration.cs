@@ -1,18 +1,21 @@
 ﻿using System;
 using Light.DependencyInjection.TypeConstruction;
+using Light.GuardClauses;
 using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.Registrations
 {
     public abstract class Registration : IEquatable<Registration>
     {
-        public readonly TypeInstantiationInfo TypeInstantiationInfo;
+        public readonly TypeCreationInfo TypeCreationInfo;
         public readonly TypeKey TypeKey;
 
-        protected Registration(TypeInstantiationInfo typeInstantiationInfo, string registrationName)
+        protected Registration(TypeCreationInfo typeCreationInfo, string registrationName)
         {
-            TypeInstantiationInfo = typeInstantiationInfo;
-            TypeKey = new TypeKey(typeInstantiationInfo.TargetType, registrationName);
+            typeCreationInfo.MustNotBeNull(nameof(typeCreationInfo));
+
+            TypeCreationInfo = typeCreationInfo;
+            TypeKey = new TypeKey(typeCreationInfo.TargetType, registrationName);
         }
 
         public bool IsDefaultRegistration => string.IsNullOrEmpty(TypeKey.RegistrationName);

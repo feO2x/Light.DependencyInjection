@@ -1,6 +1,6 @@
 ﻿namespace Light.DependencyInjection.TypeConstruction
 {
-    public enum TypeInstantiationKind
+    public enum TypeCreationKind
     {
         CreatedByDiContainer,
         CreatedExternally
