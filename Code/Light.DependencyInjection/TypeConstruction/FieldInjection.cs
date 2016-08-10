@@ -8,7 +8,7 @@ namespace Light.DependencyInjection.TypeConstruction
     public sealed class FieldInjection : InstanceInjection
     {
         private readonly FieldInfo _fieldInfo;
-        public FieldInjection(FieldInfo fieldInfo, string resolvedRegistrationName = null) : base(fieldInfo.Name, fieldInfo.FieldType, resolvedRegistrationName)
+        public FieldInjection(FieldInfo fieldInfo, string childValueRegistrationName = null) : base(fieldInfo.Name, fieldInfo.FieldType, childValueRegistrationName)
         {
             CheckFieldInfo(fieldInfo);
 

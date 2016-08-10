@@ -225,7 +225,7 @@ namespace Light.DependencyInjection.Tests
             };
 
         [Fact(DisplayName = "Clients must be able to add a registration name for property injections that the container uses to resolve the child value.")]
-        public void PropertyInjectionResolveWithNonDefaultRegistration()
+        public void ResolvePropertyInjectionWithNonDefaultRegistration()
         {
             _container.RegisterTransient<A>("MyAObject")
                       .RegisterTransient<G>(options => options.AddPropertyInjection(g => g.ReferenceToA, "MyAObject"));
@@ -236,7 +236,7 @@ namespace Light.DependencyInjection.Tests
         }
 
         [Fact(DisplayName = "Clients must be able to add a registration name for field injections that the container uses to resolve the child value.")]
-        public void FieldInjectionResolveWithNonDefaultRegistration()
+        public void ResolveFieldInjectionWithNonDefaultRegistration()
         {
             _container.RegisterTransient<G>()
                       .RegisterTransient<G>(options => options.WithRegistrationName("MyG")
@@ -247,5 +247,25 @@ namespace Light.DependencyInjection.Tests
 
             instanceOfJ.ReferenceToG.ReferenceToA.Should().NotBeNull();
         }
+
+        [Theory(DisplayName = "Clients must be able to add registration names for instantiation method parameters the container uses to resolve child values.")]
+        [MemberData(nameof(ResolveInstantiationMethodDependencyWithNonDefaultRegistrationData))]
+        public void ResolveInstantiationMethodDependencyWithNonDefaultRegistration(Action<IRegistrationOptions<B>> configureOptionsForB)
+        {
+            _container.RegisterTransient<A>("MySpecialA")
+                      .RegisterTransient(configureOptionsForB)
+                      .RegisterInstance(42);
+
+            var instanceOfB = _container.Resolve<B>();
+
+            instanceOfB.OtherObject.Should().NotBeNull();
+        }
+
+        public static readonly TestData ResolveInstantiationMethodDependencyWithNonDefaultRegistrationData =
+            new[]
+            {
+                new object[] { new Action<IRegistrationOptions<B>>(options => options.ResolveInstantiationParameter<A>().WithName("MySpecialA")) },
+                new object[] { new Action<IRegistrationOptions<B>>(options => options.ResolveInstantiationParameter("otherObject").WithName("MySpecialA")) }
+            };
     }
 }

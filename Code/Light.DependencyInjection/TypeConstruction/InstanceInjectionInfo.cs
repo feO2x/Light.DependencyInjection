@@ -19,7 +19,7 @@ namespace Light.DependencyInjection.TypeConstruction
         {
             foreach (var instanceInjection in _instanceInjections)
             {
-                instanceInjection.InjectValue(instance, container.Resolve(instanceInjection.MemberType, instanceInjection.ResolvedRegistrationName));
+                instanceInjection.InjectValue(instance, container.Resolve(instanceInjection.MemberType, instanceInjection.ChildValueRegistrationName));
             }
         }
     }

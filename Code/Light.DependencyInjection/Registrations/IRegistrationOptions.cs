@@ -29,5 +29,7 @@ namespace Light.DependencyInjection.Registrations
         IRegistrationOptions<T> AddPropertyInjection(PropertyInfo propertyInfo, string resolvedRegistrationName = null);
         IRegistrationOptions<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression, string resolvedRegistrationName = null);
         IRegistrationOptions<T> AddFieldInjection(FieldInfo fieldInfo, string resolvedRegistrationName = null);
+        IChildRegistrationNameOptions<T> ResolveInstantiationParameter<TParameter>();
+        IChildRegistrationNameOptions<T> ResolveInstantiationParameter(string parameterName);
     }
 }

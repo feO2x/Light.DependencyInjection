@@ -4,30 +4,30 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
 {
-    public sealed class ParameterDependency : ISetResolvedRegistrationName
+    public sealed class ParameterDependency : ISetChildValueRegistrationName
     {
         public readonly Type ParameterType;
         public readonly ParameterInfo TargetParameter;
-        private string _resolvedRegistrationName;
+        private string _childValueRegistrationName;
 
-        public ParameterDependency(ParameterInfo targetParameter, string resolvedRegistrationName = null)
+        public ParameterDependency(ParameterInfo targetParameter, string childValueRegistrationName = null)
         {
             targetParameter.MustNotBeNull(nameof(targetParameter));
 
             TargetParameter = targetParameter;
-            _resolvedRegistrationName = resolvedRegistrationName;
+            _childValueRegistrationName = childValueRegistrationName;
             ParameterType = targetParameter.ParameterType;
         }
 
-        public string ResolvedRegistrationName
+        public string ChildValueRegistrationName
         {
-            get { return _resolvedRegistrationName; }
-            set { _resolvedRegistrationName = value; }
+            get { return _childValueRegistrationName; }
+            set { _childValueRegistrationName = value; }
         }
 
         public object ResolveDependency(DiContainer container)
         {
-            return container.Resolve(ParameterType, _resolvedRegistrationName);
+            return container.Resolve(ParameterType, _childValueRegistrationName);
         }
     }
 }

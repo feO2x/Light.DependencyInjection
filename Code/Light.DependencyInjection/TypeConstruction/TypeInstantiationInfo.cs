@@ -35,8 +35,7 @@ namespace Light.DependencyInjection.TypeConstruction
 
             for (var i = 0; i < _parameterInfos.Count; i++)
             {
-                var parameterInfo = _parameterInfos[i];
-                parameters[i] = container.Resolve(parameterInfo.ParameterType, parameterInfo.ResolvedRegistrationName);
+                parameters[i] = _parameterInfos[i].ResolveDependency(container);
             }
 
             return StandardizedInstantiationFunction(parameters);

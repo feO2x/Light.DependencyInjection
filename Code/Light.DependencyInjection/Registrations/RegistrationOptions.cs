@@ -18,7 +18,8 @@ namespace Light.DependencyInjection.Registrations
         private readonly IReadOnlyList<Type> _ignoredAbstractionTypes;
         private readonly Type _targetType;
         private readonly TypeInfo _targetTypeInfo;
-        private MethodBase _creationMethodInfo;
+        private MethodBase _instantiationMethodInfo;
+        private List<ParameterDependency> _instantiationParameters;
         private List<InstanceInjection> _instanceInjections;
         private string _registrationName;
         private Func<object[], object> _standardizedInstantiationFunction;
@@ -198,6 +199,48 @@ namespace Light.DependencyInjection.Registrations
             return this;
         }
 
+        public IChildRegistrationNameOptions<T> ResolveInstantiationParameter<TParameter>()
+        {
+            AssignInstantiationMethodIfNeccessary();
+
+            var parameterType = typeof(TParameter);
+            var targetParameters = _instantiationParameters.FindAll(p => p.ParameterType == parameterType);
+            CheckTargetParametersWithoutName(targetParameters, parameterType);
+
+            return new ChildRegistrationNameOptions<T>(this, targetParameters[0]);
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private void CheckTargetParametersWithoutName(List<ParameterDependency> targetParameters, Type targetParameterType)
+        {
+            if (targetParameters.Count == 0)
+                throw new TypeRegistrationException($"The specified instantiation method \"{_instantiationMethodInfo}\" for type \"{_targetType}\" does not have a parameter of type \"{targetParameterType}\".", _targetType);
+
+            if (targetParameters.Count == 1)
+                return;
+
+            throw new TypeRegistrationException($"The specified instantiation method \"{_instantiationMethodInfo}\" for type \"{_targetType}\" has several parameters with type \"{targetParameterType}\". Please use the overload of \"{nameof(ResolveInstantiationParameter)}\" where an additional parameter name can be specified.", _targetType);
+        }
+
+        public IChildRegistrationNameOptions<T> ResolveInstantiationParameter(string parameterName)
+        {
+            AssignInstantiationMethodIfNeccessary();
+
+            var targetParameters = _instantiationParameters.FindAll(p => p.TargetParameter.Name == parameterName);
+            CheckTargetParametersWithName(targetParameters, parameterName);
+
+            return new ChildRegistrationNameOptions<T>(this, targetParameters[0]);
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private void CheckTargetParametersWithName(List<ParameterDependency> targetParameters, string parameterName)
+        {
+            if (targetParameters.Count == 1)
+                return;
+
+            throw new TypeRegistrationException($"The specified instantiation method \"{_instantiationMethodInfo}\" for type \"{_targetType}\" does not have a parameter with name \"{parameterName}\".", _targetType);
+        }
+
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckStaticCreationMethodFromDelegate(MethodInfo methodInfo, Type targetType)
         {
@@ -264,16 +307,16 @@ namespace Light.DependencyInjection.Registrations
 
         public TypeCreationInfo BuildTypeCreationInfo()
         {
-            AssignCreationMethodIfNeccessary();
+            AssignInstantiationMethodIfNeccessary();
 
             return TypeCreationInfo.FromTypeInstantiatedByDiContainer(_targetType,
-                                                                      new TypeInstantiationInfo(_targetType, _creationMethodInfo, _standardizedInstantiationFunction, _creationMethodInfo.CreateDefaultParameterDependencies()),
+                                                                      new TypeInstantiationInfo(_targetType, _instantiationMethodInfo, _standardizedInstantiationFunction, _instantiationMethodInfo.CreateDefaultParameterDependencies()),
                                                                       _instanceInjections == null ? null : new InstanceInjectionInfo(_instanceInjections));
         }
 
-        private void AssignCreationMethodIfNeccessary()
+        private void AssignInstantiationMethodIfNeccessary()
         {
-            if (_creationMethodInfo != null)
+            if (_instantiationMethodInfo != null)
                 return;
 
             var targetConstructor = _constructorSelector.SelectTargetConstructor(_targetTypeInfo);
@@ -282,14 +325,16 @@ namespace Light.DependencyInjection.Registrations
 
         private void AssignConstructor(ConstructorInfo targetConstructor)
         {
+            _instantiationMethodInfo = targetConstructor;
             _standardizedInstantiationFunction = targetConstructor.CompileStandardizedInstantiationFunction();
-            _creationMethodInfo = targetConstructor;
+            _instantiationParameters = targetConstructor.CreateDefaultParameterDependencies();
         }
 
         private void AssignStaticCreationMethod(MethodInfo staticCreationMethod)
         {
+            _instantiationMethodInfo = staticCreationMethod;
             _standardizedInstantiationFunction = staticCreationMethod.CompileStandardizedInstantiationFunction();
-            _creationMethodInfo = staticCreationMethod;
+            _instantiationParameters = staticCreationMethod.CreateDefaultParameterDependencies();
         }
     }
 }
