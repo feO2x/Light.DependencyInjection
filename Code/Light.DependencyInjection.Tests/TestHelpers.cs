@@ -152,4 +152,9 @@ namespace Light.DependencyInjection.Tests
 
         public static int SomeStaticNumber { get; set; }
     }
+
+    public class J
+    {
+        public G ReferenceToG;
+    }
 }

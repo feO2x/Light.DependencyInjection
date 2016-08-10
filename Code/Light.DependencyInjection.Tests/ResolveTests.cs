@@ -223,5 +223,29 @@ namespace Light.DependencyInjection.Tests
                 new object[] { new Action<IRegistrationOptions<H>>(options => options.AddFieldInjection(h => h.BooleanValue)) },
                 new object[] { new Action<IRegistrationOptions<H>>(options => options.AddFieldInjection(typeof(H).GetRuntimeField("BooleanValue"))) }
             };
+
+        [Fact(DisplayName = "Clients must be able to add a registration name for property injections that the container uses to resolve the child value.")]
+        public void PropertyInjectionResolveWithNonDefaultRegistration()
+        {
+            _container.RegisterTransient<A>("MyAObject")
+                      .RegisterTransient<G>(options => options.AddPropertyInjection(g => g.ReferenceToA, "MyAObject"));
+
+            var instanceOfG = _container.Resolve<G>();
+
+            instanceOfG.ReferenceToA.Should().NotBeNull();
+        }
+
+        [Fact(DisplayName = "Clients must be able to add a registration name for field injections that the container uses to resolve the child value.")]
+        public void FieldInjectionResolveWithNonDefaultRegistration()
+        {
+            _container.RegisterTransient<G>()
+                      .RegisterTransient<G>(options => options.WithRegistrationName("MyG")
+                                                              .AddPropertyInjection(g => g.ReferenceToA))
+                      .RegisterTransient<J>(options => options.AddFieldInjection(j => j.ReferenceToG, "MyG"));
+
+            var instanceOfJ = _container.Resolve<J>();
+
+            instanceOfJ.ReferenceToG.ReferenceToA.Should().NotBeNull();
+        }
     }
 }

@@ -18,7 +18,7 @@ namespace Light.DependencyInjection.Registrations
             TypeKey = new TypeKey(typeCreationInfo.TargetType, registrationName);
         }
 
-        public bool IsDefaultRegistration => string.IsNullOrEmpty(TypeKey.RegistrationName);
+        public bool IsDefaultRegistration => TypeKey.RegistrationName == null;
         public Type TargetType => TypeKey.Type;
         public string Name => TypeKey.RegistrationName;
 
