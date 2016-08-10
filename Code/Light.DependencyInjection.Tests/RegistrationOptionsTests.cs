@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using FluentAssertions;
@@ -163,6 +164,34 @@ namespace Light.DependencyInjection.Tests
                 new object[] { new Action(() => CreateRegistrationOptions<A>().AddFieldInjection(a => new H().BooleanValue)), typeof(A) },
                 new object[] { new Action(() => CreateRegistrationOptions<A>().AddFieldInjection(typeof(H).GetRuntimeField("BooleanValue"))), typeof(A) }
             };
+
+        [Fact(DisplayName = "ResolveInstantiationParameter must throw a TypeRegistrationException when there is no parameter with the specified type.")]
+        public void ConfigureInstantiationParameterWithTypeNotPresent()
+        {
+            Action act = () => CreateRegistrationOptions<A>().ResolveInstantiationParameter<B>();
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The specified instantiation method \"{typeof(A).GetConstructor(Type.EmptyTypes)}\" for type \"{typeof(A)}\" does not have a parameter of type \"{typeof(B)}\".");
+        }
+
+        [Fact(DisplayName = "ResolveInstantiationParameter must throw a TypeRegistrationException when there is no parameter with the specified name.")]
+        public void ConfigureInstantiationParameterWithNameNotPresent()
+        {
+            Action act = () => CreateRegistrationOptions<F>().UseStaticFactoryMethod(new Func<string, int, F>(F.Create))
+                                                             .ResolveInstantiationParameter("foo");
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The specified instantiation method \"{typeof(F).GetRuntimeMethod("Create", new[] { typeof(string), typeof(int) })}\" for type \"{typeof(F)}\" does not have a parameter with name \"foo\".");
+        }
+
+        [Fact(DisplayName = "ResolveInstantiationParameter must throw a TypeRegistrationException when there are several parameters with the same type.")]
+        public void ConfigureInstantiationParametersWithSameTypes()
+        {
+            Action act = () => CreateRegistrationOptions<K>().ResolveInstantiationParameter<string>();
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The specified instantiation method \"{typeof(K).GetConstructors().First()}\" for type \"{typeof(K)}\" has several parameters with type \"{typeof(string)}\". Please use the overload of \"ResolveInstantiationParameter\" where an additional parameter name can be specified.");
+        }
 
         private static RegistrationOptions<T> CreateRegistrationOptions<T>()
         {

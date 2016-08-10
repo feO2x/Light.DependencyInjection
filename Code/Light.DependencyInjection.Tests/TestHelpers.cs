@@ -39,10 +39,7 @@ namespace Light.DependencyInjection.Tests
         public readonly IList<int> Collection;
         public readonly int SomeNumber = 42;
 
-        public D() : this(new List<int>())
-        {
-            
-        }
+        public D() : this(new List<int>()) { }
 
         public D(IList<int> collection)
         {
@@ -59,11 +56,11 @@ namespace Light.DependencyInjection.Tests
 
     public class E : A, IE, IF, IG
     {
+        public readonly DateTime Date = new DateTime(2016, 8, 5);
         public readonly int Number1 = -42;
         public readonly uint Number2 = 42;
-        public readonly string Text = "Foo";
-        public readonly DateTime Date = new DateTime(2016, 8, 5);
         public readonly double Number3 = 42.778;
+        public readonly string Text = "Foo";
 
         public E() { }
 
@@ -72,7 +69,7 @@ namespace Light.DependencyInjection.Tests
             Number1 = number1;
         }
 
-        public E(int number1, uint number2) : this (number1)
+        public E(int number1, uint number2) : this(number1)
         {
             Number2 = number2;
         }
@@ -94,13 +91,15 @@ namespace Light.DependencyInjection.Tests
     }
 
     public interface IE { }
+
     public interface IF { }
+
     public interface IG { }
 
     public class F : IF
     {
-        public readonly string Text;
         public readonly int Number;
+        public readonly string Text;
 
         private F(string text, int number)
         {
@@ -126,7 +125,7 @@ namespace Light.DependencyInjection.Tests
 
         public A ReferenceToA
         {
-            get { return _referenceToA;}
+            get { return _referenceToA; }
             set
             {
                 value.MustNotBeNull(nameof(value));
@@ -137,8 +136,8 @@ namespace Light.DependencyInjection.Tests
 
     public class H
     {
-        public bool BooleanValue;
         public static A StaticInstance;
+        public bool BooleanValue;
     }
 
     public class I
@@ -156,5 +155,17 @@ namespace Light.DependencyInjection.Tests
     public class J
     {
         public G ReferenceToG;
+    }
+
+    public class K
+    {
+        public readonly string First;
+        public readonly string Second;
+
+        public K(string first, string second)
+        {
+            First = first;
+            Second = second;
+        }
     }
 }

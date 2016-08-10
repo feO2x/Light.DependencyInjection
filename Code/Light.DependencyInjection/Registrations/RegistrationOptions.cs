@@ -18,9 +18,9 @@ namespace Light.DependencyInjection.Registrations
         private readonly IReadOnlyList<Type> _ignoredAbstractionTypes;
         private readonly Type _targetType;
         private readonly TypeInfo _targetTypeInfo;
+        private List<InstanceInjection> _instanceInjections;
         private MethodBase _instantiationMethodInfo;
         private List<ParameterDependency> _instantiationParameters;
-        private List<InstanceInjection> _instanceInjections;
         private string _registrationName;
         private Func<object[], object> _standardizedInstantiationFunction;
 
@@ -204,16 +204,28 @@ namespace Light.DependencyInjection.Registrations
             AssignInstantiationMethodIfNeccessary();
 
             var parameterType = typeof(TParameter);
-            var targetParameters = _instantiationParameters.FindAll(p => p.ParameterType == parameterType);
+            var targetParameters = _instantiationParameters?.FindAll(p => p.ParameterType == parameterType);
             CheckTargetParametersWithoutName(targetParameters, parameterType);
 
+            // ReSharper disable once PossibleNullReferenceException
+            return new ChildRegistrationNameOptions<T>(this, targetParameters[0]);
+        }
+
+        public IChildRegistrationNameOptions<T> ResolveInstantiationParameter(string parameterName)
+        {
+            AssignInstantiationMethodIfNeccessary();
+
+            var targetParameters = _instantiationParameters?.FindAll(p => p.TargetParameter.Name == parameterName);
+            CheckTargetParametersWithName(targetParameters, parameterName);
+
+            // ReSharper disable once PossibleNullReferenceException
             return new ChildRegistrationNameOptions<T>(this, targetParameters[0]);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
         private void CheckTargetParametersWithoutName(List<ParameterDependency> targetParameters, Type targetParameterType)
         {
-            if (targetParameters.Count == 0)
+            if (targetParameters == null || targetParameters.Count == 0)
                 throw new TypeRegistrationException($"The specified instantiation method \"{_instantiationMethodInfo}\" for type \"{_targetType}\" does not have a parameter of type \"{targetParameterType}\".", _targetType);
 
             if (targetParameters.Count == 1)
@@ -222,20 +234,10 @@ namespace Light.DependencyInjection.Registrations
             throw new TypeRegistrationException($"The specified instantiation method \"{_instantiationMethodInfo}\" for type \"{_targetType}\" has several parameters with type \"{targetParameterType}\". Please use the overload of \"{nameof(ResolveInstantiationParameter)}\" where an additional parameter name can be specified.", _targetType);
         }
 
-        public IChildRegistrationNameOptions<T> ResolveInstantiationParameter(string parameterName)
-        {
-            AssignInstantiationMethodIfNeccessary();
-
-            var targetParameters = _instantiationParameters.FindAll(p => p.TargetParameter.Name == parameterName);
-            CheckTargetParametersWithName(targetParameters, parameterName);
-
-            return new ChildRegistrationNameOptions<T>(this, targetParameters[0]);
-        }
-
         [Conditional(Check.CompileAssertionsSymbol)]
         private void CheckTargetParametersWithName(List<ParameterDependency> targetParameters, string parameterName)
         {
-            if (targetParameters.Count == 1)
+            if (targetParameters == null || targetParameters.Count == 1)
                 return;
 
             throw new TypeRegistrationException($"The specified instantiation method \"{_instantiationMethodInfo}\" for type \"{_targetType}\" does not have a parameter with name \"{parameterName}\".", _targetType);
