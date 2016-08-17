@@ -9,12 +9,12 @@ namespace Light.DependencyInjection
         public static DiContainer RegisterTransient<T>(this DiContainer diContainer, Action<IRegistrationOptions<T>> configureOptions)
         {
             diContainer.MustNotBeNull(nameof(diContainer));
-            configureOptions.MustNotBeNull(nameof(diContainer));
+            configureOptions.MustNotBeNull(nameof(configureOptions));
 
             var options = new RegistrationOptions<T>(diContainer.TypeAnalyzer.ConstructorSelector, diContainer.TypeAnalyzer.IgnoredAbstractionTypes);
             configureOptions(options);
 
-            return diContainer.Register(new TransientRegistration(options.BuildTypeCreationInfo(), options.RegistrationName), options.AbstractionTypes);
+            return diContainer.Register(new TransientRegistration(options.BuildTypeCreationInfo(), options.RegistrationName), options.MappedAbstractionTypes);
         }
 
         public static DiContainer RegisterTransient<T>(this DiContainer diContainer, string registrationName = null)
@@ -28,6 +28,19 @@ namespace Light.DependencyInjection
             concreteType.MustNotBeNull(nameof(concreteType));
 
             return diContainer.Register(new TransientRegistration(diContainer.TypeAnalyzer.CreateInfoFor(concreteType), registrationName));
+        }
+
+        public static DiContainer RegisterTransient(this DiContainer container, Type concreteType, Action<IRegistrationOptions> configureOptions)
+        {
+            container.MustNotBeNull(nameof(container));
+            configureOptions.MustNotBeNull(nameof(configureOptions));
+
+            var options = new RegistrationOptions(concreteType, container.TypeAnalyzer.ConstructorSelector, container.TypeAnalyzer.IgnoredAbstractionTypes);
+            configureOptions(options);
+
+            throw new NotImplementedException();
+
+            //return container.Register(new TransientRegistration(options.BuildTypeCreationInfo(), options.RegistrationName), options.AbstractionTypes);
         }
 
         public static DiContainer RegisterTransient<TAbstract, TConcrete>(this DiContainer diContainer, string registrationName = null) where TConcrete : TAbstract

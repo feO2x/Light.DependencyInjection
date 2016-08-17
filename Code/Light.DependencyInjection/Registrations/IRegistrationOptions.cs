@@ -5,12 +5,26 @@ using System.Reflection;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public interface IRegistrationOptions<T>
+    public interface IBaseRegistrationOptions<out TConcreteOptions> where TConcreteOptions : class, IBaseRegistrationOptions<TConcreteOptions>
     {
-        IRegistrationOptions<T> WithRegistrationName(string registrationName);
-        IRegistrationOptions<T> UseConstructor(ConstructorInfo constructorInfo);
-        IRegistrationOptions<T> UseDefaultConstructor();
-        IRegistrationOptions<T> UseConstructorWithParameters(params Type[] parameterTypes);
+        TConcreteOptions UseRegistrationName(string registrationName);
+        TConcreteOptions UseConstructor(ConstructorInfo constructorInfo);
+        TConcreteOptions UseDefaultConstructor();
+        TConcreteOptions UseConstructorWithParameters(params Type[] parameterTypes);
+        TConcreteOptions MapTypeToAbstractions(params Type[] abstractionTypes);
+        TConcreteOptions MapTypeToAbstractions(IEnumerable<Type> abstractionTypes);
+        TConcreteOptions MapTypeToAllImplementedInterfaces();
+        TConcreteOptions UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo);
+        TConcreteOptions UseStaticFactoryMethod(Delegate staticMethodDelegate);
+        TConcreteOptions AddPropertyInjection(PropertyInfo propertyInfo, string resolvedRegistrationName = null);
+        TConcreteOptions AddFieldInjection(FieldInfo fieldInfo, string resolvedRegistrationName = null);
+        IChildRegistrationNameOptions<TConcreteOptions> ResolveInstantiationParameter(string parameterName);
+    }
+
+    public interface IRegistrationOptions : IBaseRegistrationOptions<IRegistrationOptions> { }
+
+    public interface IRegistrationOptions<T> : IBaseRegistrationOptions<IRegistrationOptions<T>>
+    {
         IRegistrationOptions<T> UseConstructorWithParameter<TParameter>();
         IRegistrationOptions<T> UseConstructorWithParameters<T1, T2>();
         IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3>();
@@ -19,17 +33,9 @@ namespace Light.DependencyInjection.Registrations
         IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6>();
         IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7>();
         IRegistrationOptions<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7, T8>();
-        IRegistrationOptions<T> MapTypeToAbstractions(params Type[] abstractionTypes);
-        IRegistrationOptions<T> MapTypeToAbstractions(IEnumerable<Type> abstractionTypes);
-        IRegistrationOptions<T> MapTypeToAllImplementedInterfaces();
         IRegistrationOptions<T> UseStaticFactoryMethod(Expression<Func<object>> callStaticMethodExpression);
-        IRegistrationOptions<T> UseStaticFactoryMethod(Delegate staticMethodDelegate);
-        IRegistrationOptions<T> UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo);
         IRegistrationOptions<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression, string resolvedRegistrationName = null);
-        IRegistrationOptions<T> AddPropertyInjection(PropertyInfo propertyInfo, string resolvedRegistrationName = null);
         IRegistrationOptions<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression, string resolvedRegistrationName = null);
-        IRegistrationOptions<T> AddFieldInjection(FieldInfo fieldInfo, string resolvedRegistrationName = null);
-        IChildRegistrationNameOptions<T> ResolveInstantiationParameter<TParameter>();
-        IChildRegistrationNameOptions<T> ResolveInstantiationParameter(string parameterName);
+        IChildRegistrationNameOptions<IRegistrationOptions<T>> ResolveInstantiationParameter<TParameter>();
     }
 }

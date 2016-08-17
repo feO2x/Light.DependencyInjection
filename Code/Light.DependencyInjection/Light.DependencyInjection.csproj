@@ -34,6 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Registrations\BaseRegistrationOptions.cs" />
     <Compile Include="Registrations\ChildRegistrationNameOptions.cs" />
     <Compile Include="Registrations\IChildRegistrationNameOptions.cs" />
     <Compile Include="TypeConstruction\ConstructorWithMostParametersSelector.cs" />

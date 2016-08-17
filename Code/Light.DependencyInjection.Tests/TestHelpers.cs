@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Tests
@@ -166,6 +167,21 @@ namespace Light.DependencyInjection.Tests
         {
             First = first;
             Second = second;
+        }
+    }
+
+    public class GenericType<T>
+    {
+        public readonly T Value;
+
+        public GenericType(T value)
+        {
+            Value = value;
+        }
+
+        public GenericType(IEnumerable<T> values)
+        {
+            Value = values.First();
         }
     }
 }

@@ -93,7 +93,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "Clients must be able to change the registration name using the options object when calling ResolveTransient.")]
         public void OptionsRegistrationName()
         {
-            _container.RegisterTransient<A>(options => options.WithRegistrationName("Foo"));
+            _container.RegisterTransient<A>(options => options.UseRegistrationName("Foo"));
 
             _container.Registrations.Should().ContainSingle(registration => registration.Name == "Foo");
         }
@@ -239,7 +239,7 @@ namespace Light.DependencyInjection.Tests
         public void ResolveFieldInjectionWithNonDefaultRegistration()
         {
             _container.RegisterTransient<G>()
-                      .RegisterTransient<G>(options => options.WithRegistrationName("MyG")
+                      .RegisterTransient<G>(options => options.UseRegistrationName("MyG")
                                                               .AddPropertyInjection(g => g.ReferenceToA))
                       .RegisterTransient<J>(options => options.AddFieldInjection(j => j.ReferenceToG, "MyG"));
 
@@ -267,5 +267,15 @@ namespace Light.DependencyInjection.Tests
                 new object[] { new Action<IRegistrationOptions<B>>(options => options.ResolveInstantiationParameter<A>().WithName("MySpecialA")) },
                 new object[] { new Action<IRegistrationOptions<B>>(options => options.ResolveInstantiationParameter("otherObject").WithName("MySpecialA")) }
             };
+
+        [Fact(DisplayName = "Clients must be able to register unbound generic types, where the unbound generics are resolved by the DI Container when a bound generic type is requested.")]
+        public void ResolvingOpenGenerics()
+        {
+            _container.RegisterTransient(typeof(List<>), options => options.UseDefaultConstructor());
+
+            var list = _container.Resolve<List<int>>();
+
+            list.Should().NotBeNull();
+        }
     }
 }

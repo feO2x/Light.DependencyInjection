@@ -1,7 +1,7 @@
 ﻿namespace Light.DependencyInjection.Registrations
 {
-    public interface IChildRegistrationNameOptions<T>
+    public interface IChildRegistrationNameOptions<out TRegistrationOptions> where TRegistrationOptions : class, IBaseRegistrationOptions<TRegistrationOptions>
     {
-        IRegistrationOptions<T> WithName(string childValueRegistrationName);
+        TRegistrationOptions WithName(string childValueRegistrationName);
     }
 }

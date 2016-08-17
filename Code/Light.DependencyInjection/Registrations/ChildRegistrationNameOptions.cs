@@ -3,20 +3,21 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public sealed class ChildRegistrationNameOptions<T> : IChildRegistrationNameOptions<T>
+    public sealed class ChildRegistrationNameOptions<TRegistrationOptions> : IChildRegistrationNameOptions<TRegistrationOptions> where TRegistrationOptions : class, IBaseRegistrationOptions<TRegistrationOptions>
     {
-        private readonly IRegistrationOptions<T> _registrationOptions;
+        private readonly TRegistrationOptions _registrationOptions;
         private readonly ISetChildValueRegistrationName _targetDependency;
 
-        public ChildRegistrationNameOptions(IRegistrationOptions<T> registrationOptions, ISetChildValueRegistrationName targetDependency)
+        public ChildRegistrationNameOptions(TRegistrationOptions registrationOptions, ISetChildValueRegistrationName targetDependency)
         {
             registrationOptions.MustNotBeNull(nameof(registrationOptions));
+            targetDependency.MustNotBeNull(nameof(targetDependency));
 
             _registrationOptions = registrationOptions;
             _targetDependency = targetDependency;
         }
 
-        public IRegistrationOptions<T> WithName(string childValueRegistrationName)
+        public TRegistrationOptions WithName(string childValueRegistrationName)
         {
             _targetDependency.ChildValueRegistrationName = childValueRegistrationName;
             return _registrationOptions;
