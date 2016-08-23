@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Reflection;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
@@ -26,19 +28,35 @@ namespace Light.DependencyInjection.TypeConstruction
             return instance;
         }
 
-        public static TypeCreationInfo FromTypeInstantiatedByDiContainer(Type targetType, TypeInstantiationInfo typeInstantiationInfo, InstanceInjectionInfo instanceInjectionInfo)
+        public static TypeCreationInfo FromTypeInstantiatedByDiContainer(TypeInstantiationInfo typeInstantiationInfo, InstanceInjectionInfo instanceInjectionInfo)
         {
-            targetType.MustNotBeNull(nameof(targetType));
-            typeInstantiationInfo.MustNotBeNull(nameof(targetType));
+            typeInstantiationInfo.MustNotBeNull(nameof(typeInstantiationInfo));
 
-            return new TypeCreationInfo(targetType, typeInstantiationInfo, instanceInjectionInfo, TypeCreationKind.CreatedByDiContainer);
+            return new TypeCreationInfo(typeInstantiationInfo.TargetType, typeInstantiationInfo, instanceInjectionInfo, TypeCreationKind.InstantiatedByDiContainer);
         }
 
-        public static TypeCreationInfo FromExternalInstance(Type targetType)
+        public static TypeCreationInfo FromExternalInstance(object instance)
         {
-            targetType.MustNotBeNull(nameof(targetType));
+            instance.MustNotBeNull(nameof(instance));
 
-            return new TypeCreationInfo(targetType, null, null, TypeCreationKind.CreatedExternally);
+            return new TypeCreationInfo(instance.GetType(), null, null, TypeCreationKind.ExternalInstance);
+        }
+
+        public static TypeCreationInfo FromUnboundGenericType(TypeInstantiationInfo typeInstantiationInfo, InstanceInjectionInfo instanceInjectionInfo)
+        {
+            typeInstantiationInfo.MustNotBeNull(nameof(typeInstantiationInfo));
+            CheckUnboundType(typeInstantiationInfo.TargetType);
+
+            return new TypeCreationInfo(typeInstantiationInfo.TargetType, typeInstantiationInfo, instanceInjectionInfo, TypeCreationKind.UnboundGenericTypeTemplate);
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckUnboundType(Type type)
+        {
+            type.MustNotBeNull(nameof(type));
+
+            if (type.GetTypeInfo().IsGenericTypeDefinition == false)
+                throw new TypeRegistrationException($"The type \"{type}\" is no unbound generic type.", type);
         }
     }
 }

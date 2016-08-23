@@ -2,7 +2,8 @@
 {
     public enum TypeCreationKind
     {
-        CreatedByDiContainer,
-        CreatedExternally
+        InstantiatedByDiContainer,
+        ExternalInstance,
+        UnboundGenericTypeTemplate
     }
 }

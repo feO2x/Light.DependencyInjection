@@ -6,7 +6,7 @@ namespace Light.DependencyInjection.Registrations
     {
         public readonly object Instance;
 
-        public ExternallyCreatedInstanceRegistration(object instance, string registrationName = null) : base(TypeCreationInfo.FromExternalInstance(instance.GetType()), registrationName)
+        public ExternallyCreatedInstanceRegistration(object instance, string registrationName = null) : base(TypeCreationInfo.FromExternalInstance(instance), registrationName)
         {
             Instance = instance;
         }

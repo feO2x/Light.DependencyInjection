@@ -11,9 +11,19 @@ namespace Light.DependencyInjection.Registrations
     public sealed class RegistrationOptions : BaseRegistrationOptions<IRegistrationOptions>, IRegistrationOptions
     {
         public RegistrationOptions(Type targetType, IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes) :
-            base(targetType, constructorSelector, ignoredAbstractionTypes)
+            base(targetType, constructorSelector, ignoredAbstractionTypes) { }
+
+        public TypeCreationInfo BuildTypeCreationInfo()
         {
-            
+            AssignInstantiationMethodIfNeccessary();
+
+            return TargetTypeInfo.IsGenericTypeDefinition ?
+                       TypeCreationInfo.FromUnboundGenericType(TypeInstantiationInfo.FromUnboundGenericType(TargetType,
+                                                                                                            InstantiationMethod,
+                                                                                                            InstantiationMethod.CreateDefaultParameterDependencies()),
+                                                               InstanceInjections == null ? null : new InstanceInjectionInfo(InstanceInjections))
+                       : TypeCreationInfo.FromTypeInstantiatedByDiContainer(TypeInstantiationInfo.FromResolvableType(TargetType, InstantiationMethod, StandardizedInstantiationFunction, InstantiationMethod.CreateDefaultParameterDependencies()),
+                                                                            InstanceInjections == null ? null : new InstanceInjectionInfo(InstanceInjections));
         }
     }
 
@@ -117,8 +127,7 @@ namespace Light.DependencyInjection.Registrations
         {
             AssignInstantiationMethodIfNeccessary();
 
-            return TypeCreationInfo.FromTypeInstantiatedByDiContainer(TargetType,
-                                                                      new TypeInstantiationInfo(TargetType, InstantiationMethod, StandardizedInstantiationFunction, InstantiationMethod.CreateDefaultParameterDependencies()),
+            return TypeCreationInfo.FromTypeInstantiatedByDiContainer(TypeInstantiationInfo.FromResolvableType(TargetType, InstantiationMethod, StandardizedInstantiationFunction, InstantiationMethod.CreateDefaultParameterDependencies()),
                                                                       InstanceInjections == null ? null : new InstanceInjectionInfo(InstanceInjections));
         }
     }
