@@ -1,4 +1,6 @@
-﻿using Light.DependencyInjection.TypeConstruction;
+﻿using System;
+using System.Reflection;
+using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Registrations
 {
@@ -6,9 +8,10 @@ namespace Light.DependencyInjection.Registrations
     {
         private object _instance;
 
-        public SingletonRegistration(TypeCreationInfo typeCreationInfo, string registrationName = null) : base(typeCreationInfo, registrationName) { }
+        public SingletonRegistration(TypeCreationInfo typeCreationInfo, string registrationName = null) 
+            : base(new TypeKey(typeCreationInfo.TargetType, registrationName), typeCreationInfo) { }
 
-        public override object GetInstance(DiContainer container)
+        protected override object GetInstanceInternal(DiContainer container)
         {
             if (_instance == null)
             {
@@ -19,6 +22,11 @@ namespace Light.DependencyInjection.Registrations
                 }
             }
             return _instance;
+        }
+
+        protected override Registration BindGenericTypeRegistrationInternal(Type boundGenericType, TypeInfo boundGenericTypeInfo)
+        {
+            return new SingletonRegistration(TypeCreationInfo.CloneForBoundGenericType(boundGenericType, boundGenericTypeInfo), TypeKey.RegistrationName);
         }
     }
 }

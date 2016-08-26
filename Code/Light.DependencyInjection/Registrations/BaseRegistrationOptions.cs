@@ -19,9 +19,7 @@ namespace Light.DependencyInjection.Registrations
         protected readonly Type TargetType;
         protected readonly TypeInfo TargetTypeInfo;
         protected List<InstanceInjection> InstanceInjections;
-        protected MethodBase InstantiationMethod;
-        protected List<ParameterDependency> InstantiationParameters;
-        protected Func<object[], object> StandardizedInstantiationFunction;
+        protected InstantiationInfo InstantiationInfo;
 
         protected BaseRegistrationOptions(Type targetType, IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes)
         {
@@ -143,7 +141,8 @@ namespace Light.DependencyInjection.Registrations
         {
             AssignInstantiationMethodIfNeccessary();
 
-            var targetParameters = InstantiationParameters?.FindAll(p => p.TargetParameter.Name == parameterName);
+            var targetParameters = InstantiationInfo?.InstantiationDependencies?.Where(p => p.TargetParameter.Name == parameterName)
+                                                    .ToList();
             CheckTargetParametersWithName(targetParameters, parameterName);
 
             // ReSharper disable once PossibleNullReferenceException
@@ -156,7 +155,7 @@ namespace Light.DependencyInjection.Registrations
             if (targetParameters == null || targetParameters.Count == 1)
                 return;
 
-            throw new TypeRegistrationException($"The specified instantiation method \"{InstantiationMethod}\" for type \"{TargetType}\" does not have a parameter with name \"{parameterName}\".", TargetType);
+            throw new TypeRegistrationException($"The specified instantiation method for type \"{TargetType}\" does not have a parameter with name \"{parameterName}\".", TargetType);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
@@ -170,9 +169,7 @@ namespace Light.DependencyInjection.Registrations
 
         protected void AssignStaticCreationMethod(MethodInfo staticCreationMethod)
         {
-            InstantiationMethod = staticCreationMethod;
-            StandardizedInstantiationFunction = staticCreationMethod.CompileStandardizedInstantiationFunction();
-            InstantiationParameters = staticCreationMethod.CreateDefaultParameterDependencies();
+            InstantiationInfo = new StaticMethodInstantiationInfo(staticCreationMethod);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
@@ -212,7 +209,7 @@ namespace Light.DependencyInjection.Registrations
 
         protected void AssignInstantiationMethodIfNeccessary()
         {
-            if (InstantiationMethod != null)
+            if (InstantiationInfo != null)
                 return;
 
             var targetConstructor = ConstructorSelector.SelectTargetConstructor(TargetTypeInfo);
@@ -230,9 +227,7 @@ namespace Light.DependencyInjection.Registrations
 
         protected void AssignConstructor(ConstructorInfo targetConstructor)
         {
-            InstantiationMethod = targetConstructor;
-            StandardizedInstantiationFunction = targetConstructor.CompileStandardizedInstantiationFunction();
-            InstantiationParameters = targetConstructor.CreateDefaultParameterDependencies();
+            InstantiationInfo = new ConstructorInstantiationInfo(targetConstructor);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]

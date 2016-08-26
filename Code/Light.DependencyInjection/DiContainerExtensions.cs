@@ -38,9 +38,7 @@ namespace Light.DependencyInjection
             var options = new RegistrationOptions(concreteType, container.TypeAnalyzer.ConstructorSelector, container.TypeAnalyzer.IgnoredAbstractionTypes);
             configureOptions(options);
 
-            throw new NotImplementedException();
-
-            //return container.Register(new TransientRegistration(options.BuildTypeCreationInfo(), options.RegistrationName), options.AbstractionTypes);
+            return container.Register(new TransientRegistration(options.BuildTypeCreationInfo(), options.RegistrationName));
         }
 
         public static DiContainer RegisterTransient<TAbstract, TConcrete>(this DiContainer diContainer, string registrationName = null) where TConcrete : TAbstract

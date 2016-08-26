@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Reflection;
 using Light.DependencyInjection.FrameworkExtensions;
@@ -7,12 +8,14 @@ namespace Light.DependencyInjection.TypeConstruction
 {
     public sealed class FieldInjection : InstanceInjection
     {
-        private readonly FieldInfo _fieldInfo;
-        public FieldInjection(FieldInfo fieldInfo, string childValueRegistrationName = null) : base(fieldInfo.Name, fieldInfo.FieldType, childValueRegistrationName)
+        public readonly FieldInfo FieldInfo;
+
+        public FieldInjection(FieldInfo fieldInfo, string childValueRegistrationName = null) 
+            : base(fieldInfo.Name, fieldInfo.FieldType, fieldInfo.DeclaringType, childValueRegistrationName)
         {
             CheckFieldInfo(fieldInfo);
 
-            _fieldInfo = fieldInfo;
+            FieldInfo = fieldInfo;
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
@@ -26,7 +29,12 @@ namespace Light.DependencyInjection.TypeConstruction
 
         public override void InjectValue(object instance, object value)
         {
-            _fieldInfo.SetValue(instance, value);
+            FieldInfo.SetValue(instance, value);
+        }
+
+        protected override InstanceInjection CloneForBoundGenericTypeInternal(Type boundGenericType, TypeInfo boundGenericTypeInfo)
+        {
+            return new FieldInjection(boundGenericTypeInfo.GetDeclaredField(FieldInfo.Name), ChildValueRegistrationName);
         }
     }
 }

@@ -37,6 +37,8 @@
     <Compile Include="Registrations\BaseRegistrationOptions.cs" />
     <Compile Include="Registrations\ChildRegistrationNameOptions.cs" />
     <Compile Include="Registrations\IChildRegistrationNameOptions.cs" />
+    <Compile Include="ResolveTypeException.cs" />
+    <Compile Include="TypeConstruction\ConstructorInstantiationInfo.cs" />
     <Compile Include="TypeConstruction\ConstructorWithMostParametersSelector.cs" />
     <Compile Include="DiContainer.cs" />
     <Compile Include="DiContainerExtensions.cs" />
@@ -54,15 +56,14 @@
     <Compile Include="Registrations\TransientRegistration.cs" />
     <Compile Include="Registrations\TransientRegistrationFactory.cs" />
     <Compile Include="TypeConstruction\InstanceInjection.cs" />
-    <Compile Include="TypeConstruction\InstanceInjectionInfo.cs" />
+    <Compile Include="TypeConstruction\InstantiationInfo.cs" />
     <Compile Include="TypeConstruction\ISetChildValueRegistrationName.cs" />
     <Compile Include="TypeConstruction\ParameterDependency.cs" />
     <Compile Include="TypeConstruction\PropertyInjection.cs" />
+    <Compile Include="TypeConstruction\StaticMethodInstantiationInfo.cs" />
     <Compile Include="TypeConstruction\TypeAnalyzer.cs" />
     <Compile Include="TypeConstruction\TypeCreationInfo.cs" />
-    <Compile Include="TypeConstruction\TypeInstantiationInfo.cs" />
     <Compile Include="Registrations\RegistrationOptions.cs" />
-    <Compile Include="TypeConstruction\TypeCreationKind.cs" />
     <Compile Include="Registrations\TypeKey.cs" />
     <Compile Include="TypeRegistrationException.cs" />
   </ItemGroup>

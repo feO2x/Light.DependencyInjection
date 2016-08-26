@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Light.DependencyInjection.TypeConstruction;
@@ -15,6 +14,9 @@ namespace Light.DependencyInjection.FrameworkExtensions
         public static Func<object[], object> CompileStandardizedInstantiationFunction(this ConstructorInfo constructorInfo)
         {
             constructorInfo.MustNotBeNull(nameof(constructorInfo));
+
+            if (constructorInfo.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
+                return null;
 
             var constructorParameterInfos = constructorInfo.GetParameters();
 
@@ -30,6 +32,8 @@ namespace Light.DependencyInjection.FrameworkExtensions
         public static Func<object[], object> CompileStandardizedInstantiationFunction(this MethodInfo methodInfo)
         {
             methodInfo.MustNotBeNull(nameof(methodInfo));
+            if (methodInfo.ReturnType.GetTypeInfo().IsGenericTypeDefinition)
+                return null;
 
             var methodParameterInfos = methodInfo.GetParameters();
 
@@ -56,9 +60,6 @@ namespace Light.DependencyInjection.FrameworkExtensions
         public static ConstructorInfo FindDefaultConstructor(this IEnumerable<ConstructorInfo> constructors)
         {
             var constructorList = constructors.AsList();
-
-            if (constructorList.Count == 0)
-                return null;
 
             for (var i = 0; i < constructorList.Count; i++)
             {
@@ -209,7 +210,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return fieldInfo != null && fieldInfo.IsPublic && fieldInfo.IsStatic == false && fieldInfo.IsInitOnly == false;
         }
 
-        public static List<ParameterDependency> CreateDefaultParameterDependencies(this MethodBase methodInfo)
+        public static ParameterDependency[] CreateDefaultInstantiationDependencies(this MethodBase methodInfo)
         {
             methodInfo.MustNotBeNull(nameof(methodInfo));
 
@@ -217,8 +218,25 @@ namespace Light.DependencyInjection.FrameworkExtensions
             if (parameterInfos.Length == 0)
                 return null;
 
-            return parameterInfos.Select(info => new ParameterDependency(info))
-                                 .ToList();
+            var instantiationDependencies = new ParameterDependency[parameterInfos.Length];
+            for (var i = 0; i < parameterInfos.Length; ++i)
+            {
+                instantiationDependencies[i] = new ParameterDependency(parameterInfos[i]);
+            }
+
+            return instantiationDependencies;
+        }
+
+        public static ConstructorInfo GetDefaultConstructor(this Type type)
+        {
+            return type.GetTypeInfo().DeclaredConstructors.FindDefaultConstructor();
+        }
+
+        public static ConstructorInfo GetDefaultConstructor(this TypeInfo typeInfo)
+        {
+            typeInfo.MustNotBeNull(nameof(typeInfo));
+
+            return typeInfo.DeclaredConstructors.FindDefaultConstructor();
         }
     }
 }

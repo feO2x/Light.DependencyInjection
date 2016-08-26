@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Light.DependencyInjection.FrameworkExtensions;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
@@ -42,11 +41,7 @@ namespace Light.DependencyInjection.TypeConstruction
 
             var typeInfo = type.GetTypeInfo();
             var targetConstructor = _constructorSelector.SelectTargetConstructor(typeInfo);
-            return TypeCreationInfo.FromTypeInstantiatedByDiContainer(TypeInstantiationInfo.FromResolvableType(type,
-                                                                                                               targetConstructor,
-                                                                                                               targetConstructor.CompileStandardizedInstantiationFunction(),
-                                                                                                               targetConstructor.CreateDefaultParameterDependencies()),
-                                                                      null);
+            return new TypeCreationInfo(new ConstructorInstantiationInfo(targetConstructor));
         }
     }
 }

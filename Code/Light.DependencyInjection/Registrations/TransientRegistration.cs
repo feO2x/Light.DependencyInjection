@@ -1,14 +1,23 @@
-﻿using Light.DependencyInjection.TypeConstruction;
+﻿using System;
+using System.Reflection;
+using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Registrations
 {
     public sealed class TransientRegistration : Registration
     {
-        public TransientRegistration(TypeCreationInfo typeCreationInfo, string registrationName = null) : base(typeCreationInfo, registrationName) { }
+        public TransientRegistration(TypeCreationInfo typeCreationInfo, string registrationName = null)
+            : base(new TypeKey(typeCreationInfo.TargetType, registrationName), typeCreationInfo) { }
 
-        public override object GetInstance(DiContainer container)
+        protected override object GetInstanceInternal(DiContainer container)
         {
             return TypeCreationInfo.CreateInstance(container);
+        }
+
+        protected override Registration BindGenericTypeRegistrationInternal(Type boundGenericType, TypeInfo boundGenericTypeInfo)
+        {
+            return new TransientRegistration(TypeCreationInfo.CloneForBoundGenericType(boundGenericType, boundGenericTypeInfo),
+                                             TypeKey.RegistrationName);
         }
     }
 }

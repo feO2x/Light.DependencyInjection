@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using Light.DependencyInjection.FrameworkExtensions;
 using Light.DependencyInjection.TypeConstruction;
@@ -17,13 +18,7 @@ namespace Light.DependencyInjection.Registrations
         {
             AssignInstantiationMethodIfNeccessary();
 
-            return TargetTypeInfo.IsGenericTypeDefinition ?
-                       TypeCreationInfo.FromUnboundGenericType(TypeInstantiationInfo.FromUnboundGenericType(TargetType,
-                                                                                                            InstantiationMethod,
-                                                                                                            InstantiationMethod.CreateDefaultParameterDependencies()),
-                                                               InstanceInjections == null ? null : new InstanceInjectionInfo(InstanceInjections))
-                       : TypeCreationInfo.FromTypeInstantiatedByDiContainer(TypeInstantiationInfo.FromResolvableType(TargetType, InstantiationMethod, StandardizedInstantiationFunction, InstantiationMethod.CreateDefaultParameterDependencies()),
-                                                                            InstanceInjections == null ? null : new InstanceInjectionInfo(InstanceInjections));
+            return new TypeCreationInfo(InstantiationInfo, InstanceInjections);
         }
     }
 
@@ -104,7 +99,8 @@ namespace Light.DependencyInjection.Registrations
             AssignInstantiationMethodIfNeccessary();
 
             var parameterType = typeof(TParameter);
-            var targetParameters = InstantiationParameters?.FindAll(p => p.ParameterType == parameterType);
+            var targetParameters = InstantiationInfo?.InstantiationDependencies?.Where(p => p.ParameterType == parameterType)
+                                                    .ToList();
             CheckTargetParametersWithoutName(targetParameters, parameterType);
 
             // ReSharper disable once PossibleNullReferenceException
@@ -115,20 +111,19 @@ namespace Light.DependencyInjection.Registrations
         private void CheckTargetParametersWithoutName(List<ParameterDependency> targetParameters, Type targetParameterType)
         {
             if (targetParameters == null || targetParameters.Count == 0)
-                throw new TypeRegistrationException($"The specified instantiation method \"{InstantiationMethod}\" for type \"{TargetType}\" does not have a parameter of type \"{targetParameterType}\".", TargetType);
+                throw new TypeRegistrationException($"The specified instantiation method for type \"{TargetType}\" does not have a parameter of type \"{targetParameterType}\".", TargetType);
 
             if (targetParameters.Count == 1)
                 return;
 
-            throw new TypeRegistrationException($"The specified instantiation method \"{InstantiationMethod}\" for type \"{TargetType}\" has several parameters with type \"{targetParameterType}\". Please use the overload of \"{nameof(ResolveInstantiationParameter)}\" where an additional parameter name can be specified.", TargetType);
+            throw new TypeRegistrationException($"The specified instantiation method for type \"{TargetType}\" has several parameters with type \"{targetParameterType}\". Please use the overload of \"{nameof(ResolveInstantiationParameter)}\" where an additional parameter name can be specified.", TargetType);
         }
 
         public TypeCreationInfo BuildTypeCreationInfo()
         {
             AssignInstantiationMethodIfNeccessary();
 
-            return TypeCreationInfo.FromTypeInstantiatedByDiContainer(TypeInstantiationInfo.FromResolvableType(TargetType, InstantiationMethod, StandardizedInstantiationFunction, InstantiationMethod.CreateDefaultParameterDependencies()),
-                                                                      InstanceInjections == null ? null : new InstanceInjectionInfo(InstanceInjections));
+            return new TypeCreationInfo(InstantiationInfo, InstanceInjections);
         }
     }
 }

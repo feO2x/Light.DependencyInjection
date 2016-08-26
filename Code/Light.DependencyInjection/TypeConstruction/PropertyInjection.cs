@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Reflection;
 using Light.DependencyInjection.FrameworkExtensions;
@@ -7,13 +8,14 @@ namespace Light.DependencyInjection.TypeConstruction
 {
     public sealed class PropertyInjection : InstanceInjection
     {
-        private readonly PropertyInfo _propertyInfo;
+        public readonly PropertyInfo PropertyInfo;
 
-        public PropertyInjection(PropertyInfo propertyInfo, string childValueRegistrationName = null) : base(propertyInfo.Name, propertyInfo.PropertyType, childValueRegistrationName)
+        public PropertyInjection(PropertyInfo propertyInfo, string childValueRegistrationName = null) 
+            : base(propertyInfo.Name, propertyInfo.PropertyType, propertyInfo.DeclaringType, childValueRegistrationName)
         {
             CheckPropertyInfo(propertyInfo);
 
-            _propertyInfo = propertyInfo;
+            PropertyInfo = propertyInfo;
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
@@ -27,7 +29,12 @@ namespace Light.DependencyInjection.TypeConstruction
 
         public override void InjectValue(object instance, object value)
         {
-            _propertyInfo.SetValue(instance, value);
+            PropertyInfo.SetValue(instance, value);
+        }
+
+        protected override InstanceInjection CloneForBoundGenericTypeInternal(Type boundGenericType, TypeInfo boundGenericTypeInfo)
+        {
+            return new PropertyInjection(boundGenericTypeInfo.GetDeclaredProperty(PropertyInfo.Name), ChildValueRegistrationName);
         }
     }
 }
