@@ -91,10 +91,12 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "UseStaticFactoryMethod must throw a TypeRegistrationException when the methodInfo does not point to a public static method returning an instance of the target type.")]
         public void StaticMethodWrongMethodInfo()
         {
-            Action act = () => CreateRegistrationOptions<A>().UseStaticFactoryMethod(GetType().GetRuntimeMethod("InstanceCreateA", new Type[0]));
+            var methodInfo = GetType().GetRuntimeMethod("InstanceCreateA", new Type[0]);
+
+            Action act = () => CreateRegistrationOptions<A>().UseStaticFactoryMethod(methodInfo);
 
             act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"The specified method info does not describe a public, static method that returns an instance of type {typeof(A)}");
+               .And.Message.Should().Contain($"The specified method info \"{methodInfo}\" does not describe a public, static method that returns an instance of type \"{typeof(A)}\".");
         }
 
         public A InstanceCreateA()

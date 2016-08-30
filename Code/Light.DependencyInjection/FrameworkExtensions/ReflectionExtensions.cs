@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Light.DependencyInjection.TypeConstruction;
@@ -29,21 +30,42 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return Expression.Lambda<Func<object[], object>>(newExpression, parameterExpression).Compile();
         }
 
-        public static Func<object[], object> CompileStandardizedInstantiationFunction(this MethodInfo methodInfo)
+        public static Func<object[], object> CompileStandardizedInstantiationFunction(this MethodInfo staticMethodInfo, Type targetType)
         {
-            methodInfo.MustNotBeNull(nameof(methodInfo));
-            if (methodInfo.ReturnType.GetTypeInfo().IsGenericTypeDefinition)
+            targetType.MustNotBeNull(nameof(targetType));
+            CheckStaticMethodInfo(staticMethodInfo, targetType);
+
+            if (staticMethodInfo.IsGenericMethodDefinition)
                 return null;
 
-            var methodParameterInfos = methodInfo.GetParameters();
+            
+
+            var methodParameterInfos = staticMethodInfo.GetParameters();
 
             var parameterExpression = Expression.Parameter(typeof(object[]));
             if (methodParameterInfos.Length == 0)
-                return Expression.Lambda<Func<object[], object>>(Expression.Call(null, methodInfo), parameterExpression).Compile();
+                return Expression.Lambda<Func<object[], object>>(Expression.Call(null, staticMethodInfo), parameterExpression).Compile();
 
             var argumentExpressions = methodParameterInfos.CreateParameterExpressions(parameterExpression);
-            var callStaticFactoryExpression = Expression.Call(null, methodInfo, argumentExpressions);
+            var callStaticFactoryExpression = Expression.Call(null, staticMethodInfo, argumentExpressions);
             return Expression.Lambda<Func<object[], object>>(callStaticFactoryExpression, parameterExpression).Compile();
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckStaticMethodInfo(MethodInfo staticMethod, Type targetType)
+        {
+            staticMethod.MustNotBeNull(nameof(staticMethod));
+            if (staticMethod.IsStatic == false || staticMethod.IsPublic == false)
+                goto ThrowException;
+            if (staticMethod.IsGenericMethodDefinition && 
+                staticMethod.ReturnType.GenericTypeArguments.All(typeArgument => typeArgument.IsGenericParameter) &&
+                staticMethod.ReturnType.GetGenericTypeDefinition() == targetType)
+                return;
+            if (staticMethod.ReturnType == targetType)
+                return;
+
+            ThrowException:
+            throw new TypeRegistrationException($"The specified method info \"{staticMethod}\" does not describe a public, static method that returns an instance of type \"{targetType}\".", targetType);
         }
 
         private static List<Expression> CreateParameterExpressions(this ParameterInfo[] parameterInfos, ParameterExpression objectArrayExpression)

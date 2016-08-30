@@ -8,16 +8,16 @@ namespace Light.DependencyInjection.TypeConstruction
     {
         public readonly MethodInfo StaticMethodInfo;
 
-        public StaticMethodInstantiationInfo(MethodInfo staticMethodInfo) :
-            base(staticMethodInfo.ReturnType,
-                 staticMethodInfo.CompileStandardizedInstantiationFunction(),
+        public StaticMethodInstantiationInfo(Type targetType, MethodInfo staticMethodInfo) :
+            base(targetType,
+                 staticMethodInfo.CompileStandardizedInstantiationFunction(targetType),
                  staticMethodInfo.CreateDefaultInstantiationDependencies())
         {
             StaticMethodInfo = staticMethodInfo;
         }
-        protected override InstantiationInfo CloneForBoundGenericTypeInternal(Type boundGenericType, TypeInfo boundGenericTypeInfo)
+        protected override InstantiationInfo CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
         {
-            return new StaticMethodInstantiationInfo(StaticMethodInfo.MakeGenericMethod(boundGenericType.GenericTypeArguments));
+            return new StaticMethodInstantiationInfo(closedConstructedGenericType, StaticMethodInfo.MakeGenericMethod(closedConstructedGenericType.GenericTypeArguments));
         }
     }
 }

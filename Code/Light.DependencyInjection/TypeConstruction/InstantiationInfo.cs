@@ -56,9 +56,9 @@ namespace Light.DependencyInjection.TypeConstruction
         {
             boundGenericType.MustBeBoundVersionOfUnboundGenericType(TargetType);
 
-            return CloneForBoundGenericTypeInternal(boundGenericType, boundGenericTypeInfo);
+            return CloneForClosedConstructedGenericTypeInternal(boundGenericType, boundGenericTypeInfo);
         }
 
-        protected abstract InstantiationInfo CloneForBoundGenericTypeInternal(Type boundGenericType, TypeInfo boundGenericTypeInfo);
+        protected abstract InstantiationInfo CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo);
     }
 }

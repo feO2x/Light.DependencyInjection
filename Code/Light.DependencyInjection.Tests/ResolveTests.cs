@@ -10,17 +10,15 @@ using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class ResolveTests
+    public sealed class ResolveTests : DefaultDiContainerTests
     {
-        private readonly DiContainer _container = new DiContainer();
-
         [Fact(DisplayName = "The DI container must return one and the same instance when a type is registered as a Singleton.")]
         public void ResolveSingleton()
         {
-            _container.RegisterSingleton<A>();
+            Container.RegisterSingleton<A>();
 
-            var first = _container.Resolve<A>();
-            var second = _container.Resolve<A>();
+            var first = Container.Resolve<A>();
+            var second = Container.Resolve<A>();
 
             first.Should().NotBeNull();
             first.Should().BeSameAs(second);
@@ -29,10 +27,10 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI container must return new instances when a type is registered as with a transient lifetime.")]
         public void ResolveTransient()
         {
-            _container.RegisterTransient<A>();
+            Container.RegisterTransient<A>();
 
-            var first = _container.Resolve<A>();
-            var second = _container.Resolve<A>();
+            var first = Container.Resolve<A>();
+            var second = Container.Resolve<A>();
 
             first.Should().NotBeNull();
             second.Should().NotBeNull();
@@ -42,11 +40,11 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI container must be able to resolve a type depending on other objects / values. These values must be resolved recursively.")]
         public void ResolveRecursively()
         {
-            _container.RegisterSingleton<A>()
+            Container.RegisterSingleton<A>()
                       .RegisterTransient<C>();
 
-            var firstC = _container.Resolve<C>();
-            var secondC = _container.Resolve<C>();
+            var firstC = Container.Resolve<C>();
+            var secondC = Container.Resolve<C>();
 
             firstC.Should().NotBeSameAs(secondC);
             firstC.ReferenceToA.Should().BeSameAs(secondC.ReferenceToA);
@@ -55,10 +53,10 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI container must be able to resolve a concrete type for a polymorphic abstraction when this mapping was registered with it beforehand.")]
         public void AbstractionMapping()
         {
-            _container.RegisterSingleton<A>()
+            Container.RegisterSingleton<A>()
                       .RegisterTransient<IC, C>();
 
-            var interfaceReference = _container.Resolve<IC>();
+            var interfaceReference = Container.Resolve<IC>();
 
             interfaceReference.Should().BeOfType<C>();
         }
@@ -67,9 +65,9 @@ namespace Light.DependencyInjection.Tests
         public void RegisterInstance()
         {
             var instance = new A();
-            _container.RegisterInstance(instance);
+            Container.RegisterInstance(instance);
 
-            var resolvedInstance = _container.Resolve<A>();
+            var resolvedInstance = Container.Resolve<A>();
 
             resolvedInstance.Should().BeSameAs(instance);
         }
@@ -77,15 +75,15 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI container must create a transient registration and use it  when Resolve is called for a non-registered type.")]
         public void ResolveDefaultTransient()
         {
-            _container.Resolve<A>();
+            Container.Resolve<A>();
 
-            _container.Registrations.Should().ContainSingle(registration => registration.TargetType == typeof(A) && registration is TransientRegistration);
+            Container.Registrations.Should().ContainSingle(registration => registration.TargetType == typeof(A) && registration is TransientRegistration);
         }
 
         [Fact(DisplayName = "The DI container must throw an exception when Resolve is called on an abstract type that was not registered before.")]
         public void ResolveAbstractionError()
         {
-            Action act = () => _container.Resolve<IC>();
+            Action act = () => Container.Resolve<IC>();
 
             act.ShouldThrow<TypeRegistrationException>()
                .And.Message.Should().Contain($"The specified type \"{typeof(IC)}\" could not be resolved because there is no concrete type registered that should be returned for this polymorphic abstraction.");
@@ -94,33 +92,33 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "Clients must be able to change the registration name using the options object when calling ResolveTransient.")]
         public void OptionsRegistrationName()
         {
-            _container.RegisterTransient<A>(options => options.UseRegistrationName("Foo"));
+            Container.RegisterTransient<A>(options => options.UseRegistrationName("Foo"));
 
-            _container.Registrations.Should().ContainSingle(registration => registration.Name == "Foo");
+            Container.Registrations.Should().ContainSingle(registration => registration.Name == "Foo");
         }
 
         [Fact(DisplayName = "Clients must be able to change the constructor that is used to instantiate the target object.")]
         public void OptionsSelectDefaultConstructor()
         {
-            _container.RegisterTransient<D>(options => options.UseDefaultConstructor());
+            Container.RegisterTransient<D>(options => options.UseDefaultConstructor());
 
-            _container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First());
+            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First());
         }
 
         [Fact(DisplayName = "Clients must be able to choose a constructor with a single parameter that the DI container uses to instantiate the target type.")]
         public void OptionsConstructorWithOneParameter()
         {
-            _container.RegisterTransient<D>(options => options.UseConstructorWithParameter<IList<int>>());
+            Container.RegisterTransient<D>(options => options.UseConstructorWithParameter<IList<int>>());
 
-            _container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 1));
+            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 1));
         }
 
         [Fact(DisplayName = "Clients must be able to choose a constructor with two parameters that the DI container uses to instantiate the target type.")]
         public void OptionsConstructorWithTwoParameters()
         {
-            _container.RegisterTransient<E>(options => options.UseConstructorWithParameters<int, uint>());
+            Container.RegisterTransient<E>(options => options.UseConstructorWithParameters<int, uint>());
 
-            _container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(E).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 2));
+            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(E).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 2));
         }
 
         [Fact(DisplayName = "Clients must be able to pass a ConstructorInfo directly to the options that the DI container will use to instantiate the target type.")]
@@ -128,23 +126,23 @@ namespace Light.DependencyInjection.Tests
         {
             var targetConstructor = typeof(E).GetTypeInfo().DeclaredConstructors.ElementAt(2);
 
-            _container.RegisterTransient<E>(options => options.UseConstructor(targetConstructor));
+            Container.RegisterTransient<E>(options => options.UseConstructor(targetConstructor));
 
-            _container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == targetConstructor);
+            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == targetConstructor);
         }
 
         [Fact(DisplayName = "Clients must be able to register a type with mappings to all of its implemented interfaces.")]
         public void MapAllInterfaces()
         {
-            _container.RegisterTransient<E>(options => options.MapTypeToAllImplementedInterfaces()
+            Container.RegisterTransient<E>(options => options.MapTypeToAllImplementedInterfaces()
                                                               .UseDefaultConstructor());
 
             var resolvedInstances = new object[]
                                     {
-                                        _container.Resolve<IE>(),
-                                        _container.Resolve<IF>(),
-                                        _container.Resolve<IG>(),
-                                        _container.Resolve<E>()
+                                        Container.Resolve<IE>(),
+                                        Container.Resolve<IF>(),
+                                        Container.Resolve<IG>(),
+                                        Container.Resolve<E>()
                                     };
 
             resolvedInstances.Should().ContainItemsAssignableTo<E>();
@@ -153,14 +151,14 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "Clients must be able to register a type with mappings to specified base types")]
         public void MapSpecificTypes()
         {
-            _container.RegisterTransient<E>(options => options.MapTypeToAbstractions(typeof(IE), typeof(A))
+            Container.RegisterTransient<E>(options => options.MapTypeToAbstractions(typeof(IE), typeof(A))
                                                               .UseDefaultConstructor());
 
             var resolvedInstances = new object[]
                                     {
-                                        _container.Resolve<IE>(),
-                                        _container.Resolve<A>(),
-                                        _container.Resolve<E>()
+                                        Container.Resolve<IE>(),
+                                        Container.Resolve<A>(),
+                                        Container.Resolve<E>()
                                     };
 
             resolvedInstances.Should().ContainItemsAssignableTo<E>();
@@ -170,14 +168,14 @@ namespace Light.DependencyInjection.Tests
         [MemberData(nameof(ResolveWithStaticFactoryMethodData))]
         public void ResolveWithStaticFactoryMethod(Action<IRegistrationOptions<F>> configureStaticMethod)
         {
-            _container.RegisterTransient(configureStaticMethod)
+            Container.RegisterTransient(configureStaticMethod)
                       .RegisterInstance("Hello")
                       .RegisterInstance(3);
 
-            var instanceOfF = _container.Resolve<F>();
+            var instanceOfF = Container.Resolve<F>();
 
-            instanceOfF.Text.Should().Be(_container.Resolve<string>());
-            instanceOfF.Number.Should().Be(_container.Resolve<int>());
+            instanceOfF.Text.Should().Be(Container.Resolve<string>());
+            instanceOfF.Number.Should().Be(Container.Resolve<int>());
         }
 
         public static readonly TestData ResolveWithStaticFactoryMethodData =
@@ -192,9 +190,9 @@ namespace Light.DependencyInjection.Tests
         [MemberData(nameof(PropertyInjectionData))]
         public void PropertyInjection(Action<IRegistrationOptions<G>> configurePropertyInjection)
         {
-            _container.RegisterTransient(configurePropertyInjection);
+            Container.RegisterTransient(configurePropertyInjection);
 
-            var instanceOfG = _container.Resolve<G>();
+            var instanceOfG = Container.Resolve<G>();
 
             instanceOfG.ReferenceToA.Should().NotBeNull();
         }
@@ -210,10 +208,10 @@ namespace Light.DependencyInjection.Tests
         [MemberData(nameof(FieldInjectionData))]
         public void FieldInjection(Action<IRegistrationOptions<H>> configureFieldInjection)
         {
-            _container.RegisterTransient(configureFieldInjection)
+            Container.RegisterTransient(configureFieldInjection)
                       .RegisterInstance(true);
 
-            var instanceOfH = _container.Resolve<H>();
+            var instanceOfH = Container.Resolve<H>();
 
             instanceOfH.BooleanValue.Should().BeTrue();
         }
@@ -228,10 +226,10 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "Clients must be able to add a registration name for property injections that the container uses to resolve the child value.")]
         public void ResolvePropertyInjectionWithNonDefaultRegistration()
         {
-            _container.RegisterTransient<A>("MyAObject")
+            Container.RegisterTransient<A>("MyAObject")
                       .RegisterTransient<G>(options => options.AddPropertyInjection(g => g.ReferenceToA, "MyAObject"));
 
-            var instanceOfG = _container.Resolve<G>();
+            var instanceOfG = Container.Resolve<G>();
 
             instanceOfG.ReferenceToA.Should().NotBeNull();
         }
@@ -239,12 +237,12 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "Clients must be able to add a registration name for field injections that the container uses to resolve the child value.")]
         public void ResolveFieldInjectionWithNonDefaultRegistration()
         {
-            _container.RegisterTransient<G>()
+            Container.RegisterTransient<G>()
                       .RegisterTransient<G>(options => options.UseRegistrationName("MyG")
                                                               .AddPropertyInjection(g => g.ReferenceToA))
                       .RegisterTransient<J>(options => options.AddFieldInjection(j => j.ReferenceToG, "MyG"));
 
-            var instanceOfJ = _container.Resolve<J>();
+            var instanceOfJ = Container.Resolve<J>();
 
             instanceOfJ.ReferenceToG.ReferenceToA.Should().NotBeNull();
         }
@@ -253,11 +251,11 @@ namespace Light.DependencyInjection.Tests
         [MemberData(nameof(ResolveInstantiationMethodDependencyWithNonDefaultRegistrationData))]
         public void ResolveInstantiationMethodDependencyWithNonDefaultRegistration(Action<IRegistrationOptions<B>> configureOptionsForB)
         {
-            _container.RegisterTransient<A>("MySpecialA")
+            Container.RegisterTransient<A>("MySpecialA")
                       .RegisterTransient(configureOptionsForB)
                       .RegisterInstance(42);
 
-            var instanceOfB = _container.Resolve<B>();
+            var instanceOfB = Container.Resolve<B>();
 
             instanceOfB.OtherObject.Should().NotBeNull();
         }
@@ -268,15 +266,5 @@ namespace Light.DependencyInjection.Tests
                 new object[] { new Action<IRegistrationOptions<B>>(options => options.ResolveInstantiationParameter<A>().WithName("MySpecialA")) },
                 new object[] { new Action<IRegistrationOptions<B>>(options => options.ResolveInstantiationParameter("otherObject").WithName("MySpecialA")) }
             };
-
-        [Fact(DisplayName = "Clients must be able to register unbound generic types, where the unbound generics are resolved by the DI Container when a bound generic type is requested.")]
-        public void ResolvingOpenGenerics()
-        {
-            _container.RegisterTransient(typeof(List<>), options => options.UseDefaultConstructor());
-
-            var list = _container.Resolve<List<int>>();
-
-            list.Should().NotBeNull();
-        }
     }
 }

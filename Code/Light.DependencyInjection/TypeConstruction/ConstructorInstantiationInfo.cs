@@ -17,12 +17,12 @@ namespace Light.DependencyInjection.TypeConstruction
             ConstructorInfo = constructorInfo;
         }
 
-        protected override InstantiationInfo CloneForBoundGenericTypeInternal(Type boundGenericType, TypeInfo boundGenericTypeInfo)
+        protected override InstantiationInfo CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
         {
             if (InstantiationDependencies == null || InstantiationDependencies.Count == 0)
-                return new ConstructorInstantiationInfo(boundGenericTypeInfo.GetDefaultConstructor());
+                return new ConstructorInstantiationInfo(closedConstructedGenericTypeInfo.GetDefaultConstructor());
 
-            var boundConstructors = boundGenericTypeInfo.DeclaredConstructors.AsList();
+            var boundConstructors = closedConstructedGenericTypeInfo.DeclaredConstructors.AsList();
             if (boundConstructors.Count == 1)
                 return new ConstructorInstantiationInfo(boundConstructors[0]);
 
@@ -34,10 +34,10 @@ namespace Light.DependencyInjection.TypeConstruction
                 if (unboundConstructorParameters.Length != boundConstructorParameters.Length)
                     continue;
 
-                if (MatchConstructorParameters(boundConstructorParameters, unboundConstructorParameters, boundGenericTypeInfo))
+                if (MatchConstructorParameters(boundConstructorParameters, unboundConstructorParameters, closedConstructedGenericTypeInfo))
                     return new ConstructorInstantiationInfo(boundConstructor);
             }
-            throw new ResolveTypeException($"The constructor for the bound generic type \"{boundGenericType}\" that matches the unbound version \"{ConstructorInfo}\" could not be found.", boundGenericType);
+            throw new ResolveTypeException($"The constructor for the bound generic type \"{closedConstructedGenericType}\" that matches the unbound version \"{ConstructorInfo}\" could not be found.", closedConstructedGenericType);
         }
 
         private bool MatchConstructorParameters(ParameterInfo[] boundConstructorParameters,

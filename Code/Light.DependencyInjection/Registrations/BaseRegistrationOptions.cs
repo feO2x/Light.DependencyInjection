@@ -103,7 +103,6 @@ namespace Light.DependencyInjection.Registrations
         public TConcreteOptions UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo)
         {
             staticFactoryMethodInfo.MustNotBeNull(nameof(staticFactoryMethodInfo));
-            CheckStaticCreationMethodInfo(staticFactoryMethodInfo, TargetType);
 
             AssignStaticCreationMethod(staticFactoryMethodInfo);
             return _this;
@@ -169,7 +168,7 @@ namespace Light.DependencyInjection.Registrations
 
         protected void AssignStaticCreationMethod(MethodInfo staticCreationMethod)
         {
-            InstantiationInfo = new StaticMethodInstantiationInfo(staticCreationMethod);
+            InstantiationInfo = new StaticMethodInstantiationInfo(TargetType, staticCreationMethod);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
