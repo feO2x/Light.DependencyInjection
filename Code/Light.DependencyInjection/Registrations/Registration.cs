@@ -35,39 +35,39 @@ namespace Light.DependencyInjection.Registrations
         public object GetInstance(DiContainer container)
         {
             container.MustNotBeNull(nameof(container));
-            CheckIfTargetTypeIsNotUnbound();
+            CheckIfTargetTypeIsGenericTypeDefinition();
 
             return GetInstanceInternal(container);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
-        private void CheckIfTargetTypeIsNotUnbound()
+        private void CheckIfTargetTypeIsGenericTypeDefinition()
         {
             if (TargetTypeInfo.IsGenericTypeDefinition)
-                throw new ResolveTypeException($"The type \"{TargetType}\" is an unbound generic type and cannot be resolved.", TargetType);
+                throw new ResolveTypeException($"The type \"{TargetType}\" is a generic type definition and cannot be resolved.", TargetType);
         }
 
         protected abstract object GetInstanceInternal(DiContainer container);
 
-        public Registration BindGenericTypeRegistration(Type boundGenericType)
+        public Registration BindGenericTypeDefinition(Type closedConstructedGenericType)
         {
-            var typeInfo = boundGenericType.GetTypeInfo();
-            CheckBoundGenericType(boundGenericType, typeInfo);
+            var typeInfo = closedConstructedGenericType.GetTypeInfo();
+            CheckClosedConstructedType(closedConstructedGenericType, typeInfo);
 
-            return BindGenericTypeRegistrationInternal(boundGenericType, typeInfo);
+            return BindGenericTypeDefinition(closedConstructedGenericType, typeInfo);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
-        private void CheckBoundGenericType(Type boundGenericType, TypeInfo boundGenericTypeInfo)
+        private void CheckClosedConstructedType(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
         {
             if (TargetTypeInfo.IsGenericTypeDefinition == false)
-                throw new ResolveTypeException($"The type \"{TargetType}\" is no unbound generic type and thus no registration can be created for a resolved generic version of it.", boundGenericType);
+                throw new ResolveTypeException($"The type \"{TargetType}\" is no generic type definition and thus no registration can be created for a closed constructed variant of it.", closedConstructedGenericType);
 
-            if (boundGenericTypeInfo.IsGenericType == false || boundGenericType.GetGenericTypeDefinition() != TargetType)
-                throw new ResolveTypeException($"The type \"{boundGenericType}\" is not a resolved version of the unbound generic type \"{TargetType}\".", boundGenericType);
+            if (closedConstructedGenericTypeInfo.IsGenericType == false || closedConstructedGenericType.GetGenericTypeDefinition() != TargetType)
+                throw new ResolveTypeException($"The type \"{closedConstructedGenericType}\" is not a closed constructed variant of the generic type definition \"{TargetType}\".", closedConstructedGenericType);
         }
 
-        protected abstract Registration BindGenericTypeRegistrationInternal(Type boundGenericType, TypeInfo boundGenericTypeInfo);
+        protected abstract Registration BindGenericTypeDefinition(Type closedConstructedGenericType, TypeInfo boundGenericTypeInfo);
 
         public override bool Equals(object obj)
         {

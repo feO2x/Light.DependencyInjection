@@ -14,9 +14,9 @@ namespace Light.DependencyInjection.Registrations
             return TypeCreationInfo.CreateInstance(container);
         }
 
-        protected override Registration BindGenericTypeRegistrationInternal(Type boundGenericType, TypeInfo boundGenericTypeInfo)
+        protected override Registration BindGenericTypeDefinition(Type closedConstructedGenericType, TypeInfo boundGenericTypeInfo)
         {
-            return new TransientRegistration(TypeCreationInfo.CloneForBoundGenericType(boundGenericType, boundGenericTypeInfo),
+            return new TransientRegistration(TypeCreationInfo.CloneForClosedConstructedGenericType(closedConstructedGenericType, boundGenericTypeInfo),
                                              TypeKey.RegistrationName);
         }
     }

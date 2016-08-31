@@ -33,15 +33,15 @@ namespace Light.DependencyInjection.FrameworkExtensions
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
-        public static void MustBeBoundVersionOfUnboundGenericType(this Type type, Type unboundgenericType)
+        public static void MustBeClosedConstructedVariantOf(this Type type, Type genericTypeDefinition)
         {
             type.MustNotBeNull(nameof(type));
-            var unboundGenericTypeInfo = unboundgenericType.GetTypeInfo();
-            if (unboundGenericTypeInfo.IsGenericTypeDefinition == false)
-                throw new ArgumentException($"The type \"{unboundgenericType}\" is no unbound generic type.");
+            var genericTypeDefinitionInfo = genericTypeDefinition.GetTypeInfo();
+            if (genericTypeDefinitionInfo.IsGenericTypeDefinition == false)
+                throw new ArgumentException($"The type \"{genericTypeDefinition}\" is no generic type definition.");
 
-            if (type.IsConstructedGenericType == false || type.GetGenericTypeDefinition() != unboundgenericType)
-                throw new ResolveTypeException($"The type \"{type}\" is no bound variant of the unbound generic type \"{unboundgenericType}\".", type);
+            if (type.IsConstructedGenericType == false || type.GetGenericTypeDefinition() != genericTypeDefinition)
+                throw new ResolveTypeException($"The type \"{type}\" is closed constructed variant of the generic type definition \"{genericTypeDefinition}\".", type);
         }
     }
 }

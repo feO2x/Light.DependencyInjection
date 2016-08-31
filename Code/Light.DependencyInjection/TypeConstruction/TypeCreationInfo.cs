@@ -36,17 +36,17 @@ namespace Light.DependencyInjection.TypeConstruction
             return instance;
         }
 
-        public TypeCreationInfo CloneForBoundGenericType(Type boundGenericType, TypeInfo boundGenericTypeInfo)
+        public TypeCreationInfo CloneForClosedConstructedGenericType(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
         {
             if (_instanceInjections == null || _instanceInjections.Count <= 0)
-                return new TypeCreationInfo(InstantiationInfo.CloneForBoundGenericType(boundGenericType, boundGenericTypeInfo));
+                return new TypeCreationInfo(InstantiationInfo.CloneForClosedConstructedGenericType(closedConstructedGenericType, closedConstructedGenericTypeInfo));
 
             var instanceInjections = new List<InstanceInjection>();
             foreach (var instanceInjection in _instanceInjections)
             {
-                instanceInjections.Add(instanceInjection.CloneForBoundGenericType(boundGenericType, boundGenericTypeInfo));
+                instanceInjections.Add(instanceInjection.CloneForClosedConstructedGenericType(closedConstructedGenericType, closedConstructedGenericTypeInfo));
             }
-            return new TypeCreationInfo(InstantiationInfo.CloneForBoundGenericType(boundGenericType, boundGenericTypeInfo), instanceInjections);
+            return new TypeCreationInfo(InstantiationInfo.CloneForClosedConstructedGenericType(closedConstructedGenericType, closedConstructedGenericTypeInfo), instanceInjections);
         }
     }
 }

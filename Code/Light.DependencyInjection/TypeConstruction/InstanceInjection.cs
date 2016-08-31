@@ -31,13 +31,13 @@ namespace Light.DependencyInjection.TypeConstruction
 
         public abstract void InjectValue(object instance, object value);
 
-        public InstanceInjection CloneForBoundGenericType(Type boundGenericType, TypeInfo boundGenericTypeInfo)
+        public InstanceInjection CloneForClosedConstructedGenericType(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
         {
-            boundGenericType.MustBeBoundVersionOfUnboundGenericType(DeclaringType);
+            closedConstructedGenericType.MustBeClosedConstructedVariantOf(DeclaringType);
 
-            return CloneForBoundGenericTypeInternal(boundGenericType, boundGenericTypeInfo);
+            return CloneForClosedConstructedGenericTypeInternal(closedConstructedGenericType, closedConstructedGenericTypeInfo);
         }
 
-        protected abstract InstanceInjection CloneForBoundGenericTypeInternal(Type boundGenericType, TypeInfo boundGenericTypeInfo);
+        protected abstract InstanceInjection CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo);
     }
 }

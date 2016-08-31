@@ -32,9 +32,9 @@ namespace Light.DependencyInjection.TypeConstruction
             PropertyInfo.SetValue(instance, value);
         }
 
-        protected override InstanceInjection CloneForBoundGenericTypeInternal(Type boundGenericType, TypeInfo boundGenericTypeInfo)
+        protected override InstanceInjection CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
         {
-            return new PropertyInjection(boundGenericTypeInfo.GetDeclaredProperty(PropertyInfo.Name), ChildValueRegistrationName);
+            return new PropertyInjection(closedConstructedGenericTypeInfo.GetDeclaredProperty(PropertyInfo.Name), ChildValueRegistrationName);
         }
     }
 }

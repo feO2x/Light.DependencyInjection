@@ -17,9 +17,9 @@ namespace Light.DependencyInjection.Registrations
             return Instance;
         }
 
-        protected override Registration BindGenericTypeRegistrationInternal(Type boundGenericType, TypeInfo boundGenericTypeInfo)
+        protected override Registration BindGenericTypeDefinition(Type closedConstructedGenericType, TypeInfo boundGenericTypeInfo)
         {
-            throw new NotSupportedException($"The {nameof(ExternallyCreatedInstanceRegistration)} does not support generic unbound types (an instance passed in is always resolved if it has a generic type).");
+            throw new NotSupportedException($"The {nameof(ExternallyCreatedInstanceRegistration)} does not support generic type definitions (an instance passed in is always resolved if it has a generic type).");
         }
     }
 }

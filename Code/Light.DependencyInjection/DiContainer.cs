@@ -89,11 +89,11 @@ namespace Light.DependencyInjection
 
             if (type.IsConstructedGenericType)
             {
-                var unboundGenericType = type.GetGenericTypeDefinition();
-                var unboundTypeKey = new TypeKey(unboundGenericType, registrationName);
-                if (_registrations.TryGetValue(unboundTypeKey, out registration))
+                var genericTypeDefintion = type.GetGenericTypeDefinition();
+                var genericTypeDefinitionKey = new TypeKey(genericTypeDefintion, registrationName);
+                if (_registrations.TryGetValue(genericTypeDefinitionKey, out registration))
                 {
-                    registration = registration.BindGenericTypeRegistration(type);
+                    registration = registration.BindGenericTypeDefinition(type);
                     _registrations.Add(typeKey, registration);
                     return registration.GetInstance(this);
                 }

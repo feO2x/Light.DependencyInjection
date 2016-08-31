@@ -24,9 +24,9 @@ namespace Light.DependencyInjection.Registrations
             return _instance;
         }
 
-        protected override Registration BindGenericTypeRegistrationInternal(Type boundGenericType, TypeInfo boundGenericTypeInfo)
+        protected override Registration BindGenericTypeDefinition(Type closedConstructedGenericType, TypeInfo boundGenericTypeInfo)
         {
-            return new SingletonRegistration(TypeCreationInfo.CloneForBoundGenericType(boundGenericType, boundGenericTypeInfo), TypeKey.RegistrationName);
+            return new SingletonRegistration(TypeCreationInfo.CloneForClosedConstructedGenericType(closedConstructedGenericType, boundGenericTypeInfo), TypeKey.RegistrationName);
         }
     }
 }

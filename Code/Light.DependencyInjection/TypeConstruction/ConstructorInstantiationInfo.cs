@@ -37,7 +37,7 @@ namespace Light.DependencyInjection.TypeConstruction
                 if (MatchConstructorParameters(boundConstructorParameters, unboundConstructorParameters, closedConstructedGenericTypeInfo))
                     return new ConstructorInstantiationInfo(boundConstructor);
             }
-            throw new ResolveTypeException($"The constructor for the bound generic type \"{closedConstructedGenericType}\" that matches the unbound version \"{ConstructorInfo}\" could not be found.", closedConstructedGenericType);
+            throw new ResolveTypeException($"The constructor for the closed constructed generic type \"{closedConstructedGenericType}\" that matches the generic type definition's constructor \"{ConstructorInfo}\" could not be found. This exception should actually never happen, unless there is a bug in class \"{nameof(ConstructorInstantiationInfo)}\" or you messed with the .NET type system badly.", closedConstructedGenericType);
         }
 
         private bool MatchConstructorParameters(ParameterInfo[] boundConstructorParameters,
