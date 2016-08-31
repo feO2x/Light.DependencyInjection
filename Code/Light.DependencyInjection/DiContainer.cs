@@ -93,7 +93,8 @@ namespace Light.DependencyInjection
                 var genericTypeDefinitionKey = new TypeKey(genericTypeDefintion, registrationName);
                 if (_registrations.TryGetValue(genericTypeDefinitionKey, out registration))
                 {
-                    registration = registration.BindGenericTypeDefinition(type);
+                    var closedConstructedType = genericTypeDefintion == registration.TargetType ? type : registration.TargetType.MakeGenericType(type.GenericTypeArguments);
+                    registration = registration.BindGenericTypeDefinition(closedConstructedType);
                     _registrations.Add(typeKey, registration);
                     return registration.GetInstance(this);
                 }

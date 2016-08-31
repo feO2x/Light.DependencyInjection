@@ -30,5 +30,16 @@ namespace Light.DependencyInjection.Tests
         {
             return new Dictionary<TKey, TValue>(42);
         }
+
+        [Fact(DisplayName = "Clients must be able to resolve generic type definitions by using a closed constructed variant of a mapped abstraction.")]
+        public void ResolveClosedConstructedAbstraction()
+        {
+            Container.RegisterTransient(typeof(HashSet<>), options => options.UseDefaultConstructor()
+                                                                             .MapTypeToAbstractions(typeof(ISet<>)));
+
+            var set = Container.Resolve<ISet<string>>();
+
+            set.Should().NotBeNull();
+        }
     }
 }

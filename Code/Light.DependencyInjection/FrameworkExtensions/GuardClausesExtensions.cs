@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using Light.GuardClauses;
 
@@ -8,34 +7,55 @@ namespace Light.DependencyInjection.FrameworkExtensions
 {
     public static class GuardClausesExtensions
     {
-        [Conditional(Check.CompileAssertionsSymbol)]
-        public static void MustInheritFromOrImplement(this Type parameter, Type baseType)
+        public static bool InheritsFromOrImplements(this Type parameter, Type baseType)
         {
-            parameter.MustNotBeNull(nameof(parameter));
-            baseType.MustNotBeNull(nameof(baseType));
-
             var baseTypeInfo = baseType.GetTypeInfo();
             var parameterTypeInfo = parameter.GetTypeInfo();
             if (baseTypeInfo.IsClass)
             {
                 do
                 {
-                    if (parameterTypeInfo.BaseType == baseType)
-                        return;
+                    if (parameterTypeInfo.BaseType.IsEquivalentTo(baseType))
+                        return true;
 
                     parameterTypeInfo = parameterTypeInfo.BaseType.GetTypeInfo();
                 } while (parameterTypeInfo.BaseType != null);
             }
-            else if (baseTypeInfo.IsInterface && parameterTypeInfo.ImplementedInterfaces.Contains(baseType))
-                return;
+            else if (baseTypeInfo.IsInterface)
+            {
+                foreach (var @interface in parameterTypeInfo.ImplementedInterfaces)
+                {
+                    if (@interface.IsEquivalentTo(baseType))
+                        return true;
+                }
+            }
 
-            throw new TypeRegistrationException($"The concrete type \"{parameter}\" does not inherit from or implement type \"{baseType}\".", parameter);
+            return false;
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        public static void MustInheritFromOrImplement(this Type parameter, Type baseType)
+        {
+            if (parameter.InheritsFromOrImplements(baseType) == false)
+                throw new TypeRegistrationException($"The concrete type \"{parameter}\" does not inherit from or implement type \"{baseType}\".", parameter);
+        }
+
+        private static bool IsEquivalentTo(this Type type, Type other)
+        {
+            if (type == other)
+                return true;
+
+            if (type.IsConstructedGenericType == false)
+                return false;
+
+            return type.GetGenericTypeDefinition() == other;
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
         public static void MustBeClosedConstructedVariantOf(this Type type, Type genericTypeDefinition)
         {
             type.MustNotBeNull(nameof(type));
+
             var genericTypeDefinitionInfo = genericTypeDefinition.GetTypeInfo();
             if (genericTypeDefinitionInfo.IsGenericTypeDefinition == false)
                 throw new ArgumentException($"The type \"{genericTypeDefinition}\" is no generic type definition.");
