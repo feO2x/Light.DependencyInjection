@@ -24,5 +24,23 @@ namespace Light.DependencyInjection.Tests
         // ReSharper restore UnusedTypeParameter
 
         public class SubType<T> : BaseType<T, int> { }
+
+        [Fact(DisplayName = "Interface types cannot be registered with the DI container because they cannot be instantiated.")]
+        public void InterfaceTypesNotAllowed()
+        {
+            Action act = () => Container.RegisterTransient(typeof(IE));
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The type \"{typeof(IE)}\" cannot be registered with the DI container because it is an interface type that cannot be instantiated.");
+        }
+
+        [Fact(DisplayName = "Abstract base classes cannot be registered with the DI container because they cannot be instantiated.")]
+        public void AbstractBaseClassesNotAllowed()
+        {
+            Action act = () => Container.RegisterTransient(typeof(DefaultDiContainerTests));
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The type \"{typeof(DefaultDiContainerTests)}\" cannot be registered with the DI container because it is an abstract class that cannot be instantiated.");
+        }
     }
 }

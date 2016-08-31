@@ -83,5 +83,17 @@ namespace Light.DependencyInjection.FrameworkExtensions
 
             throw new TypeRegistrationException($"The type \"{type}\" cannot be registered with the DI container because it is an open constructed generic type. Only non-generic types, closed constructed generic types or generic type definitions can be registered.", type);
         }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        public static void MustBeInstantiatable(this Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
+
+            if (typeInfo.IsInterface)
+                throw new TypeRegistrationException($"The type \"{type}\" cannot be registered with the DI container because it is an interface type that cannot be instantiated.", type);
+
+            if (typeInfo.IsAbstract)
+                throw new TypeRegistrationException($"The type \"{type}\" cannot be registered with the DI container because it is an abstract class that cannot be instantiated.", type);
+        }
     }
 }
