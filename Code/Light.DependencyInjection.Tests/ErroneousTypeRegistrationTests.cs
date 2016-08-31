@@ -67,6 +67,16 @@ namespace Light.DependencyInjection.Tests
                .And.Message.Should().Contain($"Cannot register \"{typeWithoutPublicConstructor}\" with the DI container because this type does not contain a public non-static constructor. Please specify an instantiation method using the registration options.");
         }
 
+        [Fact(DisplayName = "Clients must be able to choose non-public constructors to instantiate concrete types.")]
+        public void ChooseDefaultNonPublicConstructor()
+        {
+            Container.RegisterTransient<Foo>(options => options.UseDefaultConstructor());
+
+            var fooInstance = Container.Resolve<Foo>();
+
+            fooInstance.Should().NotBeNull();
+        }
+
         public class Foo
         {
             private Foo() { }
