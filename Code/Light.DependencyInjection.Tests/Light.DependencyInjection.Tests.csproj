@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="CompileObjectCreationFunctionTests.cs" />
     <Compile Include="DefaultDiContainerTests.cs" />
+    <Compile Include="ErroneousTypeRegistrationTests.cs" />
     <Compile Include="RegistrationOptionsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResolveTests.cs" />

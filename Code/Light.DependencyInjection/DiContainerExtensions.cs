@@ -25,7 +25,6 @@ namespace Light.DependencyInjection
         public static DiContainer RegisterTransient(this DiContainer diContainer, Type concreteType, string registrationName = null)
         {
             diContainer.MustNotBeNull(nameof(diContainer));
-            concreteType.MustNotBeNull(nameof(concreteType));
 
             return diContainer.Register(new TransientRegistration(diContainer.TypeAnalyzer.CreateInfoFor(concreteType), registrationName));
         }

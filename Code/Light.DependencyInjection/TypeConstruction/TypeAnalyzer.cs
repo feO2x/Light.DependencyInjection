@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
+using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
@@ -39,9 +39,7 @@ namespace Light.DependencyInjection.TypeConstruction
         {
             type.MustNotBeNull(nameof(type));
 
-            var typeInfo = type.GetTypeInfo();
-            var targetConstructor = _constructorSelector.SelectTargetConstructor(typeInfo);
-            return new TypeCreationInfo(new ConstructorInstantiationInfo(targetConstructor));
+            return new RegistrationOptions(type, _constructorSelector, _ignoredAbstractionTypes).BuildTypeCreationInfo();
         }
     }
 }

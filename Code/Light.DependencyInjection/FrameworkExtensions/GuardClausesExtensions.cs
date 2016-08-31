@@ -63,5 +63,25 @@ namespace Light.DependencyInjection.FrameworkExtensions
             if (type.IsConstructedGenericType == false || type.GetGenericTypeDefinition() != genericTypeDefinition)
                 throw new ResolveTypeException($"The type \"{type}\" is closed constructed variant of the generic type definition \"{genericTypeDefinition}\".", type);
         }
+
+        public static bool IsNonGenericOrClosedConstructedOrGenericTypeDefinition(this Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
+
+            if (typeInfo.IsGenericType == false)
+                return true;
+            if (typeInfo.IsGenericTypeDefinition)
+                return true;
+            return !typeInfo.ContainsGenericParameters;
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        public static void MustBeNonGenericOrClosedConstructedOrGenericTypeDefinition(this Type type)
+        {
+            if (type.IsNonGenericOrClosedConstructedOrGenericTypeDefinition())
+                return;
+
+            throw new TypeRegistrationException($"The type \"{type}\" cannot be registered with the DI container because it is an open constructed generic type. Only non-generic types, closed constructed generic types or generic type definitions can be registered.", type);
+        }
     }
 }
