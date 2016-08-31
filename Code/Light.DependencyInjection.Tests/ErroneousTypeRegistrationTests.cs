@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using Xunit;
@@ -41,6 +43,17 @@ namespace Light.DependencyInjection.Tests
 
             act.ShouldThrow<TypeRegistrationException>()
                .And.Message.Should().Contain($"The type \"{typeof(DefaultDiContainerTests)}\" cannot be registered with the DI container because it is an abstract class that cannot be instantiated.");
+        }
+
+        [Fact(DisplayName = "Generic parameter types cannot be registered with the DI container because they cannot be instantiated.")]
+        public void GenericParameterTypeNotAllowed()
+        {
+            var genericParameterType = typeof(Dictionary<,>).GetTypeInfo().GenericTypeParameters.First();
+
+            Action act = () => Container.RegisterTransient(genericParameterType);
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The type \"{genericParameterType}\" cannot be registered with the DI container because it is a generic type paramter. Only non-generic types, closed constructed generic types or generic type definitions can be registered.");
         }
     }
 }

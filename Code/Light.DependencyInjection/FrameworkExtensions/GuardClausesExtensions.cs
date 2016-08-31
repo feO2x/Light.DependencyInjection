@@ -64,24 +64,24 @@ namespace Light.DependencyInjection.FrameworkExtensions
                 throw new ResolveTypeException($"The type \"{type}\" is closed constructed variant of the generic type definition \"{genericTypeDefinition}\".", type);
         }
 
-        public static bool IsNonGenericOrClosedConstructedOrGenericTypeDefinition(this Type type)
-        {
-            var typeInfo = type.GetTypeInfo();
-
-            if (typeInfo.IsGenericType == false)
-                return true;
-            if (typeInfo.IsGenericTypeDefinition)
-                return true;
-            return !typeInfo.ContainsGenericParameters;
-        }
-
         [Conditional(Check.CompileAssertionsSymbol)]
         public static void MustBeNonGenericOrClosedConstructedOrGenericTypeDefinition(this Type type)
         {
-            if (type.IsNonGenericOrClosedConstructedOrGenericTypeDefinition())
-                return;
+            var typeInfo = type.GetTypeInfo();
 
-            throw new TypeRegistrationException($"The type \"{type}\" cannot be registered with the DI container because it is an open constructed generic type. Only non-generic types, closed constructed generic types or generic type definitions can be registered.", type);
+            if (typeInfo.IsGenericType)
+            {
+                if (typeInfo.IsGenericTypeDefinition)
+                    return;
+
+                if (typeInfo.ContainsGenericParameters == false)
+                    return;
+
+                throw new TypeRegistrationException($"The type \"{type}\" cannot be registered with the DI container because it is an open constructed generic type. Only non-generic types, closed constructed generic types or generic type definitions can be registered.", type);
+            }
+            if (typeInfo.IsGenericParameter)
+                throw new TypeRegistrationException($"The type \"{type}\" cannot be registered with the DI container because it is a generic type paramter. Only non-generic types, closed constructed generic types or generic type definitions can be registered.", type);
+
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
