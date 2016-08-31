@@ -55,5 +55,21 @@ namespace Light.DependencyInjection.Tests
             act.ShouldThrow<TypeRegistrationException>()
                .And.Message.Should().Contain($"The type \"{genericParameterType}\" cannot be registered with the DI container because it is a generic type paramter. Only non-generic types, closed constructed generic types or generic type definitions can be registered.");
         }
+
+        [Fact(DisplayName = "The DI container must throw an exception when a type is registered that has no public constructor and where no instantiation method is provided.")]
+        public void NoPublicConstructor()
+        {
+            var typeWithoutPublicConstructor = typeof(Foo);
+
+            Action act = () => Container.RegisterTransient(typeWithoutPublicConstructor);
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"Cannot register \"{typeWithoutPublicConstructor}\" with the DI container because this type does not contain a public non-static constructor. Please specify an instantiation method using the registration options.");
+        }
+
+        public class Foo
+        {
+            private Foo() { }
+        }
     }
 }
