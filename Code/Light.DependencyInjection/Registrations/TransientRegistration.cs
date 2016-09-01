@@ -7,7 +7,12 @@ namespace Light.DependencyInjection.Registrations
     public sealed class TransientRegistration : Registration
     {
         public TransientRegistration(TypeCreationInfo typeCreationInfo, string registrationName = null)
-            : base(new TypeKey(typeCreationInfo.TargetType, registrationName), typeCreationInfo) { }
+            : base(new TypeKey(typeCreationInfo.TargetType, registrationName), true, typeCreationInfo) { }
+
+        protected override object CreateInstanceInternal(DiContainer container, ParameterOverrides parameterOverrides)
+        {
+            return TypeCreationInfo.CreateInstance(container, parameterOverrides);
+        }
 
         protected override object GetInstanceInternal(DiContainer container)
         {

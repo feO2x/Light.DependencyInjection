@@ -266,5 +266,18 @@ namespace Light.DependencyInjection.Tests
                 new object[] { new Action<IRegistrationOptions<B>>(options => options.ResolveInstantiationParameter<A>().WithName("MySpecialA")) },
                 new object[] { new Action<IRegistrationOptions<B>>(options => options.ResolveInstantiationParameter("otherObject").WithName("MySpecialA")) }
             };
+
+        [Fact(DisplayName = "Clients must be able to override parameter values when resolving a type.")]
+        public void OverrideInstantiationParameters()
+        {
+            Container.RegisterTransient<B>()
+                     .RegisterTransient<A>()
+                     .RegisterInstance(42);
+
+            var parameterOverrides = Container.OverrideParametersFor<B>().OverrideInstantiationParameter("value", 87);
+            var instanceOfB = Container.Resolve<B>(parameterOverrides);
+
+            instanceOfB.Value.Should().Be(87);
+        }
     }
 }

@@ -37,6 +37,7 @@
     <Compile Include="Registrations\BaseRegistrationOptions.cs" />
     <Compile Include="Registrations\ChildRegistrationNameOptions.cs" />
     <Compile Include="Registrations\IChildRegistrationNameOptions.cs" />
+    <Compile Include="Registrations\TypeKeyExtensions.cs" />
     <Compile Include="ResolveTypeException.cs" />
     <Compile Include="TypeConstruction\ConstructorInstantiationInfo.cs" />
     <Compile Include="TypeConstruction\ConstructorWithMostParametersSelector.cs" />
@@ -44,6 +45,7 @@
     <Compile Include="DiContainerExtensions.cs" />
     <Compile Include="Registrations\ExternallyCreatedInstanceRegistration.cs" />
     <Compile Include="FrameworkExtensions\GuardClausesExtensions.cs" />
+    <Compile Include="TypeConstruction\ExplicitlyPassedNull.cs" />
     <Compile Include="TypeConstruction\FieldInjection.cs" />
     <Compile Include="TypeConstruction\IConstructorSelector.cs" />
     <Compile Include="Registrations\IDefaultRegistrationFactory.cs" />
@@ -59,6 +61,7 @@
     <Compile Include="TypeConstruction\InstantiationInfo.cs" />
     <Compile Include="TypeConstruction\ISetChildValueRegistrationName.cs" />
     <Compile Include="TypeConstruction\ParameterDependency.cs" />
+    <Compile Include="TypeConstruction\ParameterOverrides.cs" />
     <Compile Include="TypeConstruction\PropertyInjection.cs" />
     <Compile Include="TypeConstruction\StaticMethodInstantiationInfo.cs" />
     <Compile Include="TypeConstruction\TypeAnalyzer.cs" />

@@ -36,6 +36,7 @@ namespace Light.DependencyInjection.Registrations
                 return false;
             }
         }
+
         public override int GetHashCode()
         {
             return HashCode;
@@ -49,6 +50,11 @@ namespace Light.DependencyInjection.Registrations
         public static bool operator !=(TypeKey first, TypeKey second)
         {
             return !(first == second);
+        }
+
+        public override string ToString()
+        {
+            return $"TypeKey {this.GetCompleteRegistrationName()}";
         }
     }
 }

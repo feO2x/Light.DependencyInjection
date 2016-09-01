@@ -44,12 +44,31 @@ namespace Light.DependencyInjection.TypeConstruction
 
             var parameters = new object[_instantiationDependencies.Length];
 
-            for (var i = 0; i < parameters.Length; i++)
+            for (var i = 0; i < parameters.Length; ++i)
             {
                 parameters[i] = _instantiationDependencies[i].ResolveDependency(container);
             }
 
             return StandardizedInstantiationFunction(parameters);
+        }
+
+        public virtual object Instantiate(DiContainer container, ParameterOverrides parameterOverrides)
+        {
+            container.MustNotBeNull(nameof(container));
+
+            if (parameterOverrides.InstantiationParameters == null)
+                return StandardizedInstantiationFunction(null);
+
+            for (var i = 0; i < parameterOverrides.InstantiationParameters.Length; ++i)
+            {
+                var instantiationParameter = parameterOverrides.InstantiationParameters[i];
+                if (instantiationParameter == null)
+                    parameterOverrides.InstantiationParameters[i] = _instantiationDependencies[i].ResolveDependency(container);
+                else if (instantiationParameter is ExplicitlyPassedNull)
+                    parameterOverrides.InstantiationParameters[i] = null;
+            }
+
+            return StandardizedInstantiationFunction(parameterOverrides.InstantiationParameters);
         }
 
         public InstantiationInfo CloneForClosedConstructedGenericType(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)

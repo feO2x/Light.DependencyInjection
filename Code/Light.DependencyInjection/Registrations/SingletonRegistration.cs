@@ -9,7 +9,25 @@ namespace Light.DependencyInjection.Registrations
         private object _instance;
 
         public SingletonRegistration(TypeCreationInfo typeCreationInfo, string registrationName = null) 
-            : base(new TypeKey(typeCreationInfo.TargetType, registrationName), typeCreationInfo) { }
+            : base(new TypeKey(typeCreationInfo.TargetType, registrationName), true, typeCreationInfo) { }
+
+        protected override object CreateInstanceInternal(DiContainer container, ParameterOverrides parameterOverrides)
+        {
+            if (_instance == null)
+            {
+                lock (this)
+                {
+                    if (_instance == null)
+                    {
+                        _instance = TypeCreationInfo.CreateInstance(container, parameterOverrides);
+                        IsCreatingNewInstanceOnNextResolve = false;
+                        return _instance;
+                    }
+                }
+            }
+            
+            throw new ResolveTypeException($"The type {TypeKey.GetCompleteRegistrationName()} cannot be instantiated because it is registered as a Singleton which has already been instantiated.", TargetType);
+        }
 
         protected override object GetInstanceInternal(DiContainer container)
         {
@@ -18,7 +36,10 @@ namespace Light.DependencyInjection.Registrations
                 lock (this)
                 {
                     if (_instance == null)
+                    {
                         _instance = TypeCreationInfo.CreateInstance(container);
+                        IsCreatingNewInstanceOnNextResolve = false;
+                    }
                 }
             }
             return _instance;

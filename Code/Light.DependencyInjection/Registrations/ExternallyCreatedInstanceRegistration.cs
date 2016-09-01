@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Registrations
 {
@@ -7,9 +8,14 @@ namespace Light.DependencyInjection.Registrations
     {
         public readonly object Instance;
 
-        public ExternallyCreatedInstanceRegistration(object instance, string registrationName = null) : base(new TypeKey(instance.GetType(), registrationName))
+        public ExternallyCreatedInstanceRegistration(object instance, string registrationName = null) : base(new TypeKey(instance.GetType(), registrationName), false)
         {
             Instance = instance;
+        }
+
+        protected override object CreateInstanceInternal(DiContainer container, ParameterOverrides parameterOverrides)
+        {
+            throw new ResolveTypeException($"The type {TypeKey.GetCompleteRegistrationName()} cannot be instantiated because it was passed as a reference to the DI container.", TargetType);
         }
 
         protected override object GetInstanceInternal(DiContainer container)

@@ -7,9 +7,9 @@ namespace Light.DependencyInjection.TypeConstruction
 {
     public sealed class TypeCreationInfo
     {
-        public readonly Type TargetType;
-        public readonly InstantiationInfo InstantiationInfo;
         private readonly List<InstanceInjection> _instanceInjections;
+        public readonly InstantiationInfo InstantiationInfo;
+        public readonly Type TargetType;
 
         public TypeCreationInfo(InstantiationInfo instantiationInfo, List<InstanceInjection> instanceInjections = null)
         {
@@ -28,6 +28,21 @@ namespace Light.DependencyInjection.TypeConstruction
             if (_instanceInjections == null || _instanceInjections.Count == 0)
                 return instance;
 
+            foreach (var instanceInjection in _instanceInjections)
+            {
+                var injectionValue = container.Resolve(instanceInjection.MemberType, instanceInjection.ChildValueRegistrationName);
+                instanceInjection.InjectValue(instance, injectionValue);
+            }
+            return instance;
+        }
+
+        public object CreateInstance(DiContainer container, ParameterOverrides parameterOverrides)
+        {
+            var instance = InstantiationInfo.Instantiate(container, parameterOverrides);
+            if (_instanceInjections == null || _instanceInjections.Count == 0)
+                return instance;
+
+            // TODO: use values from parameter overrides if necessary
             foreach (var instanceInjection in _instanceInjections)
             {
                 var injectionValue = container.Resolve(instanceInjection.MemberType, instanceInjection.ChildValueRegistrationName);

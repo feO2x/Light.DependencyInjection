@@ -9,20 +9,26 @@ namespace Light.DependencyInjection.Registrations
 {
     public abstract class Registration : IEquatable<Registration>
     {
+        private readonly string _registrationDescription;
+        public readonly TypeInfo TargetTypeInfo;
         public readonly TypeCreationInfo TypeCreationInfo;
         public readonly TypeKey TypeKey;
-        public readonly TypeInfo TargetTypeInfo;
 
-        protected Registration(TypeKey typeKey, TypeCreationInfo typeCreationInfo = null)
+        protected Registration(TypeKey typeKey, bool isCreatingNewInstanceOnNextResolve, TypeCreationInfo typeCreationInfo = null)
         {
             TypeKey = typeKey;
             TypeCreationInfo = typeCreationInfo;
             TargetTypeInfo = typeKey.Type.GetTypeInfo();
+            IsCreatingNewInstanceOnNextResolve = isCreatingNewInstanceOnNextResolve;
+            var registrationNameText = typeKey.RegistrationName == null ? "" : $" \"{typeKey.RegistrationName}\"";
+            _registrationDescription = $"{GetType().Name}{registrationNameText} for type \"{typeKey.Type}\"";
         }
 
         public bool IsDefaultRegistration => TypeKey.RegistrationName == null;
         public Type TargetType => TypeKey.Type;
         public string Name => TypeKey.RegistrationName;
+
+        public bool IsCreatingNewInstanceOnNextResolve { get; protected set; }
 
         public bool Equals(Registration other)
         {
@@ -40,11 +46,32 @@ namespace Light.DependencyInjection.Registrations
             return GetInstanceInternal(container);
         }
 
+        public object CreateInstance(DiContainer container, ParameterOverrides parameterOverrides)
+        {
+            container.MustNotBeNull(nameof(container));
+            CheckIfTargetTypeIsGenericTypeDefinition();
+            CheckIfRegistrationCanCreateInstances();
+
+            return CreateInstanceInternal(container, parameterOverrides);
+        }
+
+        protected abstract object CreateInstanceInternal(DiContainer container, ParameterOverrides parameterOverrides);
+
+
         [Conditional(Check.CompileAssertionsSymbol)]
         private void CheckIfTargetTypeIsGenericTypeDefinition()
         {
             if (TargetTypeInfo.IsGenericTypeDefinition)
                 throw new ResolveTypeException($"The type \"{TargetType}\" is a generic type definition and cannot be resolved.", TargetType);
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private void CheckIfRegistrationCanCreateInstances()
+        {
+            if (IsCreatingNewInstanceOnNextResolve)
+                return;
+
+            throw new ResolveTypeException($"The type {TypeKey.GetCompleteRegistrationName()} will not be instantiated on the next resolve call, but use an existing instance. Thus it's parameters cannot be overridden.", TargetType);
         }
 
         protected abstract object GetInstanceInternal(DiContainer container);
@@ -87,6 +114,11 @@ namespace Light.DependencyInjection.Registrations
         public static bool operator !=(Registration first, Registration second)
         {
             return !(first == second);
+        }
+
+        public override string ToString()
+        {
+            return _registrationDescription;
         }
     }
 }
