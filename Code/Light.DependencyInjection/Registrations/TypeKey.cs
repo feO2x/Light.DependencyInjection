@@ -54,7 +54,7 @@ namespace Light.DependencyInjection.Registrations
 
         public override string ToString()
         {
-            return $"TypeKey {this.GetCompleteRegistrationName()}";
+            return $"TypeKey {this.GetFullRegistrationName()}";
         }
     }
 }

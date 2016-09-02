@@ -11,6 +11,7 @@ namespace Light.DependencyInjection.TypeConstruction
         public readonly Type MemberType;
         public readonly Type DeclaringType;
         public string ChildValueRegistrationName;
+        public readonly string DisplayName;
 
         protected InstanceInjection(string memberName, Type memberType, Type declaringType, string childValueRegistrationName)
         {
@@ -22,6 +23,7 @@ namespace Light.DependencyInjection.TypeConstruction
             MemberType = memberType;
             DeclaringType = declaringType;
             ChildValueRegistrationName = childValueRegistrationName;
+            DisplayName = $"{GetType().Name} {DeclaringType.Name}.{MemberName}";
         }
 
         string ISetChildValueRegistrationName.ChildValueRegistrationName
@@ -39,5 +41,10 @@ namespace Light.DependencyInjection.TypeConstruction
         }
 
         protected abstract InstanceInjection CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo);
+
+        public override string ToString()
+        {
+            return DisplayName;
+        }
     }
 }

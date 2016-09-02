@@ -71,7 +71,7 @@ namespace Light.DependencyInjection.Registrations
             if (IsCreatingNewInstanceOnNextResolve)
                 return;
 
-            throw new ResolveTypeException($"The type {TypeKey.GetCompleteRegistrationName()} will not be instantiated on the next resolve call, but use an existing instance. Thus it's parameters cannot be overridden.", TargetType);
+            throw new ResolveTypeException($"The type {TypeKey.GetFullRegistrationName()} will not be instantiated on the next resolve call, but use an existing instance. Thus it's parameters cannot be overridden.", TargetType);
         }
 
         protected abstract object GetInstanceInternal(DiContainer container);

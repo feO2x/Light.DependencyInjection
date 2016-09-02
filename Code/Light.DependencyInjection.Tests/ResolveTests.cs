@@ -292,5 +292,17 @@ namespace Light.DependencyInjection.Tests
 
             instanceOfD.SomeNumber.Should().Be(42);
         }
+
+        [Fact(DisplayName = "Clients must be able to override property injection values using the property name.")]
+        public void OverrideUnknownProperty()
+        {
+            Container.RegisterTransient<G>();
+            var instanceOfA = new A();
+
+            var parameterOverrides = Container.OverrideParametersFor<G>().OverrideMember(nameof(G.ReferenceToA), instanceOfA);
+            var instanceOfG = Container.Resolve<G>(parameterOverrides);
+
+            instanceOfG.ReferenceToA.Should().BeSameAs(instanceOfA);
+        }
     }
 }

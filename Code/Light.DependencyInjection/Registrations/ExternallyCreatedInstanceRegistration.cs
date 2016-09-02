@@ -15,7 +15,7 @@ namespace Light.DependencyInjection.Registrations
 
         protected override object CreateInstanceInternal(DiContainer container, ParameterOverrides parameterOverrides)
         {
-            throw new ResolveTypeException($"The type {TypeKey.GetCompleteRegistrationName()} cannot be instantiated because it was passed as a reference to the DI container.", TargetType);
+            throw new ResolveTypeException($"The type {TypeKey.GetFullRegistrationName()} cannot be instantiated because it was passed as a reference to the DI container.", TargetType);
         }
 
         protected override object GetInstanceInternal(DiContainer container)

@@ -14,7 +14,7 @@ namespace Light.DependencyInjection
             var options = new RegistrationOptions<T>(diContainer.TypeAnalyzer.ConstructorSelector, diContainer.TypeAnalyzer.IgnoredAbstractionTypes);
             configureOptions(options);
 
-            return diContainer.Register(new TransientRegistration(options.BuildTypeCreationInfo(), options.RegistrationName), options.MappedAbstractionTypes);
+            return diContainer.Register(new TransientRegistration(options.BuildTypeCreationInfo()), options.MappedAbstractionTypes);
         }
 
         public static DiContainer RegisterTransient<T>(this DiContainer diContainer, string registrationName = null)
@@ -26,7 +26,7 @@ namespace Light.DependencyInjection
         {
             diContainer.MustNotBeNull(nameof(diContainer));
 
-            return diContainer.Register(new TransientRegistration(diContainer.TypeAnalyzer.CreateInfoFor(concreteType), registrationName));
+            return diContainer.Register(new TransientRegistration(diContainer.TypeAnalyzer.CreateInfoFor(concreteType)));
         }
 
         public static DiContainer RegisterTransient(this DiContainer container, Type concreteType, Action<IRegistrationOptions> configureOptions)
@@ -37,13 +37,13 @@ namespace Light.DependencyInjection
             var options = new RegistrationOptions(concreteType, container.TypeAnalyzer.ConstructorSelector, container.TypeAnalyzer.IgnoredAbstractionTypes);
             configureOptions(options);
 
-            return container.Register(new TransientRegistration(options.BuildTypeCreationInfo(), options.RegistrationName), options.MappedAbstractionTypes);
+            return container.Register(new TransientRegistration(options.BuildTypeCreationInfo()), options.MappedAbstractionTypes);
         }
 
         public static DiContainer RegisterTransient<TAbstract, TConcrete>(this DiContainer diContainer, string registrationName = null) where TConcrete : TAbstract
         {
             diContainer.MustNotBeNull(nameof(diContainer));
-            return diContainer.Register(new TransientRegistration(diContainer.TypeAnalyzer.CreateInfoFor(typeof(TConcrete)), registrationName), typeof(TAbstract));
+            return diContainer.Register(new TransientRegistration(diContainer.TypeAnalyzer.CreateInfoFor(typeof(TConcrete))), typeof(TAbstract));
         }
 
         public static DiContainer RegisterSingleton<T>(this DiContainer diContainer, string registrationName = null)
@@ -56,7 +56,7 @@ namespace Light.DependencyInjection
             diContainer.MustNotBeNull(nameof(diContainer));
             type.MustNotBeNull(nameof(type));
 
-            return diContainer.Register(new SingletonRegistration(diContainer.TypeAnalyzer.CreateInfoFor(type), registrationName));
+            return diContainer.Register(new SingletonRegistration(diContainer.TypeAnalyzer.CreateInfoFor(type)));
         }
 
         public static DiContainer RegisterInstance(this DiContainer diContainer, object instance, string registrationName = null)

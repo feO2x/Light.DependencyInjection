@@ -18,7 +18,7 @@ namespace Light.DependencyInjection.Registrations
         {
             AssignInstantiationMethodIfNeccessary();
 
-            return new TypeCreationInfo(InstantiationInfo, InstanceInjections);
+            return new TypeCreationInfo(new TypeKey(TargetType, RegistrationName), InstantiationInfo, InstanceInjections);
         }
     }
 
@@ -123,7 +123,7 @@ namespace Light.DependencyInjection.Registrations
         {
             AssignInstantiationMethodIfNeccessary();
 
-            return new TypeCreationInfo(InstantiationInfo, InstanceInjections);
+            return new TypeCreationInfo(new TypeKey(TargetType, RegistrationName), InstantiationInfo, InstanceInjections);
         }
     }
 }

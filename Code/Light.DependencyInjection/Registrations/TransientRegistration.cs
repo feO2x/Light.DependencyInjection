@@ -6,8 +6,8 @@ namespace Light.DependencyInjection.Registrations
 {
     public sealed class TransientRegistration : Registration
     {
-        public TransientRegistration(TypeCreationInfo typeCreationInfo, string registrationName = null)
-            : base(new TypeKey(typeCreationInfo.TargetType, registrationName), true, typeCreationInfo) { }
+        public TransientRegistration(TypeCreationInfo typeCreationInfo)
+            : base(typeCreationInfo.TypeKey, true, typeCreationInfo) { }
 
         protected override object CreateInstanceInternal(DiContainer container, ParameterOverrides parameterOverrides)
         {
@@ -21,8 +21,7 @@ namespace Light.DependencyInjection.Registrations
 
         protected override Registration BindGenericTypeDefinition(Type closedConstructedGenericType, TypeInfo boundGenericTypeInfo)
         {
-            return new TransientRegistration(TypeCreationInfo.CloneForClosedConstructedGenericType(closedConstructedGenericType, boundGenericTypeInfo),
-                                             TypeKey.RegistrationName);
+            return new TransientRegistration(TypeCreationInfo.CloneForClosedConstructedGenericType(closedConstructedGenericType, boundGenericTypeInfo));
         }
     }
 }

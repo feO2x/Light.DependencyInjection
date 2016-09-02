@@ -8,8 +8,8 @@ namespace Light.DependencyInjection.Registrations
     {
         private object _instance;
 
-        public SingletonRegistration(TypeCreationInfo typeCreationInfo, string registrationName = null) 
-            : base(new TypeKey(typeCreationInfo.TargetType, registrationName), true, typeCreationInfo) { }
+        public SingletonRegistration(TypeCreationInfo typeCreationInfo) 
+            : base(typeCreationInfo.TypeKey, true, typeCreationInfo) { }
 
         protected override object CreateInstanceInternal(DiContainer container, ParameterOverrides parameterOverrides)
         {
@@ -26,7 +26,7 @@ namespace Light.DependencyInjection.Registrations
                 }
             }
             
-            throw new ResolveTypeException($"The type {TypeKey.GetCompleteRegistrationName()} cannot be instantiated because it is registered as a Singleton which has already been instantiated.", TargetType);
+            throw new ResolveTypeException($"The type {TypeKey.GetFullRegistrationName()} cannot be instantiated because it is registered as a Singleton which has already been instantiated.", TargetType);
         }
 
         protected override object GetInstanceInternal(DiContainer container)
@@ -47,7 +47,7 @@ namespace Light.DependencyInjection.Registrations
 
         protected override Registration BindGenericTypeDefinition(Type closedConstructedGenericType, TypeInfo boundGenericTypeInfo)
         {
-            return new SingletonRegistration(TypeCreationInfo.CloneForClosedConstructedGenericType(closedConstructedGenericType, boundGenericTypeInfo), TypeKey.RegistrationName);
+            return new SingletonRegistration(TypeCreationInfo.CloneForClosedConstructedGenericType(closedConstructedGenericType, boundGenericTypeInfo));
         }
     }
 }

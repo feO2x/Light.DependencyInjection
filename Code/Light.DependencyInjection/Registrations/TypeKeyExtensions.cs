@@ -2,7 +2,7 @@
 {
     public static class TypeKeyExtensions
     {
-        public static string GetCompleteRegistrationName(this TypeKey typeKey)
+        public static string GetFullRegistrationName(this TypeKey typeKey)
         {
             return $"\"{typeKey.Type}\"{typeKey.GetWithRegistrationNameText()}";
         }

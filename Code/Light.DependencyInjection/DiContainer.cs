@@ -14,6 +14,7 @@ namespace Light.DependencyInjection
         private readonly IDictionary<TypeKey, Registration> _registrations;
         private IDefaultRegistrationFactory _defaultRegistrationFactory = new TransientRegistrationFactory();
         private TypeAnalyzer _typeAnalyzer = new TypeAnalyzer();
+        private IInjectorForUnknownInstanceMembers _injectorForUnknownInstanceMembers = new DefaultInjectorForUnknownInstanceMembers();
 
         public DiContainer() : this(new Dictionary<TypeKey, Registration>()) { }
 
@@ -43,6 +44,16 @@ namespace Light.DependencyInjection
             {
                 value.MustNotBeNull(nameof(value));
                 _typeAnalyzer = value;
+            }
+        }
+
+        public IInjectorForUnknownInstanceMembers InjectorForUnknownInstanceMembers
+        {
+            get { return _injectorForUnknownInstanceMembers; }
+            set
+            {
+                value.MustNotBeNull(nameof(value));
+                _injectorForUnknownInstanceMembers = value;
             }
         }
 

@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
@@ -8,6 +11,12 @@ namespace Light.DependencyInjection.TypeConstruction
     {
         public readonly TypeCreationInfo TypeCreationInfo;
         public readonly object[] InstantiationParameters;
+        private Dictionary<InstanceInjection, object> _instanceInjectionOverrides;
+        private List<UnknownInjectionDescription> _additionalInjections;
+
+        public IReadOnlyDictionary<InstanceInjection, object> InstanceInjectionOverrides => _instanceInjectionOverrides;
+
+        public IReadOnlyList<UnknownInjectionDescription> AdditionalInjections => _additionalInjections;
 
         public ParameterOverrides(TypeCreationInfo typeCreationInfo)
         {
@@ -17,6 +26,8 @@ namespace Light.DependencyInjection.TypeConstruction
 
             var instantiationDependencies = typeCreationInfo.InstantiationInfo.InstantiationDependencies;
             InstantiationParameters = instantiationDependencies == null || instantiationDependencies.Count == 0 ? null : new object[instantiationDependencies.Count];
+            _instanceInjectionOverrides = null;
+            _additionalInjections = null;
         }
 
         public ParameterOverrides OverrideInstantiationParameter(string parameterName, object value)
@@ -28,11 +39,11 @@ namespace Light.DependencyInjection.TypeConstruction
                 if (TypeCreationInfo.InstantiationInfo.InstantiationDependencies[i].TargetParameter.Name != parameterName)
                     continue;
 
-                InstantiationParameters[i] = value ?? ExplicitlyPassedNull.Instance;
+                InstantiationParameters[i] = value.EscapeNullIfNecessary();
                 return this;
             }
 
-            throw new ResolveTypeException($"There is no parameter with name \"{parameterName}\" for the instantiation method of type \"{TypeCreationInfo.TargetType}\".", TypeCreationInfo.TargetType);
+            throw new ArgumentException($"There is no parameter with name \"{parameterName}\" for the instantiation method of type {TypeCreationInfo.TypeKey.GetFullRegistrationName()}.", nameof(parameterName));
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
@@ -48,7 +59,7 @@ namespace Light.DependencyInjection.TypeConstruction
             EnsureInstantiationParameterNotNull();
 
             var targetIndex = FindSingleTargetIndexByType(type);
-            InstantiationParameters[targetIndex] = value ?? ExplicitlyPassedNull.Instance;
+            InstantiationParameters[targetIndex] = value.EscapeNullIfNecessary();
             return this;
         }
 
@@ -67,15 +78,67 @@ namespace Light.DependencyInjection.TypeConstruction
                     continue;
 
                 if (targetIndex != -1)
-                    throw new ResolveTypeException($"You cannot override the parameter with type \"{parameterType}\" because there are several parameters with this type in the instantiation method for type \"{TypeCreationInfo.TargetType}\".", TypeCreationInfo.TargetType);
+                    throw new ArgumentException($"You cannot override the parameter with type \"{parameterType}\" because there are several parameters with this type in the instantiation method for type {TypeCreationInfo.TypeKey.GetFullRegistrationName()}.", nameof(parameterType));
 
                 targetIndex = i;
             }
 
             if (targetIndex == -1)
-                throw new ResolveTypeException($"The instantiation method of type \"{TypeCreationInfo.TargetType}\" has no parameter with type \"{parameterType}\".", TypeCreationInfo.TargetType);
+                throw new ArgumentException($"The instantiation method of type {TypeCreationInfo.TypeKey.GetFullRegistrationName()} has no parameter with type \"{parameterType}\".", nameof(parameterType));
 
             return targetIndex;
+        }
+
+        public ParameterOverrides OverrideMember(string memberName, object value)
+        {
+            var instanceInjection = FindInstanceInjection(memberName);
+            if (instanceInjection != null)
+            {
+                var instanceInjectionOverrides = GetInstanceInjectionOverrides();
+                instanceInjectionOverrides.Add(instanceInjection, value.EscapeNullIfNecessary());
+                return this;
+            }
+
+            var targetMember = TypeCreationInfo.TargetTypeInfo.DeclaredMembers.FirstOrDefault(m => m.Name == memberName);
+            if (targetMember == null)
+                throw new ArgumentException($"The type \"{TypeCreationInfo.TargetType}\" does not contain a member called \"{memberName}\".", nameof(memberName));
+
+            var additionalInjections = GetAdditionalInjections();
+            additionalInjections.Add(new UnknownInjectionDescription(targetMember, value.EscapeNullIfNecessary()));
+            return this;
+        }
+
+        private InstanceInjection FindInstanceInjection(string instanceInjectionName)
+        {
+            if (TypeCreationInfo.InstanceInjections != null)
+            {
+                for (var i = 0; i < TypeCreationInfo.InstanceInjections.Count; ++i)
+                {
+                    var instanceInjection = TypeCreationInfo.InstanceInjections[i];
+                    if (TypeCreationInfo.InstanceInjections[i].MemberName == instanceInjectionName)
+                        return instanceInjection;
+                }
+            }
+
+            return null;
+        }
+
+        private Dictionary<InstanceInjection, object> GetInstanceInjectionOverrides()
+        {
+            return _instanceInjectionOverrides ?? (_instanceInjectionOverrides = new Dictionary<InstanceInjection, object>());
+        }
+
+        private List<UnknownInjectionDescription> GetAdditionalInjections()
+        {
+            return _additionalInjections ?? (_additionalInjections = new List<UnknownInjectionDescription>());
+        }
+    }
+
+    public static class ParameterOverridesExtensions
+    {
+        public static object EscapeNullIfNecessary(this object value)
+        {
+            return value ?? ExplicitlyPassedNull.Instance;
         }
     }
 }
