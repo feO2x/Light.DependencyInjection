@@ -70,7 +70,7 @@ namespace Light.DependencyInjection.TypeConstruction
         public object CreateInstance(DiContainer container, ParameterOverrides parameterOverrides)
         {
             var instance = InstantiationInfo.Instantiate(container, parameterOverrides);
-            if (_instanceInjections != null && _instanceInjections.Count == 0)
+            if (_instanceInjections != null && _instanceInjections.Count > 0)
             {
                 foreach (var instanceInjection in _instanceInjections)
                 {

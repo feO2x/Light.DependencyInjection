@@ -41,7 +41,7 @@ namespace Light.DependencyInjection.Tests
         public void ResolveRecursively()
         {
             Container.RegisterSingleton<A>()
-                      .RegisterTransient<C>();
+                     .RegisterTransient<C>();
 
             var firstC = Container.Resolve<C>();
             var secondC = Container.Resolve<C>();
@@ -54,7 +54,7 @@ namespace Light.DependencyInjection.Tests
         public void AbstractionMapping()
         {
             Container.RegisterSingleton<A>()
-                      .RegisterTransient<IC, C>();
+                     .RegisterTransient<IC, C>();
 
             var interfaceReference = Container.Resolve<IC>();
 
@@ -102,7 +102,7 @@ namespace Light.DependencyInjection.Tests
         {
             Container.RegisterTransient<D>(options => options.UseDefaultConstructor());
 
-            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First());
+            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo) registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First());
         }
 
         [Fact(DisplayName = "Clients must be able to choose a constructor with a single parameter that the DI container uses to instantiate the target type.")]
@@ -110,7 +110,7 @@ namespace Light.DependencyInjection.Tests
         {
             Container.RegisterTransient<D>(options => options.UseConstructorWithParameter<IList<int>>());
 
-            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 1));
+            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo) registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 1));
         }
 
         [Fact(DisplayName = "Clients must be able to choose a constructor with two parameters that the DI container uses to instantiate the target type.")]
@@ -118,7 +118,7 @@ namespace Light.DependencyInjection.Tests
         {
             Container.RegisterTransient<E>(options => options.UseConstructorWithParameters<int, uint>());
 
-            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(E).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 2));
+            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo) registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(E).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 2));
         }
 
         [Fact(DisplayName = "Clients must be able to pass a ConstructorInfo directly to the options that the DI container will use to instantiate the target type.")]
@@ -128,14 +128,14 @@ namespace Light.DependencyInjection.Tests
 
             Container.RegisterTransient<E>(options => options.UseConstructor(targetConstructor));
 
-            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == targetConstructor);
+            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo) registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == targetConstructor);
         }
 
         [Fact(DisplayName = "Clients must be able to register a type with mappings to all of its implemented interfaces.")]
         public void MapAllInterfaces()
         {
             Container.RegisterTransient<E>(options => options.MapTypeToAllImplementedInterfaces()
-                                                              .UseDefaultConstructor());
+                                                             .UseDefaultConstructor());
 
             var resolvedInstances = new object[]
                                     {
@@ -152,7 +152,7 @@ namespace Light.DependencyInjection.Tests
         public void MapSpecificTypes()
         {
             Container.RegisterTransient<E>(options => options.MapTypeToAbstractions(typeof(IE), typeof(A))
-                                                              .UseDefaultConstructor());
+                                                             .UseDefaultConstructor());
 
             var resolvedInstances = new object[]
                                     {
@@ -169,8 +169,8 @@ namespace Light.DependencyInjection.Tests
         public void ResolveWithStaticFactoryMethod(Action<IRegistrationOptions<F>> configureStaticMethod)
         {
             Container.RegisterTransient(configureStaticMethod)
-                      .RegisterInstance("Hello")
-                      .RegisterInstance(3);
+                     .RegisterInstance("Hello")
+                     .RegisterInstance(3);
 
             var instanceOfF = Container.Resolve<F>();
 
@@ -209,7 +209,7 @@ namespace Light.DependencyInjection.Tests
         public void FieldInjection(Action<IRegistrationOptions<H>> configureFieldInjection)
         {
             Container.RegisterTransient(configureFieldInjection)
-                      .RegisterInstance(true);
+                     .RegisterInstance(true);
 
             var instanceOfH = Container.Resolve<H>();
 
@@ -227,7 +227,7 @@ namespace Light.DependencyInjection.Tests
         public void ResolvePropertyInjectionWithNonDefaultRegistration()
         {
             Container.RegisterTransient<A>("MyAObject")
-                      .RegisterTransient<G>(options => options.AddPropertyInjection(g => g.ReferenceToA, "MyAObject"));
+                     .RegisterTransient<G>(options => options.AddPropertyInjection(g => g.ReferenceToA, "MyAObject"));
 
             var instanceOfG = Container.Resolve<G>();
 
@@ -238,9 +238,9 @@ namespace Light.DependencyInjection.Tests
         public void ResolveFieldInjectionWithNonDefaultRegistration()
         {
             Container.RegisterTransient<G>()
-                      .RegisterTransient<G>(options => options.UseRegistrationName("MyG")
-                                                              .AddPropertyInjection(g => g.ReferenceToA))
-                      .RegisterTransient<J>(options => options.AddFieldInjection(j => j.ReferenceToG, "MyG"));
+                     .RegisterTransient<G>(options => options.UseRegistrationName("MyG")
+                                                             .AddPropertyInjection(g => g.ReferenceToA))
+                     .RegisterTransient<J>(options => options.AddFieldInjection(j => j.ReferenceToG, "MyG"));
 
             var instanceOfJ = Container.Resolve<J>();
 
@@ -252,8 +252,8 @@ namespace Light.DependencyInjection.Tests
         public void ResolveInstantiationMethodDependencyWithNonDefaultRegistration(Action<IRegistrationOptions<B>> configureOptionsForB)
         {
             Container.RegisterTransient<A>("MySpecialA")
-                      .RegisterTransient(configureOptionsForB)
-                      .RegisterInstance(42);
+                     .RegisterTransient(configureOptionsForB)
+                     .RegisterInstance(42);
 
             var instanceOfB = Container.Resolve<B>();
 
@@ -266,43 +266,5 @@ namespace Light.DependencyInjection.Tests
                 new object[] { new Action<IRegistrationOptions<B>>(options => options.ResolveInstantiationParameter<A>().WithName("MySpecialA")) },
                 new object[] { new Action<IRegistrationOptions<B>>(options => options.ResolveInstantiationParameter("otherObject").WithName("MySpecialA")) }
             };
-
-        [Fact(DisplayName = "Clients must be able to override instantiation values using the parameter name.")]
-        public void OverrideInstantiationParameterByName()
-        {
-            Container.RegisterTransient<B>()
-                     .RegisterTransient<A>()
-                     .RegisterInstance(42);
-
-            var parameterOverrides = Container.OverrideParametersFor<B>().OverrideInstantiationParameter("value", 87);
-            var instanceOfB = Container.Resolve<B>(parameterOverrides);
-
-            instanceOfB.Value.Should().Be(87);
-        }
-
-        [Fact(DisplayName = "Clients must be able to override instantiation values using the parameter type.")]
-        public void OverridInstantiationParameterByType()
-        {
-            Container.RegisterTransient<D>()
-                     .RegisterTransient(typeof(List<>), options => options.UseDefaultConstructor()
-                                                                          .MapTypeToAbstractions(typeof(IList<>)));
-
-            var parameterOverrides = Container.OverrideParametersFor<D>().OverrideInstantiationParameter<int>(42);
-            var instanceOfD = Container.Resolve<D>(parameterOverrides);
-
-            instanceOfD.SomeNumber.Should().Be(42);
-        }
-
-        [Fact(DisplayName = "Clients must be able to override property injection values using the property name.")]
-        public void OverrideUnknownProperty()
-        {
-            Container.RegisterTransient<G>();
-            var instanceOfA = new A();
-
-            var parameterOverrides = Container.OverrideParametersFor<G>().OverrideMember(nameof(G.ReferenceToA), instanceOfA);
-            var instanceOfG = Container.Resolve<G>(parameterOverrides);
-
-            instanceOfG.ReferenceToA.Should().BeSameAs(instanceOfA);
-        }
     }
 }

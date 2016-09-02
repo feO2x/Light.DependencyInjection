@@ -13,8 +13,8 @@ namespace Light.DependencyInjection
     {
         private readonly IDictionary<TypeKey, Registration> _registrations;
         private IDefaultRegistrationFactory _defaultRegistrationFactory = new TransientRegistrationFactory();
-        private TypeAnalyzer _typeAnalyzer = new TypeAnalyzer();
         private IInjectorForUnknownInstanceMembers _injectorForUnknownInstanceMembers = new DefaultInjectorForUnknownInstanceMembers();
+        private TypeAnalyzer _typeAnalyzer = new TypeAnalyzer();
 
         public DiContainer() : this(new Dictionary<TypeKey, Registration>()) { }
 
@@ -130,23 +130,20 @@ namespace Light.DependencyInjection
 
         public ParameterOverrides OverrideParametersFor(Type type, string registrationName = null)
         {
-            var targetRegistration = GetRegistration(type, registrationName);
-            CheckTargetRegistration(targetRegistration, new TypeKey(type, registrationName));
+            var targetRegistration = GetRegistration(type, registrationName) ?? CreateDefaultRegistration(type, registrationName);
+            CheckRegistrationForParameterOverrides(targetRegistration);
 
             return new ParameterOverrides(targetRegistration.TypeCreationInfo);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
         // ReSharper disable once UnusedParameter.Local
-        private static void CheckTargetRegistration(Registration targetRegistration, TypeKey typeKey)
+        private static void CheckRegistrationForParameterOverrides(Registration targetRegistration)
         {
-            var registrationNameText = typeKey.RegistrationName == null ? "" : $" with registration name {typeKey.RegistrationName}";
-            if (targetRegistration == null)
-                throw new ResolveTypeException($"The type \"{typeKey.Type}\"{registrationNameText} is not registered with the DI container.", typeKey.Type);
             if (targetRegistration.IsCreatingNewInstanceOnNextResolve == false)
-                throw new ResolveTypeException($"The type \"{typeKey.Type}\"{registrationNameText} will not be instantiated on the next resolve call, but use an existing instance. Thus it's parameters cannot be overridden.", typeKey.Type);
+                throw new InvalidOperationException($"The type {targetRegistration.TypeKey.GetFullRegistrationName()} will not be instantiated on the next resolve call, but use an existing instance. Thus it's parameters cannot be overridden.");
             if (targetRegistration.TypeCreationInfo == null)
-                throw new ResolveTypeException($"The type \"{typeKey.Type}\"{registrationNameText} is not instantiated by the DI container and thus cannot have it's parameters overridden.", typeKey.Type);
+                throw new InvalidOperationException($"The type {targetRegistration.TypeKey.GetFullRegistrationName()} is not instantiated by the DI container and thus cannot have it's parameters overridden.");
         }
 
         public Registration GetRegistration<T>(string registrationName = null)
