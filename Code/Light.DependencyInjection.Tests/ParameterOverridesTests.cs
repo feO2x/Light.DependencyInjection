@@ -80,5 +80,27 @@ namespace Light.DependencyInjection.Tests
 
             instanceOfJ.ReferenceToG.Should().BeSameAs(instanceOfG);
         }
+
+        [Fact(DisplayName = "Clients must be able to override instance injections using a field info.")]
+        public void OverrideFieldInfo()
+        {
+            var instanceOfG = new G();
+
+            var parameterOverrides = Container.OverrideParametersFor<J>().OverrideMember(typeof(J).GetField(nameof(J.ReferenceToG)), instanceOfG);
+            var instanceOfJ = Container.Resolve<J>(parameterOverrides);
+
+            instanceOfJ.ReferenceToG.Should().BeSameAs(instanceOfG);
+        }
+
+        [Fact(DisplayName = "Clients must be able to override instance injections using a property info.")]
+        public void OverridePropertyInfo()
+        {
+            var instanceOfA = new A();
+
+            var parameterOverrides = Container.OverrideParametersFor<G>().OverrideMember(typeof(G).GetProperty(nameof(G.ReferenceToA)), instanceOfA);
+            var instanceOfG = Container.Resolve<G>(parameterOverrides);
+
+            instanceOfG.ReferenceToA.Should().BeSameAs(instanceOfA);
+        }
     }
 }

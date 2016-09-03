@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
 
@@ -92,20 +93,35 @@ namespace Light.DependencyInjection.TypeConstruction
         public ParameterOverrides OverrideMember(string memberName, object value)
         {
             var instanceInjection = FindInstanceInjection(memberName);
-            if (instanceInjection != null)
-            {
-                var instanceInjectionOverrides = GetInstanceInjectionOverrides();
-                instanceInjectionOverrides.Add(instanceInjection, value.EscapeNullIfNecessary());
+            if (TryAddInstanceInjectionOverride(instanceInjection, value))
                 return this;
-            }
 
             var targetMember = TypeCreationInfo.TargetTypeInfo.DeclaredMembers.FirstOrDefault(m => m.Name == memberName);
             if (targetMember == null)
                 throw new ArgumentException($"The type \"{TypeCreationInfo.TargetType}\" does not contain a member called \"{memberName}\".", nameof(memberName));
 
-            var additionalInjections = GetAdditionalInjections();
-            additionalInjections.Add(new UnknownInjectionDescription(targetMember, value.EscapeNullIfNecessary()));
+            AddAdditionalInjections(targetMember, value);
             return this;
+        }
+
+        public ParameterOverrides OverrideMember(MemberInfo memberInfo, object value)
+        {
+            CheckMemberInfo(memberInfo);
+
+            var instanceInjection = FindInstanceInjection(memberInfo.Name);
+            if (TryAddInstanceInjectionOverride(instanceInjection, value))
+                return this;
+
+            AddAdditionalInjections(memberInfo, value);
+            return this;
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private void CheckMemberInfo(MemberInfo memberInfo)
+        {
+            memberInfo.MustNotBeNull(nameof(memberInfo));
+            if (memberInfo.DeclaringType != TypeCreationInfo.TargetType)
+                throw new ArgumentException($"The specified MemberInfo {memberInfo} does not describe a member of type {TypeCreationInfo.TargetType}.", nameof(memberInfo));
         }
 
         private InstanceInjection FindInstanceInjection(string instanceInjectionName)
@@ -121,6 +137,22 @@ namespace Light.DependencyInjection.TypeConstruction
             }
 
             return null;
+        }
+
+        private bool TryAddInstanceInjectionOverride(InstanceInjection instanceInjection, object value)
+        {
+            if (instanceInjection == null)
+                return false;
+
+            var instanceInjectionOverrides = GetInstanceInjectionOverrides();
+            instanceInjectionOverrides.Add(instanceInjection, value.EscapeNullIfNecessary());
+            return true;
+        }
+
+        private void AddAdditionalInjections(MemberInfo targetMember, object value)
+        {
+            var additionalInjections = GetAdditionalInjections();
+            additionalInjections.Add(new UnknownInjectionDescription(targetMember, value.EscapeNullIfNecessary()));
         }
 
         private Dictionary<InstanceInjection, object> GetInstanceInjectionOverrides()
