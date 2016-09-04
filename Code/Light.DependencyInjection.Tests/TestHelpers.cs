@@ -184,4 +184,14 @@ namespace Light.DependencyInjection.Tests
             Value = values.First();
         }
     }
+
+    public class ServiceLocator
+    {
+        public readonly DiContainer Container;
+
+        public ServiceLocator(DiContainer container)
+        {
+            Container = container;
+        }
+    }
 }

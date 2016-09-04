@@ -266,5 +266,13 @@ namespace Light.DependencyInjection.Tests
                 new object[] { new Action<IRegistrationOptions<B>>(options => options.ResolveInstantiationParameter<A>().WithName("MySpecialA")) },
                 new object[] { new Action<IRegistrationOptions<B>>(options => options.ResolveInstantiationParameter("otherObject").WithName("MySpecialA")) }
             };
+
+        [Fact(DisplayName = "The DI Container must be able to inject itself when it's type without registration name is resolved.")]
+        public void SelfInject()
+        {
+            var instance = Container.Resolve<ServiceLocator>();
+
+            instance.Container.Should().BeSameAs(Container);
+        }
     }
 }

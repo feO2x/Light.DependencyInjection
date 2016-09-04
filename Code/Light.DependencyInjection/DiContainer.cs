@@ -11,6 +11,7 @@ namespace Light.DependencyInjection
 {
     public sealed class DiContainer
     {
+        private static readonly Type DiContainerType = typeof(DiContainer);
         private readonly IDictionary<TypeKey, Registration> _registrations;
         private IDefaultRegistrationFactory _defaultRegistrationFactory = new TransientRegistrationFactory();
         private IInjectorForUnknownInstanceMembers _injectorForUnknownInstanceMembers = new DefaultInjectorForUnknownInstanceMembers();
@@ -91,6 +92,9 @@ namespace Light.DependencyInjection
 
         public object Resolve(Type type, string registrationName = null)
         {
+            if (type == DiContainerType && registrationName == null)
+                return this;
+
             var registration = GetRegistration(type, registrationName);
             if (registration != null)
                 return registration.GetInstance(this);
@@ -106,6 +110,9 @@ namespace Light.DependencyInjection
 
         public object Resolve(Type type, ParameterOverrides parameterOverrides, string registrationName = null)
         {
+            if (type == DiContainerType && registrationName == null)
+                return this;
+
             var registration = GetRegistration(type, registrationName);
             if (registration != null)
                 return registration.CreateInstance(this, parameterOverrides);
