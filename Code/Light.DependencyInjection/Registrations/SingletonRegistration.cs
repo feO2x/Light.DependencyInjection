@@ -6,43 +6,27 @@ namespace Light.DependencyInjection.Registrations
 {
     public sealed class SingletonRegistration : Registration
     {
-        private object _instance;
-
-        public SingletonRegistration(TypeCreationInfo typeCreationInfo) 
+        public SingletonRegistration(TypeCreationInfo typeCreationInfo)
             : base(typeCreationInfo.TypeKey, true, typeCreationInfo) { }
 
         protected override object CreateInstanceInternal(DiContainer container, ParameterOverrides parameterOverrides)
         {
-            if (_instance == null)
-            {
-                lock (this)
-                {
-                    if (_instance == null)
-                    {
-                        _instance = TypeCreationInfo.CreateInstance(container, parameterOverrides);
-                        IsCreatingNewInstanceOnNextResolve = false;
-                        return _instance;
-                    }
-                }
-            }
-            
+            object singleton;
+            if (container.Scope.Singletons.TryGetValue(TypeKey, out singleton))
+                throw new ResolveTypeException($"The type {TypeKey.GetFullRegistrationName()} cannot be instantiated because it is registered as a Singleton which has already been instantiated.", TargetType);
+
+            if (container.Scope.Singletons.GetOrAdd(TypeKey,
+                                                    () => TypeCreationInfo.CreateInstance(container, parameterOverrides),
+                                                    out singleton))
+                return singleton;
             throw new ResolveTypeException($"The type {TypeKey.GetFullRegistrationName()} cannot be instantiated because it is registered as a Singleton which has already been instantiated.", TargetType);
         }
 
         protected override object GetInstanceInternal(DiContainer container)
         {
-            if (_instance == null)
-            {
-                lock (this)
-                {
-                    if (_instance == null)
-                    {
-                        _instance = TypeCreationInfo.CreateInstance(container);
-                        IsCreatingNewInstanceOnNextResolve = false;
-                    }
-                }
-            }
-            return _instance;
+            var instance = container.Scope.Singletons.GetOrAdd(TypeKey,
+                                                               () => TypeCreationInfo.CreateInstance(container));
+            return instance;
         }
 
         protected override Registration BindGenericTypeDefinition(Type closedConstructedGenericType, TypeInfo boundGenericTypeInfo)

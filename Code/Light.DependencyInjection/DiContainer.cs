@@ -3,27 +3,44 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Light.DependencyInjection.FrameworkExtensions;
+using Light.DependencyInjection.Multithreading;
 using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.TypeConstruction;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection
 {
-    public sealed class DiContainer
+    public sealed class DiContainer : IDisposable
     {
         private static readonly Type DiContainerType = typeof(DiContainer);
-        private readonly IDictionary<TypeKey, Registration> _registrations;
-        private IDefaultRegistrationFactory _defaultRegistrationFactory = new TransientRegistrationFactory();
-        private IInjectorForUnknownInstanceMembers _injectorForUnknownInstanceMembers = new DefaultInjectorForUnknownInstanceMembers();
-        private TypeAnalyzer _typeAnalyzer = new TypeAnalyzer();
+        private readonly SynchronizedDictionary<TypeKey, Registration> _registrations;
+        public readonly ContainerScope Scope;
+        private IDefaultRegistrationFactory _defaultRegistrationFactory;
+        private IInjectorForUnknownInstanceMembers _injectorForUnknownInstanceMembers;
+        private TypeAnalyzer _typeAnalyzer;
 
-        public DiContainer() : this(new Dictionary<TypeKey, Registration>()) { }
+        public DiContainer() : this(new SynchronizedDictionary<TypeKey, Registration>()) { }
 
-        public DiContainer(IDictionary<TypeKey, Registration> registrations)
+        public DiContainer(SynchronizedDictionary<TypeKey, Registration> registrations)
+            : this(registrations,
+                   new TransientRegistrationFactory(),
+                   new DefaultInjectorForUnknownInstanceMembers(),
+                   new TypeAnalyzer(),
+                   new ContainerScope()) { }
+
+        private DiContainer(SynchronizedDictionary<TypeKey, Registration> registrations,
+                            IDefaultRegistrationFactory defaultRegistrationFactory,
+                            IInjectorForUnknownInstanceMembers injectorForUnknownInstanceMembers,
+                            TypeAnalyzer typeAnalyzer,
+                            ContainerScope scope)
         {
             registrations.MustNotBeNull(nameof(registrations));
 
             _registrations = registrations;
+            _defaultRegistrationFactory = defaultRegistrationFactory;
+            _injectorForUnknownInstanceMembers = injectorForUnknownInstanceMembers;
+            _typeAnalyzer = typeAnalyzer;
+            Scope = scope;
         }
 
         public IDefaultRegistrationFactory DefaultRegistrationFactory
@@ -36,7 +53,7 @@ namespace Light.DependencyInjection
             }
         }
 
-        public ICollection<Registration> Registrations => _registrations.Values;
+        public IReadOnlyList<Registration> Registrations => _registrations.Values;
 
         public TypeAnalyzer TypeAnalyzer
         {
@@ -58,6 +75,20 @@ namespace Light.DependencyInjection
             }
         }
 
+        public void Dispose() { }
+
+        public DiContainer CreateChildContainer(bool createEmptyChildScope = false, bool createCopyOfMappings = false)
+        {
+            var childScope = createEmptyChildScope ? new ContainerScope() : new ContainerScope(Scope);
+            var registrations = createCopyOfMappings ? new SynchronizedDictionary<TypeKey, Registration>(_registrations) : _registrations;
+
+            return new DiContainer(registrations,
+                                   _defaultRegistrationFactory,
+                                   _injectorForUnknownInstanceMembers,
+                                   _typeAnalyzer,
+                                   childScope);
+        }
+
         public DiContainer Register(Registration registration, IEnumerable<Type> abstractionTypes)
         {
             Register(registration);
@@ -65,7 +96,7 @@ namespace Light.DependencyInjection
             foreach (var abstractionType in abstractionTypes)
             {
                 registration.TargetType.MustInheritFromOrImplement(abstractionType);
-                _registrations.Add(new TypeKey(abstractionType, registration.Name), registration);
+                _registrations.AddOrReplace(new TypeKey(abstractionType, registration.Name), registration);
             }
 
             return this;
@@ -80,7 +111,7 @@ namespace Light.DependencyInjection
         {
             registration.MustNotBeNull();
 
-            _registrations.Add(new TypeKey(registration.TargetType, registration.Name), registration);
+            _registrations.AddOrReplace(new TypeKey(registration.TargetType, registration.Name), registration);
 
             return this;
         }
@@ -95,12 +126,15 @@ namespace Light.DependencyInjection
             if (type == DiContainerType && registrationName == null)
                 return this;
 
-            var registration = GetRegistration(type, registrationName);
-            if (registration != null)
-                return registration.GetInstance(this);
+            object singleton;
+            if (Scope.Singletons.TryGetValue(new TypeKey(type, registrationName), out singleton))
+                return singleton;
 
-            registration = CreateDefaultRegistration(type, registrationName);
-            return registration.GetInstance(this);
+            var registration = GetRegistration(type, registrationName) ?? TryCreateDefaultRegistration(type, registrationName);
+
+            var instance = registration.GetInstance(this);
+            Scope.TryAddDisposable(instance);
+            return instance;
         }
 
         public T Resolve<T>(ParameterOverrides parameterOverrides, string registrationName = null)
@@ -113,20 +147,18 @@ namespace Light.DependencyInjection
             if (type == DiContainerType && registrationName == null)
                 return this;
 
-            var registration = GetRegistration(type, registrationName);
-            if (registration != null)
-                return registration.CreateInstance(this, parameterOverrides);
-
-            registration = CreateDefaultRegistration(type, registrationName);
-            return registration.CreateInstance(this, parameterOverrides);
+            var registration = GetRegistration(type, registrationName) ?? TryCreateDefaultRegistration(type, registrationName);
+            var instance = registration.CreateInstance(this, parameterOverrides);
+            Scope.TryAddDisposable(instance);
+            return instance;
         }
 
-        private Registration CreateDefaultRegistration(Type type, string registrationName)
+        private Registration TryCreateDefaultRegistration(Type type, string registrationName)
         {
             CheckIfTypeIsInstantiable(type);
 
-            var registration = _defaultRegistrationFactory.CreateDefaultRegistration(_typeAnalyzer.CreateInfoFor(type));
-            _registrations.Add(new TypeKey(type, registrationName), registration);
+            var registration = _registrations.GetOrAdd(new TypeKey(type, registrationName),
+                                                       () => _defaultRegistrationFactory.CreateDefaultRegistration(_typeAnalyzer.CreateInfoFor(type)));
             return registration;
         }
 
@@ -137,7 +169,7 @@ namespace Light.DependencyInjection
 
         public ParameterOverrides OverrideParametersFor(Type type, string registrationName = null)
         {
-            var targetRegistration = GetRegistration(type, registrationName) ?? CreateDefaultRegistration(type, registrationName);
+            var targetRegistration = GetRegistration(type, registrationName) ?? TryCreateDefaultRegistration(type, registrationName);
             CheckRegistrationForParameterOverrides(targetRegistration);
 
             return new ParameterOverrides(targetRegistration.TypeCreationInfo);
@@ -161,22 +193,22 @@ namespace Light.DependencyInjection
         public Registration GetRegistration(Type type, string registrationName = null)
         {
             var typeKey = new TypeKey(type, registrationName);
-            Registration registration;
-            if (_registrations.TryGetValue(typeKey, out registration))
-                return registration;
+            Registration returnedRegistration;
+            if (_registrations.TryGetValue(typeKey, out returnedRegistration))
+                return returnedRegistration;
 
             if (type.IsConstructedGenericType == false)
                 return null;
 
             var genericTypeDefinition = type.GetGenericTypeDefinition();
             var genericTypeDefinitionKey = new TypeKey(genericTypeDefinition, registrationName);
-            if (_registrations.TryGetValue(genericTypeDefinitionKey, out registration) == false)
+            Registration genericTypeDefinitionRegistration;
+            if (_registrations.TryGetValue(genericTypeDefinitionKey, out genericTypeDefinitionRegistration) == false)
                 return null;
 
-            var closedConstructedType = genericTypeDefinition == registration.TargetType ? type : registration.TargetType.MakeGenericType(type.GenericTypeArguments);
-            registration = registration.BindGenericTypeDefinition(closedConstructedType);
-            _registrations.Add(typeKey, registration);
-            return registration;
+            var closedConstructedType = genericTypeDefinition == genericTypeDefinitionRegistration.TargetType ? type : genericTypeDefinitionRegistration.TargetType.MakeGenericType(type.GenericTypeArguments);
+            returnedRegistration = _registrations.GetOrAdd(typeKey, () => genericTypeDefinitionRegistration.BindGenericTypeDefinition(closedConstructedType));
+            return returnedRegistration;
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
