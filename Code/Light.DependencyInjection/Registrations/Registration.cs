@@ -14,13 +14,13 @@ namespace Light.DependencyInjection.Registrations
         public readonly TypeCreationInfo TypeCreationInfo;
         public readonly TypeKey TypeKey;
 
-        protected Registration(TypeKey typeKey, bool isCreatingNewInstanceOnNextResolve, TypeCreationInfo typeCreationInfo = null)
+        protected Registration(TypeKey typeKey, bool isContainerTrackingDisposable, TypeCreationInfo typeCreationInfo = null)
         {
             TypeKey = typeKey;
             TypeCreationInfo = typeCreationInfo;
             TargetTypeInfo = typeKey.Type.GetTypeInfo();
-            IsCreatingNewInstanceOnNextResolve = isCreatingNewInstanceOnNextResolve;
             var registrationNameText = typeKey.RegistrationName == null ? "" : $" \"{typeKey.RegistrationName}\"";
+            IsContainerTrackingDisposable = isContainerTrackingDisposable;
             _registrationDescription = $"{GetType().Name}{registrationNameText} for type \"{typeKey.Type}\"";
         }
 
@@ -28,7 +28,9 @@ namespace Light.DependencyInjection.Registrations
         public Type TargetType => TypeKey.Type;
         public string Name => TypeKey.RegistrationName;
 
-        public bool IsCreatingNewInstanceOnNextResolve { get; protected set; }
+        public abstract bool IsCreatingNewInstanceOnNextResolve { get; }
+
+        public bool IsContainerTrackingDisposable { get; }
 
         public bool Equals(Registration other)
         {

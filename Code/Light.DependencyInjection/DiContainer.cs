@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using Light.DependencyInjection.FrameworkExtensions;
 using Light.DependencyInjection.Multithreading;
@@ -75,7 +76,10 @@ namespace Light.DependencyInjection
             }
         }
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+            Scope.Dispose();
+        }
 
         public DiContainer CreateChildContainer(bool createEmptyChildScope = false, bool createCopyOfMappings = false)
         {
@@ -133,7 +137,8 @@ namespace Light.DependencyInjection
             var registration = GetRegistration(type, registrationName) ?? TryCreateDefaultRegistration(type, registrationName);
 
             var instance = registration.GetInstance(this);
-            Scope.TryAddDisposable(instance);
+            if (registration.IsContainerTrackingDisposable)
+                Scope.TryAddDisposable(instance);
             return instance;
         }
 
@@ -209,6 +214,17 @@ namespace Light.DependencyInjection
             var closedConstructedType = genericTypeDefinition == genericTypeDefinitionRegistration.TargetType ? type : genericTypeDefinitionRegistration.TargetType.MakeGenericType(type.GenericTypeArguments);
             returnedRegistration = _registrations.GetOrAdd(typeKey, () => genericTypeDefinitionRegistration.BindGenericTypeDefinition(closedConstructedType));
             return returnedRegistration;
+        }
+
+        public DiContainer ResolveAllSingletons()
+        {
+            foreach (var singletonRegistration in _registrations.Values.OfType<ISingletonRegistration>())
+            {
+                var instance = singletonRegistration.GetInstance(this);
+                if (singletonRegistration.IsContainerTrackingDisposable)
+                    Scope.TryAddDisposable(instance);
+            }
+            return this;
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]

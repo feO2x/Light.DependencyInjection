@@ -20,6 +20,7 @@ namespace Light.DependencyInjection.Registrations
         protected readonly TypeInfo TargetTypeInfo;
         protected List<InstanceInjection> InstanceInjections;
         protected InstantiationInfo InstantiationInfo;
+        public bool IsContainerTrackingDisposables { get; protected set; } = true;
 
         protected BaseRegistrationOptions(Type targetType, IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes)
         {
@@ -148,6 +149,12 @@ namespace Light.DependencyInjection.Registrations
 
             // ReSharper disable once PossibleNullReferenceException
             return new ChildRegistrationNameOptions<TConcreteOptions>(_this, targetParameters[0]);
+        }
+
+        public TConcreteOptions DisableTrackingOfDisposables()
+        {
+            IsContainerTrackingDisposables = false;
+            return _this;
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]

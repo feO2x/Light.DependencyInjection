@@ -37,6 +37,7 @@
     <Compile Include="Multithreading\SynchronizedDictionary.cs" />
     <Compile Include="Multithreading\SynchronizedDictionaryOptions.cs" />
     <Compile Include="Registrations\ContainerScope.cs" />
+    <Compile Include="Registrations\ISingletonRegistration.cs" />
     <Compile Include="TypeConstruction\DefaultInjectorForUnknownInstanceMembers.cs" />
     <Compile Include="TypeConstruction\IInjectorForUnknownInstanceMembers.cs" />
     <Compile Include="Registrations\BaseRegistrationOptions.cs" />

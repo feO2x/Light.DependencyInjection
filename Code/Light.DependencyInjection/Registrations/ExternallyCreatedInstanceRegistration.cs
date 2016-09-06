@@ -4,14 +4,17 @@ using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public sealed class ExternallyCreatedInstanceRegistration : Registration
+    public sealed class ExternallyCreatedInstanceRegistration : Registration, ISingletonRegistration
     {
         public readonly object Instance;
 
-        public ExternallyCreatedInstanceRegistration(object instance, string registrationName = null) : base(new TypeKey(instance.GetType(), registrationName), false)
+        public ExternallyCreatedInstanceRegistration(object instance, bool isContainerTrackingDisposables, string registrationName = null) 
+            : base(new TypeKey(instance.GetType(), registrationName), isContainerTrackingDisposables)
         {
             Instance = instance;
         }
+
+        public override bool IsCreatingNewInstanceOnNextResolve => false;
 
         protected override object CreateInstanceInternal(DiContainer container, ParameterOverrides parameterOverrides)
         {

@@ -6,7 +6,7 @@ namespace Light.DependencyInjection.Registrations
     {
         public Registration CreateDefaultRegistration(TypeCreationInfo typeCreationInfo)
         {
-            return new TransientRegistration(typeCreationInfo);
+            return new TransientRegistration(typeCreationInfo, true);
         }
     }
 }
