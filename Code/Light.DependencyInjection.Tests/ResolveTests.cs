@@ -85,7 +85,7 @@ namespace Light.DependencyInjection.Tests
         {
             Action act = () => Container.Resolve<IC>();
 
-            act.ShouldThrow<TypeRegistrationException>()
+            act.ShouldThrow<ResolveTypeException>()
                .And.Message.Should().Contain($"The specified type \"{typeof(IC)}\" could not be resolved because there is no concrete type registered that should be returned for this polymorphic abstraction.");
         }
 

@@ -232,9 +232,14 @@ namespace Light.DependencyInjection
         {
             var typeInfo = type.GetTypeInfo();
 
-            // TODO: create different error messages for different scenarios
-            if (typeInfo.IsInterface || typeInfo.IsAbstract || typeInfo.IsEnum || typeInfo.BaseType == typeof(MulticastDelegate))
-                throw new TypeRegistrationException($"The specified type \"{type}\" could not be resolved because there is no concrete type registered that should be returned for this polymorphic abstraction.", type);
+            if (typeInfo.IsAbstract)
+                throw new ResolveTypeException($"The specified type \"{type}\" could not be resolved because there is no concrete type registered that should be returned for this polymorphic abstraction.", type);
+
+            if (typeInfo.IsEnum)
+                throw new ResolveTypeException($"The specified type \"{type}\" describes an enum type which has not been registered and which cannot be resolved automatically.", type);
+
+            if (typeInfo.BaseType == typeof(MulticastDelegate))
+                throw new ResolveTypeException($"The specified type \"{type}\" describes a delegate type which has not been registered and which cannot be resolved automatically.", type);
         }
     }
 }
