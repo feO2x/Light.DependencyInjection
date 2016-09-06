@@ -12,20 +12,20 @@ namespace Light.DependencyInjection.Registrations
         protected override object CreateInstanceInternal(DiContainer container, ParameterOverrides parameterOverrides)
         {
             object singleton;
-            if (container.Scope.Singletons.TryGetValue(TypeKey, out singleton))
+            if (container.Scope.TryGetSingleton(TypeKey, out singleton))
                 throw new ResolveTypeException($"The type {TypeKey.GetFullRegistrationName()} cannot be instantiated because it is registered as a Singleton which has already been instantiated.", TargetType);
 
-            if (container.Scope.Singletons.GetOrAdd(TypeKey,
-                                                    () => TypeCreationInfo.CreateInstance(container, parameterOverrides),
-                                                    out singleton))
+            if (container.Scope.GetOrAddSingleton(TypeKey,
+                                                  () => TypeCreationInfo.CreateInstance(container, parameterOverrides),
+                                                  out singleton))
                 return singleton;
             throw new ResolveTypeException($"The type {TypeKey.GetFullRegistrationName()} cannot be instantiated because it is registered as a Singleton which has already been instantiated.", TargetType);
         }
 
         protected override object GetInstanceInternal(DiContainer container)
         {
-            var instance = container.Scope.Singletons.GetOrAdd(TypeKey,
-                                                               () => TypeCreationInfo.CreateInstance(container));
+            var instance = container.Scope.GetOrAddSingleton(TypeKey,
+                                                             () => TypeCreationInfo.CreateInstance(container));
             return instance;
         }
 

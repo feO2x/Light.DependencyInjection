@@ -20,6 +20,11 @@ namespace Light.DependencyInjection.Registrations
 
         protected override object GetInstanceInternal(DiContainer container)
         {
+            return container.Scope.GetOrAddSingleton(TypeKey, ReturnInstance);
+        }
+
+        private object ReturnInstance()
+        {
             return Instance;
         }
 
