@@ -274,5 +274,19 @@ namespace Light.DependencyInjection.Tests
 
             instance.Container.Should().BeSameAs(Container);
         }
+
+        [Fact(DisplayName = "Clients must be able to override existing registrations.")]
+        public void OverrideExistingMapping()
+        {
+            Container.RegisterTransient<E>(options => options.MapTypeToAbstractions(typeof(IF)))
+                     .RegisterTransient<F>(options => options.MapTypeToAbstractions(typeof(IF))
+                                                             .UseStaticFactoryMethod(() => F.Create(default(string), default(int))))
+                     .RegisterInstance("Foo")
+                     .RegisterInstance(42);
+
+            var instance = Container.Resolve<IF>();
+
+            instance.Should().BeAssignableTo<F>();
+        }
     }
 }
