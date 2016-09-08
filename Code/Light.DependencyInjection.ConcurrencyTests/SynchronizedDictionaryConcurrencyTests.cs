@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Light.DependencyInjection.Multithreading;
 using Microsoft.Concurrency.TestTools.UnitTesting;
@@ -23,6 +24,36 @@ namespace Light.DependencyInjection.ConcurrencyTests
             thread2.Join();
 
             createObjectMock.CallCount.Should().Be(1);
+        }
+
+        [DataRaceTestMethod]
+        public void ReadWhileAdd()
+        {
+            var testTarget = new SynchronizedDictionary<int, object>();
+            var createObjectMock = new CreateObjectMock();
+
+            var writeThread = new Thread(() =>
+                                         {
+                                             for (var i = 5; i < 10; i++)
+                                             {
+                                                 testTarget.GetOrAdd(i, createObjectMock.CreateObject);
+                                                 Thread.Sleep(0);
+                                             }
+                                         });
+            var readThread = new Thread(() =>
+                                        {
+                                            object value;
+                                            testTarget.TryGetValue(5, out value);
+                                            Thread.Sleep(0);
+                                            testTarget.TryGetValue(7, out value);
+                                            Thread.Sleep(10);
+                                            testTarget.TryGetValue(9, out value);
+                                        });
+            readThread.Start();
+            writeThread.Start();
+
+            readThread.Join();
+            writeThread.Join();
         }
 
         public class CreateObjectMock
