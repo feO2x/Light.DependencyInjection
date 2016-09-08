@@ -1,15 +1,16 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
+using Microsoft.Concurrency.TestTools.UnitTesting.Chess;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Light.DependencyInjection.Tests")]
+[assembly: AssemblyTitle("Light.DependencyInjection.ConcurrencyTests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Light.DependencyInjection.Tests")]
+[assembly: AssemblyProduct("Light.DependencyInjection.ConcurrencyTests")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -22,7 +23,7 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
-[assembly: Guid("6bc1a42c-6198-4e3c-a0ee-00e59082589d")]
+[assembly: Guid("277889f4-77f6-42a9-903d-456b4cd3bae3")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -37,3 +38,5 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: ChessInstrumentAssembly("System")]
+[assembly: ChessInstrumentAssembly("Light.DependencyInjection")]

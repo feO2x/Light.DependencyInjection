@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Light.DependencyInjection", "Light.DependencyInjection\Light.DependencyInjection.csproj", "{0F533629-C426-40E2-A1A5-4471FB882720}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Light.DependencyInjection.Tests", "Light.DependencyInjection.Tests\Light.DependencyInjection.Tests.csproj", "{6BC1A42C-6198-4E3C-A0EE-00E59082589D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Light.DependencyInjection.ConcurrencyTests", "Light.DependencyInjection.ConcurrencyTests\Light.DependencyInjection.ConcurrencyTests.csproj", "{277889F4-77F6-42A9-903D-456B4CD3BAE3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{6BC1A42C-6198-4E3C-A0EE-00E59082589D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BC1A42C-6198-4E3C-A0EE-00E59082589D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6BC1A42C-6198-4E3C-A0EE-00E59082589D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{277889F4-77F6-42A9-903D-456B4CD3BAE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{277889F4-77F6-42A9-903D-456B4CD3BAE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{277889F4-77F6-42A9-903D-456B4CD3BAE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{277889F4-77F6-42A9-903D-456B4CD3BAE3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
