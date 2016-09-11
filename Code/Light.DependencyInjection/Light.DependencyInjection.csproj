@@ -34,6 +34,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Multithreading\HashEntry.cs" />
+    <Compile Include="Multithreading\IGrowBucketContainerStrategy.cs" />
+    <Compile Include="Multithreading\ImmutableAvlNode.cs" />
+    <Compile Include="Multithreading\ImmutableBucketContainer.cs" />
+    <Compile Include="Multithreading\ImmutableList.cs" />
+    <Compile Include="Multithreading\ImmutableListExtensions.cs" />
+    <Compile Include="Multithreading\PrimeNumberLinearStrategy.cs" />
     <Compile Include="Multithreading\SynchronizedDictionary.cs" />
     <Compile Include="Multithreading\SynchronizedDictionaryOptions.cs" />
     <Compile Include="Registrations\ContainerScope.cs" />
