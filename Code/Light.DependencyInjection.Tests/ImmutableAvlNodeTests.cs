@@ -163,6 +163,93 @@ namespace Light.DependencyInjection.Tests
 
             rootNode.Duplicates.Should().ContainSingle(entry => entry.Key == 26);
         }
+
+        [Fact(DisplayName = "AVL trees must be able to replace an entry on the top node.")]
+        public void SimpleReplace()
+        {
+            var node = ImmutableAvlNode<int, object>.Empty
+                                                    .Add(42);
+            var replacedValue = new object();
+
+            var newNode = node.Replace(new HashEntry<int, object>(42, 42, replacedValue));
+
+            newNode.HashEntry.Value.Should().BeSameAs(replacedValue);
+            newNode.LeftChild.Should().BeSameAs(ImmutableAvlNode<int, object>.Empty);
+            newNode.RightChild.Should().BeSameAs(ImmutableAvlNode<int, object>.Empty);
+        }
+
+        [Fact(DisplayName = "AVL trees must be able to replace an entry on a child node in the left subtree.")]
+        public void ReplaceInLeftChild()
+        {
+            var rootNode = ImmutableAvlNode<int, object>.Empty
+                                                        .Add(52)
+                                                        .Add(36)
+                                                        .Add(66)
+                                                        .Add(40)
+                                                        .Add(22);
+            var replacedValue = new object();
+
+            var newRootNode = rootNode.Replace(new HashEntry<int, object>(22, 22, replacedValue));
+
+            newRootNode.LeftChild.LeftChild.HashEntry.Value.Should().BeSameAs(replacedValue);
+        }
+
+        [Fact(DisplayName = "AVL trees must be able to replace an entry on a child node in the right subtree.")]
+        public void ReplaceInRightChild()
+        {
+            var rootNode = ImmutableAvlNode<int, object>.Empty
+                                                        .Add(40)
+                                                        .Add(20)
+                                                        .Add(80)
+                                                        .Add(60)
+                                                        .Add(100);
+            var replacedValue = new object();
+
+            var newRootNode = rootNode.Replace(new HashEntry<int, object>(80, 80, replacedValue));
+
+            newRootNode.RightChild.HashEntry.Value.Should().BeSameAs(replacedValue);
+        }
+
+        [Fact(DisplayName = "AVL trees must be able to replace an entry in the duplicates collection of the top node.")]
+        public void ReplaceDuplicate()
+        {
+            var node = ImmutableAvlNode<int, object>.Empty
+                                                    .Add(42)
+                                                    .Add(new HashEntry<int, object>(42, 44, null));
+            var replacedValue = new object();
+
+            var newNode = node.Replace(new HashEntry<int, object>(42, 44, replacedValue));
+
+            newNode.Duplicates.Should().ContainSingle(entry => entry.Value == replacedValue);
+        }
+
+        [Fact(DisplayName = "AVL trees must be able to replace an entry in the duplicates collection of a node in the left subtree.")]
+        public void ReplaceDuplicateOnLeftChild()
+        {
+            var node = ImmutableAvlNode<int, object>.Empty
+                                                    .Add(42)
+                                                    .Add(32)
+                                                    .Add(new HashEntry<int, object>(32, 33, null));
+            var replacedValue = new object();
+
+            var newNode = node.Replace(new HashEntry<int, object>(32, 33, replacedValue));
+
+            newNode.LeftChild.Duplicates.Should().ContainSingle(entry => entry.Value == replacedValue);
+        }
+
+        [Fact(DisplayName = "AVL trees must be able to replace an entry in the duplicates collection of a node in the right subtree.")]
+        public void ReplaceDuplicateOnRightChild()
+        {
+            var node = ImmutableAvlNode<int, object>.Empty
+                                                    .Add(42)
+                                                    .Add(50)
+                                                    .Add(new HashEntry<int, object>(50, 52, null));
+            var replacedValue = new object();
+
+            var newNode = node.Replace(new HashEntry<int, object>(50, 52, replacedValue));
+
+            newNode.RightChild.Duplicates.Should().ContainSingle(entry => entry.Value == replacedValue);
+        }
     }
 
     public static class ImmutableAvlNodeTestExtensions
