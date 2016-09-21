@@ -16,6 +16,7 @@ namespace Light.DependencyInjection.Multithreading
         private ImmutableList()
         {
             Count = 0;
+            _array = new T[0];
         }
 
         private ImmutableList(T[] array)
@@ -50,6 +51,14 @@ namespace Light.DependencyInjection.Multithreading
         public ImmutableListEnumerator GetEnumerator()
         {
             return new ImmutableListEnumerator(_array);
+        }
+
+        public ImmutableList<T> ReplaceAt(int index, T item)
+        {
+            var newArray = new T[Count];
+            Array.Copy(_array, newArray, Count);
+            newArray[index] = item;
+            return new ImmutableList<T>(newArray);
         }
 
         public struct ImmutableListEnumerator : IEnumerator<T>
@@ -91,14 +100,6 @@ namespace Light.DependencyInjection.Multithreading
             object IEnumerator.Current => _current;
 
             public void Dispose() { }
-        }
-
-        public ImmutableList<T> ReplaceAt(int index, T item)
-        {
-            var newArray = new T[Count];
-            Array.Copy(_array, newArray, Count);
-            newArray[index] = item;
-            return new ImmutableList<T>(newArray);
         }
     }
 }

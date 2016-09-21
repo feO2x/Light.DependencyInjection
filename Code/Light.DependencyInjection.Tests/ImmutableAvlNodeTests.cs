@@ -90,6 +90,31 @@ namespace Light.DependencyInjection.Tests
             rootNode.LeftChild.HashEntry.Key.Should().Be(30);
             rootNode.RightChild.HashEntry.Key.Should().Be(50);
         }
+
+        [Fact(DisplayName = "AVL nodes must store entries with the same hash code as duplicates.")]
+        public void DuplicateHash()
+        {
+            var rootNode = ImmutableAvlNode<int, object>.Empty
+                                                        .Add(new HashEntry<int, object>(30, 30, null))
+                                                        .Add(new HashEntry<int, object>(30, 70, null));
+
+            rootNode.Duplicates.Should().ContainSingle(entry => entry.Key == 70);
+            rootNode.HashEntry.Key.Should().Be(30);
+            rootNode.LeftChild.Should().Be(ImmutableAvlNode<int, object>.Empty);
+            rootNode.RightChild.Should().Be(ImmutableAvlNode<int, object>.Empty);
+        }
+
+        [Fact(DisplayName = "An AVL node must remain its duplicate entries when a child node is added.")]
+        public void NewChildDuplicatesRemain()
+        {
+            var rootNode = ImmutableAvlNode<int, object>.Empty
+                                                        .Add(new HashEntry<int, object>(90, 90, null))
+                                                        .Add(new HashEntry<int, object>(90, 100, null))
+                                                        .Add(new HashEntry<int, object>(110, 110, null));
+
+            rootNode.Duplicates.Should().ContainSingle(entry => entry.Key == 100);
+            rootNode.RightChild.HashEntry.Key.Should().Be(110);
+        }
     }
 
     public static class ImmutableAvlNodeTestExtensions
