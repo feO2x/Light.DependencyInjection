@@ -115,6 +115,54 @@ namespace Light.DependencyInjection.Tests
             rootNode.Duplicates.Should().ContainSingle(entry => entry.Key == 100);
             rootNode.RightChild.HashEntry.Key.Should().Be(110);
         }
+
+        [Fact(DisplayName = "An AVL node must remain its duplicate entries when a tree is rotated left-right.")]
+        public void RotateLeftRightDuplicatesRemain()
+        {
+            var rootNode = ImmutableAvlNode<int, object>.Empty
+                                                        .Add(new HashEntry<int, object>(70, 70, null))
+                                                        .Add(new HashEntry<int, object>(70, 80, null))
+                                                        .Add(new HashEntry<int, object>(60, 60, null))
+                                                        .Add(new HashEntry<int, object>(65, 65, null));
+
+            rootNode.RightChild.Duplicates.Should().ContainSingle(entry => entry.Key == 80);
+        }
+
+        [Fact(DisplayName = "An AVL node must remain its duplicate entries when a tree is rotated right-left.")]
+        public void RotateRightLeftDuplicatesRemain()
+        {
+            var rootNode = ImmutableAvlNode<int, object>.Empty
+                                                        .Add(new HashEntry<int, object>(99, 99, null))
+                                                        .Add(new HashEntry<int, object>(99, 101, null))
+                                                        .Add(new HashEntry<int, object>(110, 110, null))
+                                                        .Add(new HashEntry<int, object>(105, 105, null));
+
+            rootNode.LeftChild.Duplicates.Should().ContainSingle(entry => entry.Key == 101);
+        }
+
+        [Fact(DisplayName = "An AVL node must remain its duplicate entries when a tree is rotated left.")]
+        public void RotateLeftDuplicatesRemain()
+        {
+            var rootNode = ImmutableAvlNode<int, object>.Empty
+                                                        .Add(new HashEntry<int, object>(100, 100, null))
+                                                        .Add(new HashEntry<int, object>(100, 101, null))
+                                                        .Add(new HashEntry<int, object>(105, 105, null))
+                                                        .Add(new HashEntry<int, object>(110, 110, null));
+
+            rootNode.LeftChild.Duplicates.Should().ContainSingle(entry => entry.Key == 101);
+        }
+
+        [Fact(DisplayName = "An AVL node must remain its duplicate entries when a tree is rotated right.")]
+        public void RotateRightDuplicatesRemain()
+        {
+            var rootNode = ImmutableAvlNode<int, object>.Empty
+                                                        .Add(new HashEntry<int, object>(30, 30, null))
+                                                        .Add(new HashEntry<int, object>(25, 25, null))
+                                                        .Add(new HashEntry<int, object>(25, 26, null))
+                                                        .Add(new HashEntry<int, object>(20, 20, null));
+
+            rootNode.Duplicates.Should().ContainSingle(entry => entry.Key == 26);
+        }
     }
 
     public static class ImmutableAvlNodeTestExtensions
