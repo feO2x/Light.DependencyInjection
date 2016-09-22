@@ -123,7 +123,7 @@ namespace Light.DependencyInjection.Multithreading
             return new ImmutableBucketContainer<TKey, TValue>(growContainerStrategy);
         }
 
-        public bool GetOrAdd(int hashCode, TKey key, out TValue value, out ImmutableBucketContainer<TKey, TValue> newBucketContainer, Func<TValue> createValue)
+        public bool GetOrAdd(int hashCode, TKey key, Func<TValue> createValue, out TValue value, out ImmutableBucketContainer<TKey, TValue> newBucketContainer)
         {
             createValue.MustNotBeNull(nameof(createValue));
 

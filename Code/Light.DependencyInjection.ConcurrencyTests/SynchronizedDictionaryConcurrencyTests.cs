@@ -1,5 +1,4 @@
 ﻿using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Light.DependencyInjection.Multithreading;
 using Microsoft.Concurrency.TestTools.UnitTesting;
@@ -30,13 +29,11 @@ namespace Light.DependencyInjection.ConcurrencyTests
         public void ReadWhileAdd()
         {
             var testTarget = new FastReadThreadSafeDictionary<int, object>();
-            var createObjectMock = new CreateObjectMock();
-
             var writeThread = new Thread(() =>
                                          {
                                              for (var i = 5; i < 10; i++)
                                              {
-                                                 testTarget.GetOrAdd(i, createObjectMock.CreateObject);
+                                                 testTarget.GetOrAdd(i, () => new object());
                                                  Thread.Sleep(0);
                                              }
                                          });

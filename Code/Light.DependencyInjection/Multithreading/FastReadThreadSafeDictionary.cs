@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Multithreading
@@ -26,7 +27,7 @@ namespace Light.DependencyInjection.Multithreading
         {
             get
             {
-                var bucketContainer = _bucketContainer;
+                var bucketContainer = Volatile.Read(ref _bucketContainer);
                 return bucketContainer.Keys;
             }
         }
@@ -35,14 +36,14 @@ namespace Light.DependencyInjection.Multithreading
         {
             get
             {
-                var bucketContainer = _bucketContainer;
+                var bucketContainer = Volatile.Read(ref _bucketContainer);
                 return bucketContainer.Values;
             }
         }
 
         public bool TryGetValue(TKey key, out TValue value)
         {
-            var bucketContainer = _bucketContainer;
+            var bucketContainer = Volatile.Read(ref _bucketContainer);
             return bucketContainer.TryFind(key.GetHashCode(), key, out value);
         }
 
@@ -60,12 +61,12 @@ namespace Light.DependencyInjection.Multithreading
             lock (_bucketContainerLock)
             {
                 ImmutableBucketContainer<TKey, TValue> newBucketContainer;
-                if (_bucketContainer.GetOrAdd(hashCode, key, out value, out newBucketContainer, createValue) == false)
+                if (_bucketContainer.GetOrAdd(hashCode, key, createValue, out value, out newBucketContainer) == false)
                     return false;
 
                 _bucketContainer = newBucketContainer;
+                return true;
             }
-            return true;
         }
 
         public bool AddOrReplace(TKey key, TValue value)
