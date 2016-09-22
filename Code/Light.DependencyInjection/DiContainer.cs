@@ -14,22 +14,22 @@ namespace Light.DependencyInjection
     public sealed class DiContainer : IDisposable
     {
         private static readonly Type DiContainerType = typeof(DiContainer);
-        private readonly SynchronizedDictionary<TypeKey, Registration> _registrations;
+        private readonly FastReadThreadSafeDictionary<TypeKey, Registration> _registrations;
         public readonly ContainerScope Scope;
         private IDefaultRegistrationFactory _defaultRegistrationFactory;
         private IInjectorForUnknownInstanceMembers _injectorForUnknownInstanceMembers;
         private TypeAnalyzer _typeAnalyzer;
 
-        public DiContainer() : this(new SynchronizedDictionary<TypeKey, Registration>()) { }
+        public DiContainer() : this(new FastReadThreadSafeDictionary<TypeKey, Registration>()) { }
 
-        public DiContainer(SynchronizedDictionary<TypeKey, Registration> registrations)
+        public DiContainer(FastReadThreadSafeDictionary<TypeKey, Registration> registrations)
             : this(registrations,
                    new TransientRegistrationFactory(),
                    new DefaultInjectorForUnknownInstanceMembers(),
                    new TypeAnalyzer(),
                    new ContainerScope()) { }
 
-        private DiContainer(SynchronizedDictionary<TypeKey, Registration> registrations,
+        private DiContainer(FastReadThreadSafeDictionary<TypeKey, Registration> registrations,
                             IDefaultRegistrationFactory defaultRegistrationFactory,
                             IInjectorForUnknownInstanceMembers injectorForUnknownInstanceMembers,
                             TypeAnalyzer typeAnalyzer,
@@ -84,7 +84,7 @@ namespace Light.DependencyInjection
         public DiContainer CreateChildContainer(bool createEmptyChildScope = false, bool createCopyOfMappings = false)
         {
             var childScope = createEmptyChildScope ? new ContainerScope() : new ContainerScope(Scope);
-            var registrations = createCopyOfMappings ? new SynchronizedDictionary<TypeKey, Registration>(_registrations) : _registrations;
+            var registrations = createCopyOfMappings ? new FastReadThreadSafeDictionary<TypeKey, Registration>(_registrations) : _registrations;
 
             return new DiContainer(registrations,
                                    _defaultRegistrationFactory,

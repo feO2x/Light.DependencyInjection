@@ -1,24 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Multithreading
 {
-    public sealed class SynchronizedDictionary<TKey, TValue> where TKey : IEquatable<TKey>
+    public sealed class FastReadThreadSafeDictionary<TKey, TValue> where TKey : IEquatable<TKey>
     {
         private readonly object _bucketContainerLock = new object();
         private ImmutableBucketContainer<TKey, TValue> _bucketContainer;
 
-        public SynchronizedDictionary()
-            : this(SynchronizedDictionaryOptions<TKey, TValue>.Create()) { }
+        public FastReadThreadSafeDictionary()
+            : this(FastReadThreadSafeDictionaryOptions<TKey, TValue>.Create()) { }
 
-        public SynchronizedDictionary(SynchronizedDictionaryOptions<TKey, TValue> options)
+        public FastReadThreadSafeDictionary(FastReadThreadSafeDictionaryOptions<TKey, TValue> options)
         {
             _bucketContainer = ImmutableBucketContainer<TKey, TValue>.CreateEmpty(options.GrowContainerStrategy);
         }
 
-        public SynchronizedDictionary(SynchronizedDictionary<TKey, TValue> other)
+        public FastReadThreadSafeDictionary(FastReadThreadSafeDictionary<TKey, TValue> other)
         {
             _bucketContainer = other._bucketContainer;
         }
@@ -58,30 +57,27 @@ namespace Light.DependencyInjection.Multithreading
         {
             createValue.MustNotBeNull(nameof(createValue));
             var hashCode = key.GetHashCode();
-
-            Monitor.Enter(_bucketContainerLock);
-            ImmutableBucketContainer<TKey, TValue> newBucketContainer;
-            if (_bucketContainer.GetOrAdd(hashCode, key, out value, out newBucketContainer, createValue) == false)
+            lock (_bucketContainerLock)
             {
-                Monitor.Exit(_bucketContainerLock);
-                return false;
-            }
+                ImmutableBucketContainer<TKey, TValue> newBucketContainer;
+                if (_bucketContainer.GetOrAdd(hashCode, key, out value, out newBucketContainer, createValue) == false)
+                    return false;
 
-            _bucketContainer = newBucketContainer;
-            Monitor.Exit(_bucketContainerLock);
+                _bucketContainer = newBucketContainer;
+            }
             return true;
         }
-
 
         public bool AddOrReplace(TKey key, TValue value)
         {
             var hashCode = key.GetHashCode();
-
-            Monitor.Enter(_bucketContainerLock);
-            ImmutableBucketContainer<TKey, TValue> newBucketContainer;
-            var result = _bucketContainer.AddOrReplace(hashCode, key, value, out newBucketContainer);
-            _bucketContainer = newBucketContainer;
-            Monitor.Exit(_bucketContainerLock);
+            bool result;
+            lock (_bucketContainerLock)
+            {
+                ImmutableBucketContainer<TKey, TValue> newBucketContainer;
+                result = _bucketContainer.AddOrReplace(hashCode, key, value, out newBucketContainer);
+                _bucketContainer = newBucketContainer;
+            }
             return result;
         }
     }

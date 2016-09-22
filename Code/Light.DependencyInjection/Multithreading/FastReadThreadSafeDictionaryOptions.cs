@@ -3,7 +3,7 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Multithreading
 {
-    public struct SynchronizedDictionaryOptions<TKey, TValue> where TKey : IEquatable<TKey>
+    public struct FastReadThreadSafeDictionaryOptions<TKey, TValue> where TKey : IEquatable<TKey>
     {
         private IGrowBucketContainerStrategy<TKey, TValue> _growContainerStrategy;
         public static readonly IGrowBucketContainerStrategy<TKey, TValue> DefaultGrowContainerStrategy = new PrimeNumberLinearStrategy<TKey, TValue>();
@@ -18,9 +18,9 @@ namespace Light.DependencyInjection.Multithreading
             }
         }
 
-        public static SynchronizedDictionaryOptions<TKey, TValue> Create()
+        public static FastReadThreadSafeDictionaryOptions<TKey, TValue> Create()
         {
-            return new SynchronizedDictionaryOptions<TKey, TValue>
+            return new FastReadThreadSafeDictionaryOptions<TKey, TValue>
                    {
                        _growContainerStrategy = DefaultGrowContainerStrategy
                    };

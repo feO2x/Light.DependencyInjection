@@ -11,7 +11,7 @@ namespace Light.DependencyInjection.ConcurrencyTests
         [DataRaceTestMethod]
         public void GetOrAdd()
         {
-            var testTarget = new SynchronizedDictionary<int, object>();
+            var testTarget = new FastReadThreadSafeDictionary<int, object>();
             var createObjectMock = new CreateObjectMock();
 
             ThreadStart getOrAdd = () => testTarget.GetOrAdd(42, createObjectMock.CreateObject);
@@ -29,7 +29,7 @@ namespace Light.DependencyInjection.ConcurrencyTests
         [DataRaceTestMethod]
         public void ReadWhileAdd()
         {
-            var testTarget = new SynchronizedDictionary<int, object>();
+            var testTarget = new FastReadThreadSafeDictionary<int, object>();
             var createObjectMock = new CreateObjectMock();
 
             var writeThread = new Thread(() =>

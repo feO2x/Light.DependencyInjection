@@ -10,7 +10,7 @@ namespace Light.DependencyInjection.Registrations
     public sealed class ContainerScope : IDisposable
     {
         private readonly List<IDisposable> _disposableObjects = new List<IDisposable>();
-        private readonly SynchronizedDictionary<TypeKey, object> _singletons = new SynchronizedDictionary<TypeKey, object>();
+        private readonly FastReadThreadSafeDictionary<TypeKey, object> _singletons = new FastReadThreadSafeDictionary<TypeKey, object>();
         public readonly ContainerScope ParentScope;
 
         public ContainerScope() { }

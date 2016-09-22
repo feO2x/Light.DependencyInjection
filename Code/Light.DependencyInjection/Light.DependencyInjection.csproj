@@ -41,8 +41,8 @@
     <Compile Include="Multithreading\ImmutableList.cs" />
     <Compile Include="Multithreading\ImmutableListExtensions.cs" />
     <Compile Include="Multithreading\PrimeNumberLinearStrategy.cs" />
-    <Compile Include="Multithreading\SynchronizedDictionary.cs" />
-    <Compile Include="Multithreading\SynchronizedDictionaryOptions.cs" />
+    <Compile Include="Multithreading\FastReadThreadSafeDictionary.cs" />
+    <Compile Include="Multithreading\FastReadThreadSafeDictionaryOptions.cs" />
     <Compile Include="Registrations\ContainerScope.cs" />
     <Compile Include="Registrations\ISingletonRegistration.cs" />
     <Compile Include="TypeConstruction\DefaultInjectorForUnknownInstanceMembers.cs" />
