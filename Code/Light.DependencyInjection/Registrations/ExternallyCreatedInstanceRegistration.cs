@@ -23,7 +23,7 @@ namespace Light.DependencyInjection.Registrations
 
         protected override object GetInstanceInternal(DiContainer container)
         {
-            return container.Scope.GetOrAddSingleton(TypeKey, ReturnInstance);
+            return container.Scope.GetOrAddObject(TypeKey, ReturnInstance);
         }
 
         private object ReturnInstance()

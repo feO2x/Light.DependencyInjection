@@ -44,27 +44,27 @@ namespace Light.DependencyInjection.Registrations
             Monitor.Exit(_disposableObjects);
         }
 
-        public bool TryGetSingleton(TypeKey key, out object singleton)
+        public bool TryGetObject(TypeKey key, out object singleton)
         {
             if (_singletons.TryGetValue(key, out singleton))
                 return true;
 
-            return ParentScope != null && ParentScope.TryGetSingleton(key, out singleton);
+            return ParentScope != null && ParentScope.TryGetObject(key, out singleton);
         }
 
-        public bool GetOrAddSingleton(TypeKey typeKey, Func<object> createInstance, out object singleton)
+        public bool GetOrAddObject(TypeKey typeKey, Func<object> createInstance, out object scopedObject)
         {
-            if (ParentScope != null && ParentScope.TryGetSingleton(typeKey, out singleton))
+            if (ParentScope != null && ParentScope.TryGetObject(typeKey, out scopedObject))
                 return false;
 
-            return _singletons.GetOrAdd(typeKey, createInstance, out singleton);
+            return _singletons.GetOrAdd(typeKey, createInstance, out scopedObject);
         }
 
-        public object GetOrAddSingleton(TypeKey typeKey, Func<object> createInstance)
+        public object GetOrAddObject(TypeKey typeKey, Func<object> createInstance)
         {
-            object singleton;
-            GetOrAddSingleton(typeKey, createInstance, out singleton);
-            return singleton;
+            object scopedObject;
+            GetOrAddObject(typeKey, createInstance, out scopedObject);
+            return scopedObject;
         }
     }
 }

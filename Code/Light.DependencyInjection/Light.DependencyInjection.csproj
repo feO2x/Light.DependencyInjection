@@ -34,6 +34,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Lifetimes\ExternalValueLifetime.cs" />
+    <Compile Include="Lifetimes\ILifeTime.cs" />
+    <Compile Include="Lifetimes\PerThreadLifetime.cs" />
+    <Compile Include="Lifetimes\ScopedLifetime.cs" />
+    <Compile Include="Lifetimes\SingletonLifetime.cs" />
+    <Compile Include="Lifetimes\TransientLifetime.cs" />
     <Compile Include="Multithreading\HashEntry.cs" />
     <Compile Include="Multithreading\IGrowBucketContainerStrategy.cs" />
     <Compile Include="Multithreading\ImmutableAvlNode.cs" />

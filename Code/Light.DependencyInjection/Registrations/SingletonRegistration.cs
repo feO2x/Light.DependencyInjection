@@ -16,7 +16,7 @@ namespace Light.DependencyInjection.Registrations
         protected override object CreateInstanceInternal(DiContainer container, ParameterOverrides parameterOverrides)
         {
             object singleton;
-            if (container.Scope.GetOrAddSingleton(TypeKey,
+            if (container.Scope.GetOrAddObject(TypeKey,
                                                   () => TypeCreationInfo.CreateInstance(container, parameterOverrides),
                                                   out singleton))
             {
@@ -28,7 +28,7 @@ namespace Light.DependencyInjection.Registrations
 
         protected override object GetInstanceInternal(DiContainer container)
         {
-            var instance = container.Scope.GetOrAddSingleton(TypeKey,
+            var instance = container.Scope.GetOrAddObject(TypeKey,
                                                              () => TypeCreationInfo.CreateInstance(container));
             _isCreatingNewInstanceOnNextResolve = false;
             return instance;

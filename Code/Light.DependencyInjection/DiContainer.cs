@@ -131,7 +131,7 @@ namespace Light.DependencyInjection
                 return this;
 
             object singleton;
-            if (Scope.TryGetSingleton(new TypeKey(type, registrationName), out singleton))
+            if (Scope.TryGetObject(new TypeKey(type, registrationName), out singleton))
                 return singleton;
 
             var registration = GetRegistration(type, registrationName) ?? TryCreateDefaultRegistration(type, registrationName);
