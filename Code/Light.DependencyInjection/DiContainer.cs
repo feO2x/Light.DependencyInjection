@@ -215,9 +215,9 @@ namespace Light.DependencyInjection
         public Registration GetRegistration(Type type, string registrationName = null)
         {
             var typeKey = new TypeKey(type, registrationName);
-            Registration returnedRegistration;
-            if (_registrations.TryGetValue(typeKey, out returnedRegistration))
-                return returnedRegistration;
+            Registration targetRegistration;
+            if (_registrations.TryGetValue(typeKey, out targetRegistration))
+                return targetRegistration;
 
             if (type.IsConstructedGenericType == false)
                 return null;
@@ -229,8 +229,8 @@ namespace Light.DependencyInjection
                 return null;
 
             var closedConstructedType = genericTypeDefinition == genericTypeDefinitionRegistration.TargetType ? type : genericTypeDefinitionRegistration.TargetType.MakeGenericType(type.GenericTypeArguments);
-            returnedRegistration = _registrations.GetOrAdd(typeKey, () => genericTypeDefinitionRegistration.BindToClosedGenericType(closedConstructedType));
-            return returnedRegistration;
+            targetRegistration = _registrations.GetOrAdd(typeKey, () => genericTypeDefinitionRegistration.BindToClosedGenericType(closedConstructedType));
+            return targetRegistration;
         }
 
         public DiContainer InstantiateAllWithLifetime<TLifetime>() where TLifetime : ILifetime
