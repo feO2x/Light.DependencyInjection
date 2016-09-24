@@ -5,7 +5,8 @@ using System.Reflection;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public interface IBaseRegistrationOptionsForExternalInstances<out TConcreteOptions> where TConcreteOptions : class, IBaseRegistrationOptionsForExternalInstances<TConcreteOptions>
+    public interface IBaseRegistrationOptionsForExternalInstance<out TConcreteOptions>
+        where TConcreteOptions : class, IBaseRegistrationOptionsForExternalInstance<TConcreteOptions>
     {
         TConcreteOptions UseRegistrationName(string registrationName);
         TConcreteOptions DisableIDisposableTrackingForThisType();
@@ -14,9 +15,10 @@ namespace Light.DependencyInjection.Registrations
         TConcreteOptions MapToAllImplementedInterfaces();
     }
 
-    public interface IRegistrationOptionsForExternalInstances : IBaseRegistrationOptionsForExternalInstances<IRegistrationOptionsForExternalInstances> { }
+    public interface IRegistrationOptionsForExternalInstance : IBaseRegistrationOptionsForExternalInstance<IRegistrationOptionsForExternalInstance> { }
 
-    public interface IBaseRegistrationOptionsForTypes<out TConcreteOptions> : IBaseRegistrationOptionsForExternalInstances<TConcreteOptions> where TConcreteOptions : class, IBaseRegistrationOptionsForTypes<TConcreteOptions>
+    public interface IBaseRegistrationOptionsForType<out TConcreteOptions> : IBaseRegistrationOptionsForExternalInstance<TConcreteOptions>
+        where TConcreteOptions : class, IBaseRegistrationOptionsForType<TConcreteOptions>
     {
         TConcreteOptions UseConstructor(ConstructorInfo constructorInfo);
         TConcreteOptions UseDefaultConstructor();
@@ -28,21 +30,21 @@ namespace Light.DependencyInjection.Registrations
         IChildRegistrationNameOptions<TConcreteOptions> ResolveInstantiationParameter(string parameterName);
     }
 
-    public interface IRegistrationOptionsForTypes : IBaseRegistrationOptionsForTypes<IRegistrationOptionsForTypes> { }
+    public interface IRegistrationOptionsForType : IBaseRegistrationOptionsForType<IRegistrationOptionsForType> { }
 
-    public interface IRegistrationOptionsForTypes<T> : IBaseRegistrationOptionsForTypes<IRegistrationOptionsForTypes<T>>
+    public interface IRegistrationOptionsForType<T> : IBaseRegistrationOptionsForType<IRegistrationOptionsForType<T>>
     {
-        IRegistrationOptionsForTypes<T> UseConstructorWithParameter<TParameter>();
-        IRegistrationOptionsForTypes<T> UseConstructorWithParameters<T1, T2>();
-        IRegistrationOptionsForTypes<T> UseConstructorWithParameters<T1, T2, T3>();
-        IRegistrationOptionsForTypes<T> UseConstructorWithParameters<T1, T2, T3, T4>();
-        IRegistrationOptionsForTypes<T> UseConstructorWithParameters<T1, T2, T3, T4, T5>();
-        IRegistrationOptionsForTypes<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6>();
-        IRegistrationOptionsForTypes<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7>();
-        IRegistrationOptionsForTypes<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7, T8>();
-        IRegistrationOptionsForTypes<T> UseStaticFactoryMethod(Expression<Func<object>> callStaticMethodExpression);
-        IRegistrationOptionsForTypes<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression, string resolvedRegistrationName = null);
-        IRegistrationOptionsForTypes<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression, string resolvedRegistrationName = null);
-        IChildRegistrationNameOptions<IRegistrationOptionsForTypes<T>> ResolveInstantiationParameter<TParameter>();
+        IRegistrationOptionsForType<T> UseConstructorWithParameter<TParameter>();
+        IRegistrationOptionsForType<T> UseConstructorWithParameters<T1, T2>();
+        IRegistrationOptionsForType<T> UseConstructorWithParameters<T1, T2, T3>();
+        IRegistrationOptionsForType<T> UseConstructorWithParameters<T1, T2, T3, T4>();
+        IRegistrationOptionsForType<T> UseConstructorWithParameters<T1, T2, T3, T4, T5>();
+        IRegistrationOptionsForType<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6>();
+        IRegistrationOptionsForType<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7>();
+        IRegistrationOptionsForType<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7, T8>();
+        IRegistrationOptionsForType<T> UseStaticFactoryMethod(Expression<Func<object>> callStaticMethodExpression);
+        IRegistrationOptionsForType<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression, string resolvedRegistrationName = null);
+        IRegistrationOptionsForType<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression, string resolvedRegistrationName = null);
+        IChildRegistrationNameOptions<IRegistrationOptionsForType<T>> ResolveInstantiationParameter<TParameter>();
     }
 }

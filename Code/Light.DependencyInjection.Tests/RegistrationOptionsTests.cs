@@ -194,9 +194,9 @@ namespace Light.DependencyInjection.Tests
                .And.Message.Should().Contain($"The specified instantiation method for type \"{typeof(K)}\" has several parameters with type \"{typeof(string)}\". Please use the overload of \"ResolveInstantiationParameter\" where an additional parameter name can be specified.");
         }
 
-        private static RegistrationOptionsForTypes<T> CreateRegistrationOptions<T>()
+        private static RegistrationOptionsForType<T> CreateRegistrationOptions<T>()
         {
-            return new RegistrationOptionsForTypes<T>(new ConstructorWithMostParametersSelector(), new[] { typeof(IDisposable) });
+            return new RegistrationOptionsForType<T>(new ConstructorWithMostParametersSelector(), new[] { typeof(IDisposable) });
         }
     }
 }

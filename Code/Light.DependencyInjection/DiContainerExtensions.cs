@@ -6,35 +6,73 @@ namespace Light.DependencyInjection
 {
     public static class DiContainerExtensions
     {
-        public static DiContainer RegisterTransient<T>(this DiContainer container, Action<IRegistrationOptionsForTypes<T>> configureOptions = null)
+        public static DiContainer RegisterTransient<T>(this DiContainer container, Action<IRegistrationOptionsForType<T>> configureOptions = null)
         {
-            return RegistrationOptionsForTypes<T>.PerformRegistration(container, configureOptions, TransientLifetime.Instance);
+            return RegistrationOptionsForType<T>.PerformRegistration(container, configureOptions, TransientLifetime.Instance);
         }
 
-        public static DiContainer RegisterTransient(this DiContainer container, Type concreteType, Action<IRegistrationOptionsForTypes> configureOptions = null)
+        public static DiContainer RegisterTransient(this DiContainer container, Type concreteType, Action<IRegistrationOptionsForType> configureOptions = null)
         {
-            return RegistrationOptionsForTypes.PerformRegistration(container, concreteType, configureOptions, TransientLifetime.Instance);
+            return RegistrationOptionsForType.PerformRegistration(container, concreteType, configureOptions, TransientLifetime.Instance);
         }
 
-        public static DiContainer RegisterTransient<TAbstract, TConcrete>(this DiContainer container, Action<IRegistrationOptionsForTypes<TConcrete>> configureOptions = null)
+        public static DiContainer RegisterTransient<TAbstract, TConcrete>(this DiContainer container, Action<IRegistrationOptionsForType<TConcrete>> configureOptions = null)
             where TConcrete : TAbstract
         {
-            return RegistrationOptionsForTypes<TConcrete>.PerformRegistration(container, configureOptions, TransientLifetime.Instance, typeof(TAbstract));
+            return RegistrationOptionsForType<TConcrete>.PerformRegistration(container, configureOptions, TransientLifetime.Instance, typeof(TAbstract));
         }
 
-        public static DiContainer RegisterSingleton<T>(this DiContainer container, Action<RegistrationOptionsForTypes<T>> configureOptions = null)
+        public static DiContainer RegisterSingleton<T>(this DiContainer container, Action<IRegistrationOptionsForType<T>> configureOptions = null)
         {
-            return RegistrationOptionsForTypes<T>.PerformRegistration(container, configureOptions, new SingletonLifetime());
+            return RegistrationOptionsForType<T>.PerformRegistration(container, configureOptions, new SingletonLifetime());
         }
 
-        public static DiContainer RegisterSingleton(this DiContainer container, Type concreteType, Action<RegistrationOptionsForTypes> configureOptions = null)
+        public static DiContainer RegisterSingleton(this DiContainer container, Type concreteType, Action<IRegistrationOptionsForType> configureOptions = null)
         {
-            return RegistrationOptionsForTypes.PerformRegistration(container, concreteType, configureOptions, new SingletonLifetime());
+            return RegistrationOptionsForType.PerformRegistration(container, concreteType, configureOptions, new SingletonLifetime());
         }
 
-        public static DiContainer RegisterInstance(this DiContainer container, object instance, Action<IRegistrationOptionsForExternalInstances> configureOptions = null)
+        public static DiContainer RegisterSingleton<TAbstract, TConcrete>(this DiContainer container, Action<IRegistrationOptionsForType<TConcrete>> configureOptions = null)
+            where TConcrete : TAbstract
         {
-            return RegistrationOptionsForExternalInstances.PerformRegistration(container, instance, configureOptions);
+            return RegistrationOptionsForType<TConcrete>.PerformRegistration(container, configureOptions, new SingletonLifetime(), typeof(TAbstract));
+        }
+
+        public static DiContainer RegisterInstance(this DiContainer container, object instance, Action<IRegistrationOptionsForExternalInstance> configureOptions = null)
+        {
+            return RegistrationOptionsForExternalInstance.PerformRegistration(container, instance, configureOptions);
+        }
+
+        public static DiContainer RegisterScoped<T>(this DiContainer container, Action<IRegistrationOptionsForType<T>> configureOptions = null)
+        {
+            return RegistrationOptionsForType<T>.PerformRegistration(container, configureOptions, ScopedLifetime.Instance);
+        }
+
+        public static DiContainer RegisterScoped(this DiContainer container, Type concreteType, Action<IRegistrationOptionsForType> configureOptions = null)
+        {
+            return RegistrationOptionsForType.PerformRegistration(container, concreteType, configureOptions, ScopedLifetime.Instance);
+        }
+
+        public static DiContainer RegisterScoped<TAbstract, TConcrete>(this DiContainer container, Action<IRegistrationOptionsForType<TConcrete>> configureOptions = null)
+            where TConcrete : TAbstract
+        {
+            return RegistrationOptionsForType<TConcrete>.PerformRegistration(container, configureOptions, ScopedLifetime.Instance, typeof(TAbstract));
+        }
+
+        public static DiContainer RegisterPerThread<T>(this DiContainer container, Action<IRegistrationOptionsForType<T>> configureOptions = null)
+        {
+            return RegistrationOptionsForType<T>.PerformRegistration(container, configureOptions, new PerThreadLifetime());
+        }
+
+        public static DiContainer RegisterPerThread(this DiContainer container, Type targetType, Action<IRegistrationOptionsForType> configureOptions = null)
+        {
+            return RegistrationOptionsForType.PerformRegistration(container, targetType, configureOptions, new PerThreadLifetime());
+        }
+
+        public static DiContainer RegisterPerThread<TAbstract, TConcrete>(this DiContainer container, Action<IRegistrationOptionsForType<TConcrete>> configureOptions = null)
+            where TConcrete : TAbstract
+        {
+            return RegistrationOptionsForType<TConcrete>.PerformRegistration(container, configureOptions, new PerThreadLifetime(), typeof(TAbstract));
         }
     }
 }

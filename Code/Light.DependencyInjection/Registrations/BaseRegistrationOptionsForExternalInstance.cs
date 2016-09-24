@@ -7,7 +7,7 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public abstract class BaseRegistrationOptionsForExternalInstances<TConcreteOptions> : IBaseRegistrationOptionsForExternalInstances<TConcreteOptions> where TConcreteOptions : class, IBaseRegistrationOptionsForExternalInstances<TConcreteOptions>
+    public abstract class BaseRegistrationOptionsForExternalInstance<TConcreteOptions> : IBaseRegistrationOptionsForExternalInstance<TConcreteOptions> where TConcreteOptions : class, IBaseRegistrationOptionsForExternalInstance<TConcreteOptions>
     {
         protected readonly HashSet<Type> AbstractionTypes = new HashSet<Type>();
         protected readonly IReadOnlyList<Type> IgnoredAbstractionTypes;
@@ -15,8 +15,8 @@ namespace Light.DependencyInjection.Registrations
         protected readonly TypeInfo TargetTypeInfo;
         protected readonly TConcreteOptions This;
 
-        protected BaseRegistrationOptionsForExternalInstances(Type targetType,
-                                                              IReadOnlyList<Type> ignoredAbstractionTypes)
+        protected BaseRegistrationOptionsForExternalInstance(Type targetType,
+                                                             IReadOnlyList<Type> ignoredAbstractionTypes)
         {
             targetType.MustNotBeNull(nameof(targetType));
             ignoredAbstractionTypes.MustNotBeNull(nameof(ignoredAbstractionTypes));

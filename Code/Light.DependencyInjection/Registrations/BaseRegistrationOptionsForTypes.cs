@@ -11,7 +11,7 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public abstract class BaseRegistrationOptionsForTypes<TConcreteOptions> : BaseRegistrationOptionsForExternalInstances<TConcreteOptions>, IBaseRegistrationOptionsForTypes<TConcreteOptions> where TConcreteOptions : class, IBaseRegistrationOptionsForTypes<TConcreteOptions>
+    public abstract class BaseRegistrationOptionsForTypes<TConcreteOptions> : BaseRegistrationOptionsForExternalInstance<TConcreteOptions>, IBaseRegistrationOptionsForType<TConcreteOptions> where TConcreteOptions : class, IBaseRegistrationOptionsForType<TConcreteOptions>
     {
         protected readonly IConstructorSelector ConstructorSelector;
         protected List<InstanceInjection> InstanceInjections;

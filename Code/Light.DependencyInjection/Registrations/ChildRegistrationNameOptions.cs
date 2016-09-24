@@ -3,7 +3,7 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public sealed class ChildRegistrationNameOptions<TRegistrationOptions> : IChildRegistrationNameOptions<TRegistrationOptions> where TRegistrationOptions : class, IBaseRegistrationOptionsForTypes<TRegistrationOptions>
+    public sealed class ChildRegistrationNameOptions<TRegistrationOptions> : IChildRegistrationNameOptions<TRegistrationOptions> where TRegistrationOptions : class, IBaseRegistrationOptionsForType<TRegistrationOptions>
     {
         private readonly TRegistrationOptions _registrationOptions;
         private readonly ISetChildValueRegistrationName _targetDependency;

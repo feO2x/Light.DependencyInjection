@@ -49,12 +49,12 @@
     <Compile Include="Multithreading\PrimeNumberLinearStrategy.cs" />
     <Compile Include="Multithreading\FastReadThreadSafeDictionary.cs" />
     <Compile Include="Multithreading\FastReadThreadSafeDictionaryOptions.cs" />
-    <Compile Include="Registrations\BaseRegistrationOptionsForExternalInstances.cs" />
+    <Compile Include="Registrations\BaseRegistrationOptionsForExternalInstance.cs" />
     <Compile Include="Registrations\BaseRegistration.cs" />
     <Compile Include="Registrations\ContainerScope.cs" />
-    <Compile Include="Registrations\RegistrationOptionsForExternalInstances.cs" />
+    <Compile Include="Registrations\RegistrationOptionsForExternalInstance.cs" />
     <Compile Include="Registrations\GenericTypeDefinitionRegistration.cs" />
-    <Compile Include="Registrations\RegistrationOptionsForTypes.cs" />
+    <Compile Include="Registrations\RegistrationOptionsForType.cs" />
     <Compile Include="TypeConstruction\DefaultInjectorForUnknownInstanceMembers.cs" />
     <Compile Include="TypeConstruction\IInjectorForUnknownInstanceMembers.cs" />
     <Compile Include="Registrations\BaseRegistrationOptionsForTypes.cs" />

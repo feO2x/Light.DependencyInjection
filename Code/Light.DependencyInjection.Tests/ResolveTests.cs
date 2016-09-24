@@ -167,7 +167,7 @@ namespace Light.DependencyInjection.Tests
 
         [Theory(DisplayName = "Clients must be able to register a static factory method instead of a constructor that the DI container uses to instantiate the target type.")]
         [MemberData(nameof(ResolveWithStaticFactoryMethodData))]
-        public void ResolveWithStaticFactoryMethod(Action<IRegistrationOptionsForTypes<F>> configureStaticMethod)
+        public void ResolveWithStaticFactoryMethod(Action<IRegistrationOptionsForType<F>> configureStaticMethod)
         {
             Container.RegisterTransient(configureStaticMethod)
                      .RegisterInstance("Hello")
@@ -182,14 +182,14 @@ namespace Light.DependencyInjection.Tests
         public static readonly TestData ResolveWithStaticFactoryMethodData =
             new[]
             {
-                new object[] { new Action<IRegistrationOptionsForTypes<F>>(options => options.UseStaticFactoryMethod(new Func<string, int, F>(F.Create))) },
-                new object[] { new Action<IRegistrationOptionsForTypes<F>>(options => options.UseStaticFactoryMethod(() => F.Create(default(string), default(int)))) },
-                new object[] { new Action<IRegistrationOptionsForTypes<F>>(options => options.UseStaticFactoryMethod(typeof(F).GetRuntimeMethod("Create", new[] { typeof(string), typeof(int) }))) }
+                new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(new Func<string, int, F>(F.Create))) },
+                new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(() => F.Create(default(string), default(int)))) },
+                new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(typeof(F).GetRuntimeMethod("Create", new[] { typeof(string), typeof(int) }))) }
             };
 
         [Theory(DisplayName = "Clients must be able to configure property injections that the DI container performs after an instance of the target type was created.")]
         [MemberData(nameof(PropertyInjectionData))]
-        public void PropertyInjection(Action<IRegistrationOptionsForTypes<G>> configurePropertyInjection)
+        public void PropertyInjection(Action<IRegistrationOptionsForType<G>> configurePropertyInjection)
         {
             Container.RegisterTransient(configurePropertyInjection);
 
@@ -201,13 +201,13 @@ namespace Light.DependencyInjection.Tests
         public static readonly TestData PropertyInjectionData =
             new[]
             {
-                new object[] { new Action<IRegistrationOptionsForTypes<G>>(options => options.AddPropertyInjection(g => g.ReferenceToA)) },
-                new object[] { new Action<IRegistrationOptionsForTypes<G>>(options => options.AddPropertyInjection(typeof(G).GetRuntimeProperty("ReferenceToA"))) }
+                new object[] { new Action<IRegistrationOptionsForType<G>>(options => options.AddPropertyInjection(g => g.ReferenceToA)) },
+                new object[] { new Action<IRegistrationOptionsForType<G>>(options => options.AddPropertyInjection(typeof(G).GetRuntimeProperty("ReferenceToA"))) }
             };
 
         [Theory(DisplayName = "Clients must be able to configure field injections that the DI container performs after an instance of the target type was created.")]
         [MemberData(nameof(FieldInjectionData))]
-        public void FieldInjection(Action<IRegistrationOptionsForTypes<H>> configureFieldInjection)
+        public void FieldInjection(Action<IRegistrationOptionsForType<H>> configureFieldInjection)
         {
             Container.RegisterTransient(configureFieldInjection)
                      .RegisterInstance(true);
@@ -220,8 +220,8 @@ namespace Light.DependencyInjection.Tests
         public static readonly TestData FieldInjectionData =
             new[]
             {
-                new object[] { new Action<IRegistrationOptionsForTypes<H>>(options => options.AddFieldInjection(h => h.BooleanValue)) },
-                new object[] { new Action<IRegistrationOptionsForTypes<H>>(options => options.AddFieldInjection(typeof(H).GetRuntimeField("BooleanValue"))) }
+                new object[] { new Action<IRegistrationOptionsForType<H>>(options => options.AddFieldInjection(h => h.BooleanValue)) },
+                new object[] { new Action<IRegistrationOptionsForType<H>>(options => options.AddFieldInjection(typeof(H).GetRuntimeField("BooleanValue"))) }
             };
 
         [Fact(DisplayName = "Clients must be able to add a registration name for property injections that the container uses to resolve the child value.")]
@@ -250,7 +250,7 @@ namespace Light.DependencyInjection.Tests
 
         [Theory(DisplayName = "Clients must be able to add registration names for instantiation method parameters the container uses to resolve child values.")]
         [MemberData(nameof(ResolveInstantiationMethodDependencyWithNonDefaultRegistrationData))]
-        public void ResolveInstantiationMethodDependencyWithNonDefaultRegistration(Action<IRegistrationOptionsForTypes<B>> configureOptionsForB)
+        public void ResolveInstantiationMethodDependencyWithNonDefaultRegistration(Action<IRegistrationOptionsForType<B>> configureOptionsForB)
         {
             Container.RegisterTransient<A>(options => options.UseRegistrationName("MySpecialA"))
                      .RegisterTransient(configureOptionsForB)
@@ -264,8 +264,8 @@ namespace Light.DependencyInjection.Tests
         public static readonly TestData ResolveInstantiationMethodDependencyWithNonDefaultRegistrationData =
             new[]
             {
-                new object[] { new Action<IRegistrationOptionsForTypes<B>>(options => options.ResolveInstantiationParameter<A>().WithName("MySpecialA")) },
-                new object[] { new Action<IRegistrationOptionsForTypes<B>>(options => options.ResolveInstantiationParameter("otherObject").WithName("MySpecialA")) }
+                new object[] { new Action<IRegistrationOptionsForType<B>>(options => options.ResolveInstantiationParameter<A>().WithName("MySpecialA")) },
+                new object[] { new Action<IRegistrationOptionsForType<B>>(options => options.ResolveInstantiationParameter("otherObject").WithName("MySpecialA")) }
             };
 
         [Fact(DisplayName = "The DI Container must be able to inject itself when it's type without registration name is resolved.")]

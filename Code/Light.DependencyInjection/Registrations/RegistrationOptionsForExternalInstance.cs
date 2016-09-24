@@ -5,9 +5,9 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public sealed class RegistrationOptionsForExternalInstances : BaseRegistrationOptionsForExternalInstances<IRegistrationOptionsForExternalInstances>, IRegistrationOptionsForExternalInstances
+    public sealed class RegistrationOptionsForExternalInstance : BaseRegistrationOptionsForExternalInstance<IRegistrationOptionsForExternalInstance>, IRegistrationOptionsForExternalInstance
     {
-        public RegistrationOptionsForExternalInstances(Type targetType, IReadOnlyList<Type> ignoredAbstractionTypes) : base(targetType, ignoredAbstractionTypes) { }
+        public RegistrationOptionsForExternalInstance(Type targetType, IReadOnlyList<Type> ignoredAbstractionTypes) : base(targetType, ignoredAbstractionTypes) { }
 
         public void CreateRegistration(DiContainer container, object externalInstance)
         {
@@ -19,12 +19,12 @@ namespace Light.DependencyInjection.Registrations
                                                 IsContainerTrackingDisposables));
         }
 
-        public static DiContainer PerformRegistration(DiContainer container, object externalInstance, Action<IRegistrationOptionsForExternalInstances> configureOptions)
+        public static DiContainer PerformRegistration(DiContainer container, object externalInstance, Action<IRegistrationOptionsForExternalInstance> configureOptions)
         {
             container.MustNotBeNull(nameof(container));
             externalInstance.MustNotBeNull(nameof(externalInstance));
 
-            var options = new RegistrationOptionsForExternalInstances(externalInstance.GetType(), container.TypeAnalyzer.IgnoredAbstractionTypes);
+            var options = new RegistrationOptionsForExternalInstance(externalInstance.GetType(), container.TypeAnalyzer.IgnoredAbstractionTypes);
             configureOptions?.Invoke(options);
 
             options.CreateRegistration(container, externalInstance);

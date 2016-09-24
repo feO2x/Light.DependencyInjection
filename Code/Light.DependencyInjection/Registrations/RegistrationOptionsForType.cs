@@ -10,20 +10,20 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public sealed class RegistrationOptionsForTypes : BaseRegistrationOptionsForTypes<IRegistrationOptionsForTypes>, IRegistrationOptionsForTypes
+    public sealed class RegistrationOptionsForType : BaseRegistrationOptionsForTypes<IRegistrationOptionsForType>, IRegistrationOptionsForType
     {
-        public RegistrationOptionsForTypes(Type targetType, IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes) :
+        public RegistrationOptionsForType(Type targetType, IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes) :
             base(targetType, constructorSelector, ignoredAbstractionTypes) { }
 
         public static DiContainer PerformRegistration(DiContainer container,
                                                       Type targetType,
-                                                      Action<RegistrationOptionsForTypes> configureOptions,
+                                                      Action<IRegistrationOptionsForType> configureOptions,
                                                       ILifetime lifetime,
                                                       Type abstractionType = null)
         {
             container.MustNotBeNull(nameof(container));
 
-            var options = new RegistrationOptionsForTypes(targetType, container.TypeAnalyzer.ConstructorSelector, container.TypeAnalyzer.IgnoredAbstractionTypes);
+            var options = new RegistrationOptionsForType(targetType, container.TypeAnalyzer.ConstructorSelector, container.TypeAnalyzer.IgnoredAbstractionTypes);
             if (abstractionType != null)
                 options.MapToAbstractions(abstractionType);
             configureOptions?.Invoke(options);
@@ -33,60 +33,60 @@ namespace Light.DependencyInjection.Registrations
         }
     }
 
-    public sealed class RegistrationOptionsForTypes<T> : BaseRegistrationOptionsForTypes<IRegistrationOptionsForTypes<T>>, IRegistrationOptionsForTypes<T>
+    public sealed class RegistrationOptionsForType<T> : BaseRegistrationOptionsForTypes<IRegistrationOptionsForType<T>>, IRegistrationOptionsForType<T>
     {
-        public RegistrationOptionsForTypes(IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes)
+        public RegistrationOptionsForType(IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes)
             : base(typeof(T), constructorSelector, ignoredAbstractionTypes) { }
 
-        public IRegistrationOptionsForTypes<T> UseConstructorWithParameter<TArgument>()
+        public IRegistrationOptionsForType<T> UseConstructorWithParameter<TArgument>()
         {
             return UseConstructorWithParameters(typeof(TArgument));
         }
 
-        public IRegistrationOptionsForTypes<T> UseConstructorWithParameters<T1, T2>()
+        public IRegistrationOptionsForType<T> UseConstructorWithParameters<T1, T2>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2));
         }
 
-        public IRegistrationOptionsForTypes<T> UseConstructorWithParameters<T1, T2, T3>()
+        public IRegistrationOptionsForType<T> UseConstructorWithParameters<T1, T2, T3>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3));
         }
 
-        public IRegistrationOptionsForTypes<T> UseConstructorWithParameters<T1, T2, T3, T4>()
+        public IRegistrationOptionsForType<T> UseConstructorWithParameters<T1, T2, T3, T4>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4));
         }
 
-        public IRegistrationOptionsForTypes<T> UseConstructorWithParameters<T1, T2, T3, T4, T5>()
+        public IRegistrationOptionsForType<T> UseConstructorWithParameters<T1, T2, T3, T4, T5>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5));
         }
 
-        public IRegistrationOptionsForTypes<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6>()
+        public IRegistrationOptionsForType<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6));
         }
 
-        public IRegistrationOptionsForTypes<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7>()
+        public IRegistrationOptionsForType<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7));
         }
 
-        public IRegistrationOptionsForTypes<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7, T8>()
+        public IRegistrationOptionsForType<T> UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7, T8>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7), typeof(T8));
         }
 
 
-        public IRegistrationOptionsForTypes<T> UseStaticFactoryMethod(Expression<Func<object>> callStaticMethodExpression)
+        public IRegistrationOptionsForType<T> UseStaticFactoryMethod(Expression<Func<object>> callStaticMethodExpression)
         {
             var methodInfo = callStaticMethodExpression.ExtractStaticFactoryMethod(TargetType);
             AssignStaticCreationMethod(methodInfo);
             return this;
         }
 
-        public IRegistrationOptionsForTypes<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression, string resolvedRegistrationName = null)
+        public IRegistrationOptionsForType<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression, string resolvedRegistrationName = null)
         {
             selectPropertyExpression.MustNotBeNull(nameof(selectPropertyExpression));
 
@@ -94,7 +94,7 @@ namespace Light.DependencyInjection.Registrations
             return this;
         }
 
-        public IRegistrationOptionsForTypes<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression, string resolvedRegistrationName = null)
+        public IRegistrationOptionsForType<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression, string resolvedRegistrationName = null)
         {
             selectFieldExpression.MustNotBeNull();
 
@@ -102,7 +102,7 @@ namespace Light.DependencyInjection.Registrations
             return this;
         }
 
-        public IChildRegistrationNameOptions<IRegistrationOptionsForTypes<T>> ResolveInstantiationParameter<TParameter>()
+        public IChildRegistrationNameOptions<IRegistrationOptionsForType<T>> ResolveInstantiationParameter<TParameter>()
         {
             AssignInstantiationMethodIfNeccessary();
 
@@ -112,7 +112,7 @@ namespace Light.DependencyInjection.Registrations
             CheckTargetParametersWithoutName(targetParameters, parameterType);
 
             // ReSharper disable once PossibleNullReferenceException
-            return new ChildRegistrationNameOptions<IRegistrationOptionsForTypes<T>>(this, targetParameters[0]);
+            return new ChildRegistrationNameOptions<IRegistrationOptionsForType<T>>(this, targetParameters[0]);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
@@ -127,15 +127,15 @@ namespace Light.DependencyInjection.Registrations
             throw new TypeRegistrationException($"The specified instantiation method for type \"{TargetType}\" has several parameters with type \"{targetParameterType}\". Please use the overload of \"{nameof(ResolveInstantiationParameter)}\" where an additional parameter name can be specified.", TargetType);
         }
 
-        public static DiContainer PerformRegistration(DiContainer container, 
-            Action<RegistrationOptionsForTypes<T>> configureOptions, 
-            ILifetime lifetime,
-            Type abstractionType = null)
+        public static DiContainer PerformRegistration(DiContainer container,
+                                                      Action<IRegistrationOptionsForType<T>> configureOptions,
+                                                      ILifetime lifetime,
+                                                      Type abstractionType = null)
         {
             container.MustNotBeNull(nameof(container));
             lifetime.MustNotBeNull(nameof(lifetime));
 
-            var options = new RegistrationOptionsForTypes<T>(container.TypeAnalyzer.ConstructorSelector, container.TypeAnalyzer.IgnoredAbstractionTypes);
+            var options = new RegistrationOptionsForType<T>(container.TypeAnalyzer.ConstructorSelector, container.TypeAnalyzer.IgnoredAbstractionTypes);
             if (abstractionType != null)
                 options.MapToAbstractions(abstractionType);
             configureOptions?.Invoke(options);
