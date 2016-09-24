@@ -57,7 +57,7 @@
     <Compile Include="Registrations\RegistrationOptionsForTypes.cs" />
     <Compile Include="TypeConstruction\DefaultInjectorForUnknownInstanceMembers.cs" />
     <Compile Include="TypeConstruction\IInjectorForUnknownInstanceMembers.cs" />
-    <Compile Include="Registrations\BaseTypeRegistrationOptions.cs" />
+    <Compile Include="Registrations\BaseRegistrationOptionsForTypes.cs" />
     <Compile Include="Registrations\ChildRegistrationNameOptions.cs" />
     <Compile Include="Registrations\IChildRegistrationNameOptions.cs" />
     <Compile Include="Registrations\TypeKeyExtensions.cs" />

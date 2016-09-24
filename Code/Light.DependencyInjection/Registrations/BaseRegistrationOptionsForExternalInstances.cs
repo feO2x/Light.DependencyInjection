@@ -73,6 +73,18 @@ namespace Light.DependencyInjection.Registrations
             return MapToAbstractions((IEnumerable<Type>) abstractionTypes);
         }
 
+        public TConcreteOptions UseTypeNameAsRegistrationName()
+        {
+            RegistrationName = TargetType.Name;
+            return This;
+        }
+
+        public TConcreteOptions UseFullTypeNameAsRegistrationName()
+        {
+            RegistrationName = TargetType.FullName;
+            return This;
+        }
+
         [Conditional(Check.CompileAssertionsSymbol)]
         private void EnsureThisIsNotNull()
         {
