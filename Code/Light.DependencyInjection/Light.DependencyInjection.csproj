@@ -34,7 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Lifetimes\ExternalValueLifetime.cs" />
+    <Compile Include="Lifetimes\ExternalInstanceLifetime.cs" />
     <Compile Include="Lifetimes\ILifeTime.cs" />
     <Compile Include="Lifetimes\PerThreadLifetime.cs" />
     <Compile Include="Lifetimes\ScopedLifetime.cs" />
@@ -49,11 +49,15 @@
     <Compile Include="Multithreading\PrimeNumberLinearStrategy.cs" />
     <Compile Include="Multithreading\FastReadThreadSafeDictionary.cs" />
     <Compile Include="Multithreading\FastReadThreadSafeDictionaryOptions.cs" />
+    <Compile Include="Registrations\BaseRegistrationOptionsForExternalInstances.cs" />
+    <Compile Include="Registrations\BaseRegistration.cs" />
     <Compile Include="Registrations\ContainerScope.cs" />
-    <Compile Include="Registrations\ISingletonRegistration.cs" />
+    <Compile Include="Registrations\RegistrationOptionsForExternalInstances.cs" />
+    <Compile Include="Registrations\GenericTypeDefinitionRegistration.cs" />
+    <Compile Include="Registrations\RegistrationOptionsForTypes.cs" />
     <Compile Include="TypeConstruction\DefaultInjectorForUnknownInstanceMembers.cs" />
     <Compile Include="TypeConstruction\IInjectorForUnknownInstanceMembers.cs" />
-    <Compile Include="Registrations\BaseRegistrationOptions.cs" />
+    <Compile Include="Registrations\BaseTypeRegistrationOptions.cs" />
     <Compile Include="Registrations\ChildRegistrationNameOptions.cs" />
     <Compile Include="Registrations\IChildRegistrationNameOptions.cs" />
     <Compile Include="Registrations\TypeKeyExtensions.cs" />
@@ -62,7 +66,6 @@
     <Compile Include="TypeConstruction\ConstructorWithMostParametersSelector.cs" />
     <Compile Include="DiContainer.cs" />
     <Compile Include="DiContainerExtensions.cs" />
-    <Compile Include="Registrations\ExternallyCreatedInstanceRegistration.cs" />
     <Compile Include="FrameworkExtensions\GuardClausesExtensions.cs" />
     <Compile Include="TypeConstruction\ExplicitlyPassedNull.cs" />
     <Compile Include="TypeConstruction\FieldInjection.cs" />
@@ -72,9 +75,7 @@
     <Compile Include="Registrations\Registration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FrameworkExtensions\ReflectionExtensions.cs" />
-    <Compile Include="Registrations\SingletonRegistration.cs" />
     <Compile Include="FrameworkExtensions\StringBuilderExtensions.cs" />
-    <Compile Include="Registrations\TransientRegistration.cs" />
     <Compile Include="Registrations\TransientRegistrationFactory.cs" />
     <Compile Include="TypeConstruction\InstanceInjection.cs" />
     <Compile Include="TypeConstruction\InstantiationInfo.cs" />
@@ -86,7 +87,6 @@
     <Compile Include="TypeConstruction\StaticMethodInstantiationInfo.cs" />
     <Compile Include="TypeConstruction\TypeAnalyzer.cs" />
     <Compile Include="TypeConstruction\TypeCreationInfo.cs" />
-    <Compile Include="Registrations\RegistrationOptions.cs" />
     <Compile Include="Registrations\TypeKey.cs" />
     <Compile Include="TypeRegistrationException.cs" />
   </ItemGroup>

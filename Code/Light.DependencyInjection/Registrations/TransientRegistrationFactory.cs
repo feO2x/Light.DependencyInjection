@@ -1,4 +1,5 @@
-﻿using Light.DependencyInjection.TypeConstruction;
+﻿using Light.DependencyInjection.Lifetimes;
+using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Registrations
 {
@@ -6,7 +7,7 @@ namespace Light.DependencyInjection.Registrations
     {
         public Registration CreateDefaultRegistration(TypeCreationInfo typeCreationInfo)
         {
-            return new TransientRegistration(typeCreationInfo, true);
+            return new Registration(typeCreationInfo.TypeKey, TransientLifetime.Instance, typeCreationInfo);
         }
     }
 }

@@ -65,6 +65,15 @@ namespace Light.DependencyInjection.FrameworkExtensions
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
+        public static void MustBeGenericTypeDefinition(this TypeInfo typeInfo)
+        {
+            if (typeInfo.IsGenericTypeDefinition)
+                return;
+
+            throw new TypeRegistrationException($"The type \"{typeInfo.FullName}\" is no generic type definition.", typeInfo.AsType());
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
         public static void MustBeNonGenericOrClosedConstructedOrGenericTypeDefinition(this Type type)
         {
             var typeInfo = type.GetTypeInfo();
@@ -81,7 +90,6 @@ namespace Light.DependencyInjection.FrameworkExtensions
             }
             if (typeInfo.IsGenericParameter)
                 throw new TypeRegistrationException($"The type \"{type}\" cannot be registered with the DI container because it is a generic type paramter. Only non-generic types, closed constructed generic types or generic type definitions can be registered.", type);
-
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
@@ -89,6 +97,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
         {
             var typeInfo = type.GetTypeInfo();
 
+            // TODO: check if type is a generic type definition, an open generic type, a delegate or something else that we do not support
             if (typeInfo.IsInterface)
                 throw new TypeRegistrationException($"The type \"{type}\" cannot be registered with the DI container because it is an interface type that cannot be instantiated.", type);
 

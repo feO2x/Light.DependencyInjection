@@ -24,6 +24,11 @@ namespace Light.DependencyInjection.TypeConstruction
             _instanceInjections = instanceInjections;
         }
 
+        public Type TargetType => TypeKey.Type;
+        public TypeInfo TargetTypeInfo => InstantiationInfo.TargetTypeInfo;
+
+        public IReadOnlyList<InstanceInjection> InstanceInjections => _instanceInjections;
+
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckInstantiationInfoType(TypeKey typeKey, InstantiationInfo instantiationInfo)
         {
@@ -43,17 +48,12 @@ namespace Light.DependencyInjection.TypeConstruction
             {
                 if (injection.DeclaringType == typeKey.Type)
                     continue;
-                
+
                 throw new ArgumentException($"The declaring type of \"{injection}\" does not fit the type creation info {typeKey.GetFullRegistrationName()}.", nameof(instanceInjections));
             }
         }
 
-        public Type TargetType => TypeKey.Type;
-        public TypeInfo TargetTypeInfo => InstantiationInfo.TargetTypeInfo;
-
-        public IReadOnlyList<InstanceInjection> InstanceInjections => _instanceInjections;
-
-        public object CreateInstance(DiContainer container)
+        public object CreateInstance(DiContainer container, bool trackDisposable)
         {
             var instance = InstantiationInfo.Instantiate(container);
             if (_instanceInjections == null || _instanceInjections.Count == 0)
@@ -64,10 +64,13 @@ namespace Light.DependencyInjection.TypeConstruction
                 var injectionValue = container.Resolve(instanceInjection.MemberType, instanceInjection.ChildValueRegistrationName);
                 instanceInjection.InjectValue(instance, injectionValue);
             }
+
+            if (trackDisposable)
+                container.Scope.TryAddDisposable(instance);
             return instance;
         }
 
-        public object CreateInstance(DiContainer container, ParameterOverrides parameterOverrides)
+        public object CreateInstance(DiContainer container, ParameterOverrides parameterOverrides, bool trackDisposable)
         {
             var instance = InstantiationInfo.Instantiate(container, parameterOverrides);
             if (_instanceInjections != null && _instanceInjections.Count > 0)
@@ -88,6 +91,9 @@ namespace Light.DependencyInjection.TypeConstruction
                     container.InjectorForUnknownInstanceMembers.InjectValue(simpleInjectionDescription.MemberInfo, instance, simpleInjectionDescription.Value);
                 }
             }
+
+            if (trackDisposable)
+                container.Scope.TryAddDisposable(instance);
 
             return instance;
         }

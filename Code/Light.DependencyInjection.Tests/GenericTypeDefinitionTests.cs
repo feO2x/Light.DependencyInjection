@@ -35,7 +35,7 @@ namespace Light.DependencyInjection.Tests
         public void ResolveClosedConstructedAbstraction()
         {
             Container.RegisterTransient(typeof(HashSet<>), options => options.UseDefaultConstructor()
-                                                                             .MapTypeToAbstractions(typeof(ISet<>)));
+                                                                             .MapToAbstractions(typeof(ISet<>)));
 
             var set = Container.Resolve<ISet<string>>();
 

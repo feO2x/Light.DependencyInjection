@@ -38,7 +38,6 @@ namespace Light.DependencyInjection.FrameworkExtensions
             if (staticMethodInfo.IsGenericMethodDefinition)
                 return null;
 
-            
 
             var methodParameterInfos = staticMethodInfo.GetParameters();
 
@@ -57,7 +56,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
             staticMethod.MustNotBeNull(nameof(staticMethod));
             if (staticMethod.IsStatic == false || staticMethod.IsPublic == false)
                 goto ThrowException;
-            if (staticMethod.IsGenericMethodDefinition && 
+            if (staticMethod.IsGenericMethodDefinition &&
                 staticMethod.ReturnType.GenericTypeArguments.All(typeArgument => typeArgument.IsGenericParameter) &&
                 staticMethod.ReturnType.GetGenericTypeDefinition() == targetType)
                 return;
@@ -259,6 +258,13 @@ namespace Light.DependencyInjection.FrameworkExtensions
             typeInfo.MustNotBeNull(nameof(typeInfo));
 
             return typeInfo.DeclaredConstructors.FindDefaultConstructor();
+        }
+
+        public static bool IsImplementingIDisposable(this TypeInfo typeInfo)
+        {
+            typeInfo.MustNotBeNull(nameof(typeInfo));
+
+            return typeInfo.ImplementedInterfaces.Contains(typeof(IDisposable));
         }
     }
 }

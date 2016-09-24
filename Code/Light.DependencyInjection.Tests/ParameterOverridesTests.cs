@@ -24,7 +24,7 @@ namespace Light.DependencyInjection.Tests
         {
             Container.RegisterTransient<D>()
                      .RegisterTransient(typeof(List<>), options => options.UseDefaultConstructor()
-                                                                          .MapTypeToAbstractions(typeof(IList<>)));
+                                                                          .MapToAbstractions(typeof(IList<>)));
 
             var parameterOverrides = Container.OverrideParametersFor<D>().OverrideInstantiationParameter<int>(42);
             var instanceOfD = Container.Resolve<D>(parameterOverrides);

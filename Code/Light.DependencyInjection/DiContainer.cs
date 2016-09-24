@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Light.DependencyInjection.FrameworkExtensions;
+using Light.DependencyInjection.Lifetimes;
 using Light.DependencyInjection.Multithreading;
 using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.TypeConstruction;
@@ -14,30 +15,37 @@ namespace Light.DependencyInjection
     public sealed class DiContainer : IDisposable
     {
         private static readonly Type DiContainerType = typeof(DiContainer);
+        private readonly FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration> _genericTypeDefinitionRegistrations;
         private readonly FastReadThreadSafeDictionary<TypeKey, Registration> _registrations;
         public readonly ContainerScope Scope;
         private IDefaultRegistrationFactory _defaultRegistrationFactory;
         private IInjectorForUnknownInstanceMembers _injectorForUnknownInstanceMembers;
         private TypeAnalyzer _typeAnalyzer;
 
-        public DiContainer() : this(new FastReadThreadSafeDictionary<TypeKey, Registration>()) { }
+        public DiContainer() : this(new FastReadThreadSafeDictionary<TypeKey, Registration>(),
+                                    new FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration>()) { }
 
-        public DiContainer(FastReadThreadSafeDictionary<TypeKey, Registration> registrations)
+        public DiContainer(FastReadThreadSafeDictionary<TypeKey, Registration> registrations,
+                           FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration> genericTypeDefinitionRegistrations)
             : this(registrations,
+                   genericTypeDefinitionRegistrations,
                    new TransientRegistrationFactory(),
                    new DefaultInjectorForUnknownInstanceMembers(),
                    new TypeAnalyzer(),
                    new ContainerScope()) { }
 
         private DiContainer(FastReadThreadSafeDictionary<TypeKey, Registration> registrations,
+                            FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration> genericTypeDefinitionRegistrations,
                             IDefaultRegistrationFactory defaultRegistrationFactory,
                             IInjectorForUnknownInstanceMembers injectorForUnknownInstanceMembers,
                             TypeAnalyzer typeAnalyzer,
                             ContainerScope scope)
         {
             registrations.MustNotBeNull(nameof(registrations));
+            genericTypeDefinitionRegistrations.MustNotBeNull(nameof(genericTypeDefinitionRegistrations));
 
             _registrations = registrations;
+            _genericTypeDefinitionRegistrations = genericTypeDefinitionRegistrations;
             _defaultRegistrationFactory = defaultRegistrationFactory;
             _injectorForUnknownInstanceMembers = injectorForUnknownInstanceMembers;
             _typeAnalyzer = typeAnalyzer;
@@ -85,8 +93,10 @@ namespace Light.DependencyInjection
         {
             var childScope = createEmptyChildScope ? new ContainerScope() : new ContainerScope(Scope);
             var registrations = createCopyOfMappings ? new FastReadThreadSafeDictionary<TypeKey, Registration>(_registrations) : _registrations;
+            var genericTypeDefinitionRegistrations = createCopyOfMappings ? new FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration>(_genericTypeDefinitionRegistrations) : _genericTypeDefinitionRegistrations;
 
             return new DiContainer(registrations,
+                                   genericTypeDefinitionRegistrations,
                                    _defaultRegistrationFactory,
                                    _injectorForUnknownInstanceMembers,
                                    _typeAnalyzer,
@@ -95,13 +105,13 @@ namespace Light.DependencyInjection
 
         public DiContainer Register(Registration registration, IEnumerable<Type> abstractionTypes)
         {
-            Register(registration);
-
             foreach (var abstractionType in abstractionTypes)
             {
                 registration.TargetType.MustInheritFromOrImplement(abstractionType);
                 _registrations.AddOrReplace(new TypeKey(abstractionType, registration.Name), registration);
             }
+
+            Register(registration);
 
             return this;
         }
@@ -120,6 +130,34 @@ namespace Light.DependencyInjection
             return this;
         }
 
+        public DiContainer RegisterGenericTypeDefinition(GenericTypeDefinitionRegistration registration)
+        {
+            registration.MustNotBeNull(nameof(registration));
+
+            _genericTypeDefinitionRegistrations.AddOrReplace(registration.TypeKey, registration);
+
+            return this;
+        }
+
+        public DiContainer RegisterGenericTypeDefinition(GenericTypeDefinitionRegistration registration,
+                                                         params Type[] abstractionTypes)
+        {
+            return RegisterGenericTypeDefinition(registration, (IEnumerable<Type>) abstractionTypes);
+        }
+
+        public DiContainer RegisterGenericTypeDefinition(GenericTypeDefinitionRegistration registration,
+                                                         IEnumerable<Type> abstractionTypes)
+        {
+            foreach (var abstractionType in abstractionTypes)
+            {
+                registration.TargetType.MustInheritFromOrImplement(abstractionType);
+                _genericTypeDefinitionRegistrations.AddOrReplace(new TypeKey(abstractionType, registration.Name), registration);
+            }
+
+            RegisterGenericTypeDefinition(registration);
+            return this;
+        }
+
         public T Resolve<T>(string registrationName = null)
         {
             return (T) Resolve(typeof(T), registrationName);
@@ -130,16 +168,9 @@ namespace Light.DependencyInjection
             if (type == DiContainerType && registrationName == null)
                 return this;
 
-            object singleton;
-            if (Scope.TryGetObject(new TypeKey(type, registrationName), out singleton))
-                return singleton;
-
             var registration = GetRegistration(type, registrationName) ?? TryCreateDefaultRegistration(type, registrationName);
 
-            var instance = registration.GetInstance(this);
-            if (registration.IsContainerTrackingDisposable)
-                Scope.TryAddDisposable(instance);
-            return instance;
+            return registration.GetInstance(this);
         }
 
         public T Resolve<T>(ParameterOverrides parameterOverrides, string registrationName = null)
@@ -153,9 +184,7 @@ namespace Light.DependencyInjection
                 return this;
 
             var registration = GetRegistration(type, registrationName) ?? TryCreateDefaultRegistration(type, registrationName);
-            var instance = registration.CreateInstance(this, parameterOverrides);
-            Scope.TryAddDisposable(instance);
-            return instance;
+            return registration.CreateInstance(this, parameterOverrides);
         }
 
         private Registration TryCreateDefaultRegistration(Type type, string registrationName)
@@ -175,19 +204,7 @@ namespace Light.DependencyInjection
         public ParameterOverrides OverrideParametersFor(Type type, string registrationName = null)
         {
             var targetRegistration = GetRegistration(type, registrationName) ?? TryCreateDefaultRegistration(type, registrationName);
-            CheckRegistrationForParameterOverrides(targetRegistration);
-
             return new ParameterOverrides(targetRegistration.TypeCreationInfo);
-        }
-
-        [Conditional(Check.CompileAssertionsSymbol)]
-        // ReSharper disable once UnusedParameter.Local
-        private static void CheckRegistrationForParameterOverrides(Registration targetRegistration)
-        {
-            if (targetRegistration.IsCreatingNewInstanceOnNextResolve == false)
-                throw new InvalidOperationException($"The type {targetRegistration.TypeKey.GetFullRegistrationName()} will not be instantiated on the next resolve call, but use an existing instance. Thus it's parameters cannot be overridden.");
-            if (targetRegistration.TypeCreationInfo == null)
-                throw new InvalidOperationException($"The type {targetRegistration.TypeKey.GetFullRegistrationName()} is not instantiated by the DI container and thus cannot have it's parameters overridden.");
         }
 
         public Registration GetRegistration<T>(string registrationName = null)
@@ -207,24 +224,33 @@ namespace Light.DependencyInjection
 
             var genericTypeDefinition = type.GetGenericTypeDefinition();
             var genericTypeDefinitionKey = new TypeKey(genericTypeDefinition, registrationName);
-            Registration genericTypeDefinitionRegistration;
-            if (_registrations.TryGetValue(genericTypeDefinitionKey, out genericTypeDefinitionRegistration) == false)
+            GenericTypeDefinitionRegistration genericTypeDefinitionRegistration;
+            if (_genericTypeDefinitionRegistrations.TryGetValue(genericTypeDefinitionKey, out genericTypeDefinitionRegistration) == false)
                 return null;
 
             var closedConstructedType = genericTypeDefinition == genericTypeDefinitionRegistration.TargetType ? type : genericTypeDefinitionRegistration.TargetType.MakeGenericType(type.GenericTypeArguments);
-            returnedRegistration = _registrations.GetOrAdd(typeKey, () => genericTypeDefinitionRegistration.BindGenericTypeDefinition(closedConstructedType));
+            returnedRegistration = _registrations.GetOrAdd(typeKey, () => genericTypeDefinitionRegistration.BindToClosedGenericType(closedConstructedType));
             return returnedRegistration;
         }
 
-        public DiContainer ResolveAllSingletons()
+        public DiContainer InstantiateAllWithLifetime<TLifetime>() where TLifetime : ILifetime
         {
-            foreach (var singletonRegistration in _registrations.Values.OfType<ISingletonRegistration>())
+            var lifetimeType = typeof(TLifetime);
+            foreach (var registration in _registrations.Values.Where(registration => registration.Lifetime.GetType() == lifetimeType))
             {
-                var instance = singletonRegistration.GetInstance(this);
-                if (singletonRegistration.IsContainerTrackingDisposable)
-                    Scope.TryAddDisposable(instance);
+                registration.GetInstance(this);
             }
             return this;
+        }
+
+        public DiContainer InstantiateAllSingletons()
+        {
+            return InstantiateAllWithLifetime<SingletonLifetime>();
+        }
+
+        public DiContainer InstantiateAllScopedObjects()
+        {
+            return InstantiateAllWithLifetime<ScopedLifetime>();
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]

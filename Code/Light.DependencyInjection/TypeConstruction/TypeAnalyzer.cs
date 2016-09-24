@@ -39,7 +39,7 @@ namespace Light.DependencyInjection.TypeConstruction
         {
             type.MustNotBeNull(nameof(type));
 
-            return new RegistrationOptions(type, _constructorSelector, _ignoredAbstractionTypes).BuildTypeCreationInfo();
+            return new RegistrationOptionsForTypes(type, _constructorSelector, _ignoredAbstractionTypes).BuildTypeCreationInfo();
         }
     }
 }
