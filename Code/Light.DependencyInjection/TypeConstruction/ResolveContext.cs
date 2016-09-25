@@ -41,22 +41,23 @@ namespace Light.DependencyInjection.TypeConstruction
                 throw new InvalidOperationException($"Cannot instantiate type {Registration.TypeKey.GetFullRegistrationName()} because no Type Creation Info was registered for it.");
         }
 
-        public bool GetOrAddInstanceToResolveScope(TypeKey typeKey, Func<object> createInstance, out object perResolveInstance)
+        public object GetPerResolveInstance()
         {
+            object perResolveInstance;
             if (_resolveScope == null)
             {
                 _resolveScope = new Dictionary<TypeKey, object>();
-                perResolveInstance = createInstance();
-                _resolveScope.Add(typeKey, perResolveInstance);
-                return true;
+                perResolveInstance = CreateInstance();
+                _resolveScope.Add(Registration.TypeKey, perResolveInstance);
+                return perResolveInstance;
             }
 
-            if (_resolveScope.TryGetValue(typeKey, out perResolveInstance))
-                return false;
+            if (_resolveScope.TryGetValue(Registration.TypeKey, out perResolveInstance))
+                return perResolveInstance;
 
-            perResolveInstance = createInstance();
-            _resolveScope.Add(typeKey, perResolveInstance);
-            return true;
+            perResolveInstance = CreateInstance();
+            _resolveScope.Add(Registration.TypeKey, perResolveInstance);
+            return perResolveInstance;
         }
     }
 }

@@ -36,6 +36,7 @@
   <ItemGroup>
     <Compile Include="Lifetimes\ExternalInstanceLifetime.cs" />
     <Compile Include="Lifetimes\ILifeTime.cs" />
+    <Compile Include="Lifetimes\PerResolveLifetime.cs" />
     <Compile Include="Lifetimes\PerThreadLifetime.cs" />
     <Compile Include="Lifetimes\ScopedLifetime.cs" />
     <Compile Include="Lifetimes\SingletonLifetime.cs" />
