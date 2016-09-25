@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Light.DependencyInjection.FrameworkExtensions;
@@ -55,6 +56,78 @@ namespace Light.DependencyInjection.Registrations
             return This;
         }
 
+        public TConcreteOptions UseConstructorWithParameter<TArgument>()
+        {
+            return UseConstructorWithParameters(typeof(TArgument));
+        }
+
+        public TConcreteOptions UseConstructorWithParameters<T1, T2>()
+        {
+            return UseConstructorWithParameters(typeof(T1), typeof(T2));
+        }
+
+        public TConcreteOptions UseConstructorWithParameters<T1, T2, T3>()
+        {
+            return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3));
+        }
+
+        public TConcreteOptions UseConstructorWithParameters<T1, T2, T3, T4>()
+        {
+            return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4));
+        }
+
+        public TConcreteOptions UseConstructorWithParameters<T1, T2, T3, T4, T5>()
+        {
+            return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5));
+        }
+
+        public TConcreteOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6>()
+        {
+            return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6));
+        }
+
+        public TConcreteOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7>()
+        {
+            return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7));
+        }
+
+        public TConcreteOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7, T8>()
+        {
+            return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7), typeof(T8));
+        }
+
+
+        public TConcreteOptions UseStaticFactoryMethod(Expression<Func<object>> callStaticMethodExpression)
+        {
+            var methodInfo = callStaticMethodExpression.ExtractStaticFactoryMethod(TargetType);
+            AssignStaticCreationMethod(methodInfo);
+            return This;
+        }
+
+        public IChildRegistrationNameOptions<TConcreteOptions> ResolveInstantiationParameter<TParameter>()
+        {
+            AssignInstantiationMethodIfNeccessary();
+
+            var parameterType = typeof(TParameter);
+            var targetParameters = InstantiationInfo?.InstantiationDependencies?.Where(p => p.ParameterType == parameterType)
+                                                    .ToList();
+            CheckTargetParametersWithoutName(targetParameters, parameterType);
+
+            // ReSharper disable once PossibleNullReferenceException
+            return new ChildRegistrationNameOptions<TConcreteOptions>(This, targetParameters[0]);
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        protected void CheckTargetParametersWithoutName(List<ParameterDependency> targetParameters, Type targetParameterType)
+        {
+            if (targetParameters == null || targetParameters.Count == 0)
+                throw new TypeRegistrationException($"The specified instantiation method for type \"{TargetType}\" does not have a parameter of type \"{targetParameterType}\".", TargetType);
+
+            if (targetParameters.Count == 1)
+                return;
+
+            throw new TypeRegistrationException($"The specified instantiation method for type \"{TargetType}\" has several parameters with type \"{targetParameterType}\". Please use the overload of \"{nameof(ResolveInstantiationParameter)}\" where an additional parameter name can be specified.", TargetType);
+        }
 
         public TConcreteOptions UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo)
         {
