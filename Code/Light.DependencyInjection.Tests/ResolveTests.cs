@@ -107,22 +107,7 @@ namespace Light.DependencyInjection.Tests
             Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo) registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == targetConstructor);
         }
 
-        [Fact(DisplayName = "Clients must be able to register a type with mappings to all of its implemented interfaces.")]
-        public void MapAllInterfaces()
-        {
-            Container.RegisterTransient<E>(options => options.MapToAllImplementedInterfaces()
-                                                             .UseDefaultConstructor());
-
-            var resolvedInstances = new object[]
-                                    {
-                                        Container.Resolve<IE>(),
-                                        Container.Resolve<IF>(),
-                                        Container.Resolve<IG>(),
-                                        Container.Resolve<E>()
-                                    };
-
-            resolvedInstances.Should().ContainItemsAssignableTo<E>();
-        }
+        
 
         [Fact(DisplayName = "Clients must be able to register a type with mappings to specified base types")]
         public void MapSpecificTypes()
@@ -300,6 +285,23 @@ namespace Light.DependencyInjection.Tests
             Register<E>(options => options.UseConstructorWithParameters<int, uint>());
 
             Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(E).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 2));
+        }
+
+        [Fact(DisplayName = "Clients must be able to register a type with mappings to all of its implemented interfaces.")]
+        public void MapAllInterfaces()
+        {
+            Register<E>(options => options.MapToAllImplementedInterfaces()
+                                          .UseDefaultConstructor());
+
+            var resolvedInstances = new object[]
+                                    {
+                                        Container.Resolve<IE>(),
+                                        Container.Resolve<IF>(),
+                                        Container.Resolve<IG>(),
+                                        Container.Resolve<E>()
+                                    };
+
+            resolvedInstances.Should().ContainItemsAssignableTo<E>();
         }
     }
 
