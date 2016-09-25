@@ -103,27 +103,7 @@ namespace Light.DependencyInjection.Tests
 
         
 
-        [Theory(DisplayName = "Clients must be able to register a static factory method instead of a constructor that the DI container uses to instantiate the target type.")]
-        [MemberData(nameof(ResolveWithStaticFactoryMethodData))]
-        public void ResolveWithStaticFactoryMethod(Action<IRegistrationOptionsForType<F>> configureStaticMethod)
-        {
-            Container.RegisterTransient(configureStaticMethod)
-                     .RegisterInstance("Hello")
-                     .RegisterInstance(3);
-
-            var instanceOfF = Container.Resolve<F>();
-
-            instanceOfF.Text.Should().Be(Container.Resolve<string>());
-            instanceOfF.Number.Should().Be(Container.Resolve<int>());
-        }
-
-        public static readonly TestData ResolveWithStaticFactoryMethodData =
-            new[]
-            {
-                new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(new Func<string, int, F>(F.Create))) },
-                new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(() => F.Create(default(string), default(int)))) },
-                new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(typeof(F).GetRuntimeMethod("Create", new[] { typeof(string), typeof(int) }))) }
-            };
+        
 
         [Theory(DisplayName = "Clients must be able to configure property injections that the DI container performs after an instance of the target type was created.")]
         [MemberData(nameof(PropertyInjectionData))]
@@ -307,6 +287,28 @@ namespace Light.DependencyInjection.Tests
 
             Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == targetConstructor);
         }
+
+        [Theory(DisplayName = "Clients must be able to register a static factory method instead of a constructor that the DI container uses to instantiate the target type.")]
+        [MemberData(nameof(ResolveWithStaticFactoryMethodData))]
+        public void ResolveWithStaticFactoryMethod(Action<IRegistrationOptionsForType<F>> configureStaticMethod)
+        {
+            Register(configureStaticMethod);
+            Container.RegisterInstance("Hello")
+                     .RegisterInstance(3);
+
+            var instanceOfF = Container.Resolve<F>();
+
+            instanceOfF.Text.Should().Be(Container.Resolve<string>());
+            instanceOfF.Number.Should().Be(Container.Resolve<int>());
+        }
+
+        public static readonly TestData ResolveWithStaticFactoryMethodData =
+            new[]
+            {
+                new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(new Func<string, int, F>(F.Create))) },
+                new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(() => F.Create(default(string), default(int)))) },
+                new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(typeof(F).GetRuntimeMethod("Create", new[] { typeof(string), typeof(int) }))) }
+            };
     }
 
     public sealed class TransientOptionsTests : BaseOptionsTests
