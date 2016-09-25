@@ -109,21 +109,7 @@ namespace Light.DependencyInjection.Tests
 
         
 
-        [Fact(DisplayName = "Clients must be able to register a type with mappings to specified base types")]
-        public void MapSpecificTypes()
-        {
-            Container.RegisterTransient<E>(options => options.MapToAbstractions(typeof(IE), typeof(A))
-                                                             .UseDefaultConstructor());
-
-            var resolvedInstances = new object[]
-                                    {
-                                        Container.Resolve<IE>(),
-                                        Container.Resolve<A>(),
-                                        Container.Resolve<E>()
-                                    };
-
-            resolvedInstances.Should().ContainItemsAssignableTo<E>();
-        }
+        
 
         [Theory(DisplayName = "Clients must be able to register a static factory method instead of a constructor that the DI container uses to instantiate the target type.")]
         [MemberData(nameof(ResolveWithStaticFactoryMethodData))]
@@ -298,6 +284,22 @@ namespace Light.DependencyInjection.Tests
                                         Container.Resolve<IE>(),
                                         Container.Resolve<IF>(),
                                         Container.Resolve<IG>(),
+                                        Container.Resolve<E>()
+                                    };
+
+            resolvedInstances.Should().ContainItemsAssignableTo<E>();
+        }
+
+        [Fact(DisplayName = "Clients must be able to register a type with mappings to specified base types.")]
+        public void MapSpecificTypes()
+        {
+            Register<E>(options => options.MapToAbstractions(typeof(IE), typeof(A))
+                                          .UseDefaultConstructor());
+
+            var resolvedInstances = new object[]
+                                    {
+                                        Container.Resolve<IE>(),
+                                        Container.Resolve<A>(),
                                         Container.Resolve<E>()
                                     };
 
