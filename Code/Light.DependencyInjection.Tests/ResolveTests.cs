@@ -91,13 +91,7 @@ namespace Light.DependencyInjection.Tests
         }
 
 
-        [Fact(DisplayName = "Clients must be able to change the constructor that is used to instantiate the target object.")]
-        public void OptionsSelectDefaultConstructor()
-        {
-            Container.RegisterTransient<D>(options => options.UseDefaultConstructor());
-
-            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo) registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First());
-        }
+        
 
         [Fact(DisplayName = "Clients must be able to choose a constructor with a single parameter that the DI container uses to instantiate the target type.")]
         public void OptionsConstructorWithOneParameter()
@@ -294,6 +288,14 @@ namespace Light.DependencyInjection.Tests
             Register<A>(options => options.UseRegistrationName("Foo"));
 
             Container.Registrations.Should().ContainSingle(registration => registration.Name == "Foo");
+        }
+
+        [Fact(DisplayName = "Clients must be able to change the constructor that is used to instantiate the target object.")]
+        public void OptionsSelectDefaultConstructor()
+        {
+            Register<D>(options => options.UseDefaultConstructor());
+
+            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First());
         }
     }
 
