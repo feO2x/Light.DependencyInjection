@@ -12,7 +12,8 @@ namespace Light.DependencyInjection.Registrations
     {
         private readonly string _toStringText;
         public readonly bool IsTrackingDisposables;
-        public readonly ILifetime Lifetime;
+        // ReSharper disable once InconsistentNaming
+        protected readonly ILifetime _lifetime;
         public readonly TypeInfo TargetTypeInfo;
         public readonly TypeCreationInfo TypeCreationInfo;
         public readonly TypeKey TypeKey;
@@ -26,7 +27,7 @@ namespace Light.DependencyInjection.Registrations
 
             TypeKey = typeKey;
             TargetTypeInfo = TypeKey.Type.GetTypeInfo();
-            Lifetime = lifetime;
+            _lifetime = lifetime;
             TypeCreationInfo = typeCreationInfo;
             IsTrackingDisposables = TargetTypeInfo.IsImplementingIDisposable() && isTrackingDisposables;
             _toStringText = TypeKey.GetFullRegistrationName();

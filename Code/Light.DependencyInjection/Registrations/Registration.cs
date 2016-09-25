@@ -15,14 +15,6 @@ namespace Light.DependencyInjection.Registrations
             TargetType.MustBeInstantiatable();
         }
 
-        public object GetInstance(DiContainer container)
-        {
-            return Lifetime.GetInstance(this, container);
-        }
-
-        public object CreateInstance(DiContainer container, ParameterOverrides parameterOverrides)
-        {
-            return Lifetime.CreateInstance(this, container, parameterOverrides);
-        }
+        public ILifetime Lifetime => _lifetime;
     }
 }

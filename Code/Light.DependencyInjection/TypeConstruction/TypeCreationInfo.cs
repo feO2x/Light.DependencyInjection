@@ -9,6 +9,7 @@ namespace Light.DependencyInjection.TypeConstruction
 {
     public sealed class TypeCreationInfo
     {
+        // TODO: can we replace this list with an array?
         private readonly List<InstanceInjection> _instanceInjections;
         public readonly InstantiationInfo InstantiationInfo;
         public readonly TypeKey TypeKey;
@@ -53,33 +54,41 @@ namespace Light.DependencyInjection.TypeConstruction
             }
         }
 
-        public object CreateInstance(DiContainer container, bool trackDisposable)
+        public object CreateInstance(CreationContext context)
         {
-            var instance = InstantiationInfo.Instantiate(container);
-            if (_instanceInjections == null || _instanceInjections.Count == 0)
-                return instance;
-
-            foreach (var instanceInjection in _instanceInjections)
-            {
-                var injectionValue = container.Resolve(instanceInjection.MemberType, instanceInjection.ChildValueRegistrationName);
-                instanceInjection.InjectValue(instance, injectionValue);
-            }
-
-            if (trackDisposable)
-                container.Scope.TryAddDisposable(instance);
+            var instance = InstantiationInfo.Instantiate(context);
+            PerformInstanceInjections(instance, context);
+            if (context.Registration.IsTrackingDisposables)
+                context.Container.Scope.TryAddDisposable(instance);
             return instance;
         }
 
-        public object CreateInstance(DiContainer container, ParameterOverrides parameterOverrides, bool trackDisposable)
+        private void PerformInstanceInjections(object instance, CreationContext context)
         {
-            var instance = InstantiationInfo.Instantiate(container, parameterOverrides);
+            // Check if parameter overrides are present
+            if (context.ParameterOverrides == null)
+            {
+                // If not, then resolve all injection values via the context (i.e. the DI container)
+                if (_instanceInjections == null || _instanceInjections.Count == 0)
+                    return;
+
+                foreach (var instanceInjection in _instanceInjections)
+                {
+                    var injectionValue = context.ResolveChildValue(new TypeKey(instanceInjection.MemberType, instanceInjection.ChildValueRegistrationName));
+                    instanceInjection.InjectValue(instance, injectionValue);
+                }
+                return;
+            }
+
+            // Else try to inject the values via the given parameter overrides
+            var parameterOverrides = context.ParameterOverrides.Value;
             if (_instanceInjections != null && _instanceInjections.Count > 0)
             {
                 foreach (var instanceInjection in _instanceInjections)
                 {
                     object injectionValue;
                     if (parameterOverrides.InstanceInjectionOverrides == null || parameterOverrides.InstanceInjectionOverrides.TryGetValue(instanceInjection, out injectionValue) == false)
-                        injectionValue = container.Resolve(instanceInjection.MemberType, instanceInjection.ChildValueRegistrationName);
+                        injectionValue = context.ResolveChildValue(new TypeKey(instanceInjection.MemberType, instanceInjection.ChildValueRegistrationName));
                     instanceInjection.InjectValue(instance, injectionValue);
                 }
             }
@@ -88,14 +97,9 @@ namespace Light.DependencyInjection.TypeConstruction
                 for (var i = 0; i < parameterOverrides.AdditionalInjections.Count; ++i)
                 {
                     var simpleInjectionDescription = parameterOverrides.AdditionalInjections[i];
-                    container.InjectorForUnknownInstanceMembers.InjectValue(simpleInjectionDescription.MemberInfo, instance, simpleInjectionDescription.Value);
+                    context.Container.InjectorForUnknownInstanceMembers.InjectValue(simpleInjectionDescription.MemberInfo, instance, simpleInjectionDescription.Value);
                 }
             }
-
-            if (trackDisposable)
-                container.Scope.TryAddDisposable(instance);
-
-            return instance;
         }
 
         public TypeCreationInfo CloneForClosedConstructedGenericType(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)

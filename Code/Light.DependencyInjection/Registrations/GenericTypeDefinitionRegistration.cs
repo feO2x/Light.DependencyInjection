@@ -21,7 +21,7 @@ namespace Light.DependencyInjection.Registrations
             closedGenericType.MustBeClosedConstructedVariantOf(TypeKey.Type);
 
             return new Registration(new TypeKey(closedGenericType, TypeKey.RegistrationName),
-                                    Lifetime.ProvideInstanceForResolvedGenericType(),
+                                    _lifetime.ProvideInstanceForResolvedGenericType(),
                                     TypeCreationInfo.CloneForClosedConstructedGenericType(closedGenericType, closedGenericType.GetTypeInfo()));
         }
     }

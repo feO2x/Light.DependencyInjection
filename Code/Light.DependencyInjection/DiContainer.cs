@@ -160,39 +160,46 @@ namespace Light.DependencyInjection
 
         public T Resolve<T>(string registrationName = null)
         {
-            return (T) Resolve(typeof(T), registrationName);
+            return (T) ResolveRecursively(new TypeKey(typeof(T), registrationName),
+                                          CreationContext.CreateInitial(this));
         }
 
         public object Resolve(Type type, string registrationName = null)
         {
-            if (type == DiContainerType && registrationName == null)
-                return this;
-
-            var registration = GetRegistration(type, registrationName) ?? TryCreateDefaultRegistration(type, registrationName);
-
-            return registration.GetInstance(this);
+            return ResolveRecursively(new TypeKey(type, registrationName),
+                                      CreationContext.CreateInitial(this));
         }
 
         public T Resolve<T>(ParameterOverrides parameterOverrides, string registrationName = null)
         {
-            return (T) Resolve(typeof(T), parameterOverrides, registrationName);
+            return (T) ResolveRecursively(new TypeKey(typeof(T), registrationName),
+                                          CreationContext.CreateInitial(this, parameterOverrides));
         }
 
         public object Resolve(Type type, ParameterOverrides parameterOverrides, string registrationName = null)
         {
-            if (type == DiContainerType && registrationName == null)
-                return this;
-
-            var registration = GetRegistration(type, registrationName) ?? TryCreateDefaultRegistration(type, registrationName);
-            return registration.CreateInstance(this, parameterOverrides);
+            return ResolveRecursively(new TypeKey(type, registrationName),
+                                      CreationContext.CreateInitial(this, parameterOverrides));
         }
 
-        private Registration TryCreateDefaultRegistration(Type type, string registrationName)
+        internal object ResolveRecursively(TypeKey typeKey, CreationContext creationContext)
         {
-            CheckIfTypeIsInstantiable(type);
+            if (typeKey.Type == DiContainerType && typeKey.RegistrationName == null)
+                return this;
 
-            var registration = _registrations.GetOrAdd(new TypeKey(type, registrationName),
-                                                       () => _defaultRegistrationFactory.CreateDefaultRegistration(_typeAnalyzer.CreateInfoFor(type)));
+            var registration = GetRegistration(typeKey) ?? GetDefaultRegistration(typeKey);
+            return registration.Lifetime.GetInstance(new ResolveContext(this,
+                                                                        registration,
+                                                                        creationContext.ResolveScope,
+                                                                        creationContext.ParameterOverrides));
+        }
+
+        private Registration GetDefaultRegistration(TypeKey typeKey)
+        {
+            CheckIfTypeIsInstantiable(typeKey.Type);
+
+            var registration = _registrations.GetOrAdd(typeKey,
+                                                       () => _defaultRegistrationFactory.CreateDefaultRegistration(_typeAnalyzer.CreateInfoFor(typeKey.Type)));
             return registration;
         }
 
@@ -203,7 +210,8 @@ namespace Light.DependencyInjection
 
         public ParameterOverrides OverrideParametersFor(Type type, string registrationName = null)
         {
-            var targetRegistration = GetRegistration(type, registrationName) ?? TryCreateDefaultRegistration(type, registrationName);
+            var typeKey = new TypeKey(type, registrationName);
+            var targetRegistration = GetRegistration(typeKey) ?? GetDefaultRegistration(typeKey);
             return new ParameterOverrides(targetRegistration.TypeCreationInfo);
         }
 
@@ -214,21 +222,25 @@ namespace Light.DependencyInjection
 
         public Registration GetRegistration(Type type, string registrationName = null)
         {
-            var typeKey = new TypeKey(type, registrationName);
+            return GetRegistration(new TypeKey(type, registrationName));
+        }
+
+        public Registration GetRegistration(TypeKey typeKey)
+        {
             Registration targetRegistration;
             if (_registrations.TryGetValue(typeKey, out targetRegistration))
                 return targetRegistration;
 
-            if (type.IsConstructedGenericType == false)
+            if (typeKey.Type.IsConstructedGenericType == false)
                 return null;
 
-            var genericTypeDefinition = type.GetGenericTypeDefinition();
-            var genericTypeDefinitionKey = new TypeKey(genericTypeDefinition, registrationName);
+            var genericTypeDefinition = typeKey.Type.GetGenericTypeDefinition();
+            var genericTypeDefinitionKey = new TypeKey(genericTypeDefinition, typeKey.RegistrationName);
             GenericTypeDefinitionRegistration genericTypeDefinitionRegistration;
             if (_genericTypeDefinitionRegistrations.TryGetValue(genericTypeDefinitionKey, out genericTypeDefinitionRegistration) == false)
                 return null;
 
-            var closedConstructedType = genericTypeDefinition == genericTypeDefinitionRegistration.TargetType ? type : genericTypeDefinitionRegistration.TargetType.MakeGenericType(type.GenericTypeArguments);
+            var closedConstructedType = genericTypeDefinition == genericTypeDefinitionRegistration.TargetType ? typeKey.Type : genericTypeDefinitionRegistration.TargetType.MakeGenericType(typeKey.Type.GenericTypeArguments);
             targetRegistration = _registrations.GetOrAdd(typeKey, () => genericTypeDefinitionRegistration.BindToClosedGenericType(closedConstructedType));
             return targetRegistration;
         }
@@ -238,7 +250,7 @@ namespace Light.DependencyInjection
             var lifetimeType = typeof(TLifetime);
             foreach (var registration in _registrations.Values.Where(registration => registration.Lifetime.GetType() == lifetimeType))
             {
-                registration.GetInstance(this);
+                registration.Lifetime.GetInstance(new ResolveContext(this, registration, null));
             }
             return this;
         }

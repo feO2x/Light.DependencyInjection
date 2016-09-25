@@ -55,6 +55,7 @@
     <Compile Include="Registrations\RegistrationOptionsForExternalInstance.cs" />
     <Compile Include="Registrations\GenericTypeDefinitionRegistration.cs" />
     <Compile Include="Registrations\RegistrationOptionsForType.cs" />
+    <Compile Include="TypeConstruction\CreationContext.cs" />
     <Compile Include="TypeConstruction\DefaultInjectorForUnknownInstanceMembers.cs" />
     <Compile Include="TypeConstruction\IInjectorForUnknownInstanceMembers.cs" />
     <Compile Include="Registrations\BaseRegistrationOptionsForTypes.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="TypeConstruction\ParameterDependency.cs" />
     <Compile Include="TypeConstruction\ParameterOverrides.cs" />
     <Compile Include="TypeConstruction\PropertyInjection.cs" />
+    <Compile Include="TypeConstruction\ResolveContext.cs" />
     <Compile Include="TypeConstruction\UnknownInjectionDescription.cs" />
     <Compile Include="TypeConstruction\StaticMethodInstantiationInfo.cs" />
     <Compile Include="TypeConstruction\TypeAnalyzer.cs" />

@@ -1,5 +1,4 @@
-﻿using Light.DependencyInjection.Registrations;
-using Light.DependencyInjection.TypeConstruction;
+﻿using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Lifetimes
 {
@@ -7,14 +6,9 @@ namespace Light.DependencyInjection.Lifetimes
     {
         public static readonly TransientLifetime Instance = new TransientLifetime();
 
-        public object GetInstance(Registration registration, DiContainer container)
+        public object GetInstance(ResolveContext context)
         {
-            return registration.TypeCreationInfo.CreateInstance(container, registration.IsTrackingDisposables);
-        }
-
-        public object CreateInstance(Registration registration, DiContainer container, ParameterOverrides parameterOverrides)
-        {
-            return registration.TypeCreationInfo.CreateInstance(container, parameterOverrides, registration.IsTrackingDisposables);
+            return context.CreateInstance();
         }
 
         public ILifetime ProvideInstanceForResolvedGenericType()

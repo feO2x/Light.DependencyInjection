@@ -35,35 +35,31 @@ namespace Light.DependencyInjection.TypeConstruction
 
         public IReadOnlyList<ParameterDependency> InstantiationDependencies => _instantiationDependencies;
 
-        public virtual object Instantiate(DiContainer container)
+        public virtual object Instantiate(CreationContext context)
         {
-            container.MustNotBeNull(nameof(container));
-
             if (InstantiationDependencies == null || _instantiationDependencies.Length == 0)
                 return StandardizedInstantiationFunction(null);
 
-            var parameters = new object[_instantiationDependencies.Length];
-
-            for (var i = 0; i < parameters.Length; ++i)
+            // Check if there is something to override
+            if (context.ParameterOverrides == null)
             {
-                parameters[i] = _instantiationDependencies[i].ResolveDependency(container);
+                // If not, use the context (i.e. the DI container) to resolve all dependencies
+                var parameters = new object[_instantiationDependencies.Length];
+
+                for (var i = 0; i < parameters.Length; ++i)
+                {
+                    parameters[i] = _instantiationDependencies[i].ResolveDependency(context);
+                }
+                return StandardizedInstantiationFunction(parameters);
             }
 
-            return StandardizedInstantiationFunction(parameters);
-        }
-
-        public virtual object Instantiate(DiContainer container, ParameterOverrides parameterOverrides)
-        {
-            container.MustNotBeNull(nameof(container));
-
-            if (parameterOverrides.InstantiationParameters == null)
-                return StandardizedInstantiationFunction(null);
-
+            // Else use the array of the ParameterOverrides to instantiate the object
+            var parameterOverrides = context.ParameterOverrides.Value;
             for (var i = 0; i < parameterOverrides.InstantiationParameters.Length; ++i)
             {
                 var instantiationParameter = parameterOverrides.InstantiationParameters[i];
                 if (instantiationParameter == null)
-                    parameterOverrides.InstantiationParameters[i] = _instantiationDependencies[i].ResolveDependency(container);
+                    parameterOverrides.InstantiationParameters[i] = _instantiationDependencies[i].ResolveDependency(context);
                 else if (instantiationParameter is ExplicitlyPassedNull)
                     parameterOverrides.InstantiationParameters[i] = null;
             }

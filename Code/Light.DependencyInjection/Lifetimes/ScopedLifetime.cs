@@ -1,5 +1,4 @@
-﻿using Light.DependencyInjection.Registrations;
-using Light.DependencyInjection.TypeConstruction;
+﻿using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Lifetimes
 {
@@ -7,21 +6,10 @@ namespace Light.DependencyInjection.Lifetimes
     {
         public static readonly ScopedLifetime Instance = new ScopedLifetime();
 
-        public object GetInstance(Registration registration, DiContainer container)
+        public object GetInstance(ResolveContext context)
         {
-            return container.Scope.GetOrAddInstance(registration.TypeKey,
-                                                    () => registration.TypeCreationInfo.CreateInstance(container, registration.IsTrackingDisposables));
-        }
-
-        public object CreateInstance(Registration registration, DiContainer container, ParameterOverrides parameterOverrides)
-        {
-            object instance;
-            if (container.Scope.GetOrAddInstance(registration.TypeKey,
-                                                 () => registration.TypeCreationInfo.CreateInstance(container, parameterOverrides, registration.IsTrackingDisposables),
-                                                 out instance) == false)
-                throw new ResolveTypeException($"The type {registration.TypeKey.GetFullRegistrationName()} is registered with a scoped lifetime and already instantiated. Thus CreateInstance cannot be called successfully.", registration.TargetType);
-
-            return instance;
+            return context.Container.Scope.GetOrAddInstance(context.Registration.TypeKey,
+                                                            context.CreateInstance);
         }
 
         public ILifetime ProvideInstanceForResolvedGenericType()

@@ -1,5 +1,4 @@
 ﻿using System;
-using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Lifetimes
@@ -13,19 +12,14 @@ namespace Light.DependencyInjection.Lifetimes
             _value = value;
         }
 
-        public object GetInstance(Registration registration, DiContainer container)
+        public object GetInstance(ResolveContext context)
         {
             return _value;
         }
 
-        public object CreateInstance(Registration registration, DiContainer container, ParameterOverrides parameterOverrides)
-        {
-            throw new NotSupportedException("A registration with an external value cannot be reinstantiated with overridden parameters.");
-        }
-
         public ILifetime ProvideInstanceForResolvedGenericType()
         {
-            throw new NotSupportedException("A registration with an external value cannot be a registration for a generic type definition.");
+            throw new NotSupportedException("A lifetime with an external value cannot be attached to a registration for a generic type definition.");
         }
     }
 }

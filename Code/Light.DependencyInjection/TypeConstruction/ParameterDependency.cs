@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
@@ -25,9 +26,9 @@ namespace Light.DependencyInjection.TypeConstruction
             set { _childValueRegistrationName = value; }
         }
 
-        public object ResolveDependency(DiContainer container)
+        public object ResolveDependency(CreationContext context)
         {
-            return container.Resolve(ParameterType, _childValueRegistrationName);
+            return context.ResolveChildValue(new TypeKey(ParameterType, _childValueRegistrationName));
         }
     }
 }
