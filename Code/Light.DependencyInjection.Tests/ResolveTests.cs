@@ -90,13 +90,6 @@ namespace Light.DependencyInjection.Tests
                .And.Message.Should().Contain($"The specified type \"{typeof(IC)}\" could not be resolved because there is no concrete type registered that should be returned for this polymorphic abstraction.");
         }
 
-        [Fact(DisplayName = "Clients must be able to change the registration name using the options object when calling ResolveTransient.")]
-        public void OptionsRegistrationName()
-        {
-            Container.RegisterTransient<A>(options => options.UseRegistrationName("Foo"));
-
-            Container.Registrations.Should().ContainSingle(registration => registration.Name == "Foo");
-        }
 
         [Fact(DisplayName = "Clients must be able to change the constructor that is used to instantiate the target object.")]
         public void OptionsSelectDefaultConstructor()
@@ -288,6 +281,59 @@ namespace Light.DependencyInjection.Tests
             var instance = Container.Resolve<IF>();
 
             instance.Should().BeAssignableTo<F>();
+        }
+    }
+
+    public abstract class BaseOptionsTests : DefaultDiContainerTests
+    {
+        protected abstract void Register<T>(Action<IRegistrationOptionsForType<T>> configureOptions);
+
+        [Fact(DisplayName = "Clients must be able to change the registration name using the options object when calling ResolveTransient.")]
+        public void OptionsRegistrationName()
+        {
+            Register<A>(options => options.UseRegistrationName("Foo"));
+
+            Container.Registrations.Should().ContainSingle(registration => registration.Name == "Foo");
+        }
+    }
+
+    public sealed class TransientOptionsTests : BaseOptionsTests
+    {
+        protected override void Register<T>(Action<IRegistrationOptionsForType<T>> configureOptions)
+        {
+            Container.RegisterTransient(configureOptions);
+        }
+    }
+
+    public sealed class SingletonOptionsTests : BaseOptionsTests
+    {
+        protected override void Register<T>(Action<IRegistrationOptionsForType<T>> configureOptions)
+        {
+            Container.RegisterSingleton(configureOptions);
+        }
+    }
+
+    public sealed class ScopedOptionsTests : BaseOptionsTests
+    {
+        protected override void Register<T>(Action<IRegistrationOptionsForType<T>> configureOptions)
+        {
+            Container.RegisterScoped(configureOptions);
+        }
+    }
+
+    public sealed class PerThreadOptionsTests : BaseOptionsTests
+    {
+        protected override void Register<T>(Action<IRegistrationOptionsForType<T>> configureOptions)
+        {
+            Container.RegisterPerThread(configureOptions);
+        }
+    }
+
+    public sealed class PerResolveOptionsTests : BaseOptionsTests
+    {
+        protected override void Register<T>(Action<IRegistrationOptionsForType<T>> configureOptions)
+        {
+            Container.RegisterPerResolve(configureOptions);
         }
     }
 }

@@ -11,7 +11,7 @@ using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class RegistrationOptionsTests
+    public sealed class RegistrationOptionsErrorTests
     {
         [Theory(DisplayName = "UseDefaultConstructor must throw a TypeRegistrationException when the target type does not contain a default constructor.")]
         [MemberData(nameof(DefaultConstructorErrorMessageData))]
