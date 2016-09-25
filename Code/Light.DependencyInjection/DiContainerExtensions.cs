@@ -64,15 +64,31 @@ namespace Light.DependencyInjection
             return RegistrationOptionsForType<T>.PerformRegistration(container, configureOptions, new PerThreadLifetime());
         }
 
-        public static DiContainer RegisterPerThread(this DiContainer container, Type targetType, Action<IRegistrationOptionsForType> configureOptions = null)
+        public static DiContainer RegisterPerThread(this DiContainer container, Type concreteType, Action<IRegistrationOptionsForType> configureOptions = null)
         {
-            return RegistrationOptionsForType.PerformRegistration(container, targetType, configureOptions, new PerThreadLifetime());
+            return RegistrationOptionsForType.PerformRegistration(container, concreteType, configureOptions, new PerThreadLifetime());
         }
 
         public static DiContainer RegisterPerThread<TAbstract, TConcrete>(this DiContainer container, Action<IRegistrationOptionsForType<TConcrete>> configureOptions = null)
             where TConcrete : TAbstract
         {
             return RegistrationOptionsForType<TConcrete>.PerformRegistration(container, configureOptions, new PerThreadLifetime(), typeof(TAbstract));
+        }
+
+        public static DiContainer RegisterPerResolve<T>(this DiContainer container, Action<IRegistrationOptionsForType<T>> configureOptions = null)
+        {
+            return RegistrationOptionsForType<T>.PerformRegistration(container, configureOptions, PerResolveLifetime.Instance);
+        }
+
+        public static DiContainer RegisterPerResolve(this DiContainer container, Type concreteType, Action<IRegistrationOptionsForType> configureOptions = null)
+        {
+            return RegistrationOptionsForType.PerformRegistration(container, concreteType, configureOptions, PerResolveLifetime.Instance);
+        }
+
+        public static DiContainer RegisterPerResolve<TAbstract, TConcrete>(this DiContainer container, Action<IRegistrationOptionsForType<TConcrete>> configureOptions = null)
+            where TConcrete : TAbstract
+        {
+            return RegistrationOptionsForType<TConcrete>.PerformRegistration(container, configureOptions, PerResolveLifetime.Instance, typeof(TAbstract));
         }
     }
 }
