@@ -107,24 +107,7 @@ namespace Light.DependencyInjection.Tests
 
         
 
-        [Theory(DisplayName = "Clients must be able to configure field injections that the DI container performs after an instance of the target type was created.")]
-        [MemberData(nameof(FieldInjectionData))]
-        public void FieldInjection(Action<IRegistrationOptionsForType<H>> configureFieldInjection)
-        {
-            Container.RegisterTransient(configureFieldInjection)
-                     .RegisterInstance(true);
-
-            var instanceOfH = Container.Resolve<H>();
-
-            instanceOfH.BooleanValue.Should().BeTrue();
-        }
-
-        public static readonly TestData FieldInjectionData =
-            new[]
-            {
-                new object[] { new Action<IRegistrationOptionsForType<H>>(options => options.AddFieldInjection(h => h.BooleanValue)) },
-                new object[] { new Action<IRegistrationOptionsForType<H>>(options => options.AddFieldInjection(typeof(H).GetRuntimeField("BooleanValue"))) }
-            };
+        
 
         [Fact(DisplayName = "Clients must be able to add a registration name for property injections that the container uses to resolve the child value.")]
         public void ResolvePropertyInjectionWithNonDefaultRegistration()
@@ -310,6 +293,25 @@ namespace Light.DependencyInjection.Tests
             {
                 new object[] { new Action<IRegistrationOptionsForType<G>>(options => options.AddPropertyInjection(g => g.ReferenceToA)) },
                 new object[] { new Action<IRegistrationOptionsForType<G>>(options => options.AddPropertyInjection(typeof(G).GetRuntimeProperty("ReferenceToA"))) }
+            };
+
+        [Theory(DisplayName = "Clients must be able to configure field injections that the DI container performs after an instance of the target type was created.")]
+        [MemberData(nameof(FieldInjectionData))]
+        public void FieldInjection(Action<IRegistrationOptionsForType<H>> configureFieldInjection)
+        {
+            Register(configureFieldInjection);
+            Container.RegisterInstance(true);
+
+            var instanceOfH = Container.Resolve<H>();
+
+            instanceOfH.BooleanValue.Should().BeTrue();
+        }
+
+        public static readonly TestData FieldInjectionData =
+            new[]
+            {
+                new object[] { new Action<IRegistrationOptionsForType<H>>(options => options.AddFieldInjection(h => h.BooleanValue)) },
+                new object[] { new Action<IRegistrationOptionsForType<H>>(options => options.AddFieldInjection(typeof(H).GetRuntimeField("BooleanValue"))) }
             };
     }
 
