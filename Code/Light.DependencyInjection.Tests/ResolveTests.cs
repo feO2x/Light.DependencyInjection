@@ -105,23 +105,7 @@ namespace Light.DependencyInjection.Tests
 
         
 
-        [Theory(DisplayName = "Clients must be able to configure property injections that the DI container performs after an instance of the target type was created.")]
-        [MemberData(nameof(PropertyInjectionData))]
-        public void PropertyInjection(Action<IRegistrationOptionsForType<G>> configurePropertyInjection)
-        {
-            Container.RegisterTransient(configurePropertyInjection);
-
-            var instanceOfG = Container.Resolve<G>();
-
-            instanceOfG.ReferenceToA.Should().NotBeNull();
-        }
-
-        public static readonly TestData PropertyInjectionData =
-            new[]
-            {
-                new object[] { new Action<IRegistrationOptionsForType<G>>(options => options.AddPropertyInjection(g => g.ReferenceToA)) },
-                new object[] { new Action<IRegistrationOptionsForType<G>>(options => options.AddPropertyInjection(typeof(G).GetRuntimeProperty("ReferenceToA"))) }
-            };
+        
 
         [Theory(DisplayName = "Clients must be able to configure field injections that the DI container performs after an instance of the target type was created.")]
         [MemberData(nameof(FieldInjectionData))]
@@ -308,6 +292,24 @@ namespace Light.DependencyInjection.Tests
                 new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(new Func<string, int, F>(F.Create))) },
                 new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(() => F.Create(default(string), default(int)))) },
                 new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(typeof(F).GetRuntimeMethod("Create", new[] { typeof(string), typeof(int) }))) }
+            };
+
+        [Theory(DisplayName = "Clients must be able to configure property injections that the DI container performs after an instance of the target type was created.")]
+        [MemberData(nameof(PropertyInjectionData))]
+        public void PropertyInjection(Action<IRegistrationOptionsForType<G>> configurePropertyInjection)
+        {
+            Register(configurePropertyInjection);
+
+            var instanceOfG = Container.Resolve<G>();
+
+            instanceOfG.ReferenceToA.Should().NotBeNull();
+        }
+
+        public static readonly TestData PropertyInjectionData =
+            new[]
+            {
+                new object[] { new Action<IRegistrationOptionsForType<G>>(options => options.AddPropertyInjection(g => g.ReferenceToA)) },
+                new object[] { new Action<IRegistrationOptionsForType<G>>(options => options.AddPropertyInjection(typeof(G).GetRuntimeProperty("ReferenceToA"))) }
             };
     }
 
