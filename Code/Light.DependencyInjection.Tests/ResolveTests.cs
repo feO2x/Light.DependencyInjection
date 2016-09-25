@@ -109,16 +109,7 @@ namespace Light.DependencyInjection.Tests
 
         
 
-        [Fact(DisplayName = "Clients must be able to add a registration name for property injections that the container uses to resolve the child value.")]
-        public void ResolvePropertyInjectionWithNonDefaultRegistration()
-        {
-            Container.RegisterTransient<A>(options => options.UseRegistrationName("MyAObject"))
-                     .RegisterTransient<G>(options => options.AddPropertyInjection(g => g.ReferenceToA, "MyAObject"));
-
-            var instanceOfG = Container.Resolve<G>();
-
-            instanceOfG.ReferenceToA.Should().NotBeNull();
-        }
+        
 
         [Fact(DisplayName = "Clients must be able to add a registration name for field injections that the container uses to resolve the child value.")]
         public void ResolveFieldInjectionWithNonDefaultRegistration()
@@ -313,6 +304,18 @@ namespace Light.DependencyInjection.Tests
                 new object[] { new Action<IRegistrationOptionsForType<H>>(options => options.AddFieldInjection(h => h.BooleanValue)) },
                 new object[] { new Action<IRegistrationOptionsForType<H>>(options => options.AddFieldInjection(typeof(H).GetRuntimeField("BooleanValue"))) }
             };
+
+        [Fact(DisplayName = "Clients must be able to add a registration name for property injections that the container uses to resolve the child value.")]
+        public void ResolvePropertyInjectionWithNonDefaultRegistration()
+        {
+            const string registrationName = "MyAObject";
+            Container.RegisterSingleton<A>(options => options.UseRegistrationName(registrationName));
+            Register<G>(options => options.AddPropertyInjection(g => g.ReferenceToA, registrationName));
+
+            var instanceOfG = Container.Resolve<G>();
+
+            instanceOfG.ReferenceToA.Should().BeSameAs(Container.Resolve<A>(registrationName));
+        }
     }
 
     public sealed class TransientOptionsTests : BaseOptionsTests
