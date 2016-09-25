@@ -97,15 +97,7 @@ namespace Light.DependencyInjection.Tests
 
         
 
-        [Fact(DisplayName = "Clients must be able to pass a ConstructorInfo directly to the options that the DI container will use to instantiate the target type.")]
-        public void OptionsPassingConstructorInfo()
-        {
-            var targetConstructor = typeof(E).GetTypeInfo().DeclaredConstructors.ElementAt(2);
-
-            Container.RegisterTransient<E>(options => options.UseConstructor(targetConstructor));
-
-            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo) registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == targetConstructor);
-        }
+        
 
         
 
@@ -304,6 +296,16 @@ namespace Light.DependencyInjection.Tests
                                     };
 
             resolvedInstances.Should().ContainItemsAssignableTo<E>();
+        }
+
+        [Fact(DisplayName = "Clients must be able to pass a ConstructorInfo directly to the options that the DI container will use to instantiate the target type.")]
+        public void OptionsPassingConstructorInfo()
+        {
+            var targetConstructor = typeof(E).GetTypeInfo().DeclaredConstructors.ElementAt(2);
+
+            Register<E>(options => options.UseConstructor(targetConstructor));
+
+            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == targetConstructor);
         }
     }
 
