@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
 
@@ -9,37 +11,42 @@ namespace Light.DependencyInjection.TypeConstruction
         public readonly DiContainer Container;
         public readonly ParameterOverrides? ParameterOverrides;
         public readonly Registration Registration;
-        public readonly Dictionary<TypeKey, object> ResolveScope;
-
-        private CreationContext(DiContainer container,
-                                ParameterOverrides? parameterOverrides,
-                                Registration registration,
-                                Dictionary<TypeKey, object> resolveScope)
-        {
-            Container = container;
-            ParameterOverrides = parameterOverrides;
-            Registration = registration;
-            ResolveScope = resolveScope;
-        }
+        public readonly Lazy<Dictionary<TypeKey, object>> LazyResolveScope;
 
         private CreationContext(DiContainer container, ParameterOverrides? parameterOverrides)
         {
             Container = container;
             ParameterOverrides = parameterOverrides;
             Registration = null;
-            ResolveScope = null;
+            LazyResolveScope = new Lazy<Dictionary<TypeKey, object>>(CreateDictionary, LazyThreadSafetyMode.None);
+        }
+
+        private static Dictionary<TypeKey, object> CreateDictionary()
+        {
+            return new Dictionary<TypeKey, object>();
+        }
+
+        private CreationContext(DiContainer container,
+                                ParameterOverrides? parameterOverrides,
+                                Registration registration,
+                                Lazy<Dictionary<TypeKey, object>> lazyResolveScope)
+        {
+            Container = container;
+            ParameterOverrides = parameterOverrides;
+            Registration = registration;
+            LazyResolveScope = lazyResolveScope;
         }
 
         public object ResolveChildValue(TypeKey requestedTypeKey)
         {
             object perResolveInstance;
-            if (ResolveScope != null && ResolveScope.TryGetValue(requestedTypeKey, out perResolveInstance))
+            if (LazyResolveScope.IsValueCreated && LazyResolveScope.Value.TryGetValue(requestedTypeKey, out perResolveInstance))
                 return perResolveInstance;
 
             return Container.ResolveRecursively(requestedTypeKey, this);
         }
 
-        public static CreationContext FromResolveContext(ResolveContext resolveContext, Dictionary<TypeKey, object> resolveScope)
+        public static CreationContext FromResolveContext(ResolveContext resolveContext, Lazy<Dictionary<TypeKey, object>> resolveScope)
         {
             return new CreationContext(resolveContext.Container,
                                        resolveContext.ParameterOverrides,

@@ -194,4 +194,15 @@ namespace Light.DependencyInjection.Tests
             Container = container;
         }
     }
+
+    public class L
+    {
+        public readonly A ReferenceToA;
+        public readonly B ReferenceToB;
+        public L(A referenceToA, B referenceToB)
+        {
+            ReferenceToA = referenceToA;
+            ReferenceToB = referenceToB;
+        }
+    }
 }

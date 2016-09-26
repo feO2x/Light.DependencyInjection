@@ -11,19 +11,20 @@ namespace Light.DependencyInjection.TypeConstruction
         public readonly DiContainer Container;
         public readonly Registration Registration;
         public readonly ParameterOverrides? ParameterOverrides;
-        private Dictionary<TypeKey, object> _resolveScope;
+        private Lazy<Dictionary<TypeKey, object>> _lazyResolveScope;
 
         public ResolveContext(DiContainer container,
                               Registration registration,
-                              Dictionary<TypeKey, object> resolveScope,
+                              Lazy<Dictionary<TypeKey, object>> lazyResolveScope,
                               ParameterOverrides? parameterOverrides = null)
         {
             container.MustNotBeNull(nameof(container));
             registration.MustNotBeNull(nameof(registration));
+            lazyResolveScope.MustNotBeNull(nameof(lazyResolveScope));
 
             Container = container;
             Registration = registration;
-            _resolveScope = resolveScope;
+            _lazyResolveScope = lazyResolveScope;
             ParameterOverrides = parameterOverrides;
         }
 
@@ -31,7 +32,7 @@ namespace Light.DependencyInjection.TypeConstruction
         {
             EnsureTypeCreationInfoIsNotNull();
 
-            return Registration.TypeCreationInfo.CreateInstance(CreationContext.FromResolveContext(this, _resolveScope));
+            return Registration.TypeCreationInfo.CreateInstance(CreationContext.FromResolveContext(this, _lazyResolveScope));
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
@@ -44,19 +45,18 @@ namespace Light.DependencyInjection.TypeConstruction
         public object GetPerResolveInstance()
         {
             object perResolveInstance;
-            if (_resolveScope == null)
+            if (_lazyResolveScope.IsValueCreated == false)
             {
-                _resolveScope = new Dictionary<TypeKey, object>();
                 perResolveInstance = CreateInstance();
-                _resolveScope.Add(Registration.TypeKey, perResolveInstance);
+                _lazyResolveScope.Value.Add(Registration.TypeKey, perResolveInstance);
                 return perResolveInstance;
             }
 
-            if (_resolveScope.TryGetValue(Registration.TypeKey, out perResolveInstance))
+            if (_lazyResolveScope.Value.TryGetValue(Registration.TypeKey, out perResolveInstance))
                 return perResolveInstance;
 
             perResolveInstance = CreateInstance();
-            _resolveScope.Add(Registration.TypeKey, perResolveInstance);
+            _lazyResolveScope.Value.Add(Registration.TypeKey, perResolveInstance);
             return perResolveInstance;
         }
     }

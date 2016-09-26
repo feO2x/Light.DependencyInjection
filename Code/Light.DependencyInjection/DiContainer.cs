@@ -190,7 +190,7 @@ namespace Light.DependencyInjection
             var registration = GetRegistration(typeKey) ?? GetDefaultRegistration(typeKey);
             return registration.Lifetime.GetInstance(new ResolveContext(this,
                                                                         registration,
-                                                                        creationContext.ResolveScope,
+                                                                        creationContext.LazyResolveScope,
                                                                         creationContext.ParameterOverrides));
         }
 

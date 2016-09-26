@@ -73,6 +73,7 @@
     <Compile Include="ErroneousTypeRegistrationTests.cs" />
     <Compile Include="ImmutableAvlNodeTests.cs" />
     <Compile Include="ParameterOverridesTests.cs" />
+    <Compile Include="PerResolveLifetimeTests.cs" />
     <Compile Include="RegistrationOptionsErrorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResolveTests.cs" />
