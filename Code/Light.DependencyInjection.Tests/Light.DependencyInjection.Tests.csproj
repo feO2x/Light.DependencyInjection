@@ -67,6 +67,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OptionsTests.cs" />
     <Compile Include="CompileObjectCreationFunctionTests.cs" />
     <Compile Include="DefaultDiContainerTests.cs" />
     <Compile Include="ErroneousTypeRegistrationTests.cs" />
