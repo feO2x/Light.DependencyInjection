@@ -124,25 +124,7 @@ namespace Light.DependencyInjection.Tests
             instanceOfJ.ReferenceToG.ReferenceToA.Should().NotBeNull();
         }
 
-        [Theory(DisplayName = "Clients must be able to add registration names for instantiation method parameters the container uses to resolve child values.")]
-        [MemberData(nameof(ResolveInstantiationMethodDependencyWithNonDefaultRegistrationData))]
-        public void ResolveInstantiationMethodDependencyWithNonDefaultRegistration(Action<IRegistrationOptionsForType<B>> configureOptionsForB)
-        {
-            Container.RegisterTransient<A>(options => options.UseRegistrationName("MySpecialA"))
-                     .RegisterTransient(configureOptionsForB)
-                     .RegisterInstance(42);
-
-            var instanceOfB = Container.Resolve<B>();
-
-            instanceOfB.OtherObject.Should().NotBeNull();
-        }
-
-        public static readonly TestData ResolveInstantiationMethodDependencyWithNonDefaultRegistrationData =
-            new[]
-            {
-                new object[] { new Action<IRegistrationOptionsForType<B>>(options => options.ResolveInstantiationParameter<A>().WithName("MySpecialA")) },
-                new object[] { new Action<IRegistrationOptionsForType<B>>(options => options.ResolveInstantiationParameter("otherObject").WithName("MySpecialA")) }
-            };
+        
 
         [Fact(DisplayName = "The DI Container must be able to inject itself when it's type without registration name is resolved.")]
         public void SelfInject()
@@ -318,6 +300,26 @@ namespace Light.DependencyInjection.Tests
 
             instance.Should().BeAssignableTo<F>();
         }
+
+        [Theory(DisplayName = "Clients must be able to add registration names for instantiation method parameters the container uses to resolve child values.")]
+        [MemberData(nameof(ResolveInstantiationMethodDependencyWithNonDefaultRegistrationData))]
+        public void ResolveInstantiationMethodDependencyWithNonDefaultRegistration(Action<IRegistrationOptionsForType<B>> configureOptionsForB)
+        {
+            Container.RegisterTransient<A>(options => options.UseRegistrationName("MySpecialA"))
+                     .RegisterInstance(42);
+            Register(configureOptionsForB);
+
+            var instanceOfB = Container.Resolve<B>();
+
+            instanceOfB.OtherObject.Should().NotBeNull();
+        }
+
+        public static readonly TestData ResolveInstantiationMethodDependencyWithNonDefaultRegistrationData =
+            new[]
+            {
+                new object[] { new Action<IRegistrationOptionsForType<B>>(options => options.ResolveInstantiationParameter<A>().WithName("MySpecialA")) },
+                new object[] { new Action<IRegistrationOptionsForType<B>>(options => options.ResolveInstantiationParameter("otherObject").WithName("MySpecialA")) }
+            };
     }
 
     public sealed class TransientOptionsTests : BaseOptionsTests
