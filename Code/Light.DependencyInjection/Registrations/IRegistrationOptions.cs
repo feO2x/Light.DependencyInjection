@@ -9,6 +9,8 @@ namespace Light.DependencyInjection.Registrations
         where TConcreteOptions : class, IBaseRegistrationOptionsForExternalInstance<TConcreteOptions>
     {
         TConcreteOptions UseRegistrationName(string registrationName);
+        TConcreteOptions UseTypeNameAsRegistrationName();
+        TConcreteOptions UseFullTypeNameAsRegistrationName();
         TConcreteOptions DisableIDisposableTrackingForThisType();
         TConcreteOptions MapToAbstractions(params Type[] abstractionTypes);
         TConcreteOptions MapToAbstractions(IEnumerable<Type> abstractionTypes);

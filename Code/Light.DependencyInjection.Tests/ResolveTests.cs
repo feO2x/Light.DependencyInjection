@@ -91,41 +91,6 @@ namespace Light.DependencyInjection.Tests
         }
 
 
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        [Fact(DisplayName = "Clients must be able to add a registration name for field injections that the container uses to resolve the child value.")]
-        public void ResolveFieldInjectionWithNonDefaultRegistration()
-        {
-            Container.RegisterTransient<G>()
-                     .RegisterTransient<G>(options => options.UseRegistrationName("MyG")
-                                                             .AddPropertyInjection(g => g.ReferenceToA))
-                     .RegisterTransient<J>(options => options.AddFieldInjection(j => j.ReferenceToG, "MyG"));
-
-            var instanceOfJ = Container.Resolve<J>();
-
-            instanceOfJ.ReferenceToG.ReferenceToA.Should().NotBeNull();
-        }
-
-        
-
         [Fact(DisplayName = "The DI Container must be able to inject itself when it's type without registration name is resolved.")]
         public void SelfInject()
         {
@@ -133,8 +98,6 @@ namespace Light.DependencyInjection.Tests
 
             instance.Container.Should().BeSameAs(Container);
         }
-
-        
     }
 
     public abstract class BaseOptionsTests : DefaultDiContainerTests
@@ -154,7 +117,7 @@ namespace Light.DependencyInjection.Tests
         {
             Register<D>(options => options.UseDefaultConstructor());
 
-            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First());
+            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo) registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First());
         }
 
         [Fact(DisplayName = "Clients must be able to choose a constructor with a single parameter that the DI container uses to instantiate the target type.")]
@@ -162,7 +125,7 @@ namespace Light.DependencyInjection.Tests
         {
             Register<D>(options => options.UseConstructorWithParameter<IList<int>>());
 
-            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 1));
+            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo) registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(D).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 1));
         }
 
         [Fact(DisplayName = "Clients must be able to choose a constructor with two parameters that the DI container uses to instantiate the target type.")]
@@ -170,7 +133,7 @@ namespace Light.DependencyInjection.Tests
         {
             Register<E>(options => options.UseConstructorWithParameters<int, uint>());
 
-            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(E).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 2));
+            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo) registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == typeof(E).GetTypeInfo().DeclaredConstructors.First(c => c.GetParameters().Length == 2));
         }
 
         [Fact(DisplayName = "Clients must be able to register a type with mappings to all of its implemented interfaces.")]
@@ -213,7 +176,7 @@ namespace Light.DependencyInjection.Tests
 
             Register<E>(options => options.UseConstructor(targetConstructor));
 
-            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo)registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == targetConstructor);
+            Container.Registrations.Should().ContainSingle(registration => ((ConstructorInstantiationInfo) registration.TypeCreationInfo.InstantiationInfo).ConstructorInfo == targetConstructor);
         }
 
         [Theory(DisplayName = "Clients must be able to register a static factory method instead of a constructor that the DI container uses to instantiate the target type.")]
@@ -292,7 +255,7 @@ namespace Light.DependencyInjection.Tests
         {
             Register<E>(options => options.MapToAbstractions(typeof(IF)));
             Register<F>(options => options.MapToAbstractions(typeof(IF))
-                                                             .UseStaticFactoryMethod(() => F.Create(default(string), default(int))));
+                                          .UseStaticFactoryMethod(() => F.Create(default(string), default(int))));
             Container.RegisterInstance("Foo")
                      .RegisterInstance(42);
 
@@ -320,6 +283,18 @@ namespace Light.DependencyInjection.Tests
                 new object[] { new Action<IRegistrationOptionsForType<B>>(options => options.ResolveInstantiationParameter<A>().WithName("MySpecialA")) },
                 new object[] { new Action<IRegistrationOptionsForType<B>>(options => options.ResolveInstantiationParameter("otherObject").WithName("MySpecialA")) }
             };
+
+        [Fact(DisplayName = "Clients must be able to add a registration name for field injections that the container uses to resolve the child value.")]
+        public void ResolveFieldInjectionWithNonDefaultRegistration()
+        {
+            Register<G>(options => options.UseTypeNameAsRegistrationName()
+                                          .AddPropertyInjection(g => g.ReferenceToA));
+            Register<J>(options => options.AddFieldInjection(j => j.ReferenceToG, nameof(G)));
+
+            var instanceOfJ = Container.Resolve<J>();
+
+            instanceOfJ.ReferenceToG.ReferenceToA.Should().NotBeNull();
+        }
     }
 
     public sealed class TransientOptionsTests : BaseOptionsTests
