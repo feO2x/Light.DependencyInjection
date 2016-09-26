@@ -53,6 +53,8 @@ namespace Light.DependencyInjection.ConcurrencyTests
             writeThread.Join();
         }
 
+        
+
         public class CreateObjectMock
         {
             private int _callCount;
@@ -65,5 +67,7 @@ namespace Light.DependencyInjection.ConcurrencyTests
                 return new object();
             }
         }
+
+        
     }
 }

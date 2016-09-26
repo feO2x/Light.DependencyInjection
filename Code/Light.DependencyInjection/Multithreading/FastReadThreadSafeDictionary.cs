@@ -20,7 +20,7 @@ namespace Light.DependencyInjection.Multithreading
 
         public FastReadThreadSafeDictionary(FastReadThreadSafeDictionary<TKey, TValue> other)
         {
-            _bucketContainer = other._bucketContainer;
+            _bucketContainer = Volatile.Read(ref other._bucketContainer);
         }
 
         public IReadOnlyList<TKey> Keys
