@@ -152,19 +152,7 @@ namespace Light.DependencyInjection.Tests
             instance.Container.Should().BeSameAs(Container);
         }
 
-        [Fact(DisplayName = "Clients must be able to override existing registrations.")]
-        public void OverrideExistingMapping()
-        {
-            Container.RegisterTransient<E>(options => options.MapToAbstractions(typeof(IF)))
-                     .RegisterTransient<F>(options => options.MapToAbstractions(typeof(IF))
-                                                             .UseStaticFactoryMethod(() => F.Create(default(string), default(int))))
-                     .RegisterInstance("Foo")
-                     .RegisterInstance(42);
-
-            var instance = Container.Resolve<IF>();
-
-            instance.Should().BeAssignableTo<F>();
-        }
+        
     }
 
     public abstract class BaseOptionsTests : DefaultDiContainerTests
@@ -315,6 +303,20 @@ namespace Light.DependencyInjection.Tests
             var instanceOfG = Container.Resolve<G>();
 
             instanceOfG.ReferenceToA.Should().BeSameAs(Container.Resolve<A>(registrationName));
+        }
+
+        [Fact(DisplayName = "Clients must be able to override existing registrations.")]
+        public void OverrideExistingMapping()
+        {
+            Register<E>(options => options.MapToAbstractions(typeof(IF)));
+            Register<F>(options => options.MapToAbstractions(typeof(IF))
+                                                             .UseStaticFactoryMethod(() => F.Create(default(string), default(int))));
+            Container.RegisterInstance("Foo")
+                     .RegisterInstance(42);
+
+            var instance = Container.Resolve<IF>();
+
+            instance.Should().BeAssignableTo<F>();
         }
     }
 
