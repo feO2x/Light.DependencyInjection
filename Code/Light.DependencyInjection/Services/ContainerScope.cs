@@ -8,23 +8,15 @@ namespace Light.DependencyInjection.Services
     public class ContainerScope : IDisposable
     {
         public readonly ContainerScope ParentScope;
+        private readonly List<IDisposable> _disposableObjects = new List<IDisposable>();
+        private readonly Dictionary<TypeKey, object> _scopedObjects = new Dictionary<TypeKey, object>();
 
         public ContainerScope(ContainerScope parentScope = null)
-            : this(new List<IDisposable>(), new Dictionary<TypeKey, object>(), parentScope) { }
-
-        protected ContainerScope(IList<IDisposable> disposableObjects,
-                                 IDictionary<TypeKey, object> scopedObjects,
-                                 ContainerScope parentScope = null)
         {
-            disposableObjects.MustNotBeNull(nameof(disposableObjects));
-            scopedObjects.MustNotBeNull(nameof(scopedObjects));
-            DisposableObjects = disposableObjects.MustBeOfType<IReadOnlyList<IDisposable>>();
-            _disposableObjects = disposableObjects;
-            _scopedObjects = scopedObjects;
             ParentScope = parentScope;
         }
 
-        public virtual IReadOnlyList<IDisposable> DisposableObjects { get; }
+        public virtual IReadOnlyList<IDisposable> DisposableObjects => _disposableObjects;
 
         public void Dispose()
         {
@@ -70,10 +62,5 @@ namespace Light.DependencyInjection.Services
             _disposableObjects.Add(disposable);
             return true;
         }
-
-        // ReSharper disable InconsistentNaming
-        protected readonly IList<IDisposable> _disposableObjects;
-        protected readonly IDictionary<TypeKey, object> _scopedObjects;
-        // ReSharper restore InconsistentNaming
     }
 }

@@ -50,6 +50,7 @@
     <Compile Include="Multithreading\PrimeNumberLinearStrategy.cs" />
     <Compile Include="Multithreading\FastReadThreadSafeDictionary.cs" />
     <Compile Include="Multithreading\FastReadThreadSafeDictionaryOptions.cs" />
+    <Compile Include="Multithreading\ThreadSafeContainerScope.cs" />
     <Compile Include="Registrations\BaseRegistrationOptionsForExternalInstance.cs" />
     <Compile Include="Registrations\BaseRegistration.cs" />
     <Compile Include="Registrations\RegistrationOptionsForExternalInstance.cs" />
