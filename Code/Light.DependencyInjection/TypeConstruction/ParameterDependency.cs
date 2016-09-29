@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Light.DependencyInjection.Registrations;
+using Light.DependencyInjection.Services;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction

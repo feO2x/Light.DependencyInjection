@@ -1,4 +1,5 @@
-﻿using Light.DependencyInjection.TypeConstruction;
+﻿using Light.DependencyInjection.Services;
+using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Lifetimes
 {
@@ -8,8 +9,8 @@ namespace Light.DependencyInjection.Lifetimes
 
         public object GetInstance(ResolveContext context)
         {
-            return context.Container.Scope.GetOrAddInstance(context.Registration.TypeKey,
-                                                            context.CreateInstance);
+            return context.Container.Scope.GetOrAddScopedInstance(context.Registration.TypeKey,
+                                                                  context.CreateInstance);
         }
 
         public ILifetime ProvideInstanceForResolvedGenericType()

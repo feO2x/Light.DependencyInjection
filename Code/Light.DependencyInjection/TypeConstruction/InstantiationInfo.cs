@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Light.DependencyInjection.FrameworkExtensions;
+using Light.DependencyInjection.Services;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction

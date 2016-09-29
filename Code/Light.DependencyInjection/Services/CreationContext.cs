@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Light.DependencyInjection.Registrations;
+using Light.DependencyInjection.TypeConstruction;
 using Light.GuardClauses;
 
-namespace Light.DependencyInjection.TypeConstruction
+namespace Light.DependencyInjection.Services
 {
     public struct CreationContext
     {

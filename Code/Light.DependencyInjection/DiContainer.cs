@@ -7,6 +7,7 @@ using Light.DependencyInjection.FrameworkExtensions;
 using Light.DependencyInjection.Lifetimes;
 using Light.DependencyInjection.Multithreading;
 using Light.DependencyInjection.Registrations;
+using Light.DependencyInjection.Services;
 using Light.DependencyInjection.TypeConstruction;
 using Light.GuardClauses;
 
