@@ -24,6 +24,14 @@ namespace Light.DependencyInjection.Multithreading
             }
         }
 
+        public override bool TryGetScopedInstance(TypeKey typeKey, out object instance)
+        {
+            lock (_lock)
+            {
+                return base.TryGetScopedInstance(typeKey, out instance);
+            }
+        }
+
         public override bool GetOrAddScopedInstance(TypeKey typeKey, Func<object> createInstance, out object instance)
         {
             lock (_lock)
@@ -40,11 +48,11 @@ namespace Light.DependencyInjection.Multithreading
             }
         }
 
-        public override bool TryGetScopedInstance(TypeKey typeKey, out object instance)
+        public override void Dispose()
         {
             lock (_lock)
             {
-                return base.TryGetScopedInstance(typeKey, out instance);
+                base.Dispose();
             }
         }
     }

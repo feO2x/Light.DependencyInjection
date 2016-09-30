@@ -18,7 +18,7 @@ namespace Light.DependencyInjection.Services
 
         public virtual IReadOnlyList<IDisposable> DisposableObjects => _disposableObjects;
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             for (var i = 0; i < DisposableObjects.Count; i++)
             {
