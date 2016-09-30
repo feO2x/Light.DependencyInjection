@@ -12,7 +12,7 @@ namespace Light.DependencyInjection.Services
         public readonly DiContainer Container;
         public readonly Registration Registration;
         public readonly ParameterOverrides? ParameterOverrides;
-        private Lazy<Dictionary<TypeKey, object>> _lazyResolveScope;
+        private readonly Lazy<Dictionary<TypeKey, object>> _lazyResolveScope;
 
         public ResolveContext(DiContainer container,
                               Registration registration,

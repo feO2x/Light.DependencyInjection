@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class DisposableTests : DefaultDiContainerTests
+    public sealed class DisposableTests : DefaultDiContainerTest
     {
         [Fact(DisplayName = "The DI container must dispose of tracked objects when it is disposed.")]
         public void DisposeTrackedObjects()
@@ -13,7 +13,7 @@ namespace Light.DependencyInjection.Tests
 
             Container.Dispose();
 
-            instanceOfA.Disposable.DisposeCallCount.Should().Be(1);
+            instanceOfA.Disposable.ShouldHaveBeenCalledExactlyOnce();
             instanceOfA.ReferenceToB.Disposable.DisposeCallCount.Should().Be(1);
         }
 
@@ -25,19 +25,7 @@ namespace Light.DependencyInjection.Tests
 
             Container.Dispose();
 
-            instanceOfA.Disposable.DisposeCallCount.Should().Be(1);
-        }
-
-        public sealed class DisposableMock : IDisposable
-        {
-            private int _disposeCallCount;
-
-            public int DisposeCallCount => _disposeCallCount;
-
-            public void Dispose()
-            {
-                ++_disposeCallCount;
-            }
+            instanceOfA.Disposable.ShouldHaveBeenCalledExactlyOnce();
         }
 
         public class A
@@ -60,6 +48,27 @@ namespace Light.DependencyInjection.Tests
             {
                 Disposable = disposable;
             }
+        }
+    }
+    public sealed class DisposableMock : IDisposable
+    {
+        private int _disposeCallCount;
+
+        public int DisposeCallCount => _disposeCallCount;
+
+        public void ShouldHaveBeenCalledExactlyOnce()
+        {
+            _disposeCallCount.Should().Be(1);
+        }
+
+        public void ShouldNotHaveBeenCalled()
+        {
+            _disposeCallCount.Should().Be(0);
+        }
+
+        public void Dispose()
+        {
+            ++_disposeCallCount;
         }
     }
 }

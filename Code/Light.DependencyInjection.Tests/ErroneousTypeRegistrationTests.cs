@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class ErroneousTypeRegistrationTests : DefaultDiContainerTests
+    public sealed class ErroneousTypeRegistrationTests : DefaultDiContainerTest
     {
         [Fact(DisplayName = "Open constructed generic types must not be registered with the DI container.")]
         public void OpenConstructedGenericTypesNotAllowed()
@@ -39,10 +39,10 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "Abstract base classes cannot be registered with the DI container because they cannot be instantiated.")]
         public void AbstractBaseClassesNotAllowed()
         {
-            Action act = () => Container.RegisterTransient(typeof(DefaultDiContainerTests));
+            Action act = () => Container.RegisterTransient(typeof(DefaultDiContainerTest));
 
             act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"The type \"{typeof(DefaultDiContainerTests)}\" cannot be registered with the DI container because it is an abstract class that cannot be instantiated.");
+               .And.Message.Should().Contain($"The type \"{typeof(DefaultDiContainerTest)}\" cannot be registered with the DI container because it is an abstract class that cannot be instantiated.");
         }
 
         [Fact(DisplayName = "Generic parameter types cannot be registered with the DI container because they cannot be instantiated.")]

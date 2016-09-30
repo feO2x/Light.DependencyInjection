@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class GenericTypeDefinitionTests : DefaultDiContainerTests
+    public sealed class GenericTypeDefinitionTests : DefaultDiContainerTest
     {
         [Fact(DisplayName = "Clients must be able to register generic type definitions, where the open generics are resolved by the DI Container when a closed constructed generic type is requested.")]
         public void ResolveOpenGenerics()

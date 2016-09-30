@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public abstract class BaseOptionsTests : DefaultDiContainerTests
+    public abstract class BaseOptionsTests : DefaultDiContainerTest
     {
         protected abstract void Register<T>(Action<IRegistrationOptionsForType<T>> configureOptions);
 

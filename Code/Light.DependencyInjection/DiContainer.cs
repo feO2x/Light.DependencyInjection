@@ -221,9 +221,12 @@ namespace Light.DependencyInjection
         public DiContainer InstantiateAllWithLifetime<TLifetime>() where TLifetime : ILifetime
         {
             var lifetimeType = typeof(TLifetime);
+            var creationContext = CreationContext.CreateInitial(this);
             foreach (var registration in _registrations.Values.Where(registration => registration.Lifetime.GetType() == lifetimeType))
             {
-                registration.Lifetime.GetInstance(new ResolveContext(this, registration, null));
+                registration.Lifetime.GetInstance(new ResolveContext(this,
+                                                                     registration,
+                                                                     creationContext.LazyResolveScope));
             }
             return this;
         }

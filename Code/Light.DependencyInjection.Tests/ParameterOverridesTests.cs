@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class ParameterOverridesTests : DefaultDiContainerTests
+    public sealed class ParameterOverridesTests : DefaultDiContainerTest
     {
         [Fact(DisplayName = "Clients must be able to override instantiation values using the parameter name.")]
         public void OverrideInstantiationParameterByName()
