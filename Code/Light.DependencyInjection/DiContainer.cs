@@ -22,27 +22,27 @@ namespace Light.DependencyInjection
         private ContainerServices _containerServices;
 
         public DiContainer() : this(new FastReadThreadSafeDictionary<TypeKey, Registration>(),
-                                    new FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration>()) { }
+                                    new FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration>(),
+                                    new ContainerServices()) { }
 
-        public DiContainer(FastReadThreadSafeDictionary<TypeKey, Registration> registrations,
-                           FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration> genericTypeDefinitionRegistrations)
-            : this(registrations,
-                   genericTypeDefinitionRegistrations,
-                   new ContainerServices(),
-                   new ContainerScope()) { }
+        public DiContainer(ContainerServices containerServices)
+            : this(new FastReadThreadSafeDictionary<TypeKey, Registration>(),
+                   new FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration>(),
+                   containerServices) { }
 
         private DiContainer(FastReadThreadSafeDictionary<TypeKey, Registration> registrations,
                             FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration> genericTypeDefinitionRegistrations,
                             ContainerServices containerServices,
-                            ContainerScope scope)
+                            ContainerScope parentScope = null)
         {
             registrations.MustNotBeNull(nameof(registrations));
             genericTypeDefinitionRegistrations.MustNotBeNull(nameof(genericTypeDefinitionRegistrations));
+            containerServices.MustNotBeNull(nameof(containerServices));
 
             _registrations = registrations;
             _genericTypeDefinitionRegistrations = genericTypeDefinitionRegistrations;
             _containerServices = containerServices;
-            Scope = scope;
+            Scope = containerServices.ContainerScopeFactory.CreateScope(parentScope);
         }
 
 
@@ -66,14 +66,14 @@ namespace Light.DependencyInjection
 
         public DiContainer CreateChildContainer(bool createEmptyChildScope = false, bool createCopyOfMappings = false)
         {
-            var childScope = createEmptyChildScope ? new ContainerScope() : new ContainerScope(Scope);
+            var parentScope = createEmptyChildScope ? null : Scope;
             var registrations = createCopyOfMappings ? new FastReadThreadSafeDictionary<TypeKey, Registration>(_registrations) : _registrations;
             var genericTypeDefinitionRegistrations = createCopyOfMappings ? new FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration>(_genericTypeDefinitionRegistrations) : _genericTypeDefinitionRegistrations;
 
             return new DiContainer(registrations,
                                    genericTypeDefinitionRegistrations,
                                    _containerServices,
-                                   childScope);
+                                   parentScope);
         }
 
         public DiContainer Register(Registration registration, IEnumerable<Type> abstractionTypes)

@@ -10,13 +10,9 @@ namespace Light.DependencyInjection.Services
     {
         private IConstructorSelector _constructorSelector = new ConstructorWithMostParametersSelector();
         private IDefaultRegistrationFactory _defaultRegistrationFactory = new TransientRegistrationFactory();
-
-        private IReadOnlyList<Type> _ignoredAbstractionTypes = new[]
-                                                               {
-                                                                   typeof(IDisposable)
-                                                               };
-
+        private IReadOnlyList<Type> _ignoredAbstractionTypes = new[] { typeof(IDisposable) };
         private IInjectorForUnknownInstanceMembers _injectorForUnknownInstanceMembers = new DefaultInjectorForUnknownInstanceMembers();
+        private IContainerScopeFactory _containerScopeFactory = new DefaultContainerScopeFactory();
 
         public IConstructorSelector ConstructorSelector
         {
@@ -55,6 +51,16 @@ namespace Light.DependencyInjection.Services
             {
                 value.MustNotBeNull(nameof(value));
                 _defaultRegistrationFactory = value;
+            }
+        }
+
+        public IContainerScopeFactory ContainerScopeFactory
+        {
+            get { return _containerScopeFactory; }
+            set
+            {
+                value.MustNotBeNull(nameof(value));
+                _containerScopeFactory = value;
             }
         }
 

@@ -10,7 +10,7 @@ namespace Light.DependencyInjection.Multithreading
     {
         private readonly object _lock = new object();
 
-        public ThreadSafeContainerScope(ContainerScope parentScope)
+        public ThreadSafeContainerScope(ContainerScope parentScope = null)
             : base(parentScope) { }
 
         public override IReadOnlyList<IDisposable> DisposableObjects

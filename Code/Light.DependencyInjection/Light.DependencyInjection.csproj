@@ -58,6 +58,9 @@
     <Compile Include="Registrations\RegistrationOptionsForType.cs" />
     <Compile Include="Services\ContainerScope.cs" />
     <Compile Include="Services\CreationContext.cs" />
+    <Compile Include="Services\DefaultContainerScopeFactory.cs" />
+    <Compile Include="Services\IContainerScopeFactory.cs" />
+    <Compile Include="Services\ThreadSafeContainerScopeFactory.cs" />
     <Compile Include="TypeConstruction\DefaultInjectorForUnknownInstanceMembers.cs" />
     <Compile Include="TypeConstruction\IInjectorForUnknownInstanceMembers.cs" />
     <Compile Include="Registrations\BaseRegistrationOptionsForTypes.cs" />
