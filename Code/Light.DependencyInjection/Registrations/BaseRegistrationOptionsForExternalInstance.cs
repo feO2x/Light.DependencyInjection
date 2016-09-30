@@ -35,8 +35,6 @@ namespace Light.DependencyInjection.Registrations
 
         public TConcreteOptions UseRegistrationName(string registrationName)
         {
-            registrationName.MustNotBeNullOrEmpty(nameof(registrationName));
-
             RegistrationName = registrationName;
             return This;
         }

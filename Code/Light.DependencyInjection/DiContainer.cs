@@ -19,9 +19,7 @@ namespace Light.DependencyInjection
         private readonly FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration> _genericTypeDefinitionRegistrations;
         private readonly FastReadThreadSafeDictionary<TypeKey, Registration> _registrations;
         public readonly ContainerScope Scope;
-        private IDefaultRegistrationFactory _defaultRegistrationFactory;
-        private IInjectorForUnknownInstanceMembers _injectorForUnknownInstanceMembers;
-        private TypeAnalyzer _typeAnalyzer;
+        private ContainerServices _containerServices;
 
         public DiContainer() : this(new FastReadThreadSafeDictionary<TypeKey, Registration>(),
                                     new FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration>()) { }
@@ -30,16 +28,12 @@ namespace Light.DependencyInjection
                            FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration> genericTypeDefinitionRegistrations)
             : this(registrations,
                    genericTypeDefinitionRegistrations,
-                   new TransientRegistrationFactory(),
-                   new DefaultInjectorForUnknownInstanceMembers(),
-                   new TypeAnalyzer(),
+                   new ContainerServices(),
                    new ContainerScope()) { }
 
         private DiContainer(FastReadThreadSafeDictionary<TypeKey, Registration> registrations,
                             FastReadThreadSafeDictionary<TypeKey, GenericTypeDefinitionRegistration> genericTypeDefinitionRegistrations,
-                            IDefaultRegistrationFactory defaultRegistrationFactory,
-                            IInjectorForUnknownInstanceMembers injectorForUnknownInstanceMembers,
-                            TypeAnalyzer typeAnalyzer,
+                            ContainerServices containerServices,
                             ContainerScope scope)
         {
             registrations.MustNotBeNull(nameof(registrations));
@@ -47,43 +41,23 @@ namespace Light.DependencyInjection
 
             _registrations = registrations;
             _genericTypeDefinitionRegistrations = genericTypeDefinitionRegistrations;
-            _defaultRegistrationFactory = defaultRegistrationFactory;
-            _injectorForUnknownInstanceMembers = injectorForUnknownInstanceMembers;
-            _typeAnalyzer = typeAnalyzer;
+            _containerServices = containerServices;
             Scope = scope;
         }
 
-        public IDefaultRegistrationFactory DefaultRegistrationFactory
-        {
-            get { return _defaultRegistrationFactory; }
-            set
-            {
-                value.MustNotBeNull(nameof(value));
-                _defaultRegistrationFactory = value;
-            }
-        }
 
         public IReadOnlyList<Registration> Registrations => _registrations.Values;
 
-        public TypeAnalyzer TypeAnalyzer
+        public ContainerServices ContainerServices
         {
-            get { return _typeAnalyzer; }
+            get { return _containerServices; }
             set
             {
                 value.MustNotBeNull(nameof(value));
-                _typeAnalyzer = value;
+                _containerServices = value;
             }
         }
 
-        public IInjectorForUnknownInstanceMembers InjectorForUnknownInstanceMembers
-        {
-            get { return _injectorForUnknownInstanceMembers; }
-            set
-            {
-                value.MustNotBeNull(nameof(value));
-                _injectorForUnknownInstanceMembers = value;
-            }
-        }
 
         public void Dispose()
         {
@@ -98,9 +72,7 @@ namespace Light.DependencyInjection
 
             return new DiContainer(registrations,
                                    genericTypeDefinitionRegistrations,
-                                   _defaultRegistrationFactory,
-                                   _injectorForUnknownInstanceMembers,
-                                   _typeAnalyzer,
+                                   _containerServices,
                                    childScope);
         }
 
@@ -200,7 +172,7 @@ namespace Light.DependencyInjection
             CheckIfTypeIsInstantiable(typeKey.Type);
 
             var registration = _registrations.GetOrAdd(typeKey,
-                                                       () => _defaultRegistrationFactory.CreateDefaultRegistration(_typeAnalyzer.CreateInfoFor(typeKey.Type)));
+                                                       () => ContainerServices.CreateDefaultRegistration(typeKey));
             return registration;
         }
 

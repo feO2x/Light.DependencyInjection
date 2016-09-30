@@ -1,4 +1,5 @@
-﻿using Light.DependencyInjection.Lifetimes;
+﻿using System.Linq.Expressions;
+using Light.DependencyInjection.Lifetimes;
 using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Registrations

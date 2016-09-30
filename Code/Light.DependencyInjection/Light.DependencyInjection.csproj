@@ -89,7 +89,7 @@
     <Compile Include="Services\ResolveContext.cs" />
     <Compile Include="TypeConstruction\UnknownInjectionDescription.cs" />
     <Compile Include="TypeConstruction\StaticMethodInstantiationInfo.cs" />
-    <Compile Include="TypeConstruction\TypeAnalyzer.cs" />
+    <Compile Include="Services\ContainerServices.cs" />
     <Compile Include="TypeConstruction\TypeCreationInfo.cs" />
     <Compile Include="Registrations\TypeKey.cs" />
     <Compile Include="TypeRegistrationException.cs" />

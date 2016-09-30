@@ -21,12 +21,12 @@ namespace Light.DependencyInjection.Registrations
         {
             container.MustNotBeNull(nameof(container));
 
-            var options = new RegistrationOptionsForType(targetType, container.TypeAnalyzer.ConstructorSelector, container.TypeAnalyzer.IgnoredAbstractionTypes);
+            var options = new RegistrationOptionsForType(targetType, container.ContainerServices.ConstructorSelector, container.ContainerServices.IgnoredAbstractionTypes);
             if (abstractionType != null)
                 options.MapToAbstractions(abstractionType);
             configureOptions?.Invoke(options);
 
-            options.CreateRegistration(container, lifetime);
+            options.CreateAndAddRegistration(container, lifetime);
             return container;
         }
     }
@@ -60,12 +60,12 @@ namespace Light.DependencyInjection.Registrations
             container.MustNotBeNull(nameof(container));
             lifetime.MustNotBeNull(nameof(lifetime));
 
-            var options = new RegistrationOptionsForType<T>(container.TypeAnalyzer.ConstructorSelector, container.TypeAnalyzer.IgnoredAbstractionTypes);
+            var options = new RegistrationOptionsForType<T>(container.ContainerServices.ConstructorSelector, container.ContainerServices.IgnoredAbstractionTypes);
             if (abstractionType != null)
                 options.MapToAbstractions(abstractionType);
             configureOptions?.Invoke(options);
 
-            options.CreateRegistration(container, lifetime);
+            options.CreateAndAddRegistration(container, lifetime);
             return container;
         }
     }
