@@ -70,16 +70,22 @@ namespace Light.DependencyInjection.Multithreading
             }
         }
 
-        public bool AddOrReplace(TypeKey key, TRegistration registration)
+        public bool AddOrReplace(TypeKey typeKey, TRegistration registration)
         {
             bool result;
             lock (_bucketContainerLock)
             {
                 ImmutableRegistrationsContainer<TRegistration> newBucketContainer;
-                result = _bucketContainer.AddOrReplace(key, registration, out newBucketContainer);
+                result = _bucketContainer.AddOrReplace(typeKey, registration, out newBucketContainer);
                 _bucketContainer = newBucketContainer;
             }
             return result;
+        }
+
+        public IEnumerable<TRegistration> GetAllRegistrations(Type type)
+        {
+            var bucketContainer = Volatile.Read(ref _bucketContainer);
+            return bucketContainer.FindAll(type);
         }
     }
 }

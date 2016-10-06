@@ -114,6 +114,11 @@ namespace Light.DependencyInjection.Multithreading
             return typeKey.TypeHashCode & numberOfBuckets - 1;
         }
 
+        private static int GetTargetBucketIndex(Type type, int numberOfBuckets)
+        {
+            return type.GetHashCode() & numberOfBuckets - 1;
+        }
+
         public bool TryFind(TypeKey typeKey, out TRegistration registration)
         {
             if (IsEmpty)
@@ -186,6 +191,17 @@ namespace Light.DependencyInjection.Multithreading
             growContainerStrategy.MustNotBeNull(nameof(growContainerStrategy));
 
             return new ImmutableRegistrationsContainer<TRegistration>(growContainerStrategy);
+        }
+
+        public IEnumerable<TRegistration> FindAll(Type type)
+        {
+            var targetBucketIndex = GetTargetBucketIndex(type, _buckets.Length);
+            var targetTree = _buckets[targetBucketIndex];
+            foreach (var node in targetTree.TraverseInOrder())
+            {
+                if (node.HashEntry.Key.Type == type)
+                    yield return node.HashEntry.Value;
+            }
         }
     }
 }

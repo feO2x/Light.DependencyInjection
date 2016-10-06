@@ -170,7 +170,7 @@ namespace Light.DependencyInjection
             CheckIfTypeIsInstantiable(typeKey.Type);
 
             var registration = _typeMappings.GetOrAdd(typeKey,
-                                                       () => ContainerServices.CreateDefaultRegistration(typeKey));
+                                                      () => ContainerServices.CreateDefaultRegistration(typeKey));
             return registration;
         }
 
@@ -252,6 +252,19 @@ namespace Light.DependencyInjection
 
             if (typeInfo.BaseType == typeof(MulticastDelegate))
                 throw new ResolveTypeException($"The specified type \"{type}\" describes a delegate type which has not been registered and which cannot be resolved automatically.", type);
+        }
+
+        public IList<T> ResolveAll<T>()
+        {
+            var instances = ContainerServices.CollectionFactory.CreateDefaultCollection<T>();
+            var creationContext = CreationContext.CreateInitial(this);
+            foreach (var registration in _typeMappings.GetAllRegistrations(typeof(T)))
+            {
+                instances.Add((T) registration.Lifetime.GetInstance(new ResolveContext(this,
+                                                                                       registration,
+                                                                                       creationContext.LazyResolveScope)));
+            }
+            return instances;
         }
     }
 }

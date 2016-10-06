@@ -62,6 +62,7 @@
     <Compile Include="Services\IContainerScopeFactory.cs" />
     <Compile Include="Services\ThreadSafeContainerScopeFactory.cs" />
     <Compile Include="TypeConstruction\DefaultInjectorForUnknownInstanceMembers.cs" />
+    <Compile Include="TypeConstruction\ICollectionFactory.cs" />
     <Compile Include="TypeConstruction\IInjectorForUnknownInstanceMembers.cs" />
     <Compile Include="Registrations\BaseRegistrationOptionsForTypes.cs" />
     <Compile Include="Registrations\ChildRegistrationNameOptions.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="TypeConstruction\InstanceInjection.cs" />
     <Compile Include="TypeConstruction\InstantiationInfo.cs" />
     <Compile Include="TypeConstruction\ISetChildValueRegistrationName.cs" />
+    <Compile Include="TypeConstruction\ListFactory.cs" />
     <Compile Include="TypeConstruction\ParameterDependency.cs" />
     <Compile Include="TypeConstruction\ParameterOverrides.cs" />
     <Compile Include="TypeConstruction\PropertyInjection.cs" />

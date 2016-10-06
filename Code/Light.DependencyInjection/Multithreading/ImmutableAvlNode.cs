@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Light.GuardClauses;
 
@@ -208,6 +209,22 @@ namespace Light.DependencyInjection.Multithreading
                 return;
 
             throw new ArgumentException($"The entry with hashcode {entry.HashCode} and key {entry.Key} does not exist in the AVL node and thus cannot be replaced.");
+        }
+
+        public IEnumerable<ImmutableAvlNode<TKey, TValue>> TraverseInOrder()
+        {
+            if (IsEmpty)
+                yield break;
+
+            foreach (var leftChild in LeftChild.TraverseInOrder())
+            {
+                yield return leftChild;
+            }
+            yield return this;
+            foreach (var rightChild in RightChild.TraverseInOrder())
+            {
+                yield return rightChild;
+            }
         }
 
         public void TraverseInOrder(Action<ImmutableAvlNode<TKey, TValue>> nodeAction)
