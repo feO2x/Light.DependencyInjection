@@ -9,6 +9,7 @@ namespace Light.DependencyInjection.Registrations
         public readonly Type Type;
         public readonly string RegistrationName;
         public readonly int HashCode;
+        public readonly int TypeHashCode;
 
         public TypeKey(Type type, string registrationName = null)
         {
@@ -16,7 +17,9 @@ namespace Light.DependencyInjection.Registrations
 
             Type = type;
             RegistrationName = registrationName;
-            HashCode = registrationName == null ? type.GetHashCode() : Equality.CreateHashCode(type, registrationName);
+            TypeHashCode = HashCode = type.GetHashCode();
+            if (registrationName != null)
+                HashCode = Equality.CreateHashCode(type, registrationName);
         }
 
         public bool Equals(TypeKey other)

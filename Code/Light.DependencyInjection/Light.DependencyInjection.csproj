@@ -44,12 +44,12 @@
     <Compile Include="Multithreading\HashEntry.cs" />
     <Compile Include="Multithreading\IGrowBucketContainerStrategy.cs" />
     <Compile Include="Multithreading\ImmutableAvlNode.cs" />
-    <Compile Include="Multithreading\ImmutableBucketContainer.cs" />
+    <Compile Include="Multithreading\ImmutableRegistrationsContainer.cs" />
     <Compile Include="Multithreading\ImmutableList.cs" />
     <Compile Include="Multithreading\ImmutableListExtensions.cs" />
     <Compile Include="Multithreading\PrimeNumberLinearStrategy.cs" />
-    <Compile Include="Multithreading\FastReadThreadSafeDictionary.cs" />
-    <Compile Include="Multithreading\FastReadThreadSafeDictionaryOptions.cs" />
+    <Compile Include="Multithreading\RegistrationDictionary.cs" />
+    <Compile Include="Multithreading\RegistrationDictionaryOptions.cs" />
     <Compile Include="Multithreading\ThreadSafeContainerScope.cs" />
     <Compile Include="Registrations\BaseRegistrationOptionsForExternalInstance.cs" />
     <Compile Include="Registrations\BaseRegistration.cs" />

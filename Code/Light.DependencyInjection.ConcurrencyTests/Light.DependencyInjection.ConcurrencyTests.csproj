@@ -54,7 +54,7 @@
   <ItemGroup>
     <Compile Include="DiContainerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="FastReadThreadSafeDictionaryTests.cs" />
+    <Compile Include="RegistrationDictionaryConcurrencyTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
