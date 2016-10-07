@@ -1,23 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Multithreading
 {
-    public sealed class ImmutableAvlNode<TKey, TValue> where TKey : IEquatable<TKey>
+    public sealed class ImmutableAvlNode<TRegistration>
     {
-        public static readonly ImmutableAvlNode<TKey, TValue> Empty = new ImmutableAvlNode<TKey, TValue>();
-        public readonly ImmutableList<HashEntry<TKey, TValue>> Duplicates;
+        public static readonly ImmutableAvlNode<TRegistration> Empty = new ImmutableAvlNode<TRegistration>();
+        public readonly ImmutableList<HashEntry<TypeKey, TRegistration>> Duplicates;
         public readonly int EntryCount;
-        public readonly HashEntry<TKey, TValue> HashEntry;
+        public readonly HashEntry<TypeKey, TRegistration> HashEntry;
         public readonly int Height;
         public readonly bool IsEmpty;
-        public readonly ImmutableAvlNode<TKey, TValue> LeftChild;
+        public readonly ImmutableAvlNode<TRegistration> LeftChild;
         public readonly int NodeCount;
-        public readonly ImmutableAvlNode<TKey, TValue> RightChild;
+        public readonly ImmutableAvlNode<TRegistration> RightChild;
 
-        private ImmutableAvlNode(ImmutableAvlNode<TKey, TValue> previousNode, ImmutableList<HashEntry<TKey, TValue>> newDuplicates)
+        private ImmutableAvlNode(ImmutableAvlNode<TRegistration> previousNode, ImmutableList<HashEntry<TypeKey, TRegistration>> newDuplicates)
         {
             Duplicates = newDuplicates;
             HashEntry = previousNode.HashEntry;
@@ -28,7 +29,7 @@ namespace Light.DependencyInjection.Multithreading
             NodeCount = previousNode.NodeCount;
         }
 
-        private ImmutableAvlNode(ImmutableAvlNode<TKey, TValue> previousNode, HashEntry<TKey, TValue> replacedEntry)
+        private ImmutableAvlNode(ImmutableAvlNode<TRegistration> previousNode, HashEntry<TypeKey, TRegistration> replacedEntry)
         {
             HashEntry = replacedEntry;
             LeftChild = previousNode.LeftChild;
@@ -39,9 +40,9 @@ namespace Light.DependencyInjection.Multithreading
             NodeCount = previousNode.NodeCount;
         }
 
-        private ImmutableAvlNode(ImmutableAvlNode<TKey, TValue> previousNode,
-                                 ImmutableAvlNode<TKey, TValue> leftChild,
-                                 ImmutableAvlNode<TKey, TValue> rightChild)
+        private ImmutableAvlNode(ImmutableAvlNode<TRegistration> previousNode,
+                                 ImmutableAvlNode<TRegistration> leftChild,
+                                 ImmutableAvlNode<TRegistration> rightChild)
         {
             LeftChild = leftChild;
             RightChild = rightChild;
@@ -52,7 +53,7 @@ namespace Light.DependencyInjection.Multithreading
             Height = 1 + Math.Max(LeftChild.Height, RightChild.Height);
         }
 
-        private ImmutableAvlNode(HashEntry<TKey, TValue> newEntry)
+        private ImmutableAvlNode(HashEntry<TypeKey, TRegistration> newEntry)
         {
             HashEntry = newEntry;
             EntryCount = 1;
@@ -60,7 +61,7 @@ namespace Light.DependencyInjection.Multithreading
             Height = 1;
             LeftChild = Empty;
             RightChild = Empty;
-            Duplicates = ImmutableList<HashEntry<TKey, TValue>>.Empty;
+            Duplicates = ImmutableList<HashEntry<TypeKey, TRegistration>>.Empty;
         }
 
         private ImmutableAvlNode()
@@ -69,28 +70,28 @@ namespace Light.DependencyInjection.Multithreading
             NodeCount = 0;
             EntryCount = 0;
             IsEmpty = true;
-            Duplicates = ImmutableList<HashEntry<TKey, TValue>>.Empty;
+            Duplicates = ImmutableList<HashEntry<TypeKey, TRegistration>>.Empty;
         }
 
         private bool IsLeftHeavy => LeftChild.Height > RightChild.Height;
 
         private bool IsRightHeavy => RightChild.Height > LeftChild.Height;
 
-        private ImmutableAvlNode<TKey, TValue> RotateRight()
+        private ImmutableAvlNode<TRegistration> RotateRight()
         {
-            return new ImmutableAvlNode<TKey, TValue>(LeftChild,
-                                                      LeftChild.LeftChild,
-                                                      new ImmutableAvlNode<TKey, TValue>(this, LeftChild.RightChild, RightChild));
+            return new ImmutableAvlNode<TRegistration>(LeftChild,
+                                                       LeftChild.LeftChild,
+                                                       new ImmutableAvlNode<TRegistration>(this, LeftChild.RightChild, RightChild));
         }
 
-        private ImmutableAvlNode<TKey, TValue> RotateLeft()
+        private ImmutableAvlNode<TRegistration> RotateLeft()
         {
-            return new ImmutableAvlNode<TKey, TValue>(RightChild,
-                                                      new ImmutableAvlNode<TKey, TValue>(this, LeftChild, RightChild.LeftChild),
-                                                      RightChild.RightChild);
+            return new ImmutableAvlNode<TRegistration>(RightChild,
+                                                       new ImmutableAvlNode<TRegistration>(this, LeftChild, RightChild.LeftChild),
+                                                       RightChild.RightChild);
         }
 
-        public bool TryFind(int hashCode, TKey key, out TValue value)
+        public bool TryFind(int hashCode, TypeKey key, out TRegistration value)
         {
             var currentNode = this;
             while (true)
@@ -98,7 +99,7 @@ namespace Light.DependencyInjection.Multithreading
                 // If this node is empty, there can't be any value
                 if (currentNode.IsEmpty)
                 {
-                    value = default(TValue);
+                    value = default(TRegistration);
                     return false;
                 }
 
@@ -117,7 +118,7 @@ namespace Light.DependencyInjection.Multithreading
             }
         }
 
-        public bool TryFind(int hashCode, TKey key)
+        public bool TryFind(int hashCode, TypeKey typeKey)
         {
             var currentNode = this;
             while (true)
@@ -126,16 +127,16 @@ namespace Light.DependencyInjection.Multithreading
                     return false;
 
                 if (hashCode == currentNode.HashEntry.HashCode)
-                    return key.Equals(currentNode.HashEntry.Key) || currentNode.Duplicates.ContainsEntryWithKey(key);
+                    return typeKey.Equals(currentNode.HashEntry.Key) || currentNode.Duplicates.ContainsEntryWithKey(typeKey);
 
                 currentNode = hashCode < currentNode.HashEntry.HashCode ? currentNode.LeftChild : currentNode.RightChild;
             }
         }
 
-        public ImmutableAvlNode<TKey, TValue> Add(HashEntry<TKey, TValue> newEntry)
+        public ImmutableAvlNode<TRegistration> Add(HashEntry<TypeKey, TRegistration> newEntry)
         {
             if (IsEmpty)
-                return new ImmutableAvlNode<TKey, TValue>(newEntry);
+                return new ImmutableAvlNode<TRegistration>(newEntry);
 
             if (newEntry.HashCode < HashEntry.HashCode)
                 return AddToLeftBranch(newEntry);
@@ -143,67 +144,67 @@ namespace Light.DependencyInjection.Multithreading
                 return AddToRightBranch(newEntry);
 
             EnsureEntryDoesNotExist(newEntry);
-            return new ImmutableAvlNode<TKey, TValue>(this, Duplicates.Add(newEntry));
+            return new ImmutableAvlNode<TRegistration>(this, Duplicates.Add(newEntry));
         }
 
-        private ImmutableAvlNode<TKey, TValue> AddToLeftBranch(HashEntry<TKey, TValue> newEntry)
+        private ImmutableAvlNode<TRegistration> AddToLeftBranch(HashEntry<TypeKey, TRegistration> newEntry)
         {
             var newLeftChild = LeftChild.Add(newEntry);
 
             var balance = newLeftChild.Height - RightChild.Height;
             if (balance < 2)
-                return new ImmutableAvlNode<TKey, TValue>(this, newLeftChild, RightChild);
+                return new ImmutableAvlNode<TRegistration>(this, newLeftChild, RightChild);
 
             if (newLeftChild.IsRightHeavy)
                 newLeftChild = newLeftChild.RotateLeft();
 
             // A rotate right is necessary to avoid imbalance
-            var newRightChild = new ImmutableAvlNode<TKey, TValue>(this, newLeftChild.RightChild, RightChild);
-            var newParentNode = new ImmutableAvlNode<TKey, TValue>(newLeftChild, newLeftChild.LeftChild, newRightChild);
+            var newRightChild = new ImmutableAvlNode<TRegistration>(this, newLeftChild.RightChild, RightChild);
+            var newParentNode = new ImmutableAvlNode<TRegistration>(newLeftChild, newLeftChild.LeftChild, newRightChild);
             return newParentNode;
         }
 
-        private ImmutableAvlNode<TKey, TValue> AddToRightBranch(HashEntry<TKey, TValue> newEntry)
+        private ImmutableAvlNode<TRegistration> AddToRightBranch(HashEntry<TypeKey, TRegistration> newEntry)
         {
             var newRightChild = RightChild.Add(newEntry);
 
             var balance = LeftChild.Height - newRightChild.Height;
             if (balance > -2)
-                return new ImmutableAvlNode<TKey, TValue>(this, LeftChild, newRightChild);
+                return new ImmutableAvlNode<TRegistration>(this, LeftChild, newRightChild);
 
             if (newRightChild.IsLeftHeavy)
                 newRightChild = newRightChild.RotateRight();
 
             // A rotate left is necessary to avoid imbalance
-            var newLeftChild = new ImmutableAvlNode<TKey, TValue>(this, LeftChild, newRightChild.LeftChild);
-            var newParentNode = new ImmutableAvlNode<TKey, TValue>(newRightChild, newLeftChild, newRightChild.RightChild);
+            var newLeftChild = new ImmutableAvlNode<TRegistration>(this, LeftChild, newRightChild.LeftChild);
+            var newParentNode = new ImmutableAvlNode<TRegistration>(newRightChild, newLeftChild, newRightChild.RightChild);
             return newParentNode;
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
-        private void EnsureEntryDoesNotExist(HashEntry<TKey, TValue> newEntry)
+        private void EnsureEntryDoesNotExist(HashEntry<TypeKey, TRegistration> newEntry)
         {
             if (newEntry.Key.Equals(HashEntry.Key) || Duplicates.ContainsEntryWithKey(newEntry.Key))
                 throw new ArgumentException($"The entry {newEntry} already exists in this AVL node.", nameof(newEntry));
         }
 
-        public ImmutableAvlNode<TKey, TValue> Replace(HashEntry<TKey, TValue> entry)
+        public ImmutableAvlNode<TRegistration> Replace(HashEntry<TypeKey, TRegistration> entry)
         {
             if (entry.HashCode < HashEntry.HashCode)
-                return new ImmutableAvlNode<TKey, TValue>(this, LeftChild.Replace(entry), RightChild);
+                return new ImmutableAvlNode<TRegistration>(this, LeftChild.Replace(entry), RightChild);
             if (entry.HashCode > HashEntry.HashCode)
-                return new ImmutableAvlNode<TKey, TValue>(this, LeftChild, RightChild.Replace(entry));
+                return new ImmutableAvlNode<TRegistration>(this, LeftChild, RightChild.Replace(entry));
 
             if (HashEntry.Key.Equals(entry.Key))
-                return new ImmutableAvlNode<TKey, TValue>(this, entry);
+                return new ImmutableAvlNode<TRegistration>(this, entry);
 
             var targetIndex = Duplicates.IndexOfEntry(entry.Key);
             EnsureEntryDoesExist(targetIndex, entry);
-            return new ImmutableAvlNode<TKey, TValue>(this, Duplicates.ReplaceAt(targetIndex, entry));
+            return new ImmutableAvlNode<TRegistration>(this, Duplicates.ReplaceAt(targetIndex, entry));
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
-        private static void EnsureEntryDoesExist(int targetIndex, HashEntry<TKey, TValue> entry)
+        private static void EnsureEntryDoesExist(int targetIndex, HashEntry<TypeKey, TRegistration> entry)
         {
             if (targetIndex != -1)
                 return;
@@ -211,23 +212,32 @@ namespace Light.DependencyInjection.Multithreading
             throw new ArgumentException($"The entry with hashcode {entry.HashCode} and key {entry.Key} does not exist in the AVL node and thus cannot be replaced.");
         }
 
-        public IEnumerable<ImmutableAvlNode<TKey, TValue>> TraverseInOrder()
+        public IEnumerable<TRegistration> GetAllRegistrationsWithType(Type type)
         {
             if (IsEmpty)
                 yield break;
 
-            foreach (var leftChild in LeftChild.TraverseInOrder())
+            foreach (var registration in LeftChild.GetAllRegistrationsWithType(type))
             {
-                yield return leftChild;
+                yield return registration;
             }
-            yield return this;
-            foreach (var rightChild in RightChild.TraverseInOrder())
+
+            if (HashEntry.Key.Type == type)
+                yield return HashEntry.Value;
+
+            foreach (var duplicate in Duplicates)
             {
-                yield return rightChild;
+                if (duplicate.Key.Type == type)
+                    yield return duplicate.Value;
+            }
+
+            foreach (var registration in RightChild.GetAllRegistrationsWithType(type))
+            {
+                yield return registration;
             }
         }
 
-        public void TraverseInOrder(Action<ImmutableAvlNode<TKey, TValue>> nodeAction)
+        public void TraverseInOrder(Action<ImmutableAvlNode<TRegistration>> nodeAction)
         {
             if (IsEmpty)
                 return;

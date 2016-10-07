@@ -1,14 +1,13 @@
-﻿using Light.DependencyInjection.Registrations;
-using Light.GuardClauses;
+﻿using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Multithreading
 {
     public struct RegistrationDictionaryOptions<TRegistration>
     {
-        private IGrowBucketContainerStrategy<TypeKey, TRegistration> _growContainerStrategy;
-        public static readonly IGrowBucketContainerStrategy<TypeKey, TRegistration> DefaultGrowContainerStrategy = new PrimeNumberLinearStrategy<TypeKey, TRegistration>();
+        private IGrowBucketContainerStrategy<TRegistration> _growContainerStrategy;
+        public static readonly IGrowBucketContainerStrategy<TRegistration> DefaultGrowContainerStrategy = new PrimeNumberLinearStrategy<TRegistration>();
 
-        public IGrowBucketContainerStrategy<TypeKey, TRegistration> GrowContainerStrategy
+        public IGrowBucketContainerStrategy<TRegistration> GrowContainerStrategy
         {
             get { return _growContainerStrategy; }
             set

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Light.DependencyInjection.Multithreading
 {
-    public sealed class PrimeNumberLinearStrategy<TKey, TValue> : BasePrimeNumbers, IGrowBucketContainerStrategy<TKey, TValue> where TKey : IEquatable<TKey>
+    public sealed class PrimeNumberLinearStrategy<TRegistration> : BasePrimeNumbers, IGrowBucketContainerStrategy<TRegistration>
     {
         private readonly int _growthAdditionValue;
         private readonly int _maximalAvlTreeHeightBeforeResize;
@@ -15,7 +15,7 @@ namespace Light.DependencyInjection.Multithreading
         }
 
 
-        public int GetNumberOfBuckets(IReadOnlyList<ImmutableAvlNode<TKey, TValue>> existingBuckets)
+        public int GetNumberOfBuckets(IReadOnlyList<ImmutableAvlNode<TRegistration>> existingBuckets)
         {
             if (existingBuckets == null || existingBuckets.Count == 0)
                 return SelectedPrimeNumbers[0];

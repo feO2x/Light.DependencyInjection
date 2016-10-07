@@ -7,15 +7,15 @@ namespace Light.DependencyInjection.Multithreading
 {
     public sealed class ImmutableRegistrationsContainer<TRegistration>
     {
-        private readonly ImmutableAvlNode<TypeKey, TRegistration>[] _buckets;
-        private readonly IGrowBucketContainerStrategy<TypeKey, TRegistration> _growContainerStrategy;
+        private readonly ImmutableAvlNode<TRegistration>[] _buckets;
+        private readonly IGrowBucketContainerStrategy<TRegistration> _growContainerStrategy;
         private readonly Lazy<IReadOnlyList<TypeKey>> _lazyKeys;
         private readonly Lazy<IReadOnlyList<TRegistration>> _lazyValues;
         public readonly int Count;
         public readonly bool IsEmpty;
         public readonly int NumberOfBuckets;
 
-        private ImmutableRegistrationsContainer(IGrowBucketContainerStrategy<TypeKey, TRegistration> growContainerStrategy)
+        private ImmutableRegistrationsContainer(IGrowBucketContainerStrategy<TRegistration> growContainerStrategy)
         {
             _growContainerStrategy = growContainerStrategy;
             Count = 0;
@@ -25,9 +25,9 @@ namespace Light.DependencyInjection.Multithreading
             _lazyValues = new Lazy<IReadOnlyList<TRegistration>>(CreateValues);
         }
 
-        private ImmutableRegistrationsContainer(ImmutableAvlNode<TypeKey, TRegistration>[] buckets,
+        private ImmutableRegistrationsContainer(ImmutableAvlNode<TRegistration>[] buckets,
                                                 int count,
-                                                IGrowBucketContainerStrategy<TypeKey, TRegistration> growContainerStrategy)
+                                                IGrowBucketContainerStrategy<TRegistration> growContainerStrategy)
         {
             _buckets = buckets;
             NumberOfBuckets = buckets.Length;
@@ -41,7 +41,7 @@ namespace Light.DependencyInjection.Multithreading
 
         public IReadOnlyList<TRegistration> Registrations => _lazyValues.Value;
 
-        public ImmutableAvlNode<TypeKey, TRegistration> this[int index] => _buckets[index];
+        public ImmutableAvlNode<TRegistration> this[int index] => _buckets[index];
 
         private IReadOnlyList<TypeKey> CreateKeys()
         {
@@ -71,7 +71,7 @@ namespace Light.DependencyInjection.Multithreading
             return values;
         }
 
-        private ImmutableAvlNode<TypeKey, TRegistration>[] CreateNewBuckets(bool tryGrow)
+        private ImmutableAvlNode<TRegistration>[] CreateNewBuckets(bool tryGrow)
         {
             var numberOfBuckets = tryGrow ? _growContainerStrategy.GetNumberOfBuckets(_buckets) : _buckets.Length;
             var newBuckets = InitializeBuckets(numberOfBuckets);
@@ -85,17 +85,17 @@ namespace Light.DependencyInjection.Multithreading
             return newBuckets;
         }
 
-        private static ImmutableAvlNode<TypeKey, TRegistration>[] InitializeBuckets(int numberOfBuckets)
+        private static ImmutableAvlNode<TRegistration>[] InitializeBuckets(int numberOfBuckets)
         {
-            var buckets = new ImmutableAvlNode<TypeKey, TRegistration>[numberOfBuckets];
+            var buckets = new ImmutableAvlNode<TRegistration>[numberOfBuckets];
             for (var i = 0; i < numberOfBuckets; i++)
             {
-                buckets[i] = ImmutableAvlNode<TypeKey, TRegistration>.Empty;
+                buckets[i] = ImmutableAvlNode<TRegistration>.Empty;
             }
             return buckets;
         }
 
-        private void ReclassifyHashEntries(ImmutableAvlNode<TypeKey, TRegistration>[] newBuckets)
+        private void ReclassifyHashEntries(ImmutableAvlNode<TRegistration>[] newBuckets)
         {
             foreach (var immutableAvlTree in _buckets)
             {
@@ -103,7 +103,7 @@ namespace Light.DependencyInjection.Multithreading
             }
         }
 
-        private static void AddEntry(HashEntry<TypeKey, TRegistration> hashEntry, ImmutableAvlNode<TypeKey, TRegistration>[] buckets)
+        private static void AddEntry(HashEntry<TypeKey, TRegistration> hashEntry, ImmutableAvlNode<TRegistration>[] buckets)
         {
             var targetIndex = GetTargetBucketIndex(hashEntry.Key, buckets.Length);
             buckets[targetIndex] = buckets[targetIndex].Add(hashEntry);
@@ -160,7 +160,7 @@ namespace Light.DependencyInjection.Multithreading
                                  TRegistration registration,
                                  out ImmutableRegistrationsContainer<TRegistration> newBucketContainer)
         {
-            ImmutableAvlNode<TypeKey, TRegistration>[] newBuckets;
+            ImmutableAvlNode<TRegistration>[] newBuckets;
             int targetBucketIndex;
             if (IsEmpty == false)
             {
@@ -183,10 +183,10 @@ namespace Light.DependencyInjection.Multithreading
 
         public static ImmutableRegistrationsContainer<TRegistration> CreateEmpty()
         {
-            return new ImmutableRegistrationsContainer<TRegistration>(new PrimeNumberLinearStrategy<TypeKey, TRegistration>());
+            return new ImmutableRegistrationsContainer<TRegistration>(new PrimeNumberLinearStrategy<TRegistration>());
         }
 
-        public static ImmutableRegistrationsContainer<TRegistration> CreateEmpty(IGrowBucketContainerStrategy<TypeKey, TRegistration> growContainerStrategy)
+        public static ImmutableRegistrationsContainer<TRegistration> CreateEmpty(IGrowBucketContainerStrategy<TRegistration> growContainerStrategy)
         {
             growContainerStrategy.MustNotBeNull(nameof(growContainerStrategy));
 
@@ -197,20 +197,7 @@ namespace Light.DependencyInjection.Multithreading
         {
             var targetBucketIndex = GetTargetBucketIndex(type, _buckets.Length);
             var targetTree = _buckets[targetBucketIndex];
-            foreach (var node in targetTree.TraverseInOrder())
-            {
-                if (node.HashEntry.Key.Type == type)
-                    yield return node.HashEntry.Value;
-
-                if (node.Duplicates.Count == 0)
-                    continue;
-
-                foreach (var duplicate in node.Duplicates)
-                {
-                    if (duplicate.Key.Type == type)
-                        yield return duplicate.Value;
-                }
-            }
+            return targetTree.GetAllRegistrationsWithType(type);
         }
     }
 }

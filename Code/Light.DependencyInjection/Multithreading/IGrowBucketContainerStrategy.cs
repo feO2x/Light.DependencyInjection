@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace Light.DependencyInjection.Multithreading
 {
-    public interface IGrowBucketContainerStrategy<TKey, TValue> where TKey : IEquatable<TKey>
+    public interface IGrowBucketContainerStrategy<TRegistration>
     {
-        int GetNumberOfBuckets(IReadOnlyList<ImmutableAvlNode<TKey, TValue>> existingBuckets);
+        int GetNumberOfBuckets(IReadOnlyList<ImmutableAvlNode<TRegistration>> existingBuckets);
     }
 }
