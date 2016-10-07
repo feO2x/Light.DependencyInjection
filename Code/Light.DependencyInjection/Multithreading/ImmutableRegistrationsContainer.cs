@@ -201,6 +201,15 @@ namespace Light.DependencyInjection.Multithreading
             {
                 if (node.HashEntry.Key.Type == type)
                     yield return node.HashEntry.Value;
+
+                if (node.Duplicates.Count == 0)
+                    continue;
+
+                foreach (var duplicate in node.Duplicates)
+                {
+                    if (duplicate.Key.Type == type)
+                        yield return duplicate.Value;
+                }
             }
         }
     }
