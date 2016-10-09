@@ -237,16 +237,6 @@ namespace Light.DependencyInjection.Multithreading
             }
         }
 
-        public void TraverseInOrder(Action<ImmutableAvlNode<TRegistration>> nodeAction)
-        {
-            if (IsEmpty)
-                return;
-
-            LeftChild.TraverseInOrder(nodeAction);
-            nodeAction(this);
-            RightChild.TraverseInOrder(nodeAction);
-        }
-
         public AvlTreeEnumerator<TRegistration> GetEnumerator()
         {
             return new AvlTreeEnumerator<TRegistration>(this);

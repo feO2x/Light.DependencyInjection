@@ -52,7 +52,10 @@ namespace Light.DependencyInjection.Multithreading
             var currentIndex = 0;
             foreach (var avlTree in _buckets)
             {
-                avlTree.TraverseInOrder(node => keys[currentIndex++] = node.HashEntry.Key);
+                foreach (var node in avlTree)
+                {
+                    keys[currentIndex++] = node.HashEntry.Key;
+                }
             }
             return keys;
         }
@@ -66,7 +69,10 @@ namespace Light.DependencyInjection.Multithreading
             var currentIndex = 0;
             foreach (var avlTree in _buckets)
             {
-                avlTree.TraverseInOrder(node => values[currentIndex++] = node.HashEntry.Value);
+                foreach (var node in avlTree)
+                {
+                    values[currentIndex++] = node.HashEntry.Value;
+                }
             }
             return values;
         }
@@ -97,9 +103,12 @@ namespace Light.DependencyInjection.Multithreading
 
         private void ReclassifyHashEntries(ImmutableAvlNode<TRegistration>[] newBuckets)
         {
-            foreach (var immutableAvlTree in _buckets)
+            foreach (var avlTree in _buckets)
             {
-                immutableAvlTree.TraverseInOrder(node => AddEntry(node.HashEntry, newBuckets));
+                foreach (var node in avlTree)
+                {
+                    AddEntry(node.HashEntry, newBuckets);
+                }
             }
         }
 
@@ -197,7 +206,7 @@ namespace Light.DependencyInjection.Multithreading
         {
             var targetBucket = _buckets[GetTargetBucketIndex(type, _buckets.Length)];
             // ReSharper disable once GenericEnumeratorNotDisposed
-             return new RegistrationEnumerator<TRegistration>(type, targetBucket.GetEnumerator());
+            return new RegistrationEnumerator<TRegistration>(type, targetBucket.GetEnumerator());
         }
     }
 }
