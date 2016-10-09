@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="ChildContainerTests.cs" />
     <Compile Include="DisposableTests.cs" />
+    <Compile Include="FrameworkInspectionTests.cs" />
     <Compile Include="OptionsTests.cs" />
     <Compile Include="CompileObjectCreationFunctionTests.cs" />
     <Compile Include="DefaultDiContainerTest.cs" />

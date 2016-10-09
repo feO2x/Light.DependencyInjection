@@ -82,10 +82,10 @@ namespace Light.DependencyInjection.Multithreading
             return result;
         }
 
-        public IEnumerable<TRegistration> GetAllRegistrations(Type type)
+        public RegistrationEnumerator<TRegistration> GetRegistrationEnumeratorForType(Type type)
         {
             var bucketContainer = Volatile.Read(ref _bucketContainer);
-            return bucketContainer.FindAll(type);
+            return bucketContainer.GetRegistrationEnumeratorForType(type);
         }
     }
 }

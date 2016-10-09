@@ -27,7 +27,7 @@ namespace Light.DependencyInjection.Tests
             testTarget.HashEntry.Should().Be(default(HashEntry<TypeKey, object>));
         }
 
-        [Fact(DisplayName = "Empty AVL nodes are replaces by a single node with a value.")]
+        [Fact(DisplayName = "Empty AVL nodes are replaced by a single node with a hash entry.")]
         public void SetSingleNode()
         {
             var empty = ImmutableAvlNode<object>.Empty;

@@ -50,7 +50,9 @@
     <Compile Include="Multithreading\PrimeNumberLinearStrategy.cs" />
     <Compile Include="Multithreading\RegistrationDictionary.cs" />
     <Compile Include="Multithreading\RegistrationDictionaryOptions.cs" />
+    <Compile Include="Multithreading\RegistrationEnumerator.cs" />
     <Compile Include="Multithreading\ThreadSafeContainerScope.cs" />
+    <Compile Include="Multithreading\AvlTreeEnumerator.cs" />
     <Compile Include="Registrations\BaseRegistrationOptionsForExternalInstance.cs" />
     <Compile Include="Registrations\BaseRegistration.cs" />
     <Compile Include="Registrations\RegistrationOptionsForExternalInstance.cs" />

@@ -254,16 +254,19 @@ namespace Light.DependencyInjection
                 throw new ResolveTypeException($"The specified type \"{type}\" describes a delegate type which has not been registered and which cannot be resolved automatically.", type);
         }
 
-        public IList<T> ResolveAll<T>()
+        public T[] ResolveAll<T>()
         {
-            var instances = ContainerServices.CollectionFactory.CreateDefaultCollection<T>();
+            var enumerator = _typeMappings.GetRegistrationEnumeratorForType(typeof(T));
+            var instances = new T[enumerator.GetNumberOfRegistrations()];
             var creationContext = CreationContext.CreateInitial(this);
-            foreach (var registration in _typeMappings.GetAllRegistrations(typeof(T)))
+            var currentIndex = 0;
+            while (enumerator.MoveNext())
             {
-                instances.Add((T) registration.Lifetime.GetInstance(new ResolveContext(this,
-                                                                                       registration,
-                                                                                       creationContext.LazyResolveScope)));
+                instances[currentIndex++] = (T) enumerator.Current.Lifetime.GetInstance(new ResolveContext(this,
+                                                                                                           enumerator.Current,
+                                                                                                           creationContext.LazyResolveScope));
             }
+            
             return instances;
         }
     }

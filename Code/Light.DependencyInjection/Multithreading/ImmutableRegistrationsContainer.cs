@@ -193,11 +193,11 @@ namespace Light.DependencyInjection.Multithreading
             return new ImmutableRegistrationsContainer<TRegistration>(growContainerStrategy);
         }
 
-        public IEnumerable<TRegistration> FindAll(Type type)
+        public RegistrationEnumerator<TRegistration> GetRegistrationEnumeratorForType(Type type)
         {
-            var targetBucketIndex = GetTargetBucketIndex(type, _buckets.Length);
-            var targetTree = _buckets[targetBucketIndex];
-            return targetTree.GetAllRegistrationsWithType(type);
+            var targetBucket = _buckets[GetTargetBucketIndex(type, _buckets.Length)];
+            // ReSharper disable once GenericEnumeratorNotDisposed
+             return new RegistrationEnumerator<TRegistration>(type, targetBucket.GetEnumerator());
         }
     }
 }

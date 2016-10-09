@@ -247,6 +247,11 @@ namespace Light.DependencyInjection.Multithreading
             RightChild.TraverseInOrder(nodeAction);
         }
 
+        public AvlTreeEnumerator<TRegistration> GetEnumerator()
+        {
+            return new AvlTreeEnumerator<TRegistration>(this);
+        }
+
         public override string ToString()
         {
             if (IsEmpty)
