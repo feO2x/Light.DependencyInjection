@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using Light.DependencyInjection.Lifetimes;
 using Xunit;
@@ -91,6 +92,19 @@ namespace Light.DependencyInjection.Tests
             var instance = Container.Resolve<ServiceLocator>();
 
             instance.Container.Should().BeSameAs(Container);
+        }
+
+        [Fact(DisplayName = "The DI container must be able to resolve types that are instantiated via lambdas.")]
+        public void InstantiateViaLambda()
+        {
+            Container.RegisterTransient<D>(options => options.UseDelegate((IList<int> collection) => new D(collection, 90)))
+                     .RegisterTransient(typeof(List<>), options => options.UseDefaultConstructor()
+                                                                          .MapToAbstractions(typeof(IList<>)));
+
+            var instanceOfD = Container.Resolve<D>();
+
+            instanceOfD.SomeNumber.Should().Be(90);
+            instanceOfD.Collection.Should().NotBeNull();
         }
     }
 }

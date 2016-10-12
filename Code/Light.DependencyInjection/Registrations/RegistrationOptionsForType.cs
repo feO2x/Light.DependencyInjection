@@ -52,6 +52,72 @@ namespace Light.DependencyInjection.Registrations
             return this;
         }
 
+        public IRegistrationOptionsForType<T> UseDelegate(Func<T> createInstance)
+        {
+            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
+            return this;
+        }
+
+        public IRegistrationOptionsForType<T> UseDelegate<TParameter>(Func<TParameter, T> createInstance)
+        {
+            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
+            return this;
+        }
+
+        public IRegistrationOptionsForType<T> UseDelegate<T1, T2>(Func<T1, T2, T> createInstance)
+        {
+            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
+            return this;
+        }
+
+        public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3>(Func<T1, T2, T3, T> createInstance)
+        {
+            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
+            return this;
+        }
+
+        public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3, T4>(Func<T1, T2, T3, T4, T> createInstance)
+        {
+            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
+            return this;
+        }
+
+        public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, T> createInstance)
+        {
+            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
+            return this;
+        }
+
+        public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3, T4, T5, T6>(Func<T1, T2, T3, T4, T5, T6, T> createInstance)
+        {
+            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
+            return this;
+        }
+
+        public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3, T4, T5, T6, T7>(Func<T1, T2, T3, T4, T5, T6, T7, T> createInstance)
+        {
+            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
+            return this;
+        }
+
+        public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T> createInstance)
+        {
+            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
+            return this;
+        }
+
+        public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T> createInstance)
+        {
+            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
+            return this;
+        }
+
+        public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T> createInstance)
+        {
+            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
+            return this;
+        }
+
         public static DiContainer PerformRegistration(DiContainer container,
                                                       Action<IRegistrationOptionsForType<T>> configureOptions,
                                                       ILifetime lifetime,

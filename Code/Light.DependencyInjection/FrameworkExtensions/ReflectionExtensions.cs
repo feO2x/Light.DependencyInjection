@@ -50,6 +50,35 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return Expression.Lambda<Func<object[], object>>(callStaticFactoryExpression, parameterExpression).Compile();
         }
 
+        public static Func<object[], object> CompileStandardizedInstantiationFunction(this Delegate @delegate)
+        {
+            @delegate.MustNotBeNull(nameof(@delegate));
+            var methodInfo = @delegate.GetMethodInfo();
+            CheckDelegateReturnType(methodInfo);
+
+            var methodParameterInfos = methodInfo.GetParameters();
+            Expression instanceExpression = null;
+            if (@delegate.Target != null)
+                instanceExpression = Expression.Constant(@delegate.Target);
+
+            var parameterExpression = Expression.Parameter(typeof(object[]));
+            if (methodParameterInfos.Length == 0)
+                return Expression.Lambda<Func<object[], object>>(Expression.Call(instanceExpression, methodInfo), parameterExpression).Compile();
+
+            var argumentExpression = methodParameterInfos.CreateParameterExpressions(parameterExpression);
+            var callMethodExpression = Expression.Call(instanceExpression, methodInfo, argumentExpression);
+            return Expression.Lambda<Func<object[], object>>(callMethodExpression, parameterExpression).Compile();
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckDelegateReturnType(MethodInfo delegateMethodInfo)
+        {
+            if (delegateMethodInfo.ReturnType != typeof(void))
+                return;
+
+            throw new TypeRegistrationException("The specified delegate must not have a \"void\" as return type.");
+        }
+
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckStaticMethodInfo(MethodInfo staticMethod, Type targetType)
         {

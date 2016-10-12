@@ -64,6 +64,7 @@
     <Compile Include="Services\IContainerScopeFactory.cs" />
     <Compile Include="Services\ThreadSafeContainerScopeFactory.cs" />
     <Compile Include="TypeConstruction\DefaultInjectorForUnknownInstanceMembers.cs" />
+    <Compile Include="TypeConstruction\DelegateInstantiationInfo.cs" />
     <Compile Include="TypeConstruction\ICollectionFactory.cs" />
     <Compile Include="TypeConstruction\IInjectorForUnknownInstanceMembers.cs" />
     <Compile Include="Registrations\BaseRegistrationOptionsForTypes.cs" />
