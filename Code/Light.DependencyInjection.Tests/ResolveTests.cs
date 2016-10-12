@@ -106,5 +106,24 @@ namespace Light.DependencyInjection.Tests
             instanceOfD.SomeNumber.Should().Be(90);
             instanceOfD.Collection.Should().NotBeNull();
         }
+
+        [Fact(DisplayName = "The DI container must be able to resolve types that are instantiated via instance methods.")]
+        public void InstantiateViaInstanceMethod()
+        {
+            Container.RegisterTransient<B>(options => options.UseDelegate<A>(CreateB));
+
+            var instanceOfB = Container.Resolve<B>();
+
+            instanceOfB.OtherObject.Should().NotBeNull();
+            instanceOfB.Value.Should().Be(_intValue);
+        }
+
+        private int _intValue;
+
+        private B CreateB(A instanceOfA)
+        {
+            _intValue = new Random().Next();
+            return new B(instanceOfA, _intValue);
+        }
     }
 }
