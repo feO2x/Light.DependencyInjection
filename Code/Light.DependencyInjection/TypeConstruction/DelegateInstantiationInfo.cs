@@ -6,8 +6,8 @@ namespace Light.DependencyInjection.TypeConstruction
 {
     public sealed class DelegateInstantiationInfo : InstantiationInfo
     {
-        public DelegateInstantiationInfo(Delegate @delegate)
-            : base(@delegate.GetMethodInfo().ReturnType,
+        public DelegateInstantiationInfo(Type targetType, Delegate @delegate)
+            : base(targetType,
                    @delegate.CompileStandardizedInstantiationFunction(),
                    @delegate.GetMethodInfo().CreateDefaultInstantiationDependencies()) { }
         protected override InstantiationInfo CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)

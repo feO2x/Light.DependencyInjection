@@ -125,5 +125,16 @@ namespace Light.DependencyInjection.Tests
             _intValue = new Random().Next();
             return new B(instanceOfA, _intValue);
         }
+
+        [Fact(DisplayName = "Clients must be able to register delegate instantiation methods when using the non-generic registration options.")]
+        public void UseDelegateWithNonGenericOptions()
+        {
+            Container.RegisterTransient(typeof(B), options => options.UseDelegate((A instanceOfA) => new B(instanceOfA, 67)));
+
+            var instanceOfB = Container.Resolve<B>();
+
+            instanceOfB.OtherObject.Should().NotBeNull();
+            instanceOfB.Value.Should().Be(67);
+        }
     }
 }

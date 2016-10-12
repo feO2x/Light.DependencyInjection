@@ -13,6 +13,61 @@ namespace Light.DependencyInjection.Registrations
         public RegistrationOptionsForType(Type targetType, IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes) :
             base(targetType, constructorSelector, ignoredAbstractionTypes) { }
 
+        public IRegistrationOptionsForType UseDelegate(Func<object> createInstance)
+        {
+            return SetDelegateInstantiationInfo(createInstance);
+        }
+
+        public IRegistrationOptionsForType UseDelegate<TParameter>(Func<TParameter, object> createInstance)
+        {
+            return SetDelegateInstantiationInfo(createInstance);
+        }
+
+        public IRegistrationOptionsForType UseDelegate<T1, T2>(Func<T1, T2, object> createInstance)
+        {
+            return SetDelegateInstantiationInfo(createInstance);
+        }
+
+        public IRegistrationOptionsForType UseDelegate<T1, T2, T3>(Func<T1, T2, T3, object> createInstance)
+        {
+            return SetDelegateInstantiationInfo(createInstance);
+        }
+
+        public IRegistrationOptionsForType UseDelegate<T1, T2, T3, T4>(Func<T1, T2, T3, T4, object> createInstance)
+        {
+            return SetDelegateInstantiationInfo(createInstance);
+        }
+
+        public IRegistrationOptionsForType UseDelegate<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, object> createInstance)
+        {
+            return SetDelegateInstantiationInfo(createInstance);
+        }
+
+        public IRegistrationOptionsForType UseDelegate<T1, T2, T3, T4, T5, T6>(Func<T1, T2, T3, T4, T5, T6, object> createInstance)
+        {
+            return SetDelegateInstantiationInfo(createInstance);
+        }
+
+        public IRegistrationOptionsForType UseDelegate<T1, T2, T3, T4, T5, T6, T7>(Func<T1, T2, T3, T4, T5, T6, T7, object> createInstance)
+        {
+            return SetDelegateInstantiationInfo(createInstance);
+        }
+
+        public IRegistrationOptionsForType UseDelegate<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1, T2, T3, T4, T5, T6, T7, T8, object> createInstance)
+        {
+            return SetDelegateInstantiationInfo(createInstance);
+        }
+
+        public IRegistrationOptionsForType UseDelegate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, object> createInstance)
+        {
+            return SetDelegateInstantiationInfo(createInstance);
+        }
+
+        public IRegistrationOptionsForType UseDelegate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, object> createInstance)
+        {
+            return SetDelegateInstantiationInfo(createInstance);
+        }
+
         public static DiContainer PerformRegistration(DiContainer container,
                                                       Type targetType,
                                                       Action<IRegistrationOptionsForType> configureOptions,
@@ -54,68 +109,57 @@ namespace Light.DependencyInjection.Registrations
 
         public IRegistrationOptionsForType<T> UseDelegate(Func<T> createInstance)
         {
-            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
-            return this;
+            return SetDelegateInstantiationInfo(createInstance);
         }
 
         public IRegistrationOptionsForType<T> UseDelegate<TParameter>(Func<TParameter, T> createInstance)
         {
-            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
-            return this;
+            return SetDelegateInstantiationInfo(createInstance);
         }
 
         public IRegistrationOptionsForType<T> UseDelegate<T1, T2>(Func<T1, T2, T> createInstance)
         {
-            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
-            return this;
+            return SetDelegateInstantiationInfo(createInstance);
         }
 
         public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3>(Func<T1, T2, T3, T> createInstance)
         {
-            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
-            return this;
+            return SetDelegateInstantiationInfo(createInstance);
         }
 
         public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3, T4>(Func<T1, T2, T3, T4, T> createInstance)
         {
-            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
-            return this;
+            return SetDelegateInstantiationInfo(createInstance);
         }
 
         public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, T> createInstance)
         {
-            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
-            return this;
+            return SetDelegateInstantiationInfo(createInstance);
         }
 
         public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3, T4, T5, T6>(Func<T1, T2, T3, T4, T5, T6, T> createInstance)
         {
-            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
-            return this;
+            return SetDelegateInstantiationInfo(createInstance);
         }
 
         public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3, T4, T5, T6, T7>(Func<T1, T2, T3, T4, T5, T6, T7, T> createInstance)
         {
-            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
-            return this;
+            return SetDelegateInstantiationInfo(createInstance);
         }
 
         public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T> createInstance)
         {
-            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
-            return this;
+            return SetDelegateInstantiationInfo(createInstance);
         }
 
         public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T> createInstance)
         {
-            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
-            return this;
+            return SetDelegateInstantiationInfo(createInstance);
         }
 
         public IRegistrationOptionsForType<T> UseDelegate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T> createInstance)
         {
-            InstantiationInfo = new DelegateInstantiationInfo(createInstance);
-            return this;
+            return SetDelegateInstantiationInfo(createInstance);
         }
 
         public static DiContainer PerformRegistration(DiContainer container,

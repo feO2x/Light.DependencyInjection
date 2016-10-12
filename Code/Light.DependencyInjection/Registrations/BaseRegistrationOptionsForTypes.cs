@@ -295,5 +295,11 @@ namespace Light.DependencyInjection.Registrations
                                                 BuildTypeCreationInfo());
             targetContainer.Register(registration, AbstractionTypes);
         }
+
+        protected TConcreteOptions SetDelegateInstantiationInfo(Delegate @delegate)
+        {
+            InstantiationInfo = new DelegateInstantiationInfo(TargetType, @delegate);
+            return This;
+        }
     }
 }
