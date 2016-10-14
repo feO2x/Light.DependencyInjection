@@ -59,7 +59,7 @@
     <Compile Include="Registrations\GenericTypeDefinitionRegistration.cs" />
     <Compile Include="Registrations\RegistrationOptionsForType.cs" />
     <Compile Include="Services\ContainerScope.cs" />
-    <Compile Include="Services\ContextScopeFactory.cs" />
+    <Compile Include="Services\ResolveScopeFactory.cs" />
     <Compile Include="Services\CreationContext.cs" />
     <Compile Include="Services\DefaultContainerScopeFactory.cs" />
     <Compile Include="Services\IContainerScopeFactory.cs" />

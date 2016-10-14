@@ -216,7 +216,7 @@ namespace Light.DependencyInjection
         public DiContainer InstantiateAllWithLifetime<TLifetime>() where TLifetime : ILifetime
         {
             var lifetimeType = typeof(TLifetime);
-            var lazyResolveScope = ContainerServices.ContextScopeFactory.CreateLazyScope();
+            var lazyResolveScope = ContainerServices.ResolveScopeFactory.CreateLazyScope();
             foreach (var registration in _typeMappings.Registrations.Where(registration => registration.Lifetime.GetType() == lifetimeType))
             {
                 registration.Lifetime.GetInstance(new ResolveContext(this, registration, lazyResolveScope));
@@ -249,19 +249,17 @@ namespace Light.DependencyInjection
                 throw new ResolveTypeException($"The specified type \"{type}\" describes a delegate type which has not been registered and which cannot be resolved automatically.", type);
         }
 
-        public T[] ResolveAll<T>()
+        public T[] ResolveAll<T>()  // TODO: with ParameterOverrides?
         {
             var enumerator = _typeMappings.GetRegistrationEnumeratorForType(typeof(T));
             var instances = new T[enumerator.GetNumberOfRegistrations()];
-            var creationContext = CreationContext.CreateInitial(this);
             var currentIndex = 0;
+            var resolveScope = ContainerServices.ResolveScopeFactory.CreateLazyScope();
             while (enumerator.MoveNext())
             {
-                instances[currentIndex++] = (T) enumerator.Current.Lifetime.GetInstance(new ResolveContext(this,
-                                                                                                           enumerator.Current,
-                                                                                                           creationContext.LazyResolveScope));
+                instances[currentIndex++] = (T) enumerator.Current.Lifetime.GetInstance(new ResolveContext(this, enumerator.Current, resolveScope));
             }
-            
+
             return instances;
         }
     }

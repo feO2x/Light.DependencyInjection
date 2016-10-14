@@ -18,7 +18,7 @@ namespace Light.DependencyInjection.Services
             Container = container;
             ParameterOverrides = parameterOverrides;
             Registration = null;
-            LazyResolveScope = container.ContainerServices.ContextScopeFactory.CreateLazyScope();
+            LazyResolveScope = container.ContainerServices.ResolveScopeFactory.CreateLazyScope();
         }
 
         private CreationContext(DiContainer container,

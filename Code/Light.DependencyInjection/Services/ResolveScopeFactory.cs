@@ -6,12 +6,12 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Services
 {
-    public sealed class ContextScopeFactory
+    public sealed class ResolveScopeFactory
     {
         private static readonly Func<Dictionary<TypeKey, object>> CreateDictionaryDelegate;
         private LazyThreadSafetyMode _lazyThreadSafetyMode = LazyThreadSafetyMode.None;
 
-        static ContextScopeFactory()
+        static ResolveScopeFactory()
         {
             CreateDictionaryDelegate = CreateDictionary;
         }
