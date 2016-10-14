@@ -262,5 +262,21 @@ namespace Light.DependencyInjection
 
             return instances;
         }
+
+        public object[] ResolveAll(Type type) // TODO: with ParameterOverrides?
+        {
+            type.MustNotBeNull(nameof(type));
+
+            var enumerator = _typeMappings.GetRegistrationEnumeratorForType(type);
+            var instances = new object[enumerator.GetNumberOfRegistrations()];
+            var currentIndex = 0;
+            var resolveScope = ContainerServices.ResolveScopeFactory.CreateLazyScope();
+            while (enumerator.MoveNext())
+            {
+                instances[currentIndex++] = enumerator.Current.Lifetime.GetInstance(new ResolveContext(this, enumerator.Current, resolveScope));
+            }
+
+            return instances;
+        }
     }
 }

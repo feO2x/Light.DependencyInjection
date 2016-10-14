@@ -84,6 +84,8 @@ namespace Light.DependencyInjection.Multithreading
 
         public RegistrationEnumerator<TRegistration> GetRegistrationEnumeratorForType(Type type)
         {
+            type.MustNotBeNull(nameof(type));
+
             var bucketContainer = Volatile.Read(ref _bucketContainer);
             return bucketContainer.GetRegistrationEnumeratorForType(type);
         }
