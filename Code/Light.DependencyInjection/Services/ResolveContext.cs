@@ -15,9 +15,9 @@ namespace Light.DependencyInjection.Services
         private readonly Lazy<Dictionary<TypeKey, object>> _lazyResolveScope;
 
         public ResolveContext(DiContainer container,
-                              Registration registration,
-                              Lazy<Dictionary<TypeKey, object>> lazyResolveScope,
-                              ParameterOverrides? parameterOverrides = null)
+                               Registration registration,
+                               Lazy<Dictionary<TypeKey, object>> lazyResolveScope,
+                               ParameterOverrides? parameterOverrides = null)
         {
             container.MustNotBeNull(nameof(container));
             registration.MustNotBeNull(nameof(registration));
@@ -27,6 +27,14 @@ namespace Light.DependencyInjection.Services
             Registration = registration;
             _lazyResolveScope = lazyResolveScope;
             ParameterOverrides = parameterOverrides;
+        }
+
+        public static ResolveContext FromCreationContext(CreationContext context, Registration registration)
+        {
+            return new ResolveContext(context.Container,
+                                      registration,
+                                      context.LazyResolveScope,
+                                      context.ParameterOverrides);
         }
 
         public object CreateInstance()

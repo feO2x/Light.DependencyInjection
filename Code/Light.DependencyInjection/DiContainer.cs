@@ -159,10 +159,7 @@ namespace Light.DependencyInjection
                 return this;
 
             var registration = GetRegistration(typeKey) ?? GetDefaultRegistration(typeKey);
-            return registration.Lifetime.GetInstance(new ResolveContext(this,
-                                                                        registration,
-                                                                        creationContext.LazyResolveScope,
-                                                                        creationContext.ParameterOverrides));
+            return registration.Lifetime.GetInstance(ResolveContext.FromCreationContext(creationContext, registration));
         }
 
         private Registration GetDefaultRegistration(TypeKey typeKey)
@@ -219,12 +216,10 @@ namespace Light.DependencyInjection
         public DiContainer InstantiateAllWithLifetime<TLifetime>() where TLifetime : ILifetime
         {
             var lifetimeType = typeof(TLifetime);
-            var creationContext = CreationContext.CreateInitial(this);
+            var lazyResolveScope = ContainerServices.ContextScopeFactory.CreateLazyScope();
             foreach (var registration in _typeMappings.Registrations.Where(registration => registration.Lifetime.GetType() == lifetimeType))
             {
-                registration.Lifetime.GetInstance(new ResolveContext(this,
-                                                                     registration,
-                                                                     creationContext.LazyResolveScope));
+                registration.Lifetime.GetInstance(new ResolveContext(this, registration, lazyResolveScope));
             }
             return this;
         }

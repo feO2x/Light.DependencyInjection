@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.TypeConstruction;
 using Light.GuardClauses;
@@ -19,12 +18,7 @@ namespace Light.DependencyInjection.Services
             Container = container;
             ParameterOverrides = parameterOverrides;
             Registration = null;
-            LazyResolveScope = new Lazy<Dictionary<TypeKey, object>>(CreateDictionary, LazyThreadSafetyMode.None);
-        }
-
-        private static Dictionary<TypeKey, object> CreateDictionary()
-        {
-            return new Dictionary<TypeKey, object>();
+            LazyResolveScope = container.ContainerServices.ContextScopeFactory.CreateLazyScope();
         }
 
         private CreationContext(DiContainer container,

@@ -8,9 +8,9 @@ namespace Light.DependencyInjection.Services
 {
     public sealed class ContainerServices
     {
-        private ICollectionFactory _collectionFactory = new ListFactory();
         private IConstructorSelector _constructorSelector = new ConstructorWithMostParametersSelector();
         private IContainerScopeFactory _containerScopeFactory = new DefaultContainerScopeFactory();
+        private ContextScopeFactory _contextScopeFactory = new ContextScopeFactory();
         private IDefaultRegistrationFactory _defaultRegistrationFactory = new TransientRegistrationFactory();
         private IReadOnlyList<Type> _ignoredAbstractionTypes = new[] { typeof(IDisposable) };
         private IInjectorForUnknownInstanceMembers _injectorForUnknownInstanceMembers = new DefaultInjectorForUnknownInstanceMembers();
@@ -65,13 +65,13 @@ namespace Light.DependencyInjection.Services
             }
         }
 
-        public ICollectionFactory CollectionFactory
+        public ContextScopeFactory ContextScopeFactory
         {
-            get { return _collectionFactory; }
+            get { return _contextScopeFactory; }
             set
             {
                 value.MustNotBeNull(nameof(value));
-                _collectionFactory = value;
+                _contextScopeFactory = value;
             }
         }
 
