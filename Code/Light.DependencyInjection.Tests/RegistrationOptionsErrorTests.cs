@@ -65,29 +65,6 @@ namespace Light.DependencyInjection.Tests
                 new object[] { new Action(() => CreateRegistrationOptions<E>().UseConstructorWithParameters<int, uint, string, DateTime, double, Guid, string, short>()), typeof(E), new[] { typeof(int), typeof(uint), typeof(string), typeof(DateTime), typeof(double), typeof(Guid), typeof(string), typeof(short) } }
             };
 
-        [Fact(DisplayName = "UseStaticFactoryMethod must throw a TypeRegistrationException when the delegate does not point to a public static method returning an instance of the target type.")]
-        public void StaticMethodWrongDelegate()
-        {
-            Action act = () => CreateRegistrationOptions<A>().UseStaticFactoryMethod(new Func<string>(() => "Foo"));
-
-            act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"The specified delegate does not describe a public, static method that returns an instance of type {typeof(A)}.");
-        }
-
-        [Fact(DisplayName = "UseStaticFactoryMethod must throw a TypeRegistrationException when the expression does not point to a public static method returning an instance of the target type.")]
-        public void StaticMethodWrongExpression()
-        {
-            Action act = () => CreateRegistrationOptions<A>().UseStaticFactoryMethod(() => StaticCreateA());
-
-            act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"Your expression to select a static factory method for type {typeof(A)} does not describe a public static method. A valid example would be \"() => MyType.Create(default(string), default(Foo))\".");
-        }
-
-        private static A StaticCreateA()
-        {
-            return new A();
-        }
-
         [Fact(DisplayName = "UseStaticFactoryMethod must throw a TypeRegistrationException when the methodInfo does not point to a public static method returning an instance of the target type.")]
         public void StaticMethodWrongMethodInfo()
         {
@@ -178,7 +155,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "ResolveInstantiationParameter must throw a TypeRegistrationException when there is no parameter with the specified name.")]
         public void ConfigureInstantiationParameterWithNameNotPresent()
         {
-            Action act = () => CreateRegistrationOptions<F>().UseStaticFactoryMethod(new Func<string, int, F>(F.Create))
+            Action act = () => CreateRegistrationOptions<F>().InstantiateVia<string, int>(F.Create)
                                                              .ResolveInstantiationParameter("foo");
 
             act.ShouldThrow<TypeRegistrationException>()

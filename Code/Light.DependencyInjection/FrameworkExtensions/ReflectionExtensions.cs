@@ -154,27 +154,6 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return true;
         }
 
-        public static MethodInfo ExtractStaticFactoryMethod(this Expression<Func<object>> callStaticMethodExpression, Type targetType)
-        {
-            callStaticMethodExpression.MustNotBeNull(nameof(callStaticMethodExpression));
-
-            var methodCallExpression = callStaticMethodExpression.Body as MethodCallExpression;
-            CheckMethodCallExpression(methodCallExpression, targetType);
-
-            // ReSharper disable once PossibleNullReferenceException
-            return methodCallExpression.Method;
-        }
-
-        [Conditional(Check.CompileAssertionsSymbol)]
-        private static void CheckMethodCallExpression(MethodCallExpression methodCallExpression, Type targetType)
-        {
-            if (methodCallExpression != null &&
-                methodCallExpression.Method.IsPublicStaticCreationMethodForType(targetType))
-                return;
-
-            throw new TypeRegistrationException($"Your expression to select a static factory method for type {targetType} does not describe a public static method. A valid example would be \"() => MyType.Create(default(string), default(Foo))\".", targetType);
-        }
-
         public static bool IsPublicStaticCreationMethodForType(this MethodInfo methodInfo, Type targetType)
         {
             methodInfo.MustNotBeNull(nameof(methodInfo));

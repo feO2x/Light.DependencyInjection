@@ -96,14 +96,6 @@ namespace Light.DependencyInjection.Registrations
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7), typeof(T8));
         }
 
-
-        public TConcreteOptions UseStaticFactoryMethod(Expression<Func<object>> callStaticMethodExpression)
-        {
-            var methodInfo = callStaticMethodExpression.ExtractStaticFactoryMethod(TargetType);
-            AssignStaticCreationMethod(methodInfo);
-            return This;
-        }
-
         public IChildRegistrationNameOptions<TConcreteOptions> ResolveInstantiationParameter<TParameter>()
         {
             AssignInstantiationMethodIfNeccessary();
@@ -134,16 +126,6 @@ namespace Light.DependencyInjection.Registrations
             staticFactoryMethodInfo.MustNotBeNull(nameof(staticFactoryMethodInfo));
 
             AssignStaticCreationMethod(staticFactoryMethodInfo);
-            return This;
-        }
-
-        public TConcreteOptions UseStaticFactoryMethod(Delegate staticMethodDelegate)
-        {
-            staticMethodDelegate.MustNotBeNull();
-
-            var methodInfo = staticMethodDelegate.GetMethodInfo();
-            CheckStaticCreationMethodFromDelegate(methodInfo, TargetType);
-            AssignStaticCreationMethod(methodInfo);
             return This;
         }
 

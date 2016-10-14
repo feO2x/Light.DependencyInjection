@@ -13,7 +13,7 @@ namespace Light.DependencyInjection.Tests
     {
         protected abstract void Register<T>(Action<IRegistrationOptionsForType<T>> configureOptions);
 
-        [Fact(DisplayName = "Clients must be able to change the registration name using the options object when calling ResolveTransient.")]
+        [Fact(DisplayName = "Clients must be able to change the registration name using the options object.")]
         public void OptionsRegistrationName()
         {
             Register<A>(options => options.UseRegistrationName("Foo"));
@@ -90,7 +90,7 @@ namespace Light.DependencyInjection.Tests
 
         [Theory(DisplayName = "Clients must be able to register a static factory method instead of a constructor that the DI container uses to instantiate the target type.")]
         [MemberData(nameof(ResolveWithStaticFactoryMethodData))]
-        public void ResolveWithStaticFactoryMethod(Action<IRegistrationOptionsForType<F>> configureStaticMethod)
+        public void ResolveWithStaticCreationMethod(Action<IRegistrationOptionsForType<F>> configureStaticMethod)
         {
             Register(configureStaticMethod);
             Container.RegisterInstance("Hello")
@@ -105,8 +105,7 @@ namespace Light.DependencyInjection.Tests
         public static readonly IEnumerable<object[]> ResolveWithStaticFactoryMethodData =
             new[]
             {
-                new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(new Func<string, int, F>(F.Create))) },
-                new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(() => F.Create(default(string), default(int)))) },
+                new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.InstantiateVia(new Func<string, int, F>(F.Create))) },
                 new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(typeof(F).GetRuntimeMethod("Create", new[] { typeof(string), typeof(int) }))) }
             };
 
@@ -164,7 +163,7 @@ namespace Light.DependencyInjection.Tests
         {
             Register<E>(options => options.MapToAbstractions(typeof(IF)));
             Register<F>(options => options.MapToAbstractions(typeof(IF))
-                                          .UseStaticFactoryMethod(() => F.Create(default(string), default(int))));
+                                          .InstantiateVia<string, int>(F.Create));
             Container.RegisterInstance("Foo")
                      .RegisterInstance(42);
 
