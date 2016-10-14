@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Light.DependencyInjection.Services;
 using Microsoft.Concurrency.TestTools.UnitTesting;
 
 namespace Light.DependencyInjection.ConcurrencyTests
@@ -27,7 +28,7 @@ namespace Light.DependencyInjection.ConcurrencyTests
                                                   {
                                                       for (var i = 0; i < 4; i++)
                                                       {
-                                                          testTarget.CreateChildContainer(createCopyOfMappings: true);
+                                                          testTarget.CreateChildContainer(new ChildContainerOptions(createCopyOfMappings: true));
                                                           Thread.Sleep(10);
                                                       }
                                                   });

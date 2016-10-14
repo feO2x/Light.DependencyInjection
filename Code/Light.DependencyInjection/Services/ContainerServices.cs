@@ -81,5 +81,10 @@ namespace Light.DependencyInjection.Services
             defaultOptions.UseRegistrationName(typeKey.RegistrationName);
             return _defaultRegistrationFactory.CreateDefaultRegistration(defaultOptions.BuildTypeCreationInfo());
         }
+
+        public ContainerServices Clone()
+        {
+            return (ContainerServices) MemberwiseClone();
+        }
     }
 }

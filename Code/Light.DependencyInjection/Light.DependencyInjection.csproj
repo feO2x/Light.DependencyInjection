@@ -58,6 +58,7 @@
     <Compile Include="Registrations\RegistrationOptionsForExternalInstance.cs" />
     <Compile Include="Registrations\GenericTypeDefinitionRegistration.cs" />
     <Compile Include="Registrations\RegistrationOptionsForType.cs" />
+    <Compile Include="Services\ChildContainerOptions.cs" />
     <Compile Include="Services\ContainerScope.cs" />
     <Compile Include="Services\ResolveScopeFactory.cs" />
     <Compile Include="Services\CreationContext.cs" />

@@ -62,15 +62,20 @@ namespace Light.DependencyInjection
             Scope.Dispose();
         }
 
-        public DiContainer CreateChildContainer(bool createEmptyChildScope = false, bool createCopyOfMappings = false)
+        public DiContainer CreateChildContainer()
         {
-            var parentScope = createEmptyChildScope ? null : Scope;
-            var registrations = createCopyOfMappings ? new RegistrationDictionary<Registration>(_typeMappings) : _typeMappings;
-            var genericTypeDefinitionRegistrations = createCopyOfMappings ? new RegistrationDictionary<GenericTypeDefinitionRegistration>(_genericTypeDefinitonMappings) : _genericTypeDefinitonMappings;
+            return CreateChildContainer(ChildContainerOptions.Default);
+        }
+
+        public DiContainer CreateChildContainer(ChildContainerOptions options)
+        {
+            var parentScope = options.CreateEmptyScope ? null : Scope;
+            var registrations = options.CreateCopyOfMappings ? new RegistrationDictionary<Registration>(_typeMappings) : _typeMappings;
+            var genericTypeDefinitionRegistrations = options.CreateCopyOfMappings ? new RegistrationDictionary<GenericTypeDefinitionRegistration>(_genericTypeDefinitonMappings) : _genericTypeDefinitonMappings;
 
             return new DiContainer(registrations,
                                    genericTypeDefinitionRegistrations,
-                                   _services,
+                                   options.CloneContainerServices ? _services.Clone() : _services,
                                    parentScope);
         }
 
@@ -249,7 +254,7 @@ namespace Light.DependencyInjection
                 throw new ResolveTypeException($"The specified type \"{type}\" describes a delegate type which has not been registered and which cannot be resolved automatically.", type);
         }
 
-        public T[] ResolveAll<T>()  // TODO: with ParameterOverrides?
+        public T[] ResolveAll<T>() // TODO: with ParameterOverrides?
         {
             var enumerator = _typeMappings.GetRegistrationEnumeratorForType(typeof(T));
             var instances = new T[enumerator.GetNumberOfRegistrations()];
