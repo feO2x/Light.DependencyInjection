@@ -76,7 +76,7 @@ namespace Light.DependencyInjection.Registrations
         {
             container.MustNotBeNull(nameof(container));
 
-            var options = new RegistrationOptionsForType(targetType, container.ContainerServices.ConstructorSelector, container.ContainerServices.IgnoredAbstractionTypes);
+            var options = new RegistrationOptionsForType(targetType, container.Services.ConstructorSelector, container.Services.IgnoredAbstractionTypes);
             if (abstractionType != null)
                 options.MapToAbstractions(abstractionType);
             configureOptions?.Invoke(options);
@@ -170,7 +170,7 @@ namespace Light.DependencyInjection.Registrations
             container.MustNotBeNull(nameof(container));
             lifetime.MustNotBeNull(nameof(lifetime));
 
-            var options = new RegistrationOptionsForType<T>(container.ContainerServices.ConstructorSelector, container.ContainerServices.IgnoredAbstractionTypes);
+            var options = new RegistrationOptionsForType<T>(container.Services.ConstructorSelector, container.Services.IgnoredAbstractionTypes);
             if (abstractionType != null)
                 options.MapToAbstractions(abstractionType);
             configureOptions?.Invoke(options);

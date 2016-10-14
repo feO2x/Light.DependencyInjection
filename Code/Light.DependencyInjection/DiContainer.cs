@@ -19,7 +19,7 @@ namespace Light.DependencyInjection
         private readonly RegistrationDictionary<GenericTypeDefinitionRegistration> _genericTypeDefinitonMappings;
         private readonly RegistrationDictionary<Registration> _typeMappings;
         public readonly ContainerScope Scope;
-        private ContainerServices _containerServices;
+        private ContainerServices _services;
 
         public DiContainer() : this(new ContainerServices()) { }
 
@@ -30,29 +30,29 @@ namespace Light.DependencyInjection
 
         private DiContainer(RegistrationDictionary<Registration> typeMappings,
                             RegistrationDictionary<GenericTypeDefinitionRegistration> genericTypeDefinitonMappings,
-                            ContainerServices containerServices,
+                            ContainerServices services,
                             ContainerScope parentScope = null)
         {
             typeMappings.MustNotBeNull(nameof(typeMappings));
             genericTypeDefinitonMappings.MustNotBeNull(nameof(genericTypeDefinitonMappings));
-            containerServices.MustNotBeNull(nameof(containerServices));
+            services.MustNotBeNull(nameof(services));
 
             _typeMappings = typeMappings;
             _genericTypeDefinitonMappings = genericTypeDefinitonMappings;
-            _containerServices = containerServices;
-            Scope = containerServices.ContainerScopeFactory.CreateScope(parentScope);
+            _services = services;
+            Scope = services.ContainerScopeFactory.CreateScope(parentScope);
         }
 
 
         public IReadOnlyList<Registration> Registrations => _typeMappings.Registrations;
 
-        public ContainerServices ContainerServices
+        public ContainerServices Services
         {
-            get { return _containerServices; }
+            get { return _services; }
             set
             {
                 value.MustNotBeNull(nameof(value));
-                _containerServices = value;
+                _services = value;
             }
         }
 
@@ -70,7 +70,7 @@ namespace Light.DependencyInjection
 
             return new DiContainer(registrations,
                                    genericTypeDefinitionRegistrations,
-                                   _containerServices,
+                                   _services,
                                    parentScope);
         }
 
@@ -167,7 +167,7 @@ namespace Light.DependencyInjection
             CheckIfTypeIsInstantiable(typeKey.Type);
 
             var registration = _typeMappings.GetOrAdd(typeKey,
-                                                      () => ContainerServices.CreateDefaultRegistration(typeKey));
+                                                      () => Services.CreateDefaultRegistration(typeKey));
             return registration;
         }
 
@@ -216,7 +216,7 @@ namespace Light.DependencyInjection
         public DiContainer InstantiateAllWithLifetime<TLifetime>() where TLifetime : ILifetime
         {
             var lifetimeType = typeof(TLifetime);
-            var lazyResolveScope = ContainerServices.ResolveScopeFactory.CreateLazyScope();
+            var lazyResolveScope = Services.ResolveScopeFactory.CreateLazyScope();
             foreach (var registration in _typeMappings.Registrations.Where(registration => registration.Lifetime.GetType() == lifetimeType))
             {
                 registration.Lifetime.GetInstance(new ResolveContext(this, registration, lazyResolveScope));
@@ -254,7 +254,7 @@ namespace Light.DependencyInjection
             var enumerator = _typeMappings.GetRegistrationEnumeratorForType(typeof(T));
             var instances = new T[enumerator.GetNumberOfRegistrations()];
             var currentIndex = 0;
-            var resolveScope = ContainerServices.ResolveScopeFactory.CreateLazyScope();
+            var resolveScope = Services.ResolveScopeFactory.CreateLazyScope();
             while (enumerator.MoveNext())
             {
                 instances[currentIndex++] = (T) enumerator.Current.Lifetime.GetInstance(new ResolveContext(this, enumerator.Current, resolveScope));
@@ -270,7 +270,7 @@ namespace Light.DependencyInjection
             var enumerator = _typeMappings.GetRegistrationEnumeratorForType(type);
             var instances = new object[enumerator.GetNumberOfRegistrations()];
             var currentIndex = 0;
-            var resolveScope = ContainerServices.ResolveScopeFactory.CreateLazyScope();
+            var resolveScope = Services.ResolveScopeFactory.CreateLazyScope();
             while (enumerator.MoveNext())
             {
                 instances[currentIndex++] = enumerator.Current.Lifetime.GetInstance(new ResolveContext(this, enumerator.Current, resolveScope));

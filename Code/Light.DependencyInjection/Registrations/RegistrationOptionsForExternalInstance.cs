@@ -24,7 +24,7 @@ namespace Light.DependencyInjection.Registrations
             container.MustNotBeNull(nameof(container));
             externalInstance.MustNotBeNull(nameof(externalInstance));
 
-            var options = new RegistrationOptionsForExternalInstance(externalInstance.GetType(), container.ContainerServices.IgnoredAbstractionTypes);
+            var options = new RegistrationOptionsForExternalInstance(externalInstance.GetType(), container.Services.IgnoredAbstractionTypes);
             configureOptions?.Invoke(options);
 
             options.CreateRegistration(container, externalInstance);

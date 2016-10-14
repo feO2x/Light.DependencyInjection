@@ -98,7 +98,7 @@ namespace Light.DependencyInjection.TypeConstruction
                 for (var i = 0; i < parameterOverrides.AdditionalInjections.Count; ++i)
                 {
                     var simpleInjectionDescription = parameterOverrides.AdditionalInjections[i];
-                    context.Container.ContainerServices.InjectorForUnknownInstanceMembers.InjectValue(simpleInjectionDescription.MemberInfo, instance, simpleInjectionDescription.Value);
+                    context.Container.Services.InjectorForUnknownInstanceMembers.InjectValue(simpleInjectionDescription.MemberInfo, instance, simpleInjectionDescription.Value);
                 }
             }
         }
