@@ -105,7 +105,7 @@ namespace Light.DependencyInjection.Tests
         public static readonly IEnumerable<object[]> ResolveWithStaticFactoryMethodData =
             new[]
             {
-                new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.InstantiateVia(new Func<string, int, F>(F.Create))) },
+                new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.InstantiateWith(new Func<string, int, F>(F.Create))) },
                 new object[] { new Action<IRegistrationOptionsForType<F>>(options => options.UseStaticFactoryMethod(typeof(F).GetRuntimeMethod("Create", new[] { typeof(string), typeof(int) }))) }
             };
 
@@ -163,7 +163,7 @@ namespace Light.DependencyInjection.Tests
         {
             Register<E>(options => options.MapToAbstractions(typeof(IF)));
             Register<F>(options => options.MapToAbstractions(typeof(IF))
-                                          .InstantiateVia<string, int>(F.Create));
+                                          .InstantiateWith<string, int>(F.Create));
             Container.RegisterInstance("Foo")
                      .RegisterInstance(42);
 

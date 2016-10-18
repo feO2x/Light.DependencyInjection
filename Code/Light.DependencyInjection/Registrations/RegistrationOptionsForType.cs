@@ -13,57 +13,57 @@ namespace Light.DependencyInjection.Registrations
         public RegistrationOptionsForType(Type targetType, IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes) :
             base(targetType, constructorSelector, ignoredAbstractionTypes) { }
 
-        public IRegistrationOptionsForType InstantiateVia(Func<object> createInstance)
+        public IRegistrationOptionsForType InstantiateWith(Func<object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType InstantiateVia<TParameter>(Func<TParameter, object> createInstance)
+        public IRegistrationOptionsForType InstantiateWith<TParameter>(Func<TParameter, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType InstantiateVia<T1, T2>(Func<T1, T2, object> createInstance)
+        public IRegistrationOptionsForType InstantiateWith<T1, T2>(Func<T1, T2, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType InstantiateVia<T1, T2, T3>(Func<T1, T2, T3, object> createInstance)
+        public IRegistrationOptionsForType InstantiateWith<T1, T2, T3>(Func<T1, T2, T3, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType InstantiateVia<T1, T2, T3, T4>(Func<T1, T2, T3, T4, object> createInstance)
+        public IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4>(Func<T1, T2, T3, T4, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType InstantiateVia<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, object> createInstance)
+        public IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType InstantiateVia<T1, T2, T3, T4, T5, T6>(Func<T1, T2, T3, T4, T5, T6, object> createInstance)
+        public IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4, T5, T6>(Func<T1, T2, T3, T4, T5, T6, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType InstantiateVia<T1, T2, T3, T4, T5, T6, T7>(Func<T1, T2, T3, T4, T5, T6, T7, object> createInstance)
+        public IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4, T5, T6, T7>(Func<T1, T2, T3, T4, T5, T6, T7, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType InstantiateVia<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1, T2, T3, T4, T5, T6, T7, T8, object> createInstance)
+        public IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1, T2, T3, T4, T5, T6, T7, T8, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType InstantiateVia<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, object> createInstance)
+        public IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType InstantiateVia<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, object> createInstance)
+        public IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
@@ -107,57 +107,57 @@ namespace Light.DependencyInjection.Registrations
             return this;
         }
 
-        public IRegistrationOptionsForType<T> InstantiateVia(Func<T> createInstance)
+        public IRegistrationOptionsForType<T> InstantiateWith(Func<T> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType<T> InstantiateVia<TParameter>(Func<TParameter, T> createInstance)
+        public IRegistrationOptionsForType<T> InstantiateWith<TParameter>(Func<TParameter, T> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType<T> InstantiateVia<T1, T2>(Func<T1, T2, T> createInstance)
+        public IRegistrationOptionsForType<T> InstantiateWith<T1, T2>(Func<T1, T2, T> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType<T> InstantiateVia<T1, T2, T3>(Func<T1, T2, T3, T> createInstance)
+        public IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3>(Func<T1, T2, T3, T> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType<T> InstantiateVia<T1, T2, T3, T4>(Func<T1, T2, T3, T4, T> createInstance)
+        public IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3, T4>(Func<T1, T2, T3, T4, T> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType<T> InstantiateVia<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, T> createInstance)
+        public IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, T> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType<T> InstantiateVia<T1, T2, T3, T4, T5, T6>(Func<T1, T2, T3, T4, T5, T6, T> createInstance)
+        public IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3, T4, T5, T6>(Func<T1, T2, T3, T4, T5, T6, T> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType<T> InstantiateVia<T1, T2, T3, T4, T5, T6, T7>(Func<T1, T2, T3, T4, T5, T6, T7, T> createInstance)
+        public IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3, T4, T5, T6, T7>(Func<T1, T2, T3, T4, T5, T6, T7, T> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType<T> InstantiateVia<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T> createInstance)
+        public IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType<T> InstantiateVia<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T> createInstance)
+        public IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public IRegistrationOptionsForType<T> InstantiateVia<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T> createInstance)
+        public IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }

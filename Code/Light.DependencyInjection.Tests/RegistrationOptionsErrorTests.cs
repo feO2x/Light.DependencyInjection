@@ -155,7 +155,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "ResolveInstantiationParameter must throw a TypeRegistrationException when there is no parameter with the specified name.")]
         public void ConfigureInstantiationParameterWithNameNotPresent()
         {
-            Action act = () => CreateRegistrationOptions<F>().InstantiateVia<string, int>(F.Create)
+            Action act = () => CreateRegistrationOptions<F>().InstantiateWith<string, int>(F.Create)
                                                              .ResolveInstantiationParameter("foo");
 
             act.ShouldThrow<TypeRegistrationException>()

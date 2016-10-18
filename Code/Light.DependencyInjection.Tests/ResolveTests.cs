@@ -97,7 +97,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI container must be able to resolve types that are instantiated via lambdas.")]
         public void InstantiateViaLambda()
         {
-            Container.RegisterTransient<D>(options => options.InstantiateVia((IList<int> collection) => new D(collection, 90)))
+            Container.RegisterTransient<D>(options => options.InstantiateWith((IList<int> collection) => new D(collection, 90)))
                      .RegisterTransient(typeof(List<>), options => options.UseDefaultConstructor()
                                                                           .MapToAbstractions(typeof(IList<>)));
 
@@ -110,7 +110,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI container must be able to resolve types that are instantiated via instance methods.")]
         public void InstantiateViaInstanceMethod()
         {
-            Container.RegisterTransient<B>(options => options.InstantiateVia<A>(CreateB));
+            Container.RegisterTransient<B>(options => options.InstantiateWith<A>(CreateB));
 
             var instanceOfB = Container.Resolve<B>();
 
@@ -129,7 +129,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "Clients must be able to register delegate instantiation methods when using the non-generic registration options.")]
         public void UseDelegateWithNonGenericOptions()
         {
-            Container.RegisterTransient(typeof(B), options => options.InstantiateVia((A instanceOfA) => new B(instanceOfA, 67)));
+            Container.RegisterTransient(typeof(B), options => options.InstantiateWith((A instanceOfA) => new B(instanceOfA, 67)));
 
             var instanceOfB = Container.Resolve<B>();
 
