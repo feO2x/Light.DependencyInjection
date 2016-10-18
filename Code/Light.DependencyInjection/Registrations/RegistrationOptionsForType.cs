@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Light.DependencyInjection.FrameworkExtensions;
 using Light.DependencyInjection.Lifetimes;
@@ -101,9 +102,18 @@ namespace Light.DependencyInjection.Registrations
 
         public IRegistrationOptionsForType<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression, string resolvedRegistrationName = null)
         {
-            selectFieldExpression.MustNotBeNull();
+            selectFieldExpression.MustNotBeNull(nameof(selectFieldExpression));
 
             AddInstanceInjection(new FieldInjection(selectFieldExpression.ExtractSettableInstanceFieldInfo(TargetType), resolvedRegistrationName));
+            return this;
+        }
+
+        public IRegistrationOptionsForType<T> ResolveAllForProperty<TProperty, TItem>(Expression<Func<T, TProperty>> selectPropertyExpression) where TProperty : IEnumerable<TItem>
+        {
+            selectPropertyExpression.MustNotBeNull(nameof(selectPropertyExpression));
+
+            var propertyInfo = selectPropertyExpression.ExtractSettableInstancePropertyInfo(TargetType);
+            InstanceInjections.First(instanceInjection => instanceInjection.MemberName == propertyInfo.Name).DependencyResolver = new ResolveAllDependencyResolver<TItem>();
             return this;
         }
 

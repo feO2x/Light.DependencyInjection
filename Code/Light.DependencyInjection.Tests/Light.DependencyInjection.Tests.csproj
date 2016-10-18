@@ -79,6 +79,7 @@
     <Compile Include="PerResolveLifetimeTests.cs" />
     <Compile Include="RegistrationOptionsErrorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResolveAllForTests.cs" />
     <Compile Include="ResolveAllTests.cs" />
     <Compile Include="ResolveTests.cs" />
     <Compile Include="TestHelpers.cs" />
