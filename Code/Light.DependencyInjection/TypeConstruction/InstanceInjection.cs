@@ -9,11 +9,11 @@ namespace Light.DependencyInjection.TypeConstruction
     public abstract class InstanceInjection : ISetTargetRegistrationName
     {
         public readonly Type DeclaringType;
-        public readonly IDependencyResolver DependencyResolver = DefaultDependencyResolver.Instance;
         public readonly string DisplayName;
         public readonly string MemberName;
         public readonly Type MemberType;
         public readonly Action<object, object> StandardizedSetValueFunction;
+        private IDependencyResolver _dependencyResolver = DefaultDependencyResolver.Instance;
         public string TargetRegistrationName;
 
         protected InstanceInjection(string memberName,
@@ -35,6 +35,16 @@ namespace Light.DependencyInjection.TypeConstruction
             DisplayName = $"{GetType().Name} {DeclaringType.Name}.{MemberName}";
         }
 
+        public IDependencyResolver DependencyResolver
+        {
+            get { return _dependencyResolver; }
+            set
+            {
+                value.MustNotBeNull(nameof(value));
+                _dependencyResolver = value;
+            }
+        }
+
         string ISetTargetRegistrationName.TargetRegistrationName
         {
             set { TargetRegistrationName = value; }
@@ -48,7 +58,7 @@ namespace Light.DependencyInjection.TypeConstruction
                 if (context.ParameterOverrides.Value.InstanceInjectionOverrides.TryGetValue(this, out value))
                     goto SetValue;
             }
-            value = DependencyResolver.Resolve(MemberType, TargetRegistrationName, context);
+            value = _dependencyResolver.Resolve(MemberType, TargetRegistrationName, context);
 
             SetValue:
             StandardizedSetValueFunction(instance, value);

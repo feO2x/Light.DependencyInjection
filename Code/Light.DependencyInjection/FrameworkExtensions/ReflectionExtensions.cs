@@ -239,7 +239,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return fieldInfo != null && fieldInfo.IsPublic && fieldInfo.IsStatic == false && fieldInfo.IsInitOnly == false;
         }
 
-        public static ParameterDependency[] CreateDefaultInstantiationDependencies(this MethodBase methodInfo)
+        public static InstantiationDependency[] CreateDefaultInstantiationDependencies(this MethodBase methodInfo)
         {
             methodInfo.MustNotBeNull(nameof(methodInfo));
 
@@ -247,10 +247,10 @@ namespace Light.DependencyInjection.FrameworkExtensions
             if (parameterInfos.Length == 0)
                 return null;
 
-            var instantiationDependencies = new ParameterDependency[parameterInfos.Length];
+            var instantiationDependencies = new InstantiationDependency[parameterInfos.Length];
             for (var i = 0; i < parameterInfos.Length; ++i)
             {
-                instantiationDependencies[i] = new ParameterDependency(parameterInfos[i]);
+                instantiationDependencies[i] = new InstantiationDependency(parameterInfos[i]);
             }
 
             return instantiationDependencies;

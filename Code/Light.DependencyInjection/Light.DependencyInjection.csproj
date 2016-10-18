@@ -94,7 +94,7 @@
     <Compile Include="TypeConstruction\InstanceInjection.cs" />
     <Compile Include="TypeConstruction\InstantiationInfo.cs" />
     <Compile Include="TypeConstruction\ISetTargetRegistrationName.cs" />
-    <Compile Include="TypeConstruction\ParameterDependency.cs" />
+    <Compile Include="TypeConstruction\InstantiationDependency.cs" />
     <Compile Include="TypeConstruction\ParameterOverrides.cs" />
     <Compile Include="TypeConstruction\PropertyInjection.cs" />
     <Compile Include="Services\ResolveContext.cs" />

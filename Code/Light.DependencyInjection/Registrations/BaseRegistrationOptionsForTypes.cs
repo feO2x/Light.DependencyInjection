@@ -147,7 +147,7 @@ namespace Light.DependencyInjection.Registrations
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
-        protected void CheckTargetParametersWithoutName(List<ParameterDependency> targetParameters, Type targetParameterType)
+        protected void CheckTargetParametersWithoutName(List<InstantiationDependency> targetParameters, Type targetParameterType)
         {
             if (targetParameters == null || targetParameters.Count == 0)
                 throw new TypeRegistrationException($"The specified instantiation method for type \"{TargetType}\" does not have a parameter of type \"{targetParameterType}\".", TargetType);
@@ -159,7 +159,7 @@ namespace Light.DependencyInjection.Registrations
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
-        protected void CheckTargetParametersWithName(List<ParameterDependency> targetParameters, string parameterName)
+        protected void CheckTargetParametersWithName(List<InstantiationDependency> targetParameters, string parameterName)
         {
             if (targetParameters == null || targetParameters.Count == 1)
                 return;

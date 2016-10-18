@@ -10,12 +10,12 @@ namespace Light.DependencyInjection.TypeConstruction
 {
     public abstract class InstantiationInfo
     {
-        private readonly ParameterDependency[] _instantiationDependencies;
+        private readonly InstantiationDependency[] _instantiationDependencies;
         public readonly Func<object[], object> StandardizedInstantiationFunction;
         public readonly Type TargetType;
         public readonly TypeInfo TargetTypeInfo;
 
-        protected InstantiationInfo(Type targetType, Func<object[], object> standardizedInstantiationFunction, ParameterDependency[] instantiationDependencies)
+        protected InstantiationInfo(Type targetType, Func<object[], object> standardizedInstantiationFunction, InstantiationDependency[] instantiationDependencies)
         {
             TargetTypeInfo = targetType.GetTypeInfo();
             CheckStandardizedInstantiationFunction(standardizedInstantiationFunction);
@@ -34,7 +34,7 @@ namespace Light.DependencyInjection.TypeConstruction
             standardizedInstantiationFunction.MustNotBeNull(nameof(StaticMethodInstantiationInfo));
         }
 
-        public IReadOnlyList<ParameterDependency> InstantiationDependencies => _instantiationDependencies;
+        public IReadOnlyList<InstantiationDependency> InstantiationDependencies => _instantiationDependencies;
 
         public virtual object Instantiate(CreationContext context)
         {
