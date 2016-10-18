@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Light.DependencyInjection.Lifetimes;
 using Light.DependencyInjection.Registrations;
 
@@ -89,6 +90,14 @@ namespace Light.DependencyInjection
             where TConcrete : TAbstract
         {
             return RegistrationOptionsForType<TConcrete>.PerformRegistration(container, configureOptions, PerResolveLifetime.Instance, typeof(TAbstract));
+        }
+
+        public static void RegisterWith(this IEnumerable<Type> types, DiContainer container, ILifetime lifetime, Action<IRegistrationOptionsForType> configureOptions = null)
+        {
+            foreach (var type in types)
+            {
+                RegistrationOptionsForType.PerformRegistration(container, type, configureOptions, lifetime);
+            }
         }
     }
 }

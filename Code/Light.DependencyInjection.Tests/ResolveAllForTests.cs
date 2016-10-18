@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using Light.DependencyInjection.Lifetimes;
 using Xunit;
 
 namespace Light.DependencyInjection.Tests
@@ -12,12 +13,8 @@ namespace Light.DependencyInjection.Tests
         public void ResolveAllForProperty()
         {
             IEnumerable<Type> types = new[] { typeof(A), typeof(B), typeof(C) };
-
-            foreach (var type in types)
-            {
-                Container.RegisterTransient(type, options => options.UseTypeNameAsRegistrationName()
-                                                                    .MapToAllImplementedInterfaces());
-            }
+            types.RegisterWith(Container, TransientLifetime.Instance, options => options.UseTypeNameAsRegistrationName()
+                                                                                        .MapToAllImplementedInterfaces());
 
             Container.RegisterTransient<Client>(options => options.AddPropertyInjection(o => o.Foos)
                                                                   .ResolveAllForProperty<IEnumerable<IFoo>, IFoo>(o => o.Foos));
