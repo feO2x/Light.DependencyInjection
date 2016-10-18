@@ -10,15 +10,13 @@ namespace Light.DependencyInjection.TypeConstruction
     public sealed class PropertyInjection : InstanceInjection
     {
         public readonly PropertyInfo PropertyInfo;
-        private readonly Action<object, object> _setValueAction;
 
-        public PropertyInjection(PropertyInfo propertyInfo, string childValueRegistrationName = null) 
-            : base(propertyInfo.Name, propertyInfo.PropertyType, propertyInfo.DeclaringType, childValueRegistrationName)
+        public PropertyInjection(PropertyInfo propertyInfo, string targetRegistrationName = null)
+            : base(propertyInfo.Name, propertyInfo.PropertyType, propertyInfo.DeclaringType, CreateSetValueAction(propertyInfo), targetRegistrationName)
         {
             CheckPropertyInfo(propertyInfo);
 
             PropertyInfo = propertyInfo;
-            _setValueAction = CreateSetValueAction(propertyInfo);
         }
 
         private static Action<object, object> CreateSetValueAction(PropertyInfo propertyInfo)
@@ -42,14 +40,9 @@ namespace Light.DependencyInjection.TypeConstruction
             throw new TypeRegistrationException($"The property info \"{propertyInfo}\" does not describe a public instance property with a setter.", propertyInfo.DeclaringType);
         }
 
-        public override void InjectValue(object instance, object value)
-        {
-            _setValueAction(instance, value);
-        }
-
         protected override InstanceInjection CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
         {
-            return new PropertyInjection(closedConstructedGenericTypeInfo.GetDeclaredProperty(PropertyInfo.Name), ChildValueRegistrationName);
+            return new PropertyInjection(closedConstructedGenericTypeInfo.GetDeclaredProperty(PropertyInfo.Name), TargetRegistrationName);
         }
     }
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Light.DependencyInjection.FrameworkExtensions;
@@ -109,18 +108,6 @@ namespace Light.DependencyInjection.Registrations
             return new ChildRegistrationNameOptions<TConcreteOptions>(This, targetParameters[0]);
         }
 
-        [Conditional(Check.CompileAssertionsSymbol)]
-        protected void CheckTargetParametersWithoutName(List<ParameterDependency> targetParameters, Type targetParameterType)
-        {
-            if (targetParameters == null || targetParameters.Count == 0)
-                throw new TypeRegistrationException($"The specified instantiation method for type \"{TargetType}\" does not have a parameter of type \"{targetParameterType}\".", TargetType);
-
-            if (targetParameters.Count == 1)
-                return;
-
-            throw new TypeRegistrationException($"The specified instantiation method for type \"{TargetType}\" has several parameters with type \"{targetParameterType}\". Please use the overload of \"{nameof(ResolveInstantiationParameter)}\" where an additional parameter name can be specified.", TargetType);
-        }
-
         public TConcreteOptions UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo)
         {
             staticFactoryMethodInfo.MustNotBeNull(nameof(staticFactoryMethodInfo));
@@ -157,6 +144,18 @@ namespace Light.DependencyInjection.Registrations
 
             // ReSharper disable once PossibleNullReferenceException
             return new ChildRegistrationNameOptions<TConcreteOptions>(This, targetParameters[0]);
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        protected void CheckTargetParametersWithoutName(List<ParameterDependency> targetParameters, Type targetParameterType)
+        {
+            if (targetParameters == null || targetParameters.Count == 0)
+                throw new TypeRegistrationException($"The specified instantiation method for type \"{TargetType}\" does not have a parameter of type \"{targetParameterType}\".", TargetType);
+
+            if (targetParameters.Count == 1)
+                return;
+
+            throw new TypeRegistrationException($"The specified instantiation method for type \"{TargetType}\" has several parameters with type \"{targetParameterType}\". Please use the overload of \"{nameof(ResolveInstantiationParameter)}\" where an additional parameter name can be specified.", TargetType);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
@@ -256,7 +255,7 @@ namespace Light.DependencyInjection.Registrations
         {
             AssignInstantiationMethodIfNeccessary();
 
-            return new TypeCreationInfo(new TypeKey(TargetType, RegistrationName), InstantiationInfo, InstanceInjections);
+            return new TypeCreationInfo(new TypeKey(TargetType, RegistrationName), InstantiationInfo, InstanceInjections?.ToArray());
         }
 
         public void CreateAndAddRegistration(DiContainer targetContainer, ILifetime lifetime)

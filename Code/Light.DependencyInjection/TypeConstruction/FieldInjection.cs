@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Reflection;
 using Light.DependencyInjection.FrameworkExtensions;
 using Light.GuardClauses;
@@ -10,12 +11,24 @@ namespace Light.DependencyInjection.TypeConstruction
     {
         public readonly FieldInfo FieldInfo;
 
-        public FieldInjection(FieldInfo fieldInfo, string childValueRegistrationName = null) 
-            : base(fieldInfo.Name, fieldInfo.FieldType, fieldInfo.DeclaringType, childValueRegistrationName)
+        public FieldInjection(FieldInfo fieldInfo, string targetRegistrationName = null)
+            : base(fieldInfo.Name, fieldInfo.FieldType, fieldInfo.DeclaringType, CreateSetValueAction(fieldInfo), targetRegistrationName)
         {
             CheckFieldInfo(fieldInfo);
 
             FieldInfo = fieldInfo;
+        }
+
+        private static Action<object, object> CreateSetValueAction(FieldInfo fieldInfo)
+        {
+            var instanceParameter = Expression.Parameter(typeof(object), "instance");
+            var valueParameter = Expression.Parameter(typeof(object), "value");
+
+            var instanceDowncast = Expression.Convert(instanceParameter, fieldInfo.DeclaringType);
+            var valueDowncast = Expression.Convert(valueParameter, fieldInfo.FieldType);
+
+            var assignField = Expression.Assign(Expression.Field(instanceDowncast, fieldInfo), valueDowncast);
+            return Expression.Lambda<Action<object, object>>(assignField, instanceParameter, valueParameter).Compile();
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
@@ -27,14 +40,9 @@ namespace Light.DependencyInjection.TypeConstruction
             throw new TypeRegistrationException($"The field info \"{fieldInfo}\" does not describe a public instance field.", fieldInfo.DeclaringType);
         }
 
-        public override void InjectValue(object instance, object value)
-        {
-            FieldInfo.SetValue(instance, value);
-        }
-
         protected override InstanceInjection CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
         {
-            return new FieldInjection(closedConstructedGenericTypeInfo.GetDeclaredField(FieldInfo.Name), ChildValueRegistrationName);
+            return new FieldInjection(closedConstructedGenericTypeInfo.GetDeclaredField(FieldInfo.Name), TargetRegistrationName);
         }
     }
 }

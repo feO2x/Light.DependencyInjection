@@ -10,12 +10,11 @@ namespace Light.DependencyInjection.TypeConstruction
 {
     public sealed class TypeCreationInfo
     {
-        // TODO: can we replace this list with an array?
-        private readonly List<InstanceInjection> _instanceInjections;
+        private readonly InstanceInjection[] _instanceInjections;
         public readonly InstantiationInfo InstantiationInfo;
         public readonly TypeKey TypeKey;
 
-        public TypeCreationInfo(TypeKey typeKey, InstantiationInfo instantiationInfo, List<InstanceInjection> instanceInjections = null)
+        public TypeCreationInfo(TypeKey typeKey, InstantiationInfo instantiationInfo, InstanceInjection[] instanceInjections = null)
         {
             instantiationInfo.MustNotBeNull(nameof(instantiationInfo));
             CheckInstantiationInfoType(typeKey, instantiationInfo);
@@ -41,9 +40,9 @@ namespace Light.DependencyInjection.TypeConstruction
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
-        private static void CheckInstanceInjectionTypes(TypeKey typeKey, List<InstanceInjection> instanceInjections)
+        private static void CheckInstanceInjectionTypes(TypeKey typeKey, InstanceInjection[] instanceInjections)
         {
-            if (instanceInjections == null || instanceInjections.Count == 0)
+            if (instanceInjections == null || instanceInjections.Length == 0)
                 return;
 
             foreach (var injection in instanceInjections)
@@ -66,52 +65,35 @@ namespace Light.DependencyInjection.TypeConstruction
 
         private void PerformInstanceInjections(object instance, CreationContext context)
         {
-            // Check if parameter overrides are present
-            if (context.ParameterOverrides == null)
+            // Perform injections for members that were configured
+            if (_instanceInjections != null && _instanceInjections.Length > 0)
             {
-                // If not, then resolve all injection values via the context (i.e. the DI container)
-                if (_instanceInjections == null || _instanceInjections.Count == 0)
-                    return;
-
                 foreach (var instanceInjection in _instanceInjections)
-                {
-                    var injectionValue = context.ResolveChildValue(new TypeKey(instanceInjection.MemberType, instanceInjection.ChildValueRegistrationName));
-                    instanceInjection.InjectValue(instance, injectionValue);
-                }
+                    instanceInjection.InjectValue(instance, context);
+            }
+
+            // Check if there are injections on members that are not configured with the Di Container
+            if (context.ParameterOverrides == null || context.ParameterOverrides.Value.AdditionalInjections == null)
                 return;
-            }
 
-            // Else try to inject the values via the given parameter overrides
-            var parameterOverrides = context.ParameterOverrides.Value;
-            if (_instanceInjections != null && _instanceInjections.Count > 0)
+
+            var additionalInjections = context.ParameterOverrides.Value.AdditionalInjections;
+            for (var i = 0; i < additionalInjections.Count; i++)
             {
-                foreach (var instanceInjection in _instanceInjections)
-                {
-                    object injectionValue;
-                    if (parameterOverrides.InstanceInjectionOverrides == null || parameterOverrides.InstanceInjectionOverrides.TryGetValue(instanceInjection, out injectionValue) == false)
-                        injectionValue = context.ResolveChildValue(new TypeKey(instanceInjection.MemberType, instanceInjection.ChildValueRegistrationName));
-                    instanceInjection.InjectValue(instance, injectionValue);
-                }
-            }
-            if (parameterOverrides.AdditionalInjections != null)
-            {
-                for (var i = 0; i < parameterOverrides.AdditionalInjections.Count; ++i)
-                {
-                    var simpleInjectionDescription = parameterOverrides.AdditionalInjections[i];
-                    context.Container.Services.InjectorForUnknownInstanceMembers.InjectValue(simpleInjectionDescription.MemberInfo, instance, simpleInjectionDescription.Value);
-                }
+                var injectionDescription = additionalInjections[i];
+                context.Container.Services.InjectorForUnknownInstanceMembers.InjectValue(injectionDescription.MemberInfo, instance, injectionDescription.Value);
             }
         }
 
         public TypeCreationInfo CloneForClosedConstructedGenericType(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
         {
-            if (_instanceInjections == null || _instanceInjections.Count <= 0)
+            if (_instanceInjections == null || _instanceInjections.Length == 0)
                 return new TypeCreationInfo(new TypeKey(closedConstructedGenericType, TypeKey.RegistrationName), InstantiationInfo.CloneForClosedConstructedGenericType(closedConstructedGenericType, closedConstructedGenericTypeInfo));
 
-            var instanceInjections = new List<InstanceInjection>();
-            foreach (var instanceInjection in _instanceInjections)
+            var instanceInjections = new InstanceInjection[_instanceInjections.Length];
+            for (var i = 0; i < _instanceInjections.Length; i++)
             {
-                instanceInjections.Add(instanceInjection.CloneForClosedConstructedGenericType(closedConstructedGenericType, closedConstructedGenericTypeInfo));
+                instanceInjections[i] = _instanceInjections[i].CloneForClosedConstructedGenericType(closedConstructedGenericType, closedConstructedGenericTypeInfo);
             }
             return new TypeCreationInfo(new TypeKey(closedConstructedGenericType, TypeKey.RegistrationName), InstantiationInfo.CloneForClosedConstructedGenericType(closedConstructedGenericType, closedConstructedGenericTypeInfo), instanceInjections);
         }

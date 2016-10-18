@@ -6,7 +6,7 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
 {
-    public sealed class ParameterDependency : ISetChildValueRegistrationName
+    public sealed class ParameterDependency : ISetTargetRegistrationName
     {
         public readonly Type ParameterType;
         public readonly ParameterInfo TargetParameter;
@@ -21,7 +21,7 @@ namespace Light.DependencyInjection.TypeConstruction
             ParameterType = targetParameter.ParameterType;
         }
 
-        public string ChildValueRegistrationName
+        public string TargetRegistrationName
         {
             get { return _childValueRegistrationName; }
             set { _childValueRegistrationName = value; }

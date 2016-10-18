@@ -1,37 +1,63 @@
 using System;
 using System.Reflection;
 using Light.DependencyInjection.FrameworkExtensions;
+using Light.DependencyInjection.Services;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
 {
-    public abstract class InstanceInjection : ISetChildValueRegistrationName
+    public abstract class InstanceInjection : ISetTargetRegistrationName
     {
+        public readonly Type DeclaringType;
+        public readonly IDependencyResolver DependencyResolver = DefaultDependencyResolver.Instance;
+        public readonly string DisplayName;
         public readonly string MemberName;
         public readonly Type MemberType;
-        public readonly Type DeclaringType;
-        public string ChildValueRegistrationName;
-        public readonly string DisplayName;
+        public readonly Action<object, object> StandardizedSetValueFunction;
+        public string TargetRegistrationName;
 
-        protected InstanceInjection(string memberName, Type memberType, Type declaringType, string childValueRegistrationName)
+        protected InstanceInjection(string memberName,
+                                    Type memberType,
+                                    Type declaringType,
+                                    Action<object, object> standardizedSetValueFunction,
+                                    string targetRegistrationName = null)
         {
             memberName.MustNotBeNullOrWhiteSpace(nameof(memberName));
             memberType.MustNotBeNull(nameof(memberType));
             declaringType.MustNotBeNull(nameof(declaringType));
+            standardizedSetValueFunction.MustNotBeNull(nameof(standardizedSetValueFunction));
 
             MemberName = memberName;
             MemberType = memberType;
             DeclaringType = declaringType;
-            ChildValueRegistrationName = childValueRegistrationName;
+            StandardizedSetValueFunction = standardizedSetValueFunction;
+            TargetRegistrationName = targetRegistrationName;
             DisplayName = $"{GetType().Name} {DeclaringType.Name}.{MemberName}";
         }
 
-        string ISetChildValueRegistrationName.ChildValueRegistrationName
+        string ISetTargetRegistrationName.TargetRegistrationName
         {
-            set { ChildValueRegistrationName = value; }
+            set { TargetRegistrationName = value; }
         }
 
-        public abstract void InjectValue(object instance, object value);
+        public void InjectValue(object instance, CreationContext context)
+        {
+            object value;
+            if (context.ParameterOverrides.HasValue)
+            {
+                if (context.ParameterOverrides.Value.InstanceInjectionOverrides.TryGetValue(this, out value))
+                    goto SetValue;
+            }
+            value = DependencyResolver.Resolve(MemberType, TargetRegistrationName, context);
+
+            SetValue:
+            StandardizedSetValueFunction(instance, value);
+        }
+
+        public override string ToString()
+        {
+            return DisplayName;
+        }
 
         public InstanceInjection CloneForClosedConstructedGenericType(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
         {
@@ -41,10 +67,5 @@ namespace Light.DependencyInjection.TypeConstruction
         }
 
         protected abstract InstanceInjection CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo);
-
-        public override string ToString()
-        {
-            return DisplayName;
-        }
     }
 }
