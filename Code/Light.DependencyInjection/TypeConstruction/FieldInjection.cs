@@ -21,6 +21,9 @@ namespace Light.DependencyInjection.TypeConstruction
 
         private static Action<object, object> CreateSetValueAction(FieldInfo fieldInfo)
         {
+            if (fieldInfo.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
+                return null;
+
             var instanceParameter = Expression.Parameter(typeof(object), "instance");
             var valueParameter = Expression.Parameter(typeof(object), "value");
 
