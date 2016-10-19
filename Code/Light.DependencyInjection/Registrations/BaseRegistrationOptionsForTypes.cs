@@ -109,12 +109,26 @@ namespace Light.DependencyInjection.Registrations
             AssignInstantiationMethodIfNeccessary();
 
             var parameterType = typeof(TParameter);
-            var targetParameters = InstantiationInfo?.InstantiationDependencies?.Where(p => p.ParameterType == parameterType)
+            var targetParameters = InstantiationInfo.InstantiationDependencies?.Where(p => p.ParameterType == parameterType)
                                                     .ToList();
             CheckTargetParametersWithoutName(targetParameters, parameterType);
 
             // ReSharper disable once PossibleNullReferenceException
             return new ChildRegistrationNameOptions<TConcreteOptions>(This, targetParameters[0]);
+        }
+
+        public TConcreteOptions ResolveAllForInstantiationParameter<TParameter>()
+        {
+            AssignInstantiationMethodIfNeccessary();
+
+            var parameterType = typeof(TParameter);
+            var targetParameters = InstantiationInfo.InstantiationDependencies?.Where(p => p.ParameterType == parameterType)
+                                                    .ToList();
+            CheckTargetParametersWithoutName(targetParameters, parameterType);
+
+            // ReSharper disable once PossibleNullReferenceException
+            targetParameters[0].DependencyResolver = ResolveAll.Create(parameterType.GetItemTypeOfEnumerable());
+            return This;
         }
 
         public TConcreteOptions UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo)

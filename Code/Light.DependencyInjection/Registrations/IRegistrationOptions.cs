@@ -40,6 +40,7 @@ namespace Light.DependencyInjection.Registrations
         TConcreteOptions AddFieldInjection(FieldInfo fieldInfo, string resolvedRegistrationName = null);
         IChildRegistrationNameOptions<TConcreteOptions> ResolveInstantiationParameter(string parameterName);
         IChildRegistrationNameOptions<TConcreteOptions> ResolveInstantiationParameter<TParameter>();
+        TConcreteOptions ResolveAllForInstantiationParameter<TParameter>();
     }
 
     public interface IRegistrationOptionsForType : IBaseRegistrationOptionsForType<IRegistrationOptionsForType>

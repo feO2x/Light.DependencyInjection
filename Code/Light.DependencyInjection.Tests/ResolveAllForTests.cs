@@ -17,6 +17,16 @@ namespace Light.DependencyInjection.Tests
                                                                                         .MapToAllImplementedInterfaces());
         }
 
+        [Fact(DisplayName = "The DI container must be able to inject all instances of an insterface in properties.")]
+        public void ResolveAllForConstructorParameter()
+        {
+            Container.RegisterTransient<ConstructorClient>(options => options.ResolveAllForInstantiationParameter<IReadOnlyList<IFoo>>());
+
+            var client = Container.Resolve<ConstructorClient>();
+
+            ValidateInjectedValues(client.Foos);
+        }
+
         [Fact(DisplayName = "The DI container must be able to inject all instances of an interface in properties.")]
         public void ResolveAllForProperty()
         {
@@ -54,6 +64,16 @@ namespace Light.DependencyInjection.Tests
         public class B : IFoo { }
 
         public class C : IFoo { }
+
+        public class ConstructorClient
+        {
+            public readonly IReadOnlyList<IFoo> Foos;
+
+            public ConstructorClient(IReadOnlyList<IFoo> foos)
+            {
+                Foos = foos;
+            }
+        }
 
         public class PropertyClient
         {
