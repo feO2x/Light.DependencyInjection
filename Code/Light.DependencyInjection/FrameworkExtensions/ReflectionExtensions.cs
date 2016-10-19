@@ -274,5 +274,21 @@ namespace Light.DependencyInjection.FrameworkExtensions
 
             return typeInfo.ImplementedInterfaces.Contains(typeof(IDisposable));
         }
+
+        public static Type GetItemTypeOfEnumerable(this Type type)
+        {
+            type.MustNotBeNull(nameof(type));
+
+            if (type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                return type.GenericTypeArguments[0];
+
+            foreach (var @interface in type.GetTypeInfo().ImplementedInterfaces)
+            {
+                if (@interface.IsConstructedGenericType && @interface.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                    return @interface.GenericTypeArguments[0];
+            }
+
+            throw new ArgumentException($"The specified type \"{type}\" does not implement IEnumerable<T>.", nameof(type));
+        }
     }
 }

@@ -65,7 +65,7 @@
     <Compile Include="Services\DefaultContainerScopeFactory.cs" />
     <Compile Include="Services\IContainerScopeFactory.cs" />
     <Compile Include="Services\ThreadSafeContainerScopeFactory.cs" />
-    <Compile Include="TypeConstruction\ResolveAllDependencyResolver.cs" />
+    <Compile Include="TypeConstruction\ResolveAll.cs" />
     <Compile Include="TypeConstruction\DefaultDependencyResolver.cs" />
     <Compile Include="TypeConstruction\DefaultInjectorForUnknownInstanceMembers.cs" />
     <Compile Include="TypeConstruction\DelegateInstantiationInfo.cs" />

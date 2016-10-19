@@ -108,12 +108,19 @@ namespace Light.DependencyInjection.Registrations
             return this;
         }
 
-        public IRegistrationOptionsForType<T> ResolveAllForProperty<TProperty, TItem>(Expression<Func<T, TProperty>> selectPropertyExpression) where TProperty : IEnumerable<TItem>
+        public IRegistrationOptionsForType<T> ResolveAllForProperty<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression)
         {
-            selectPropertyExpression.MustNotBeNull(nameof(selectPropertyExpression));
-
             var propertyInfo = selectPropertyExpression.ExtractSettableInstancePropertyInfo(TargetType);
-            InstanceInjections.First(instanceInjection => instanceInjection.MemberName == propertyInfo.Name).DependencyResolver = new ResolveAllDependencyResolver<TItem>();
+            var itemType = propertyInfo.PropertyType.GetItemTypeOfEnumerable();
+            InstanceInjections.First(instanceInjection => instanceInjection.MemberName == propertyInfo.Name).DependencyResolver = ResolveAll.Create(itemType);
+            return this;
+        }
+
+        public IRegistrationOptionsForType<T> ResolveAllForField<TField>(Expression<Func<T, TField>> selectFieldExpression)
+        {
+            var fieldInfo = selectFieldExpression.ExtractSettableInstanceFieldInfo(TargetType);
+            var itemType = fieldInfo.FieldType.GetItemTypeOfEnumerable();
+            InstanceInjections.First(instanceInjection => instanceInjection.MemberName == fieldInfo.Name).DependencyResolver = ResolveAll.Create(itemType);
             return this;
         }
 
