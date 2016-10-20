@@ -41,6 +41,7 @@ namespace Light.DependencyInjection.Registrations
         IChildRegistrationNameOptions<TConcreteOptions> ResolveInstantiationParameter(string parameterName);
         IChildRegistrationNameOptions<TConcreteOptions> ResolveInstantiationParameter<TParameter>();
         TConcreteOptions ResolveAllForInstantiationParameter<TParameter>();
+        TConcreteOptions ResolveAllForInstantiationParameter(string parameterName);
     }
 
     public interface IRegistrationOptionsForType : IBaseRegistrationOptionsForType<IRegistrationOptionsForType>

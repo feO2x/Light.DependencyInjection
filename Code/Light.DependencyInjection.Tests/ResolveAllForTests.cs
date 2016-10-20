@@ -38,7 +38,7 @@ namespace Light.DependencyInjection.Tests
             ValidateInjectedValues(client.Foos);
         }
 
-        [Fact(DisplayName = "The DI container must be able to inject all instance s of an interface in fields.")]
+        [Fact(DisplayName = "The DI container must be able to inject all instances of an interface in fields.")]
         public void ResolveAllForField()
         {
             Container.RegisterTransient<FieldClient>(options => options.AddFieldInjection(o => o.Foos)
@@ -47,6 +47,19 @@ namespace Light.DependencyInjection.Tests
             var client = Container.Resolve<FieldClient>();
 
             ValidateInjectedValues(client.Foos);
+        }
+
+        [Fact(DisplayName = "The DI container must be able to inject all instances of an interface in a particular constructor argument (constructor with two equal types).")]
+        public void ResolveAllForDoubleConstructorParameter()
+        {
+            Container.RegisterTransient<DoubleConstructorClient>(options => options.ResolveAllForInstantiationParameter("foos1"))
+                     .RegisterTransient(typeof(List<>), options => options.MapToAllImplementedInterfaces()
+                                                                          .UseDefaultConstructor());
+
+            var client = Container.Resolve<DoubleConstructorClient>();
+
+            client.Foos2.Should().BeEmpty();
+            ValidateInjectedValues(client.Foos1);
         }
 
         private static void ValidateInjectedValues(IEnumerable<IFoo> collection)
@@ -83,6 +96,18 @@ namespace Light.DependencyInjection.Tests
         public class FieldClient
         {
             public IEnumerable<IFoo> Foos;
+        }
+
+        public class DoubleConstructorClient
+        {
+            public readonly IReadOnlyList<IFoo> Foos1;
+            public readonly IReadOnlyList<IFoo> Foos2;
+
+            public DoubleConstructorClient(IReadOnlyList<IFoo> foos1, IReadOnlyList<IFoo> foos2)
+            {
+                Foos1 = foos1;
+                Foos2 = foos2;
+            }
         }
     }
 }

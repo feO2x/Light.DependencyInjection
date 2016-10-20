@@ -57,10 +57,16 @@ namespace Light.DependencyInjection.Registrations
 
             foreach (var abstractionType in abstractionTypes)
             {
-                if (IgnoredAbstractionTypes.Contains(abstractionType))
+                // Check if the type is a open constructed generic type, if yes then get its generic type definition
+                var targetAbstractionType = abstractionType;
+                var typeInfo = abstractionType.GetTypeInfo();
+                if (typeInfo.ContainsGenericParameters)
+                    targetAbstractionType = abstractionType.GetGenericTypeDefinition();
+
+                if (IgnoredAbstractionTypes.Contains(targetAbstractionType))
                     continue;
 
-                AbstractionTypes.Add(abstractionType);
+                AbstractionTypes.Add(targetAbstractionType);
             }
             return This;
             // ReSharper restore PossibleMultipleEnumeration

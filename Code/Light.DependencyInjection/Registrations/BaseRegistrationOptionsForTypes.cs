@@ -99,6 +99,7 @@ namespace Light.DependencyInjection.Registrations
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7), typeof(T8), typeof(T9));
         }
+
         public TConcreteOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>()
         {
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7), typeof(T8), typeof(T9), typeof(T10));
@@ -109,7 +110,8 @@ namespace Light.DependencyInjection.Registrations
             AssignInstantiationMethodIfNeccessary();
 
             var parameterType = typeof(TParameter);
-            var targetParameters = InstantiationInfo.InstantiationDependencies?.Where(p => p.ParameterType == parameterType)
+            var targetParameters = InstantiationInfo.InstantiationDependencies
+                                                    ?.Where(p => p.ParameterType == parameterType)
                                                     .ToList();
             CheckTargetParametersWithoutName(targetParameters, parameterType);
 
@@ -128,6 +130,22 @@ namespace Light.DependencyInjection.Registrations
 
             // ReSharper disable once PossibleNullReferenceException
             targetParameters[0].DependencyResolver = ResolveAll.Create(parameterType.GetItemTypeOfEnumerable());
+            return This;
+        }
+
+        public TConcreteOptions ResolveAllForInstantiationParameter(string parameterName)
+        {
+            AssignInstantiationMethodIfNeccessary();
+
+            var targetParameters = InstantiationInfo.InstantiationDependencies
+                                                    ?.Where(p => p.TargetParameter.Name == parameterName)
+                                                    .ToList();
+            CheckTargetParametersWithName(targetParameters, parameterName);
+
+            // ReSharper disable once PossibleNullReferenceException
+            var targetParameter = targetParameters[0];
+            targetParameter.DependencyResolver = ResolveAll.Create(targetParameter.ParameterType.GetItemTypeOfEnumerable());
+
             return This;
         }
 
@@ -161,7 +179,8 @@ namespace Light.DependencyInjection.Registrations
         {
             AssignInstantiationMethodIfNeccessary();
 
-            var targetParameters = InstantiationInfo?.InstantiationDependencies?.Where(p => p.TargetParameter.Name == parameterName)
+            var targetParameters = InstantiationInfo.InstantiationDependencies
+                                                    ?.Where(p => p.TargetParameter.Name == parameterName)
                                                     .ToList();
             CheckTargetParametersWithName(targetParameters, parameterName);
 
