@@ -18,36 +18,27 @@ namespace Light.DependencyInjection.Registrations
         public readonly TypeKey TypeKey;
 
         public Registration(TypeKey typeKey, Lifetime lifetime, bool shouldTrackDisposables = true)
-            : this(typeKey, shouldTrackDisposables)
         {
             CheckLifetime(lifetime);
 
+            TypeKey = typeKey;
+            TargetTypeInfo = typeKey.Type.GetTypeInfo();
             Lifetime = lifetime;
+            IsTrackingDisposables = CheckIfDisposableInstancesShouldBeTracked(shouldTrackDisposables);
+            _toStringText = CreateToStringText();
         }
 
         public Registration(Lifetime lifetime, TypeCreationInfo typeCreationInfo, bool shouldTrackDisposables = true)
-            : this(typeCreationInfo.TypeKey, shouldTrackDisposables)
-
         {
             lifetime.MustNotBeNull(nameof(lifetime));
+            typeCreationInfo.MustNotBeNull(nameof(typeCreationInfo));
 
+            TypeKey = typeCreationInfo.TypeKey;
+            TargetTypeInfo = typeCreationInfo.TargetTypeInfo;
             Lifetime = lifetime;
             TypeCreationInfo = typeCreationInfo;
-        }
-
-        private Registration(TypeKey typeKey, bool shouldTrackDisposables)
-        {
-            TypeKey = typeKey;
-            TargetTypeInfo = typeKey.Type.GetTypeInfo();
-            IsTrackingDisposables = TargetTypeInfo.IsImplementingIDisposable() && shouldTrackDisposables;
-            _toStringText = TypeKey.GetFullRegistrationName();
-        }
-
-        private Registration(TypeKey typeKey, Lifetime lifetime, TypeCreationInfo typeCreationInfo, bool shouldTrackDisposables)
-            : this(typeKey, shouldTrackDisposables)
-        {
-            Lifetime = lifetime;
-            TypeCreationInfo = typeCreationInfo;
+            IsTrackingDisposables = CheckIfDisposableInstancesShouldBeTracked(shouldTrackDisposables);
+            _toStringText = CreateToStringText();
         }
 
         public Type TargetType => TypeKey.Type;
@@ -63,6 +54,16 @@ namespace Light.DependencyInjection.Registrations
             return TypeKey == other.TypeKey;
         }
 
+        private bool CheckIfDisposableInstancesShouldBeTracked(bool shouldTrackDisposables)
+        {
+            return TargetTypeInfo.IsImplementingIDisposable() && shouldTrackDisposables;
+        }
+
+        private string CreateToStringText()
+        {
+            return $"Registration \"{TargetType}\"{TypeKey.GetWithRegistrationNameText()}";
+        }
+
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckLifetime(Lifetime lifetime)
         {
@@ -75,8 +76,7 @@ namespace Light.DependencyInjection.Registrations
         {
             closedGenericType.MustBeClosedVariantOf(TargetType);
 
-            return new Registration(new TypeKey(closedGenericType, Name),
-                                    Lifetime.ProvideInstanceForResolvedGenericTypeDefinition(),
+            return new Registration(Lifetime.ProvideInstanceForResolvedGenericTypeDefinition(),
                                     TypeCreationInfo?.BindToClosedGenericType(closedGenericType, closedGenericType.GetTypeInfo()),
                                     IsTrackingDisposables);
         }
