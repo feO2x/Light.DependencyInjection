@@ -31,15 +31,15 @@ namespace Light.DependencyInjection.Tests
             return new Dictionary<TKey, TValue>(42);
         }
 
-        [Fact(DisplayName = "Clients must be able to resolve generic type definitions by using a closed constructed variant of a mapped abstraction.")]
-        public void ResolveClosedConstructedAbstraction()
+        [Fact(DisplayName = "Clients must be able to resolve generic type definitions by using a closed variant of a mapped abstraction.")]
+        public void ResolveClosedGenericAbstraction()
         {
             Container.RegisterTransient(typeof(HashSet<>), options => options.UseDefaultConstructor()
                                                                              .MapToAbstractions(typeof(ISet<>)));
 
             var set = Container.Resolve<ISet<string>>();
 
-            set.Should().NotBeNull();
+            set.Should().BeAssignableTo<HashSet<string>>();
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Reflection;
 using Light.DependencyInjection.FrameworkExtensions;
 using Light.DependencyInjection.Lifetimes;
