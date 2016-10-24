@@ -17,28 +17,37 @@ namespace Light.DependencyInjection.Registrations
         public readonly TypeCreationInfo TypeCreationInfo;
         public readonly TypeKey TypeKey;
 
-        public Registration(TypeKey typeKey,
-                            Lifetime lifetime,
-                            TypeCreationInfo typeCreationInfo,
-                            bool shouldTrackDisposables = true)
+        public Registration(TypeKey typeKey, Lifetime lifetime, bool shouldTrackDisposables = true)
+            : this(typeKey, shouldTrackDisposables)
+        {
+            CheckLifetime(lifetime);
+
+            Lifetime = lifetime;
+        }
+
+        public Registration(Lifetime lifetime, TypeCreationInfo typeCreationInfo, bool shouldTrackDisposables = true)
+            : this(typeCreationInfo.TypeKey, shouldTrackDisposables)
 
         {
             lifetime.MustNotBeNull(nameof(lifetime));
-            CheckTypeCreationInfo(lifetime, typeCreationInfo);
 
-            TypeKey = typeKey;
-            TargetTypeInfo = typeKey.Type.GetTypeInfo();
             Lifetime = lifetime;
             TypeCreationInfo = typeCreationInfo;
+        }
+
+        private Registration(TypeKey typeKey, bool shouldTrackDisposables)
+        {
+            TypeKey = typeKey;
+            TargetTypeInfo = typeKey.Type.GetTypeInfo();
             IsTrackingDisposables = TargetTypeInfo.IsImplementingIDisposable() && shouldTrackDisposables;
             _toStringText = TypeKey.GetFullRegistrationName();
         }
 
-        [Conditional(Check.CompileAssertionsSymbol)]
-        private static void CheckTypeCreationInfo(Lifetime lifetime, TypeCreationInfo typeCreationInfo)
+        private Registration(TypeKey typeKey, Lifetime lifetime, TypeCreationInfo typeCreationInfo, bool shouldTrackDisposables)
+            : this(typeKey, shouldTrackDisposables)
         {
-            if (lifetime.RequiresTypeCreationInfo && typeCreationInfo == null)
-                throw new ArgumentNullException(nameof(typeCreationInfo), $"The type creation info must not be null because the {lifetime} requires it to be present.");
+            Lifetime = lifetime;
+            TypeCreationInfo = typeCreationInfo;
         }
 
         public Type TargetType => TypeKey.Type;
@@ -52,6 +61,14 @@ namespace Light.DependencyInjection.Registrations
                 return false;
 
             return TypeKey == other.TypeKey;
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckLifetime(Lifetime lifetime)
+        {
+            lifetime.MustNotBeNull(nameof(lifetime));
+            if (lifetime.RequiresTypeCreationInfo)
+                throw new ArgumentException($"You cannot call this constructor with the {lifetime} because it requires a TypeCreationInfo. Use the other constructor instead.");
         }
 
         public Registration BindToClosedGenericType(Type closedGenericType)

@@ -28,12 +28,12 @@ namespace Light.DependencyInjection.ConcurrencyTests
             var instance = new Foo();
             var typeKey = new TypeKey(instance.GetType());
             var lifetime = new ExternalInstanceLifetime(instance);
-            return new Registration(typeKey, lifetime, null);
+            return new Registration(typeKey, lifetime);
         }
 
-        //[DataRaceTestMethod]
-
         // This test fails because MChess assumes that I would access a field when calling TryFind in ImmutableRegistrationsContainer
+
+        //[DataRaceTestMethod]
         //public void ReadWhileAdd()
         //{
         //    var testTarget = new RegistrationDictionary<Registration>();

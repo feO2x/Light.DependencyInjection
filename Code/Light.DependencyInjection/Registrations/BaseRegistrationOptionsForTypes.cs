@@ -304,8 +304,7 @@ namespace Light.DependencyInjection.Registrations
         {
             targetContainer.MustNotBeNull(nameof(targetContainer));
 
-            var registration = new Registration(new TypeKey(TargetType, RegistrationName),
-                                                lifetime,
+            var registration = new Registration(lifetime,
                                                 BuildTypeCreationInfo(),
                                                 IsContainerTrackingDisposables);
             targetContainer.Register(registration, AbstractionTypes);

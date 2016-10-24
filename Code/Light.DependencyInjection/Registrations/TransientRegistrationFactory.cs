@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using Light.DependencyInjection.Lifetimes;
+﻿using Light.DependencyInjection.Lifetimes;
 using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Registrations
@@ -8,7 +7,7 @@ namespace Light.DependencyInjection.Registrations
     {
         public Registration CreateDefaultRegistration(TypeCreationInfo typeCreationInfo)
         {
-            return new Registration(typeCreationInfo.TypeKey, TransientLifetime.Instance, typeCreationInfo);
+            return new Registration(TransientLifetime.Instance, typeCreationInfo);
         }
     }
 }

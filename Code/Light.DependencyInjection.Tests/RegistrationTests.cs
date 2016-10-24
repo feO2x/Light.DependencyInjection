@@ -14,7 +14,7 @@ namespace Light.DependencyInjection.Tests
             var instance = new A();
 
             // ReSharper disable once ObjectCreationAsStatement
-            Action act = () => new Registration(instance.GetType(), new ExternalInstanceLifetime(instance), null);
+            Action act = () => new Registration(instance.GetType(), new ExternalInstanceLifetime(instance));
 
             act.ShouldNotThrow();
         }
@@ -23,10 +23,10 @@ namespace Light.DependencyInjection.Tests
         public void NonExternalLifetimeWithoutCreationInfo()
         {
             // ReSharper disable once ObjectCreationAsStatement
-            Action act = () => new Registration(typeof(A), TransientLifetime.Instance, null);
+            Action act = () => new Registration(typeof(A), TransientLifetime.Instance);
 
-            act.ShouldThrow<ArgumentNullException>()
-               .And.Message.Should().Contain($"The type creation info must not be null because the {TransientLifetime.Instance} requires it to be present.");
+            act.ShouldThrow<ArgumentException>()
+               .And.Message.Should().Contain($"You cannot call this constructor with the {TransientLifetime.Instance} because it requires a TypeCreationInfo. Use the other constructor instead.");
         }
     }
 }
