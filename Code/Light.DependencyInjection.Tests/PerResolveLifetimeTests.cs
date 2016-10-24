@@ -26,5 +26,15 @@ namespace Light.DependencyInjection.Tests
 
             firstC.ReferenceToA.Should().NotBeSameAs(secondC.ReferenceToA);
         }
+
+        [Fact(DisplayName = "The PerResolveLifetime must inject the same instance to a requested interface type.")]
+        public void ResolveInterface()
+        {
+            Container.RegisterPerResolve<IC, C>();
+
+            var instanceOfM = Container.Resolve<M>();
+
+            instanceOfM.First.Should().BeSameAs(instanceOfM.Second);
+        }
     }
 }

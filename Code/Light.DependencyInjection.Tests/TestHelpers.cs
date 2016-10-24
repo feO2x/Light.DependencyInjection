@@ -205,4 +205,16 @@ namespace Light.DependencyInjection.Tests
             ReferenceToB = referenceToB;
         }
     }
+
+    public class M
+    {
+        public readonly IC First;
+        public readonly IC Second;
+
+        public M(IC first, IC second)
+        {
+            First = first;
+            Second = second;
+        }
+    }
 }
