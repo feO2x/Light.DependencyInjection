@@ -12,6 +12,7 @@ namespace Light.DependencyInjection.Tests
     public abstract class BaseOptionsTests : DefaultDiContainerTest
     {
         protected abstract void Register<T>(Action<IRegistrationOptionsForType<T>> configureOptions);
+        protected abstract void Register(Type type, Action<IRegistrationOptionsForType> configureOptions = null);
 
         [Fact(DisplayName = "Clients must be able to change the registration name using the options object.")]
         public void OptionsRegistrationName()
@@ -203,6 +204,78 @@ namespace Light.DependencyInjection.Tests
 
             instanceOfJ.ReferenceToG.ReferenceToA.Should().NotBeNull();
         }
+
+        [Fact(DisplayName = "Open constructed generic types must not be registered with the DI container.")]
+        public void OpenConstructedGenericTypesNotAllowed()
+        {
+            var openConstructedGenericType = typeof(SubType<>).GetTypeInfo().BaseType;
+
+            Action act = () => Register(openConstructedGenericType);
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The type \"{openConstructedGenericType}\" cannot be registered with the DI container because it is an open constructed generic type. Only non-generic types, closed constructed generic types or generic type definitions can be registered.");
+        }
+
+        // ReSharper disable UnusedTypeParameter
+        public class BaseType<T1, T2> { }
+        // ReSharper restore UnusedTypeParameter
+
+        public class SubType<T> : BaseType<T, int> { }
+
+        [Fact(DisplayName = "Interface types cannot be registered with the DI container because they cannot be instantiated.")]
+        public void InterfaceTypesNotAllowed()
+        {
+            Action act = () => Register(typeof(IE));
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The type \"{typeof(IE)}\" cannot be registered with the DI container because it is an interface type that cannot be instantiated.");
+        }
+
+        [Fact(DisplayName = "Abstract base classes cannot be registered with the DI container because they cannot be instantiated.")]
+        public void AbstractBaseClassesNotAllowed()
+        {
+            Action act = () => Register(typeof(DefaultDiContainerTest));
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The type \"{typeof(DefaultDiContainerTest)}\" cannot be registered with the DI container because it is an abstract class that cannot be instantiated.");
+        }
+
+        [Fact(DisplayName = "Generic parameter types cannot be registered with the DI container because they cannot be instantiated.")]
+        public void GenericParameterTypeNotAllowed()
+        {
+            var genericParameterType = typeof(Dictionary<,>).GetTypeInfo().GenericTypeParameters.First();
+
+            Action act = () => Register(genericParameterType);
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The type \"{genericParameterType}\" cannot be registered with the DI container because it is a generic type paramter. Only non-generic types, closed constructed generic types or generic type definitions can be registered.");
+        }
+
+        [Fact(DisplayName = "The DI container must throw an exception when a type is registered that has no public constructor and where no instantiation method is provided.")]
+        public void NoPublicConstructor()
+        {
+            var typeWithoutPublicConstructor = typeof(Foo);
+
+            Action act = () => Register(typeWithoutPublicConstructor);
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"Cannot register \"{typeWithoutPublicConstructor}\" with the DI container because this type does not contain a public non-static constructor. Please specify an instantiation method using the registration options.");
+        }
+
+        [Fact(DisplayName = "Clients must be able to choose non-public constructors to instantiate concrete types.")]
+        public void ChooseDefaultNonPublicConstructor()
+        {
+            Container.RegisterTransient<Foo>(options => options.UseDefaultConstructor());
+
+            var fooInstance = Container.Resolve<Foo>();
+
+            fooInstance.Should().NotBeNull();
+        }
+
+        public class Foo
+        {
+            private Foo() { }
+        }
     }
 
     public sealed class TransientOptionsTests : BaseOptionsTests
@@ -210,6 +283,11 @@ namespace Light.DependencyInjection.Tests
         protected override void Register<T>(Action<IRegistrationOptionsForType<T>> configureOptions)
         {
             Container.RegisterTransient(configureOptions);
+        }
+
+        protected override void Register(Type type, Action<IRegistrationOptionsForType> configureOptions = null)
+        {
+            Container.RegisterTransient(type, configureOptions);
         }
     }
 
@@ -219,6 +297,11 @@ namespace Light.DependencyInjection.Tests
         {
             Container.RegisterSingleton(configureOptions);
         }
+
+        protected override void Register(Type type, Action<IRegistrationOptionsForType> configureOptions = null)
+        {
+            Container.RegisterSingleton(type, configureOptions);
+        }
     }
 
     public sealed class ScopedOptionsTests : BaseOptionsTests
@@ -226,6 +309,11 @@ namespace Light.DependencyInjection.Tests
         protected override void Register<T>(Action<IRegistrationOptionsForType<T>> configureOptions)
         {
             Container.RegisterScoped(configureOptions);
+        }
+
+        protected override void Register(Type type, Action<IRegistrationOptionsForType> configureOptions = null)
+        {
+            Container.RegisterScoped(type, configureOptions);
         }
     }
 
@@ -235,6 +323,11 @@ namespace Light.DependencyInjection.Tests
         {
             Container.RegisterPerThread(configureOptions);
         }
+
+        protected override void Register(Type type, Action<IRegistrationOptionsForType> configureOptions = null)
+        {
+            Container.RegisterPerThread(type, configureOptions);
+        }
     }
 
     public sealed class PerResolveOptionsTests : BaseOptionsTests
@@ -242,6 +335,11 @@ namespace Light.DependencyInjection.Tests
         protected override void Register<T>(Action<IRegistrationOptionsForType<T>> configureOptions)
         {
             Container.RegisterPerResolve(configureOptions);
+        }
+
+        protected override void Register(Type type, Action<IRegistrationOptionsForType> configureOptions = null)
+        {
+            Container.RegisterPerResolve(type, configureOptions);
         }
     }
 }

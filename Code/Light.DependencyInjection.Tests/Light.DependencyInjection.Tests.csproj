@@ -73,7 +73,6 @@
     <Compile Include="OptionsTests.cs" />
     <Compile Include="CompileObjectCreationFunctionTests.cs" />
     <Compile Include="DefaultDiContainerTest.cs" />
-    <Compile Include="ErroneousTypeRegistrationTests.cs" />
     <Compile Include="ImmutableAvlNodeTests.cs" />
     <Compile Include="ParameterOverridesTests.cs" />
     <Compile Include="PerResolveLifetimeTests.cs" />
