@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using Light.DependencyInjection.FrameworkExtensions;
 using Light.DependencyInjection.Lifetimes;
@@ -18,11 +19,12 @@ namespace Light.DependencyInjection.Registrations
 
         public Registration(TypeKey typeKey,
                             Lifetime lifetime,
-                            TypeCreationInfo typeCreationInfo = null,
+                            TypeCreationInfo typeCreationInfo,
                             bool shouldTrackDisposables = true)
 
         {
             lifetime.MustNotBeNull(nameof(lifetime));
+            CheckTypeCreationInfo(lifetime, typeCreationInfo);
 
             TypeKey = typeKey;
             TargetTypeInfo = typeKey.Type.GetTypeInfo();
@@ -30,6 +32,13 @@ namespace Light.DependencyInjection.Registrations
             TypeCreationInfo = typeCreationInfo;
             IsTrackingDisposables = TargetTypeInfo.IsImplementingIDisposable() && shouldTrackDisposables;
             _toStringText = TypeKey.GetFullRegistrationName();
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckTypeCreationInfo(Lifetime lifetime, TypeCreationInfo typeCreationInfo)
+        {
+            if (lifetime.RequiresTypeCreationInfo && typeCreationInfo == null)
+                throw new ArgumentNullException(nameof(typeCreationInfo), $"The type creation info must not be null because the {lifetime} requires it to be present.");
         }
 
         public Type TargetType => TypeKey.Type;

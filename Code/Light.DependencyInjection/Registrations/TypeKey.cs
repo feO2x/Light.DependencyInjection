@@ -60,5 +60,15 @@ namespace Light.DependencyInjection.Registrations
         {
             return $"TypeKey {this.GetFullRegistrationName()}";
         }
+
+        public static implicit operator TypeKey(Type type)
+        {
+            return new TypeKey(type);
+        }
+
+        public static implicit operator Type(TypeKey typeKey)
+        {
+            return typeKey.Type;
+        }
     }
 }

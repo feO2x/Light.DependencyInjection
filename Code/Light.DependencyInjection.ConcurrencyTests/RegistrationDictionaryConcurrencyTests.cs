@@ -28,7 +28,7 @@ namespace Light.DependencyInjection.ConcurrencyTests
             var instance = new Foo();
             var typeKey = new TypeKey(instance.GetType());
             var lifetime = new ExternalInstanceLifetime(instance);
-            return new Registration(typeKey, lifetime);
+            return new Registration(typeKey, lifetime, null);
         }
 
         //[DataRaceTestMethod]
