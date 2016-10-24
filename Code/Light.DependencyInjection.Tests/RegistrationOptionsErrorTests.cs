@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using FluentAssertions;
@@ -171,9 +173,27 @@ namespace Light.DependencyInjection.Tests
                .And.Message.Should().Contain($"The specified instantiation method for type \"{typeof(K)}\" has several parameters with type \"{typeof(string)}\". Please use the overload of \"ResolveInstantiationParameter\" where an additional parameter name can be specified.");
         }
 
+        [Fact(DisplayName = "MapToAbstractions must throw a TypeRegistrationException when a generic parameter type is passed in.")]
+        public void MapToGenericParameterType()
+        {
+            var targetType = typeof(Dictionary<,>);
+            var genericParameterType = typeof(IDictionary<,>).GetTypeInfo().GenericTypeParameters.First(); // TKey of IDictionary<TKey, TValue>
+
+            Action act = () => CreateRegistrationOptions(targetType).MapToAbstractions(genericParameterType);
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The type {genericParameterType} is a generic parameter and cannot be used as an abstraction for {targetType}.");
+        }
+
+
         private static RegistrationOptionsForType<T> CreateRegistrationOptions<T>()
         {
-            return new RegistrationOptionsForType<T>(new ConstructorWithMostParametersSelector(), new[] { typeof(IDisposable) });
+            return new RegistrationOptionsForType<T>(new ConstructorWithMostParametersSelector(), new[] { typeof(IDisposable) }); // TODO: put this in ContainerServices?
+        }
+
+        private static RegistrationOptionsForType CreateRegistrationOptions(Type type)
+        {
+            return new RegistrationOptionsForType(type, new ConstructorWithMostParametersSelector(), new[] { typeof(IDisposable) });
         }
     }
 }

@@ -97,7 +97,6 @@ namespace Light.DependencyInjection.FrameworkExtensions
         {
             var typeInfo = type.GetTypeInfo();
 
-            // TODO: check if type is a generic type definition, an open generic type, a delegate or something else that we do not support
             if (typeInfo.IsInterface)
                 throw new TypeRegistrationException($"The type \"{type}\" cannot be registered with the DI container because it is an interface type that cannot be instantiated.", type);
 

@@ -58,11 +58,7 @@ namespace Light.DependencyInjection.Registrations
             foreach (var abstractionType in abstractionTypes)
             {
                 // Check if the type is a open constructed generic type, if yes then get its generic type definition
-                var targetAbstractionType = abstractionType;
-                var typeInfo = abstractionType.GetTypeInfo();
-                if (typeInfo.ContainsGenericParameters)
-                    targetAbstractionType = abstractionType.GetGenericTypeDefinition();
-
+                var targetAbstractionType = AdjustGenericAbstractionTypeIfNecessary(abstractionType);
                 if (IgnoredAbstractionTypes.Contains(targetAbstractionType))
                     continue;
 
@@ -87,6 +83,18 @@ namespace Light.DependencyInjection.Registrations
         {
             RegistrationName = TargetType.FullName;
             return This;
+        }
+
+        private Type AdjustGenericAbstractionTypeIfNecessary(Type abstractionType)
+        {
+            var typeInfo = abstractionType.GetTypeInfo();
+            if (typeInfo.IsGenericParameter)
+                throw new TypeRegistrationException($"The type {abstractionType} is a generic parameter and cannot be used as an abstraction for {TargetType}.", TargetType);
+
+            if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters && typeInfo.IsGenericTypeDefinition == false)
+                return typeInfo.GetGenericTypeDefinition();
+
+            return abstractionType;
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
