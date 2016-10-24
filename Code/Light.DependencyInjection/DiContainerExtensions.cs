@@ -91,13 +91,5 @@ namespace Light.DependencyInjection
         {
             return RegistrationOptionsForType<TConcrete>.PerformRegistration(container, configureOptions, PerResolveLifetime.Instance, typeof(TAbstract));
         }
-
-        public static void RegisterWith(this IEnumerable<Type> types, DiContainer container, ILifetime lifetime, Action<IRegistrationOptionsForType> configureOptions = null)
-        {
-            foreach (var type in types)
-            {
-                RegistrationOptionsForType.PerformRegistration(container, type, configureOptions, lifetime);
-            }
-        }
     }
 }

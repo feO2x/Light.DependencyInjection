@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Lifetimes\ExternalInstanceLifetime.cs" />
-    <Compile Include="Lifetimes\ILifeTime.cs" />
+    <Compile Include="Lifetimes\Lifetime.cs" />
     <Compile Include="Lifetimes\PerResolveLifetime.cs" />
     <Compile Include="Lifetimes\PerThreadLifetime.cs" />
     <Compile Include="Lifetimes\ScopedLifetime.cs" />
@@ -54,9 +54,7 @@
     <Compile Include="Multithreading\ThreadSafeContainerScope.cs" />
     <Compile Include="Multithreading\AvlTreeEnumerator.cs" />
     <Compile Include="Registrations\BaseRegistrationOptionsForExternalInstance.cs" />
-    <Compile Include="Registrations\BaseRegistration.cs" />
     <Compile Include="Registrations\RegistrationOptionsForExternalInstance.cs" />
-    <Compile Include="Registrations\GenericTypeDefinitionRegistration.cs" />
     <Compile Include="Registrations\RegistrationOptionsForType.cs" />
     <Compile Include="Services\ChildContainerOptions.cs" />
     <Compile Include="Services\ContainerScope.cs" />

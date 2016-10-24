@@ -70,7 +70,7 @@ namespace Light.DependencyInjection.TypeConstruction
 
         public InstanceInjection CloneForClosedConstructedGenericType(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
         {
-            closedConstructedGenericType.MustBeClosedConstructedVariantOf(DeclaringType);
+            closedConstructedGenericType.MustBeClosedVariantOf(DeclaringType);
 
             return CloneForClosedConstructedGenericTypeInternal(closedConstructedGenericType, closedConstructedGenericTypeInfo);
         }

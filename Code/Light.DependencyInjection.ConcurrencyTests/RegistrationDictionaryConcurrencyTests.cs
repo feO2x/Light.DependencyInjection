@@ -2,7 +2,6 @@
 using Light.DependencyInjection.Lifetimes;
 using Light.DependencyInjection.Multithreading;
 using Light.DependencyInjection.Registrations;
-using Light.DependencyInjection.Services;
 using Microsoft.Concurrency.TestTools.UnitTesting;
 
 namespace Light.DependencyInjection.ConcurrencyTests
@@ -12,7 +11,7 @@ namespace Light.DependencyInjection.ConcurrencyTests
         [DataRaceTestMethod]
         public void GetOrAdd()
         {
-            var testTarget = new RegistrationDictionary<Registration>();
+            var testTarget = new RegistrationDictionary();
 
             ThreadStart getOrAdd = () => testTarget.GetOrAdd(new TypeKey(typeof(Foo)), CreateRegistration);
             var thread1 = new Thread(getOrAdd);
@@ -32,8 +31,9 @@ namespace Light.DependencyInjection.ConcurrencyTests
             return new Registration(typeKey, lifetime);
         }
 
-        // This test fails because MChess assumes that I would access a field when calling TryFind in ImmutableRegistrationsContainer
         //[DataRaceTestMethod]
+
+        // This test fails because MChess assumes that I would access a field when calling TryFind in ImmutableRegistrationsContainer
         //public void ReadWhileAdd()
         //{
         //    var testTarget = new RegistrationDictionary<Registration>();

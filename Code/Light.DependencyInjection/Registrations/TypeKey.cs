@@ -47,7 +47,8 @@ namespace Light.DependencyInjection.Registrations
 
         public static bool operator ==(TypeKey first, TypeKey second)
         {
-            return first.EqualsValueWithHashCode(second);
+            return first.HashCode == second.HashCode &&
+                   first.Equals(second);
         }
 
         public static bool operator !=(TypeKey first, TypeKey second)

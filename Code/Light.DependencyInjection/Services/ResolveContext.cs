@@ -15,18 +15,27 @@ namespace Light.DependencyInjection.Services
         private readonly Lazy<Dictionary<TypeKey, object>> _lazyResolveScope;
 
         public ResolveContext(DiContainer container,
-                               Registration registration,
-                               Lazy<Dictionary<TypeKey, object>> lazyResolveScope,
-                               ParameterOverrides? parameterOverrides = null)
+                              Registration registration,
+                              Lazy<Dictionary<TypeKey, object>> lazyResolveScope,
+                              ParameterOverrides? parameterOverrides = null)
         {
             container.MustNotBeNull(nameof(container));
-            registration.MustNotBeNull(nameof(registration));
+            CheckThatRegistrationDoesNotDescribeGenericTypeDefinition(registration);
             lazyResolveScope.MustNotBeNull(nameof(lazyResolveScope));
 
             Container = container;
             Registration = registration;
             _lazyResolveScope = lazyResolveScope;
             ParameterOverrides = parameterOverrides;
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        public static void CheckThatRegistrationDoesNotDescribeGenericTypeDefinition(Registration registration)
+        {
+            registration.MustNotBeNull(nameof(registration));
+
+            if (registration.IsRegistrationForGenericTypeDefinition)
+                throw new ResolveTypeException($"The type {registration.TargetType} cannot be resolved because it describes a generic type definition.", registration.TargetType);
         }
 
         public static ResolveContext FromCreationContext(CreationContext context, Registration registration)
@@ -51,7 +60,7 @@ namespace Light.DependencyInjection.Services
                 throw new InvalidOperationException($"Cannot instantiate type {Registration.TypeKey.GetFullRegistrationName()} because no Type Creation Info was registered for it.");
         }
 
-        public object GetPerResolveInstance()
+        public object GetOrCreatePerResolveInstance()
         {
             object perResolveInstance;
             if (_lazyResolveScope.IsValueCreated == false)

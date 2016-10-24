@@ -72,7 +72,7 @@ namespace Light.DependencyInjection.Registrations
         public static DiContainer PerformRegistration(DiContainer container,
                                                       Type targetType,
                                                       Action<IRegistrationOptionsForType> configureOptions,
-                                                      ILifetime lifetime,
+                                                      Lifetime lifetime,
                                                       Type abstractionType = null)
         {
             container.MustNotBeNull(nameof(container));
@@ -181,7 +181,7 @@ namespace Light.DependencyInjection.Registrations
 
         public static DiContainer PerformRegistration(DiContainer container,
                                                       Action<IRegistrationOptionsForType<T>> configureOptions,
-                                                      ILifetime lifetime,
+                                                      Lifetime lifetime,
                                                       Type abstractionType = null)
         {
             container.MustNotBeNull(nameof(container));

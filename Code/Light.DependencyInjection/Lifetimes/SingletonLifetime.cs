@@ -1,13 +1,12 @@
 ﻿using Light.DependencyInjection.Services;
-using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Lifetimes
 {
-    public sealed class SingletonLifetime : ILifetime
+    public sealed class SingletonLifetime : Lifetime
     {
         private object _instance;
 
-        public object GetInstance(ResolveContext context)
+        public override object GetInstance(ResolveContext context)
         {
             if (_instance == null)
             {
@@ -20,7 +19,7 @@ namespace Light.DependencyInjection.Lifetimes
             return _instance;
         }
 
-        public ILifetime ProvideInstanceForResolvedGenericType()
+        public override Lifetime ProvideInstanceForResolvedGenericTypeDefinition()
         {
             return new SingletonLifetime();
         }

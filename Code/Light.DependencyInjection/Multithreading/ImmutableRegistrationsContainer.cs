@@ -5,43 +5,43 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Multithreading
 {
-    public sealed class ImmutableRegistrationsContainer<TRegistration>
+    public sealed class ImmutableRegistrationsContainer
     {
-        private readonly ImmutableAvlNode<TRegistration>[] _buckets;
-        private readonly IGrowBucketContainerStrategy<TRegistration> _growContainerStrategy;
+        private readonly ImmutableAvlNode<Registration>[] _buckets;
+        private readonly IGrowBucketContainerStrategy _growContainerStrategy;
         private readonly Lazy<IReadOnlyList<TypeKey>> _lazyKeys;
-        private readonly Lazy<IReadOnlyList<TRegistration>> _lazyValues;
+        private readonly Lazy<IReadOnlyList<Registration>> _lazyValues;
         public readonly int Count;
         public readonly bool IsEmpty;
         public readonly int NumberOfBuckets;
 
-        private ImmutableRegistrationsContainer(IGrowBucketContainerStrategy<TRegistration> growContainerStrategy)
+        private ImmutableRegistrationsContainer(IGrowBucketContainerStrategy growContainerStrategy)
         {
             _growContainerStrategy = growContainerStrategy;
             Count = 0;
             NumberOfBuckets = 0;
             IsEmpty = true;
             _lazyKeys = new Lazy<IReadOnlyList<TypeKey>>(CreateKeys);
-            _lazyValues = new Lazy<IReadOnlyList<TRegistration>>(CreateValues);
+            _lazyValues = new Lazy<IReadOnlyList<Registration>>(CreateValues);
         }
 
-        private ImmutableRegistrationsContainer(ImmutableAvlNode<TRegistration>[] buckets,
+        private ImmutableRegistrationsContainer(ImmutableAvlNode<Registration>[] buckets,
                                                 int count,
-                                                IGrowBucketContainerStrategy<TRegistration> growContainerStrategy)
+                                                IGrowBucketContainerStrategy growContainerStrategy)
         {
             _buckets = buckets;
             NumberOfBuckets = buckets.Length;
             Count = count;
             _growContainerStrategy = growContainerStrategy;
             _lazyKeys = new Lazy<IReadOnlyList<TypeKey>>(CreateKeys);
-            _lazyValues = new Lazy<IReadOnlyList<TRegistration>>(CreateValues);
+            _lazyValues = new Lazy<IReadOnlyList<Registration>>(CreateValues);
         }
 
         public IReadOnlyList<TypeKey> TypeKeys => _lazyKeys.Value;
 
-        public IReadOnlyList<TRegistration> Registrations => _lazyValues.Value;
+        public IReadOnlyList<Registration> Registrations => _lazyValues.Value;
 
-        public ImmutableAvlNode<TRegistration> this[int index] => _buckets[index];
+        public ImmutableAvlNode<Registration> this[int index] => _buckets[index];
 
         private IReadOnlyList<TypeKey> CreateKeys()
         {
@@ -60,9 +60,9 @@ namespace Light.DependencyInjection.Multithreading
             return keys;
         }
 
-        private IReadOnlyList<TRegistration> CreateValues()
+        private IReadOnlyList<Registration> CreateValues()
         {
-            var values = new TRegistration[Count];
+            var values = new Registration[Count];
             if (IsEmpty)
                 return values;
 
@@ -77,7 +77,7 @@ namespace Light.DependencyInjection.Multithreading
             return values;
         }
 
-        private ImmutableAvlNode<TRegistration>[] CreateNewBuckets(bool tryGrow)
+        private ImmutableAvlNode<Registration>[] CreateNewBuckets(bool tryGrow)
         {
             var numberOfBuckets = tryGrow ? _growContainerStrategy.GetNumberOfBuckets(_buckets) : _buckets.Length;
             var newBuckets = InitializeBuckets(numberOfBuckets);
@@ -91,17 +91,17 @@ namespace Light.DependencyInjection.Multithreading
             return newBuckets;
         }
 
-        private static ImmutableAvlNode<TRegistration>[] InitializeBuckets(int numberOfBuckets)
+        private static ImmutableAvlNode<Registration>[] InitializeBuckets(int numberOfBuckets)
         {
-            var buckets = new ImmutableAvlNode<TRegistration>[numberOfBuckets];
+            var buckets = new ImmutableAvlNode<Registration>[numberOfBuckets];
             for (var i = 0; i < numberOfBuckets; i++)
             {
-                buckets[i] = ImmutableAvlNode<TRegistration>.Empty;
+                buckets[i] = ImmutableAvlNode<Registration>.Empty;
             }
             return buckets;
         }
 
-        private void ReclassifyHashEntries(ImmutableAvlNode<TRegistration>[] newBuckets)
+        private void ReclassifyHashEntries(ImmutableAvlNode<Registration>[] newBuckets)
         {
             foreach (var avlTree in _buckets)
             {
@@ -112,7 +112,7 @@ namespace Light.DependencyInjection.Multithreading
             }
         }
 
-        private static void AddEntry(HashEntry<TypeKey, TRegistration> hashEntry, ImmutableAvlNode<TRegistration>[] buckets)
+        private static void AddEntry(HashEntry<TypeKey, Registration> hashEntry, ImmutableAvlNode<Registration>[] buckets)
         {
             var targetIndex = GetTargetBucketIndex(hashEntry.Key, buckets.Length);
             buckets[targetIndex] = buckets[targetIndex].Add(hashEntry);
@@ -128,11 +128,11 @@ namespace Light.DependencyInjection.Multithreading
             return type.GetHashCode() & numberOfBuckets - 1;
         }
 
-        public bool TryFind(TypeKey typeKey, out TRegistration registration)
+        public bool TryFind(TypeKey typeKey, out Registration registration)
         {
             if (IsEmpty)
             {
-                registration = default(TRegistration);
+                registration = null;
                 return false;
             }
 
@@ -141,9 +141,9 @@ namespace Light.DependencyInjection.Multithreading
         }
 
         public bool GetOrAdd(TypeKey typeKey,
-                             Func<TRegistration> createRegistration,
-                             out TRegistration registration,
-                             out ImmutableRegistrationsContainer<TRegistration> newBucketContainer)
+                             Func<Registration> createRegistration,
+                             out Registration registration,
+                             out ImmutableRegistrationsContainer newBucketContainer)
         {
             createRegistration.MustNotBeNull(nameof(createRegistration));
 
@@ -160,16 +160,16 @@ namespace Light.DependencyInjection.Multithreading
             var newBuckets = CreateNewBuckets(true);
             targetBucketIndex = GetTargetBucketIndex(typeKey, newBuckets.Length);
             registration = createRegistration();
-            newBuckets[targetBucketIndex] = newBuckets[targetBucketIndex].Add(new HashEntry<TypeKey, TRegistration>(typeKey.HashCode, typeKey, registration));
-            newBucketContainer = new ImmutableRegistrationsContainer<TRegistration>(newBuckets, Count + 1, _growContainerStrategy);
+            newBuckets[targetBucketIndex] = newBuckets[targetBucketIndex].Add(new HashEntry<TypeKey, Registration>(typeKey.HashCode, typeKey, registration));
+            newBucketContainer = new ImmutableRegistrationsContainer(newBuckets, Count + 1, _growContainerStrategy);
             return true;
         }
 
         public bool AddOrReplace(TypeKey typeKey,
-                                 TRegistration registration,
-                                 out ImmutableRegistrationsContainer<TRegistration> newBucketContainer)
+                                 Registration registration,
+                                 out ImmutableRegistrationsContainer newBucketContainer)
         {
-            ImmutableAvlNode<TRegistration>[] newBuckets;
+            ImmutableAvlNode<Registration>[] newBuckets;
             int targetBucketIndex;
             if (IsEmpty == false)
             {
@@ -178,35 +178,35 @@ namespace Light.DependencyInjection.Multithreading
                 if (targetNode.TryFind(typeKey.HashCode, typeKey))
                 {
                     newBuckets = CreateNewBuckets(false);
-                    newBuckets[targetBucketIndex] = targetNode.Replace(new HashEntry<TypeKey, TRegistration>(typeKey.HashCode, typeKey, registration));
-                    newBucketContainer = new ImmutableRegistrationsContainer<TRegistration>(newBuckets, Count, _growContainerStrategy);
+                    newBuckets[targetBucketIndex] = targetNode.Replace(new HashEntry<TypeKey, Registration>(typeKey.HashCode, typeKey, registration));
+                    newBucketContainer = new ImmutableRegistrationsContainer(newBuckets, Count, _growContainerStrategy);
                     return false;
                 }
             }
             newBuckets = CreateNewBuckets(true);
             targetBucketIndex = GetTargetBucketIndex(typeKey, newBuckets.Length);
-            newBuckets[targetBucketIndex] = newBuckets[targetBucketIndex].Add(new HashEntry<TypeKey, TRegistration>(typeKey.HashCode, typeKey, registration));
-            newBucketContainer = new ImmutableRegistrationsContainer<TRegistration>(newBuckets, Count + 1, _growContainerStrategy);
+            newBuckets[targetBucketIndex] = newBuckets[targetBucketIndex].Add(new HashEntry<TypeKey, Registration>(typeKey.HashCode, typeKey, registration));
+            newBucketContainer = new ImmutableRegistrationsContainer(newBuckets, Count + 1, _growContainerStrategy);
             return true;
         }
 
-        public static ImmutableRegistrationsContainer<TRegistration> CreateEmpty()
+        public static ImmutableRegistrationsContainer CreateEmpty()
         {
-            return new ImmutableRegistrationsContainer<TRegistration>(new PrimeNumberLinearStrategy<TRegistration>());
+            return new ImmutableRegistrationsContainer(new PrimeNumberLinearStrategy());
         }
 
-        public static ImmutableRegistrationsContainer<TRegistration> CreateEmpty(IGrowBucketContainerStrategy<TRegistration> growContainerStrategy)
+        public static ImmutableRegistrationsContainer CreateEmpty(IGrowBucketContainerStrategy growContainerStrategy)
         {
             growContainerStrategy.MustNotBeNull(nameof(growContainerStrategy));
 
-            return new ImmutableRegistrationsContainer<TRegistration>(growContainerStrategy);
+            return new ImmutableRegistrationsContainer(growContainerStrategy);
         }
 
-        public RegistrationEnumerator<TRegistration> GetRegistrationEnumeratorForType(Type type)
+        public RegistrationEnumerator GetRegistrationEnumeratorForType(Type type)
         {
             var targetBucket = _buckets[GetTargetBucketIndex(type, _buckets.Length)];
             // ReSharper disable once GenericEnumeratorNotDisposed
-            return new RegistrationEnumerator<TRegistration>(type, targetBucket.GetEnumerator());
+            return new RegistrationEnumerator(type, targetBucket.GetEnumerator());
         }
     }
 }

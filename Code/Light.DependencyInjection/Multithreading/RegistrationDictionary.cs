@@ -6,20 +6,20 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Multithreading
 {
-    public sealed class RegistrationDictionary<TRegistration>
+    public sealed class RegistrationDictionary
     {
         private readonly object _bucketContainerLock = new object();
-        private ImmutableRegistrationsContainer<TRegistration> _bucketContainer;
+        private ImmutableRegistrationsContainer _bucketContainer;
 
         public RegistrationDictionary()
-            : this(RegistrationDictionaryOptions<TRegistration>.Create()) { }
+            : this(RegistrationDictionaryOptions.Create()) { }
 
-        public RegistrationDictionary(RegistrationDictionaryOptions<TRegistration> options)
+        public RegistrationDictionary(RegistrationDictionaryOptions options)
         {
-            _bucketContainer = ImmutableRegistrationsContainer<TRegistration>.CreateEmpty(options.GrowContainerStrategy);
+            _bucketContainer = ImmutableRegistrationsContainer.CreateEmpty(options.GrowContainerStrategy);
         }
 
-        public RegistrationDictionary(RegistrationDictionary<TRegistration> other)
+        public RegistrationDictionary(RegistrationDictionary other)
         {
             _bucketContainer = Volatile.Read(ref other._bucketContainer);
         }
@@ -33,7 +33,7 @@ namespace Light.DependencyInjection.Multithreading
             }
         }
 
-        public IReadOnlyList<TRegistration> Registrations
+        public IReadOnlyList<Registration> Registrations
         {
             get
             {
@@ -42,26 +42,26 @@ namespace Light.DependencyInjection.Multithreading
             }
         }
 
-        public bool TryGetValue(TypeKey typeKey, out TRegistration value)
+        public bool TryGetValue(TypeKey typeKey, out Registration value)
         {
             var bucketContainer = Volatile.Read(ref _bucketContainer);
             return bucketContainer.TryFind(typeKey, out value);
         }
 
-        public TRegistration GetOrAdd(TypeKey typeKey, Func<TRegistration> createRegistration)
+        public Registration GetOrAdd(TypeKey typeKey, Func<Registration> createRegistration)
         {
-            TRegistration returnValue;
+            Registration returnValue;
             GetOrAdd(typeKey, createRegistration, out returnValue);
             return returnValue;
         }
 
-        public bool GetOrAdd(TypeKey typeKey, Func<TRegistration> createRegistration, out TRegistration registration)
+        public bool GetOrAdd(TypeKey typeKey, Func<Registration> createRegistration, out Registration registration)
         {
             createRegistration.MustNotBeNull(nameof(createRegistration));
 
             lock (_bucketContainerLock)
             {
-                ImmutableRegistrationsContainer<TRegistration> newBucketContainer;
+                ImmutableRegistrationsContainer newBucketContainer;
                 if (_bucketContainer.GetOrAdd(typeKey, createRegistration, out registration, out newBucketContainer) == false)
                     return false;
 
@@ -70,19 +70,19 @@ namespace Light.DependencyInjection.Multithreading
             }
         }
 
-        public bool AddOrReplace(TypeKey typeKey, TRegistration registration)
+        public bool AddOrReplace(TypeKey typeKey, Registration registration)
         {
             bool result;
             lock (_bucketContainerLock)
             {
-                ImmutableRegistrationsContainer<TRegistration> newBucketContainer;
+                ImmutableRegistrationsContainer newBucketContainer;
                 result = _bucketContainer.AddOrReplace(typeKey, registration, out newBucketContainer);
                 _bucketContainer = newBucketContainer;
             }
             return result;
         }
 
-        public RegistrationEnumerator<TRegistration> GetRegistrationEnumeratorForType(Type type)
+        public RegistrationEnumerator GetRegistrationEnumeratorForType(Type type)
         {
             type.MustNotBeNull(nameof(type));
 

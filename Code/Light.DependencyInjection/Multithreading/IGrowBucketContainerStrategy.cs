@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Light.DependencyInjection.Registrations;
 
 namespace Light.DependencyInjection.Multithreading
 {
-    public interface IGrowBucketContainerStrategy<TRegistration>
+    public interface IGrowBucketContainerStrategy
     {
-        int GetNumberOfBuckets(IReadOnlyList<ImmutableAvlNode<TRegistration>> existingBuckets);
+        int GetNumberOfBuckets(IReadOnlyList<ImmutableAvlNode<Registration>> existingBuckets);
     }
 }

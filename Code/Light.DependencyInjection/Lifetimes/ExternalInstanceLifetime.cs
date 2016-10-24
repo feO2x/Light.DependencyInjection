@@ -1,10 +1,9 @@
 ﻿using System;
 using Light.DependencyInjection.Services;
-using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Lifetimes
 {
-    public sealed class ExternalInstanceLifetime : ILifetime
+    public sealed class ExternalInstanceLifetime : Lifetime
     {
         private readonly object _value;
 
@@ -13,12 +12,14 @@ namespace Light.DependencyInjection.Lifetimes
             _value = value;
         }
 
-        public object GetInstance(ResolveContext context)
+        public override bool RequiresTypeCreationInfo => false;
+
+        public override object GetInstance(ResolveContext context)
         {
             return _value;
         }
 
-        public ILifetime ProvideInstanceForResolvedGenericType()
+        public override Lifetime ProvideInstanceForResolvedGenericTypeDefinition()
         {
             throw new NotSupportedException("A lifetime with an external value cannot be attached to a registration for a generic type definition.");
         }

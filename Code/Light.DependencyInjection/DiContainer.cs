@@ -16,29 +16,23 @@ namespace Light.DependencyInjection
     public sealed class DiContainer : IDisposable
     {
         private static readonly Type DiContainerType = typeof(DiContainer);
-        private readonly RegistrationDictionary<GenericTypeDefinitionRegistration> _genericTypeDefinitonMappings;
-        private readonly RegistrationDictionary<Registration> _typeMappings;
+        private readonly RegistrationDictionary _typeMappings;
         public readonly ContainerScope Scope;
         private ContainerServices _services;
 
         public DiContainer() : this(new ContainerServices()) { }
 
         public DiContainer(ContainerServices containerServices)
-            : this(new RegistrationDictionary<Registration>(),
-                   new RegistrationDictionary<GenericTypeDefinitionRegistration>(),
-                   containerServices) { }
+            : this(new RegistrationDictionary(), containerServices) { }
 
-        private DiContainer(RegistrationDictionary<Registration> typeMappings,
-                            RegistrationDictionary<GenericTypeDefinitionRegistration> genericTypeDefinitonMappings,
+        private DiContainer(RegistrationDictionary typeMappings,
                             ContainerServices services,
                             ContainerScope parentScope = null)
         {
             typeMappings.MustNotBeNull(nameof(typeMappings));
-            genericTypeDefinitonMappings.MustNotBeNull(nameof(genericTypeDefinitonMappings));
             services.MustNotBeNull(nameof(services));
 
             _typeMappings = typeMappings;
-            _genericTypeDefinitonMappings = genericTypeDefinitonMappings;
             _services = services;
             Scope = services.ContainerScopeFactory.CreateScope(parentScope);
         }
@@ -70,13 +64,10 @@ namespace Light.DependencyInjection
         public DiContainer CreateChildContainer(ChildContainerOptions options)
         {
             var parentScope = options.CreateEmptyScope ? null : Scope;
-            var registrations = options.CreateCopyOfMappings ? new RegistrationDictionary<Registration>(_typeMappings) : _typeMappings;
-            var genericTypeDefinitionRegistrations = options.CreateCopyOfMappings ? new RegistrationDictionary<GenericTypeDefinitionRegistration>(_genericTypeDefinitonMappings) : _genericTypeDefinitonMappings;
+            var registrations = options.CreateCopyOfMappings ? new RegistrationDictionary(_typeMappings) : _typeMappings;
+            var services = options.CloneContainerServices ? _services.Clone() : _services;
 
-            return new DiContainer(registrations,
-                                   genericTypeDefinitionRegistrations,
-                                   options.CloneContainerServices ? _services.Clone() : _services,
-                                   parentScope);
+            return new DiContainer(registrations, services, parentScope);
         }
 
         public DiContainer Register(Registration registration, IEnumerable<Type> abstractionTypes)
@@ -103,34 +94,6 @@ namespace Light.DependencyInjection
 
             _typeMappings.AddOrReplace(new TypeKey(registration.TargetType, registration.Name), registration);
 
-            return this;
-        }
-
-        public DiContainer RegisterGenericTypeDefinition(GenericTypeDefinitionRegistration registration)
-        {
-            registration.MustNotBeNull(nameof(registration));
-
-            _genericTypeDefinitonMappings.AddOrReplace(registration.TypeKey, registration);
-
-            return this;
-        }
-
-        public DiContainer RegisterGenericTypeDefinition(GenericTypeDefinitionRegistration registration,
-                                                         params Type[] abstractionTypes)
-        {
-            return RegisterGenericTypeDefinition(registration, (IEnumerable<Type>) abstractionTypes);
-        }
-
-        public DiContainer RegisterGenericTypeDefinition(GenericTypeDefinitionRegistration registration,
-                                                         IEnumerable<Type> abstractionTypes)
-        {
-            foreach (var abstractionType in abstractionTypes)
-            {
-                registration.TargetType.MustInheritFromOrImplement(abstractionType);
-                _genericTypeDefinitonMappings.AddOrReplace(new TypeKey(abstractionType, registration.Name), registration);
-            }
-
-            RegisterGenericTypeDefinition(registration);
             return this;
         }
 
@@ -209,8 +172,8 @@ namespace Light.DependencyInjection
 
             var genericTypeDefinition = typeKey.Type.GetGenericTypeDefinition();
             var genericTypeDefinitionKey = new TypeKey(genericTypeDefinition, typeKey.RegistrationName);
-            GenericTypeDefinitionRegistration genericTypeDefinitionRegistration;
-            if (_genericTypeDefinitonMappings.TryGetValue(genericTypeDefinitionKey, out genericTypeDefinitionRegistration) == false)
+            Registration genericTypeDefinitionRegistration;
+            if (_typeMappings.TryGetValue(genericTypeDefinitionKey, out genericTypeDefinitionRegistration) == false)
                 return null;
 
             var closedConstructedType = genericTypeDefinition == genericTypeDefinitionRegistration.TargetType ? typeKey.Type : genericTypeDefinitionRegistration.TargetType.MakeGenericType(typeKey.Type.GenericTypeArguments);
@@ -218,12 +181,12 @@ namespace Light.DependencyInjection
             return targetRegistration;
         }
 
-        public RegistrationEnumerator<Registration> GetRegistrationEnumeratorForType(Type type)
+        public RegistrationEnumerator GetRegistrationEnumeratorForType(Type type)
         {
             return _typeMappings.GetRegistrationEnumeratorForType(type);
         }
 
-        public DiContainer InstantiateAllWithLifetime<TLifetime>() where TLifetime : ILifetime
+        public DiContainer InstantiateAllWithLifetime<TLifetime>() where TLifetime : Lifetime
         {
             var lifetimeType = typeof(TLifetime);
             var lazyResolveScope = Services.ResolveScopeFactory.CreateLazyScope();

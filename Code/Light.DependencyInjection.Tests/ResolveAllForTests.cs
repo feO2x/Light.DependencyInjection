@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using Light.DependencyInjection.Lifetimes;
 using Xunit;
 
 namespace Light.DependencyInjection.Tests
@@ -13,8 +12,11 @@ namespace Light.DependencyInjection.Tests
 
         public ResolveAllForTests()
         {
-            Types.RegisterWith(Container, TransientLifetime.Instance, options => options.UseTypeNameAsRegistrationName()
-                                                                                        .MapToAllImplementedInterfaces());
+            foreach (var type in Types)
+            {
+                Container.RegisterTransient(type, options => options.UseTypeNameAsRegistrationName()
+                                                                    .MapToAllImplementedInterfaces());
+            }
         }
 
         [Fact(DisplayName = "The DI container must be able to inject all instances of an insterface in properties.")]

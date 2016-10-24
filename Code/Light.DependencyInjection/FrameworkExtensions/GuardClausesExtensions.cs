@@ -52,16 +52,16 @@ namespace Light.DependencyInjection.FrameworkExtensions
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
-        public static void MustBeClosedConstructedVariantOf(this Type type, Type genericTypeDefinition)
+        public static void MustBeClosedVariantOf(this Type type, Type genericTypeDefinition)
         {
             type.MustNotBeNull(nameof(type));
 
             var genericTypeDefinitionInfo = genericTypeDefinition.GetTypeInfo();
             if (genericTypeDefinitionInfo.IsGenericTypeDefinition == false)
-                throw new ArgumentException($"The type \"{genericTypeDefinition}\" is no generic type definition.");
+                throw new InvalidOperationException($"The type \"{genericTypeDefinition}\" is not a generic type definition.");
 
             if (type.IsConstructedGenericType == false || type.GetGenericTypeDefinition() != genericTypeDefinition)
-                throw new ResolveTypeException($"The type \"{type}\" is closed constructed variant of the generic type definition \"{genericTypeDefinition}\".", type);
+                throw new ResolveTypeException($"The type \"{type}\" is not a closed variant of the generic type definition \"{genericTypeDefinition}\".", type);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]

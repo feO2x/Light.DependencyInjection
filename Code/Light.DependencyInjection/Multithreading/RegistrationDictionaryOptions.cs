@@ -2,12 +2,12 @@
 
 namespace Light.DependencyInjection.Multithreading
 {
-    public struct RegistrationDictionaryOptions<TRegistration>
+    public struct RegistrationDictionaryOptions
     {
-        private IGrowBucketContainerStrategy<TRegistration> _growContainerStrategy;
-        public static readonly IGrowBucketContainerStrategy<TRegistration> DefaultGrowContainerStrategy = new PrimeNumberLinearStrategy<TRegistration>();
+        private IGrowBucketContainerStrategy _growContainerStrategy;
+        public static readonly IGrowBucketContainerStrategy DefaultGrowContainerStrategy = new PrimeNumberLinearStrategy();
 
-        public IGrowBucketContainerStrategy<TRegistration> GrowContainerStrategy
+        public IGrowBucketContainerStrategy GrowContainerStrategy
         {
             get { return _growContainerStrategy; }
             set
@@ -17,9 +17,9 @@ namespace Light.DependencyInjection.Multithreading
             }
         }
 
-        public static RegistrationDictionaryOptions<TRegistration> Create()
+        public static RegistrationDictionaryOptions Create()
         {
-            return new RegistrationDictionaryOptions<TRegistration>
+            return new RegistrationDictionaryOptions
                    {
                        _growContainerStrategy = DefaultGrowContainerStrategy
                    };

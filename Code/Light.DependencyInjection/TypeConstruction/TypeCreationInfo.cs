@@ -85,17 +85,17 @@ namespace Light.DependencyInjection.TypeConstruction
             }
         }
 
-        public TypeCreationInfo CloneForClosedConstructedGenericType(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
+        public TypeCreationInfo BindToClosedGenericType(Type closedGenericType, TypeInfo closedGenericTypeInfo)
         {
             if (_instanceInjections == null || _instanceInjections.Length == 0)
-                return new TypeCreationInfo(new TypeKey(closedConstructedGenericType, TypeKey.RegistrationName), InstantiationInfo.CloneForClosedConstructedGenericType(closedConstructedGenericType, closedConstructedGenericTypeInfo));
+                return new TypeCreationInfo(new TypeKey(closedGenericType, TypeKey.RegistrationName), InstantiationInfo.BindToClosedGenericType(closedGenericType, closedGenericTypeInfo));
 
             var instanceInjections = new InstanceInjection[_instanceInjections.Length];
             for (var i = 0; i < _instanceInjections.Length; i++)
             {
-                instanceInjections[i] = _instanceInjections[i].CloneForClosedConstructedGenericType(closedConstructedGenericType, closedConstructedGenericTypeInfo);
+                instanceInjections[i] = _instanceInjections[i].CloneForClosedConstructedGenericType(closedGenericType, closedGenericTypeInfo);
             }
-            return new TypeCreationInfo(new TypeKey(closedConstructedGenericType, TypeKey.RegistrationName), InstantiationInfo.CloneForClosedConstructedGenericType(closedConstructedGenericType, closedConstructedGenericTypeInfo), instanceInjections);
+            return new TypeCreationInfo(new TypeKey(closedGenericType, TypeKey.RegistrationName), InstantiationInfo.BindToClosedGenericType(closedGenericType, closedGenericTypeInfo), instanceInjections);
         }
     }
 }

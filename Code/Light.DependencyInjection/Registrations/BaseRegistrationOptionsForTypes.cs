@@ -300,22 +300,14 @@ namespace Light.DependencyInjection.Registrations
             return new TypeCreationInfo(new TypeKey(TargetType, RegistrationName), InstantiationInfo, InstanceInjections?.ToArray());
         }
 
-        public void CreateAndAddRegistration(DiContainer targetContainer, ILifetime lifetime)
+        public void CreateAndAddRegistration(DiContainer targetContainer, Lifetime lifetime)
         {
             targetContainer.MustNotBeNull(nameof(targetContainer));
 
-            if (TargetTypeInfo.IsGenericTypeDefinition)
-            {
-                var genericRegistration = new GenericTypeDefinitionRegistration(BuildTypeCreationInfo(),
-                                                                                lifetime,
-                                                                                IsContainerTrackingDisposables);
-                targetContainer.RegisterGenericTypeDefinition(genericRegistration, AbstractionTypes);
-                return;
-            }
-
             var registration = new Registration(new TypeKey(TargetType, RegistrationName),
                                                 lifetime,
-                                                BuildTypeCreationInfo());
+                                                BuildTypeCreationInfo(),
+                                                IsContainerTrackingDisposables);
             targetContainer.Register(registration, AbstractionTypes);
         }
 

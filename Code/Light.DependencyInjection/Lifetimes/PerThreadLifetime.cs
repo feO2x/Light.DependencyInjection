@@ -1,14 +1,13 @@
 ﻿using System.Threading;
 using Light.DependencyInjection.Services;
-using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Lifetimes
 {
-    public sealed class PerThreadLifetime : ILifetime
+    public sealed class PerThreadLifetime : Lifetime
     {
         private readonly ThreadLocal<object> _threadLocal = new ThreadLocal<object>();
 
-        public object GetInstance(ResolveContext context)
+        public override object GetInstance(ResolveContext context)
         {
             if (_threadLocal.IsValueCreated == false)
                 _threadLocal.Value = context.CreateInstance();
@@ -16,7 +15,7 @@ namespace Light.DependencyInjection.Lifetimes
             return _threadLocal.Value;
         }
 
-        public ILifetime ProvideInstanceForResolvedGenericType()
+        public override Lifetime ProvideInstanceForResolvedGenericTypeDefinition()
         {
             return new PerThreadLifetime();
         }

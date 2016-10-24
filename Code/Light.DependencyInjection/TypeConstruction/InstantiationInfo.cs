@@ -68,11 +68,11 @@ namespace Light.DependencyInjection.TypeConstruction
             return StandardizedInstantiationFunction(parameterOverrides.InstantiationParameters);
         }
 
-        public InstantiationInfo CloneForClosedConstructedGenericType(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
+        public InstantiationInfo BindToClosedGenericType(Type closedGenericType, TypeInfo closedGenericTypeInfo)
         {
-            closedConstructedGenericType.MustBeClosedConstructedVariantOf(TargetType);
+            closedGenericType.MustBeClosedVariantOf(TargetType);
 
-            return CloneForClosedConstructedGenericTypeInternal(closedConstructedGenericType, closedConstructedGenericTypeInfo);
+            return CloneForClosedConstructedGenericTypeInternal(closedGenericType, closedGenericTypeInfo);
         }
 
         protected abstract InstantiationInfo CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo);

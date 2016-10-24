@@ -1,18 +1,17 @@
 ﻿using Light.DependencyInjection.Services;
-using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Lifetimes
 {
-    public sealed class TransientLifetime : ILifetime
+    public sealed class TransientLifetime : Lifetime
     {
         public static readonly TransientLifetime Instance = new TransientLifetime();
 
-        public object GetInstance(ResolveContext context)
+        public override object GetInstance(ResolveContext context)
         {
             return context.CreateInstance();
         }
 
-        public ILifetime ProvideInstanceForResolvedGenericType()
+        public override Lifetime ProvideInstanceForResolvedGenericTypeDefinition()
         {
             return this;
         }

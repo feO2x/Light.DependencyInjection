@@ -1,23 +1,24 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Multithreading
 {
-    public struct RegistrationEnumerator<TRegistration> : IEnumerator<TRegistration>
+    public struct RegistrationEnumerator : IEnumerator<Registration>
     {
         private readonly Type _targetType;
-        private TRegistration _currentRegistration;
-        private AvlTreeEnumerator<TRegistration> _treeEnumerator;
+        private Registration _currentRegistration;
+        private AvlTreeEnumerator<Registration> _treeEnumerator;
 
-        public RegistrationEnumerator(Type targetType, AvlTreeEnumerator<TRegistration> treeEnumerator)
+        public RegistrationEnumerator(Type targetType, AvlTreeEnumerator<Registration> treeEnumerator)
         {
             targetType.MustNotBeNull(nameof(targetType));
 
             _targetType = targetType;
             _treeEnumerator = treeEnumerator;
-            _currentRegistration = default(TRegistration);
+            _currentRegistration = null;
         }
 
         public bool MoveNext()
@@ -30,17 +31,17 @@ namespace Light.DependencyInjection.Multithreading
                 _currentRegistration = _treeEnumerator.Current.HashEntry.Value;
                 return true;
             }
-            _currentRegistration = default(TRegistration);
+            _currentRegistration = null;
             return false;
         }
 
         public void Reset()
         {
             _treeEnumerator.Reset();
-            _currentRegistration = default(TRegistration);
+            _currentRegistration = null;
         }
 
-        public TRegistration Current => _currentRegistration;
+        public Registration Current => _currentRegistration;
 
         object IEnumerator.Current => _currentRegistration;
 
