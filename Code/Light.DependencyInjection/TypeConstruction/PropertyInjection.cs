@@ -43,9 +43,9 @@ namespace Light.DependencyInjection.TypeConstruction
             throw new TypeRegistrationException($"The property info \"{propertyInfo}\" does not describe a public instance property with a setter.", propertyInfo.DeclaringType);
         }
 
-        protected override InstanceInjection CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
+        protected override InstanceInjection BindToClosedGenericTypeInternal(Type closedGenericType, TypeInfo closedGenericTypeInfo)
         {
-            return new PropertyInjection(closedConstructedGenericTypeInfo.GetDeclaredProperty(PropertyInfo.Name), TargetRegistrationName);
+            return new PropertyInjection(closedGenericTypeInfo.GetDeclaredProperty(PropertyInfo.Name), TargetRegistrationName);
         }
     }
 }

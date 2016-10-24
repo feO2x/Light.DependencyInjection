@@ -43,9 +43,9 @@ namespace Light.DependencyInjection.TypeConstruction
             throw new TypeRegistrationException($"The field info \"{fieldInfo}\" does not describe a public instance field.", fieldInfo.DeclaringType);
         }
 
-        protected override InstanceInjection CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
+        protected override InstanceInjection BindToClosedGenericTypeInternal(Type closedGenericType, TypeInfo closedGenericTypeInfo)
         {
-            return new FieldInjection(closedConstructedGenericTypeInfo.GetDeclaredField(FieldInfo.Name), TargetRegistrationName);
+            return new FieldInjection(closedGenericTypeInfo.GetDeclaredField(FieldInfo.Name), TargetRegistrationName);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Light.DependencyInjection.TypeConstruction
             : base(targetType,
                    @delegate.CompileStandardizedInstantiationFunction(),
                    @delegate.GetMethodInfo().CreateDefaultInstantiationDependencies()) { }
-        protected override InstantiationInfo CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
+        protected override InstantiationInfo BindToClosedGenericTypeInternal(Type closedGenericType, TypeInfo closedGenericTypeInfo)
         {
             throw new NotSupportedException("A delegate cannot be instantiated with a generic type definition.");
         }

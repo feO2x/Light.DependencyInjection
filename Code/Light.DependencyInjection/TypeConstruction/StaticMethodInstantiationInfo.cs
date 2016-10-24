@@ -15,9 +15,9 @@ namespace Light.DependencyInjection.TypeConstruction
         {
             StaticMethodInfo = staticMethodInfo;
         }
-        protected override InstantiationInfo CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
+        protected override InstantiationInfo BindToClosedGenericTypeInternal(Type closedGenericType, TypeInfo closedGenericTypeInfo)
         {
-            return new StaticMethodInstantiationInfo(closedConstructedGenericType, StaticMethodInfo.MakeGenericMethod(closedConstructedGenericType.GenericTypeArguments));
+            return new StaticMethodInstantiationInfo(closedGenericType, StaticMethodInfo.MakeGenericMethod(closedGenericType.GenericTypeArguments));
         }
     }
 }

@@ -25,6 +25,7 @@ namespace Light.DependencyInjection.TypeConstruction
             memberName.MustNotBeNullOrWhiteSpace(nameof(memberName));
             memberType.MustNotBeNull(nameof(memberType));
             declaringType.MustNotBeNull(nameof(declaringType));
+            declaringType.MustBeNonGenericOrClosedConstructedOrGenericTypeDefinition();
 
             MemberName = memberName;
             MemberType = memberType;
@@ -68,13 +69,13 @@ namespace Light.DependencyInjection.TypeConstruction
             return DisplayName;
         }
 
-        public InstanceInjection CloneForClosedConstructedGenericType(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
+        public InstanceInjection BindToClosedGenericType(Type closedGenericType, TypeInfo closedGenericTypeInfo)
         {
-            closedConstructedGenericType.MustBeClosedVariantOf(DeclaringType);
+            closedGenericType.MustBeClosedVariantOf(DeclaringType);
 
-            return CloneForClosedConstructedGenericTypeInternal(closedConstructedGenericType, closedConstructedGenericTypeInfo);
+            return BindToClosedGenericTypeInternal(closedGenericType, closedGenericTypeInfo);
         }
 
-        protected abstract InstanceInjection CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo);
+        protected abstract InstanceInjection BindToClosedGenericTypeInternal(Type closedGenericType, TypeInfo closedGenericTypeInfo);
     }
 }

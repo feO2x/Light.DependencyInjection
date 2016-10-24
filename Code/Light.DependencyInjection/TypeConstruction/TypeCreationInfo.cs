@@ -93,7 +93,7 @@ namespace Light.DependencyInjection.TypeConstruction
             var instanceInjections = new InstanceInjection[_instanceInjections.Length];
             for (var i = 0; i < _instanceInjections.Length; i++)
             {
-                instanceInjections[i] = _instanceInjections[i].CloneForClosedConstructedGenericType(closedGenericType, closedGenericTypeInfo);
+                instanceInjections[i] = _instanceInjections[i].BindToClosedGenericType(closedGenericType, closedGenericTypeInfo);
             }
             return new TypeCreationInfo(new TypeKey(closedGenericType, TypeKey.RegistrationName), InstantiationInfo.BindToClosedGenericType(closedGenericType, closedGenericTypeInfo), instanceInjections);
         }

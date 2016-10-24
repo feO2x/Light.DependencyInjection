@@ -17,12 +17,12 @@ namespace Light.DependencyInjection.TypeConstruction
             ConstructorInfo = constructorInfo;
         }
 
-        protected override InstantiationInfo CloneForClosedConstructedGenericTypeInternal(Type closedConstructedGenericType, TypeInfo closedConstructedGenericTypeInfo)
+        protected override InstantiationInfo BindToClosedGenericTypeInternal(Type closedGenericType, TypeInfo closedGenericTypeInfo)
         {
             if (InstantiationDependencies == null || InstantiationDependencies.Count == 0)
-                return new ConstructorInstantiationInfo(closedConstructedGenericTypeInfo.GetDefaultConstructor());
+                return new ConstructorInstantiationInfo(closedGenericTypeInfo.GetDefaultConstructor());
 
-            var boundConstructors = closedConstructedGenericTypeInfo.DeclaredConstructors.AsList();
+            var boundConstructors = closedGenericTypeInfo.DeclaredConstructors.AsList();
             if (boundConstructors.Count == 1)
                 return new ConstructorInstantiationInfo(boundConstructors[0]);
 
@@ -34,10 +34,10 @@ namespace Light.DependencyInjection.TypeConstruction
                 if (unboundConstructorParameters.Length != boundConstructorParameters.Length)
                     continue;
 
-                if (MatchConstructorParameters(boundConstructorParameters, unboundConstructorParameters, closedConstructedGenericTypeInfo))
+                if (MatchConstructorParameters(boundConstructorParameters, unboundConstructorParameters, closedGenericTypeInfo))
                     return new ConstructorInstantiationInfo(boundConstructor);
             }
-            throw new ResolveTypeException($"The constructor for the closed constructed generic type \"{closedConstructedGenericType}\" that matches the generic type definition's constructor \"{ConstructorInfo}\" could not be found. This exception should actually never happen, unless there is a bug in class \"{nameof(ConstructorInstantiationInfo)}\" or you messed with the .NET type system badly.", closedConstructedGenericType);
+            throw new ResolveTypeException($"The constructor for the closed constructed generic type \"{closedGenericType}\" that matches the generic type definition's constructor \"{ConstructorInfo}\" could not be found. This exception should actually never happen, unless there is a bug in class \"{nameof(ConstructorInstantiationInfo)}\" or you messed with the .NET type system badly.", closedGenericType);
         }
 
         private bool MatchConstructorParameters(ParameterInfo[] boundConstructorParameters,
