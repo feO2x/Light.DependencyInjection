@@ -77,9 +77,19 @@ namespace Light.DependencyInjection.Services
 
         public Registration CreateDefaultRegistration(TypeKey typeKey)
         {
-            var defaultOptions = new RegistrationOptionsForType(typeKey.Type, _constructorSelector, _ignoredAbstractionTypes);
+            var defaultOptions = CreateRegistrationOptions(typeKey.Type);
             defaultOptions.UseRegistrationName(typeKey.RegistrationName);
             return _defaultRegistrationFactory.CreateDefaultRegistration(defaultOptions.BuildTypeCreationInfo());
+        }
+
+        public RegistrationOptionsForType CreateRegistrationOptions(Type targetType)
+        {
+            return new RegistrationOptionsForType(targetType, _constructorSelector, _ignoredAbstractionTypes);
+        }
+
+        public RegistrationOptionsForType<T> CreateRegistrationOptions<T>()
+        {
+            return new RegistrationOptionsForType<T>(_constructorSelector, _ignoredAbstractionTypes);
         }
 
         public ContainerServices Clone()

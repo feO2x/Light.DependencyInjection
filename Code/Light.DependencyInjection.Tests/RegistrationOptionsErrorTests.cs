@@ -6,8 +6,7 @@ using System.Reflection;
 using System.Text;
 using FluentAssertions;
 using Light.DependencyInjection.FrameworkExtensions;
-using Light.DependencyInjection.Registrations;
-using Light.DependencyInjection.TypeConstruction;
+using Light.DependencyInjection.Services;
 using Xunit;
 using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
@@ -15,6 +14,8 @@ namespace Light.DependencyInjection.Tests
 {
     public sealed class RegistrationOptionsErrorTests
     {
+        private static readonly ContainerServices ContainerServices = new ContainerServices();
+
         [Theory(DisplayName = "UseDefaultConstructor must throw a TypeRegistrationException when the target type does not contain a default constructor.")]
         [MemberData(nameof(DefaultConstructorErrorMessageData))]
         public void DefaultConstructorErrorMessage(Action act, Type targetType)
@@ -26,8 +27,8 @@ namespace Light.DependencyInjection.Tests
         public static TestData DefaultConstructorErrorMessageData =
             new[]
             {
-                new object[] { new Action(() => CreateRegistrationOptions<B>().UseDefaultConstructor()), typeof(B) },
-                new object[] { new Action(() => CreateRegistrationOptions<C>().UseDefaultConstructor()), typeof(C) }
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<B>().UseDefaultConstructor()), typeof(B) },
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<C>().UseDefaultConstructor()), typeof(C) }
             };
 
         [Theory(DisplayName = "UseConstructorWithParameter must throw a TypeRegistrationException when the target type does not contain the specified constructor.")]
@@ -41,8 +42,8 @@ namespace Light.DependencyInjection.Tests
         public static TestData ConstructorWithOneParameterErrorMessageData =
             new[]
             {
-                new object[] { new Action(() => CreateRegistrationOptions<A>().UseConstructorWithParameter<int>()), typeof(A), typeof(int) },
-                new object[] { new Action(() => CreateRegistrationOptions<D>().UseConstructorWithParameter<A>()), typeof(D), typeof(A) }
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<A>().UseConstructorWithParameter<int>()), typeof(A), typeof(int) },
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<D>().UseConstructorWithParameter<A>()), typeof(D), typeof(A) }
             };
 
         [Theory(DisplayName = "UseConstructorWithParameters must throw a TypeRegistrationException when the target type does not contain the specified constructor.")]
@@ -61,10 +62,10 @@ namespace Light.DependencyInjection.Tests
         public static TestData ConstructorWithSeveralParametersErrorMessageData =
             new[]
             {
-                new object[] { new Action(() => CreateRegistrationOptions<A>().UseConstructorWithParameters<int, double, string>()), typeof(A), new[] { typeof(int), typeof(double), typeof(string) } },
-                new object[] { new Action(() => CreateRegistrationOptions<E>().UseConstructorWithParameters<int, uint, string, DateTime, double, Guid>()), typeof(E), new[] { typeof(int), typeof(uint), typeof(string), typeof(DateTime), typeof(double), typeof(Guid) } },
-                new object[] { new Action(() => CreateRegistrationOptions<E>().UseConstructorWithParameters<int, uint, string, DateTime, double, Guid, string>()), typeof(E), new[] { typeof(int), typeof(uint), typeof(string), typeof(DateTime), typeof(double), typeof(Guid), typeof(string) } },
-                new object[] { new Action(() => CreateRegistrationOptions<E>().UseConstructorWithParameters<int, uint, string, DateTime, double, Guid, string, short>()), typeof(E), new[] { typeof(int), typeof(uint), typeof(string), typeof(DateTime), typeof(double), typeof(Guid), typeof(string), typeof(short) } }
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<A>().UseConstructorWithParameters<int, double, string>()), typeof(A), new[] { typeof(int), typeof(double), typeof(string) } },
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<E>().UseConstructorWithParameters<int, uint, string, DateTime, double, Guid>()), typeof(E), new[] { typeof(int), typeof(uint), typeof(string), typeof(DateTime), typeof(double), typeof(Guid) } },
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<E>().UseConstructorWithParameters<int, uint, string, DateTime, double, Guid, string>()), typeof(E), new[] { typeof(int), typeof(uint), typeof(string), typeof(DateTime), typeof(double), typeof(Guid), typeof(string) } },
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<E>().UseConstructorWithParameters<int, uint, string, DateTime, double, Guid, string, short>()), typeof(E), new[] { typeof(int), typeof(uint), typeof(string), typeof(DateTime), typeof(double), typeof(Guid), typeof(string), typeof(short) } }
             };
 
         [Fact(DisplayName = "UseStaticFactoryMethod must throw a TypeRegistrationException when the methodInfo does not point to a public static method returning an instance of the target type.")]
@@ -72,7 +73,7 @@ namespace Light.DependencyInjection.Tests
         {
             var methodInfo = GetType().GetRuntimeMethod("InstanceCreateA", new Type[0]);
 
-            Action act = () => CreateRegistrationOptions<A>().UseStaticFactoryMethod(methodInfo);
+            Action act = () => ContainerServices.CreateRegistrationOptions<A>().UseStaticFactoryMethod(methodInfo);
 
             act.ShouldThrow<TypeRegistrationException>()
                .And.Message.Should().Contain($"The specified method info \"{methodInfo}\" does not describe a public, static method that returns an instance of type \"{typeof(A)}\".");
@@ -94,10 +95,10 @@ namespace Light.DependencyInjection.Tests
         public static readonly TestData PropertyInfoExpressionErroneousData =
             new[]
             {
-                new object[] { new Action(() => CreateRegistrationOptions<H>().AddPropertyInjection(h => h.BooleanValue)), typeof(H) },
-                new object[] { new Action(() => CreateRegistrationOptions<I>().AddPropertyInjection(i => i.Text)), typeof(I) },
-                new object[] { new Action(() => CreateRegistrationOptions<I>().AddPropertyInjection(i => I.SomeStaticNumber)), typeof(I) },
-                new object[] { new Action(() => CreateRegistrationOptions<ArrayList>().AddPropertyInjection(list => list[0])), typeof(ArrayList) }
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<H>().AddPropertyInjection(h => h.BooleanValue)), typeof(H) },
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<I>().AddPropertyInjection(i => i.Text)), typeof(I) },
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<I>().AddPropertyInjection(i => I.SomeStaticNumber)), typeof(I) },
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<ArrayList>().AddPropertyInjection(list => list[0])), typeof(ArrayList) }
             };
 
         [Theory(DisplayName = "AddPropertyInjection must throw a TypeRegistrationException when the PropertyInfo does not describe a property of the target type.")]
@@ -111,8 +112,8 @@ namespace Light.DependencyInjection.Tests
         public static readonly TestData PropertyInfoDoesNotBelongToTargetTypeData =
             new[]
             {
-                new object[] { new Action(() => CreateRegistrationOptions<A>().AddPropertyInjection(a => new G().ReferenceToA)), typeof(A) },
-                new object[] { new Action(() => CreateRegistrationOptions<A>().AddPropertyInjection(typeof(G).GetRuntimeProperty("ReferenceToA"))), typeof(A) }
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<A>().AddPropertyInjection(a => new G().ReferenceToA)), typeof(A) },
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<A>().AddPropertyInjection(typeof(G).GetRuntimeProperty("ReferenceToA"))), typeof(A) }
             };
 
         [Theory(DisplayName = "AddFieldInjection must throw a TypeRegistrationException when the FieldInfo does not point to a public instance field that is not read-only.")]
@@ -126,8 +127,8 @@ namespace Light.DependencyInjection.Tests
         public static readonly TestData FieldInfoExpressionErroneousData =
             new[]
             {
-                new object[] { new Action(() => CreateRegistrationOptions<F>().AddFieldInjection(f => f.Number)), typeof(F) },
-                new object[] { new Action(() => CreateRegistrationOptions<H>().AddFieldInjection(h => H.StaticInstance)), typeof(H) }
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<F>().AddFieldInjection(f => f.Number)), typeof(F) },
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<H>().AddFieldInjection(h => H.StaticInstance)), typeof(H) }
             };
 
         [Theory(DisplayName = "AddFieldInjection must throw a TypeRegistrationException when the FieldInfo does not describe a field of the target type.")]
@@ -141,14 +142,14 @@ namespace Light.DependencyInjection.Tests
         public static readonly TestData FieldInfoExpressionDoesNotBelongToTargetTypeData =
             new[]
             {
-                new object[] { new Action(() => CreateRegistrationOptions<A>().AddFieldInjection(a => new H().BooleanValue)), typeof(A) },
-                new object[] { new Action(() => CreateRegistrationOptions<A>().AddFieldInjection(typeof(H).GetRuntimeField("BooleanValue"))), typeof(A) }
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<A>().AddFieldInjection(a => new H().BooleanValue)), typeof(A) },
+                new object[] { new Action(() => ContainerServices.CreateRegistrationOptions<A>().AddFieldInjection(typeof(H).GetRuntimeField("BooleanValue"))), typeof(A) }
             };
 
         [Fact(DisplayName = "ResolveInstantiationParameter must throw a TypeRegistrationException when there is no parameter with the specified type.")]
         public void ConfigureInstantiationParameterWithTypeNotPresent()
         {
-            Action act = () => CreateRegistrationOptions<A>().ResolveInstantiationParameter<B>();
+            Action act = () => ContainerServices.CreateRegistrationOptions<A>().ResolveInstantiationParameter<B>();
 
             act.ShouldThrow<TypeRegistrationException>()
                .And.Message.Should().Contain($"The specified instantiation method for type \"{typeof(A)}\" does not have a parameter of type \"{typeof(B)}\".");
@@ -157,8 +158,8 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "ResolveInstantiationParameter must throw a TypeRegistrationException when there is no parameter with the specified name.")]
         public void ConfigureInstantiationParameterWithNameNotPresent()
         {
-            Action act = () => CreateRegistrationOptions<F>().InstantiateWith<string, int>(F.Create)
-                                                             .ResolveInstantiationParameter("foo");
+            Action act = () => ContainerServices.CreateRegistrationOptions<F>().InstantiateWith<string, int>(F.Create)
+                                                .ResolveInstantiationParameter("foo");
 
             act.ShouldThrow<TypeRegistrationException>()
                .And.Message.Should().Contain($"The specified instantiation method for type \"{typeof(F)}\" does not have a parameter with name \"foo\".");
@@ -167,7 +168,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "ResolveInstantiationParameter must throw a TypeRegistrationException when there are several parameters with the same type.")]
         public void ConfigureInstantiationParametersWithSameTypes()
         {
-            Action act = () => CreateRegistrationOptions<K>().ResolveInstantiationParameter<string>();
+            Action act = () => ContainerServices.CreateRegistrationOptions<K>().ResolveInstantiationParameter<string>();
 
             act.ShouldThrow<TypeRegistrationException>()
                .And.Message.Should().Contain($"The specified instantiation method for type \"{typeof(K)}\" has several parameters with type \"{typeof(string)}\". Please use the overload of \"ResolveInstantiationParameter\" where an additional parameter name can be specified.");
@@ -179,21 +180,10 @@ namespace Light.DependencyInjection.Tests
             var targetType = typeof(Dictionary<,>);
             var genericParameterType = typeof(IDictionary<,>).GetTypeInfo().GenericTypeParameters.First(); // TKey of IDictionary<TKey, TValue>
 
-            Action act = () => CreateRegistrationOptions(targetType).MapToAbstractions(genericParameterType);
+            Action act = () => ContainerServices.CreateRegistrationOptions(targetType).MapToAbstractions(genericParameterType);
 
             act.ShouldThrow<TypeRegistrationException>()
                .And.Message.Should().Contain($"The type {genericParameterType} is a generic parameter and cannot be used as an abstraction for {targetType}.");
-        }
-
-
-        private static RegistrationOptionsForType<T> CreateRegistrationOptions<T>()
-        {
-            return new RegistrationOptionsForType<T>(new ConstructorWithMostParametersSelector(), new[] { typeof(IDisposable) }); // TODO: put this in ContainerServices?
-        }
-
-        private static RegistrationOptionsForType CreateRegistrationOptions(Type type)
-        {
-            return new RegistrationOptionsForType(type, new ConstructorWithMostParametersSelector(), new[] { typeof(IDisposable) });
         }
     }
 }
