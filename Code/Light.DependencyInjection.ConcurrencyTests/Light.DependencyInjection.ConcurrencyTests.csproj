@@ -52,7 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DiContainerTests.cs" />
+    <Compile Include="DependencyInjectionContainerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegistrationDictionaryConcurrencyTests.cs" />
   </ItemGroup>

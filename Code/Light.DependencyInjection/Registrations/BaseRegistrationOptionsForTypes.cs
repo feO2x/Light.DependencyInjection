@@ -300,7 +300,7 @@ namespace Light.DependencyInjection.Registrations
             return new TypeCreationInfo(new TypeKey(TargetType, RegistrationName), InstantiationInfo, InstanceInjections?.ToArray());
         }
 
-        public void CreateAndAddRegistration(DiContainer targetContainer, Lifetime lifetime)
+        public void CreateAndAddRegistration(DependencyInjectionContainer targetContainer, Lifetime lifetime)
         {
             targetContainer.MustNotBeNull(nameof(targetContainer));
 

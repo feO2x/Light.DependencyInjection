@@ -76,7 +76,7 @@
     <Compile Include="ResolveTypeException.cs" />
     <Compile Include="TypeConstruction\ConstructorInstantiationInfo.cs" />
     <Compile Include="TypeConstruction\ConstructorWithMostParametersSelector.cs" />
-    <Compile Include="DiContainer.cs" />
+    <Compile Include="DependencyInjectionContainer.cs" />
     <Compile Include="DiContainerExtensions.cs" />
     <Compile Include="FrameworkExtensions\GuardClausesExtensions.cs" />
     <Compile Include="TypeConstruction\ExplicitlyPassedNull.cs" />

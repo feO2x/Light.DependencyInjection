@@ -45,6 +45,6 @@ namespace Light.DependencyInjection.Multithreading
                     return i;
             }
             return -1;
-        } 
+        }
     }
 }

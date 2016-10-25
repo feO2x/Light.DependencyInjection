@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public abstract class BaseOptionsTests : DefaultDiContainerTest
+    public abstract class BaseOptionsTests : DefaultDependencyInjectionContainerTest
     {
         protected abstract void Register<T>(Action<IRegistrationOptionsForType<T>> configureOptions);
         protected abstract void Register(Type type, Action<IRegistrationOptionsForType> configureOptions = null);
@@ -218,6 +218,7 @@ namespace Light.DependencyInjection.Tests
 
         // ReSharper disable UnusedTypeParameter
         public class BaseType<T1, T2> { }
+
         // ReSharper restore UnusedTypeParameter
 
         public class SubType<T> : BaseType<T, int> { }
@@ -234,10 +235,10 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "Abstract base classes cannot be registered with the DI container because they cannot be instantiated.")]
         public void AbstractBaseClassesNotAllowed()
         {
-            Action act = () => Register(typeof(DefaultDiContainerTest));
+            Action act = () => Register(typeof(DefaultDependencyInjectionContainerTest));
 
             act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"The type \"{typeof(DefaultDiContainerTest)}\" cannot be registered with the DI container because it is an abstract class that cannot be instantiated.");
+               .And.Message.Should().Contain($"The type \"{typeof(DefaultDependencyInjectionContainerTest)}\" cannot be registered with the DI container because it is an abstract class that cannot be instantiated.");
         }
 
         [Fact(DisplayName = "Generic parameter types cannot be registered with the DI container because they cannot be instantiated.")]

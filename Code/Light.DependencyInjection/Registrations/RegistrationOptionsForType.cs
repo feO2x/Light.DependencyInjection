@@ -69,11 +69,11 @@ namespace Light.DependencyInjection.Registrations
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public static DiContainer PerformRegistration(DiContainer container,
-                                                      Type targetType,
-                                                      Action<IRegistrationOptionsForType> configureOptions,
-                                                      Lifetime lifetime,
-                                                      Type abstractionType = null)
+        public static DependencyInjectionContainer PerformRegistration(DependencyInjectionContainer container,
+                                                                       Type targetType,
+                                                                       Action<IRegistrationOptionsForType> configureOptions,
+                                                                       Lifetime lifetime,
+                                                                       Type abstractionType = null)
         {
             container.MustNotBeNull(nameof(container));
 
@@ -179,10 +179,10 @@ namespace Light.DependencyInjection.Registrations
             return SetDelegateInstantiationInfo(createInstance);
         }
 
-        public static DiContainer PerformRegistration(DiContainer container,
-                                                      Action<IRegistrationOptionsForType<T>> configureOptions,
-                                                      Lifetime lifetime,
-                                                      Type abstractionType = null)
+        public static DependencyInjectionContainer PerformRegistration(DependencyInjectionContainer container,
+                                                                       Action<IRegistrationOptionsForType<T>> configureOptions,
+                                                                       Lifetime lifetime,
+                                                                       Type abstractionType = null)
         {
             container.MustNotBeNull(nameof(container));
             lifetime.MustNotBeNull(nameof(lifetime));

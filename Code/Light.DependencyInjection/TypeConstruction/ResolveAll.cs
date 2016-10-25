@@ -12,6 +12,7 @@ namespace Light.DependencyInjection.TypeConstruction
             return (IDependencyResolver) constructor.Invoke(null);
         }
     }
+
     public sealed class ResolveAll<T> : IDependencyResolver
     {
         public object Resolve(Type type, string registrationName, CreationContext context)

@@ -9,12 +9,12 @@ namespace Light.DependencyInjection.Services
 {
     public struct ResolveContext
     {
-        public readonly DiContainer Container;
+        public readonly DependencyInjectionContainer Container;
         public readonly Registration Registration;
         public readonly ParameterOverrides? ParameterOverrides;
         private readonly Lazy<Dictionary<TypeKey, object>> _lazyResolveScope;
 
-        public ResolveContext(DiContainer container,
+        public ResolveContext(DependencyInjectionContainer container,
                               Registration registration,
                               Lazy<Dictionary<TypeKey, object>> lazyResolveScope,
                               ParameterOverrides? parameterOverrides = null)

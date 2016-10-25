@@ -9,7 +9,7 @@ namespace Light.DependencyInjection.Registrations
     {
         public RegistrationOptionsForExternalInstance(Type targetType, IReadOnlyList<Type> ignoredAbstractionTypes) : base(targetType, ignoredAbstractionTypes) { }
 
-        public void CreateAndAddRegistration(DiContainer container, object externalInstance)
+        public void CreateAndAddRegistration(DependencyInjectionContainer container, object externalInstance)
         {
             container.MustNotBeNull(nameof(container));
 
@@ -18,7 +18,7 @@ namespace Light.DependencyInjection.Registrations
                                                 IsContainerTrackingDisposables));
         }
 
-        public static DiContainer PerformRegistration(DiContainer container, object externalInstance, Action<IRegistrationOptionsForExternalInstance> configureOptions)
+        public static DependencyInjectionContainer PerformRegistration(DependencyInjectionContainer container, object externalInstance, Action<IRegistrationOptionsForExternalInstance> configureOptions)
         {
             container.MustNotBeNull(nameof(container));
             externalInstance.MustNotBeNull(nameof(externalInstance));

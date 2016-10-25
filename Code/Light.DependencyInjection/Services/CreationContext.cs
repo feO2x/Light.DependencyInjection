@@ -8,12 +8,12 @@ namespace Light.DependencyInjection.Services
 {
     public struct CreationContext
     {
-        public readonly DiContainer Container;
+        public readonly DependencyInjectionContainer Container;
         public readonly ParameterOverrides? ParameterOverrides;
         public readonly Registration Registration;
         public readonly Lazy<Dictionary<TypeKey, object>> LazyResolveScope;
 
-        private CreationContext(DiContainer container, ParameterOverrides? parameterOverrides)
+        private CreationContext(DependencyInjectionContainer container, ParameterOverrides? parameterOverrides)
         {
             Container = container;
             ParameterOverrides = parameterOverrides;
@@ -21,7 +21,7 @@ namespace Light.DependencyInjection.Services
             LazyResolveScope = container.Services.ResolveScopeFactory.CreateLazyScope();
         }
 
-        private CreationContext(DiContainer container,
+        private CreationContext(DependencyInjectionContainer container,
                                 ParameterOverrides? parameterOverrides,
                                 Registration registration,
                                 Lazy<Dictionary<TypeKey, object>> lazyResolveScope)
@@ -49,7 +49,7 @@ namespace Light.DependencyInjection.Services
                                        resolveScope);
         }
 
-        public static CreationContext CreateInitial(DiContainer container, ParameterOverrides? parameterOverrides = null)
+        public static CreationContext CreateInitial(DependencyInjectionContainer container, ParameterOverrides? parameterOverrides = null)
         {
             container.MustNotBeNull(nameof(container));
 

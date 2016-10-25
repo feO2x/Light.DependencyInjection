@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class ResolveAllForTests : DefaultDiContainerTest
+    public sealed class ResolveAllForTests : DefaultDependencyInjectionContainerTest
     {
         private static readonly IEnumerable<Type> Types = new[] { typeof(A), typeof(B), typeof(C) };
 

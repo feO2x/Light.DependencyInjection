@@ -7,9 +7,9 @@ namespace Light.DependencyInjection.Services
 {
     public class ContainerScope : IDisposable
     {
-        public readonly ContainerScope ParentScope;
         private readonly List<IDisposable> _disposableObjects = new List<IDisposable>();
         private readonly Dictionary<TypeKey, object> _scopedObjects = new Dictionary<TypeKey, object>();
+        public readonly ContainerScope ParentScope;
 
         public ContainerScope(ContainerScope parentScope = null)
         {

@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class ChildContainerTests : DefaultDiContainerTest
+    public sealed class ChildContainerTests : DefaultDependencyInjectionContainerTest
     {
         [Fact(DisplayName = "A child container must return the scoped objects of the parent container when possible.")]
         public void AccessParentSingletons()

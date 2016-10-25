@@ -25,6 +25,8 @@ namespace Light.DependencyInjection.TypeConstruction
             _instantiationDependencies = instantiationDependencies;
         }
 
+        public IReadOnlyList<InstantiationDependency> InstantiationDependencies => _instantiationDependencies;
+
         [Conditional(Check.CompileAssertionsSymbol)]
         private void CheckStandardizedInstantiationFunction(Func<object[], object> standardizedInstantiationFunction)
         {
@@ -33,8 +35,6 @@ namespace Light.DependencyInjection.TypeConstruction
 
             standardizedInstantiationFunction.MustNotBeNull(nameof(StaticMethodInstantiationInfo));
         }
-
-        public IReadOnlyList<InstantiationDependency> InstantiationDependencies => _instantiationDependencies;
 
         public virtual object Instantiate(CreationContext context)
         {

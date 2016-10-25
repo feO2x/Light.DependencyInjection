@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class PerResolveLifetimeTests : DefaultDiContainerTest
+    public sealed class PerResolveLifetimeTests : DefaultDependencyInjectionContainerTest
     {
         [Fact(DisplayName = "The PerResolveLifetime must inject the same instance during a recursive run of DiContainer.Resolve.")]
         public void SameInstancePerResolve()

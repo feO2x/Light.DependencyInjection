@@ -10,10 +10,10 @@ namespace Light.DependencyInjection.Services
     {
         private IConstructorSelector _constructorSelector = new ConstructorWithMostParametersSelector();
         private IContainerScopeFactory _containerScopeFactory = new DefaultContainerScopeFactory();
-        private ResolveScopeFactory _resolveScopeFactory = new ResolveScopeFactory();
         private IDefaultRegistrationFactory _defaultRegistrationFactory = new TransientRegistrationFactory();
         private IReadOnlyList<Type> _ignoredAbstractionTypes = new[] { typeof(IDisposable) };
         private IInjectorForUnknownInstanceMembers _injectorForUnknownInstanceMembers = new DefaultInjectorForUnknownInstanceMembers();
+        private ResolveScopeFactory _resolveScopeFactory = new ResolveScopeFactory();
 
         public IConstructorSelector ConstructorSelector
         {

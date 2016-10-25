@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class DisposableTests : DefaultDiContainerTest
+    public sealed class DisposableTests : DefaultDependencyInjectionContainerTest
     {
         [Fact(DisplayName = "The DI container must dispose of tracked objects when it is disposed.")]
         public void DisposeTrackedObjects()
@@ -50,11 +50,17 @@ namespace Light.DependencyInjection.Tests
             }
         }
     }
+
     public sealed class DisposableMock : IDisposable
     {
         private int _disposeCallCount;
 
         public int DisposeCallCount => _disposeCallCount;
+
+        public void Dispose()
+        {
+            ++_disposeCallCount;
+        }
 
         public void ShouldHaveBeenCalledExactlyOnce()
         {
@@ -64,11 +70,6 @@ namespace Light.DependencyInjection.Tests
         public void ShouldNotHaveBeenCalled()
         {
             _disposeCallCount.Should().Be(0);
-        }
-
-        public void Dispose()
-        {
-            ++_disposeCallCount;
         }
     }
 }

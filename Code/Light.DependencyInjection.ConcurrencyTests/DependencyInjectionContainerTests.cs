@@ -4,12 +4,12 @@ using Microsoft.Concurrency.TestTools.UnitTesting;
 
 namespace Light.DependencyInjection.ConcurrencyTests
 {
-    public class DiContainerTests
+    public class DependencyInjectionContainerTests
     {
         [DataRaceTestMethod]
         public void CreateChildContainerWhileAdd()
         {
-            var testTarget = new DiContainer();
+            var testTarget = new DependencyInjectionContainer();
 
             var registerThread = new Thread(() =>
                                             {

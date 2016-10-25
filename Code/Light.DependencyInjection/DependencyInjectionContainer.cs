@@ -13,21 +13,21 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection
 {
-    public sealed class DiContainer : IDisposable
+    public sealed class DependencyInjectionContainer : IServiceProvider, IDisposable
     {
-        private static readonly Type DiContainerType = typeof(DiContainer);
+        private static readonly Type DiContainerType = typeof(DependencyInjectionContainer);
         private readonly RegistrationDictionary _typeMappings;
         public readonly ContainerScope Scope;
         private ContainerServices _services;
 
-        public DiContainer() : this(new ContainerServices()) { }
+        public DependencyInjectionContainer() : this(new ContainerServices()) { }
 
-        public DiContainer(ContainerServices containerServices)
+        public DependencyInjectionContainer(ContainerServices containerServices)
             : this(new RegistrationDictionary(), containerServices) { }
 
-        private DiContainer(RegistrationDictionary typeMappings,
-                            ContainerServices services,
-                            ContainerScope parentScope = null)
+        private DependencyInjectionContainer(RegistrationDictionary typeMappings,
+                                             ContainerServices services,
+                                             ContainerScope parentScope = null)
         {
             typeMappings.MustNotBeNull(nameof(typeMappings));
             services.MustNotBeNull(nameof(services));
@@ -56,21 +56,26 @@ namespace Light.DependencyInjection
             Scope.Dispose();
         }
 
-        public DiContainer CreateChildContainer()
+        object IServiceProvider.GetService(Type serviceType)
+        {
+            return Resolve(serviceType);
+        }
+
+        public DependencyInjectionContainer CreateChildContainer()
         {
             return CreateChildContainer(ChildContainerOptions.Default);
         }
 
-        public DiContainer CreateChildContainer(ChildContainerOptions options)
+        public DependencyInjectionContainer CreateChildContainer(ChildContainerOptions options)
         {
             var parentScope = options.CreateEmptyScope ? null : Scope;
             var registrations = options.CreateCopyOfMappings ? new RegistrationDictionary(_typeMappings) : _typeMappings;
             var services = options.CloneContainerServices ? _services.Clone() : _services;
 
-            return new DiContainer(registrations, services, parentScope);
+            return new DependencyInjectionContainer(registrations, services, parentScope);
         }
 
-        public DiContainer Register(Registration registration, IEnumerable<Type> abstractionTypes)
+        public DependencyInjectionContainer Register(Registration registration, IEnumerable<Type> abstractionTypes)
         {
             foreach (var abstractionType in abstractionTypes)
             {
@@ -83,12 +88,12 @@ namespace Light.DependencyInjection
             return this;
         }
 
-        public DiContainer Register(Registration registration, params Type[] abstractionTypes)
+        public DependencyInjectionContainer Register(Registration registration, params Type[] abstractionTypes)
         {
             return Register(registration, (IEnumerable<Type>) abstractionTypes);
         }
 
-        public DiContainer Register(Registration registration)
+        public DependencyInjectionContainer Register(Registration registration)
         {
             registration.MustNotBeNull();
 
@@ -186,7 +191,7 @@ namespace Light.DependencyInjection
             return _typeMappings.GetRegistrationEnumeratorForType(type);
         }
 
-        public DiContainer InstantiateAllWithLifetime<TLifetime>() where TLifetime : Lifetime
+        public DependencyInjectionContainer InstantiateAllWithLifetime<TLifetime>() where TLifetime : Lifetime
         {
             var lifetimeType = typeof(TLifetime);
             var lazyResolveScope = Services.ResolveScopeFactory.CreateLazyScope();
@@ -197,12 +202,12 @@ namespace Light.DependencyInjection
             return this;
         }
 
-        public DiContainer InstantiateAllSingletons()
+        public DependencyInjectionContainer InstantiateAllSingletons()
         {
             return InstantiateAllWithLifetime<SingletonLifetime>();
         }
 
-        public DiContainer InstantiateAllScopedObjects()
+        public DependencyInjectionContainer InstantiateAllScopedObjects()
         {
             return InstantiateAllWithLifetime<ScopedLifetime>();
         }

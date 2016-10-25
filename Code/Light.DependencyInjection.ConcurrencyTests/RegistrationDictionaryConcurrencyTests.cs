@@ -31,9 +31,9 @@ namespace Light.DependencyInjection.ConcurrencyTests
             return new Registration(typeKey, lifetime);
         }
 
-        // This test fails because MChess assumes that I would access a field when calling TryFind in ImmutableRegistrationsContainer
-
         //[DataRaceTestMethod]
+
+        // This test fails because MChess assumes that I would access a field when calling TryFind in ImmutableRegistrationsContainer
         //public void ReadWhileAdd()
         //{
         //    var testTarget = new RegistrationDictionary<Registration>();

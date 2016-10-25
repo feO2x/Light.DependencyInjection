@@ -42,7 +42,5 @@ namespace Light.DependencyInjection.Tests
 
             createdObject.Should().BeOfType<A>();
         }
-
-        
     }
 }

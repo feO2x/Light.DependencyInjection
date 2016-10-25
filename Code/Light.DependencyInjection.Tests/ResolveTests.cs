@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class ResolveTests : DefaultDiContainerTest
+    public sealed class ResolveTests : DefaultDependencyInjectionContainerTest
     {
         [Fact(DisplayName = "The DI container must return one and the same instance when a type is registered as a Singleton.")]
         public void ResolveSingleton()

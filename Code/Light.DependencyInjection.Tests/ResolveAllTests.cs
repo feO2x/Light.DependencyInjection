@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class ResolveAllTests : DefaultDiContainerTest
+    public sealed class ResolveAllTests : DefaultDependencyInjectionContainerTest
     {
         [Fact(DisplayName = "The DI Container must be able to resolve all registrations of a certain abstraction type that were registered with a name.")]
         public void ResolveAll()

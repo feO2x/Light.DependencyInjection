@@ -187,9 +187,9 @@ namespace Light.DependencyInjection.Tests
 
     public class ServiceLocator
     {
-        public readonly DiContainer Container;
+        public readonly DependencyInjectionContainer Container;
 
-        public ServiceLocator(DiContainer container)
+        public ServiceLocator(DependencyInjectionContainer container)
         {
             Container = container;
         }
@@ -199,6 +199,7 @@ namespace Light.DependencyInjection.Tests
     {
         public readonly A ReferenceToA;
         public readonly B ReferenceToB;
+
         public L(A referenceToA, B referenceToB)
         {
             ReferenceToA = referenceToA;
