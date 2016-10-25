@@ -4,7 +4,7 @@ using Light.DependencyInjection.Registrations;
 
 namespace Light.DependencyInjection
 {
-    public static class DiContainerExtensions
+    public static class DependencyInjectionContainerExtensions
     {
         public static DependencyInjectionContainer RegisterTransient<T>(this DependencyInjectionContainer container, Action<IRegistrationOptionsForType<T>> configureOptions = null)
         {

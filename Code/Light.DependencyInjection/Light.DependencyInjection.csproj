@@ -77,7 +77,7 @@
     <Compile Include="TypeConstruction\ConstructorInstantiationInfo.cs" />
     <Compile Include="TypeConstruction\ConstructorWithMostParametersSelector.cs" />
     <Compile Include="DependencyInjectionContainer.cs" />
-    <Compile Include="DiContainerExtensions.cs" />
+    <Compile Include="DependencyInjectionContainerExtensions.cs" />
     <Compile Include="FrameworkExtensions\GuardClausesExtensions.cs" />
     <Compile Include="TypeConstruction\ExplicitlyPassedNull.cs" />
     <Compile Include="TypeConstruction\FieldInjection.cs" />
