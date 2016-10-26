@@ -7,7 +7,7 @@ namespace Light.DependencyInjection
     {
         public readonly Type TargetType;
 
-        public ResolveTypeException(string message, Type targetType) : base(message)
+        public ResolveTypeException(string message, Type targetType, Exception innerException = null) : base(message, innerException)
         {
             targetType.MustNotBeNull(nameof(targetType));
 

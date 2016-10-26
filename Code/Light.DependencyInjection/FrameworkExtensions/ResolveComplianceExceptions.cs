@@ -8,6 +8,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
         public new static readonly ResolveComplianceExceptions Default = new ResolveComplianceExceptions();
         private Func<Type, Exception> _createExceptionForDelegateType;
         private Func<Type, Exception> _createExceptionForEnumType;
+        private Func<Type, Exception> _createExceptionForPrimitiveType;
 
         private Func<Type, Exception> _createExceptionForGenericTypeDefinition;
 
@@ -19,6 +20,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
             CreateExceptionForOpenGenericType = CreateDefaultExceptionForOpenGenericType;
             CreateExceptionForGenericTypeDefinition = CreateDefaultExceptionForGenericTypeDefinition;
             CreateExceptionForEnumType = CreateDefaultExceptionForEnumType;
+            CreateExceptionForPrimitiveType = CreateDefaultExceptionForPrimitiveType;
             CreateExceptionForDelegateType = CreateDefaultExceptionForDelegateType;
         }
 
@@ -49,6 +51,16 @@ namespace Light.DependencyInjection.FrameworkExtensions
             {
                 value.MustNotBeNull(nameof(value));
                 _createExceptionForDelegateType = value;
+            }
+        }
+
+        public Func<Type, Exception> CreateExceptionForPrimitiveType
+        {
+            get { return _createExceptionForPrimitiveType; }
+            set
+            {
+                value.MustNotBeNull(nameof(value));
+                _createExceptionForPrimitiveType = value;
             }
         }
 
@@ -85,6 +97,11 @@ namespace Light.DependencyInjection.FrameworkExtensions
         public static Exception CreateDefaultExceptionForEnumType(Type enumType)
         {
             return new ResolveTypeException($"The specified type \"{enumType}\" describes an enum type which has not been registered and which cannot be resolved automatically.", enumType);
+        }
+
+        public static Exception CreateDefaultExceptionForPrimitiveType(Type primitiveType)
+        {
+            return new ResolveTypeException($"The specified type \"{primitiveType}\" is a primitive type which cannot be automatically resolved by the Dependency Injection Container.", primitiveType);
         }
 
         public static Exception CreateDefaultExceptionForDelegateType(Type delegateType)

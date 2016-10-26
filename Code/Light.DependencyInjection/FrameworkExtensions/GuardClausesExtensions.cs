@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Light.GuardClauses;
@@ -7,6 +8,25 @@ namespace Light.DependencyInjection.FrameworkExtensions
 {
     public static class GuardClausesExtensions
     {
+        public static readonly IList<Type> PrimitiveTypes = new[]
+                                                            {
+                                                                typeof(int),
+                                                                typeof(short),
+                                                                typeof(long),
+                                                                typeof(sbyte),
+                                                                typeof(uint),
+                                                                typeof(ushort),
+                                                                typeof(ulong),
+                                                                typeof(byte),
+                                                                typeof(double),
+                                                                typeof(float),
+                                                                typeof(decimal),
+                                                                typeof(bool),
+                                                                typeof(TimeSpan),
+                                                                typeof(DateTime),
+                                                                typeof(DateTimeOffset)
+                                                            };
+
         public static bool InheritsFromOrImplements(this Type parameter, Type baseType)
         {
             var baseTypeInfo = baseType.GetTypeInfo();
@@ -91,6 +111,8 @@ namespace Light.DependencyInjection.FrameworkExtensions
                 throw customExceptions.CreateExceptionForGenericTypeDefinition(type);
             if (typeInfo.IsEnum)
                 throw customExceptions.CreateExceptionForEnumType(type);
+            if (PrimitiveTypes.Contains(type))
+                throw customExceptions.CreateExceptionForPrimitiveType(type);
             if (typeInfo.BaseType == typeof(MulticastDelegate))
                 throw customExceptions.CreateExceptionForDelegateType(type);
         }

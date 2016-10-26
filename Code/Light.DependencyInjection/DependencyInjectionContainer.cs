@@ -143,9 +143,16 @@ namespace Light.DependencyInjection
         {
             typeKey.Type.MustBeResolveCompliant();
 
-            var registration = _typeMappings.GetOrAdd(typeKey,
-                                                      () => Services.CreateDefaultRegistration(typeKey));
-            return registration;
+            try
+            {
+                var registration = _typeMappings.GetOrAdd(typeKey,
+                                                          () => Services.CreateDefaultRegistration(typeKey));
+                return registration;
+            }
+            catch (TypeRegistrationException ex)
+            {
+                throw new ResolveTypeException($"A default registration for type {typeKey.GetFullRegistrationName()} could not be created - see the inner exception for details.", typeKey.Type, ex);
+            }
         }
 
         public ParameterOverrides OverrideParametersFor<T>(string registrationName = null)

@@ -6,7 +6,7 @@ namespace Light.DependencyInjection
     {
         public readonly Type TargetType;
 
-        public TypeRegistrationException(string message, Type targetType = null, Exception innerException = null)
+        public TypeRegistrationException(string message, Type targetType, Exception innerException = null)
             : base(message, innerException)
         {
             TargetType = targetType;

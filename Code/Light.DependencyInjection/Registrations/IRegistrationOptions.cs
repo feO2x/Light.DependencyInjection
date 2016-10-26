@@ -36,8 +36,8 @@ namespace Light.DependencyInjection.Registrations
         TConcreteOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7, T8, T9>();
         TConcreteOptions UseConstructorWithParameters<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>();
         TConcreteOptions UseStaticFactoryMethod(MethodInfo staticFactoryMethodInfo);
-        TConcreteOptions AddPropertyInjection(PropertyInfo propertyInfo, string resolvedRegistrationName = null);
-        TConcreteOptions AddFieldInjection(FieldInfo fieldInfo, string resolvedRegistrationName = null);
+        TConcreteOptions AddPropertyInjection(PropertyInfo propertyInfo, string targetRegistrationName = null);
+        TConcreteOptions AddFieldInjection(FieldInfo fieldInfo, string targetRegistrationName = null);
         IChildRegistrationNameOptions<TConcreteOptions> ResolveInstantiationParameter(string parameterName);
         IChildRegistrationNameOptions<TConcreteOptions> ResolveInstantiationParameter<TParameter>();
         TConcreteOptions ResolveAllForInstantiationParameter<TParameter>();

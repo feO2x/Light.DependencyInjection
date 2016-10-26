@@ -156,21 +156,21 @@ namespace Light.DependencyInjection.Registrations
             return This;
         }
 
-        public TConcreteOptions AddPropertyInjection(PropertyInfo propertyInfo, string resolvedRegistrationName = null)
+        public TConcreteOptions AddPropertyInjection(PropertyInfo propertyInfo, string targetRegistrationName = null)
         {
             propertyInfo.MustNotBeNull(nameof(propertyInfo));
             CheckPropertyInfo(propertyInfo, TargetType);
 
-            AddInstanceInjection(new PropertyInjection(propertyInfo, resolvedRegistrationName));
+            AddInstanceInjection(new PropertyInjection(propertyInfo, targetRegistrationName));
             return This;
         }
 
-        public TConcreteOptions AddFieldInjection(FieldInfo fieldInfo, string resolvedRegistrationName = null)
+        public TConcreteOptions AddFieldInjection(FieldInfo fieldInfo, string targetRegistrationName = null)
         {
             fieldInfo.MustNotBeNull(nameof(fieldInfo));
             CheckFieldInfo(fieldInfo, TargetType);
 
-            AddInstanceInjection(new FieldInjection(fieldInfo, resolvedRegistrationName));
+            AddInstanceInjection(new FieldInjection(fieldInfo, targetRegistrationName));
             return This;
         }
 
