@@ -74,7 +74,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
 
         public new static Exception CreateDefaultExceptionForOpenGenericType(Type openGenericType)
         {
-            return new ResolveTypeException($"The specified type \"{openGenericType}\" is a open generic type which cannot be resolved by the Dependency Injection Container.", openGenericType);
+            return new ResolveTypeException($"The specified type \"{openGenericType}\" is an open generic type which cannot be resolved by the Dependency Injection Container.", openGenericType);
         }
 
         public static Exception CreateDefaultExceptionForGenericTypeDefinition(Type genericTypeDefinition)

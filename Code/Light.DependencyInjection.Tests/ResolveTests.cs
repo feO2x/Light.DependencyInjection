@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentAssertions;
-using Light.DependencyInjection.Lifetimes;
 using Xunit;
 
 namespace Light.DependencyInjection.Tests
@@ -68,30 +67,20 @@ namespace Light.DependencyInjection.Tests
             resolvedInstance.Should().BeSameAs(instance);
         }
 
-        [Fact(DisplayName = "The DI container must create a transient registration and use it  when Resolve is called for a non-registered type.")]
-        public void ResolveDefaultTransient()
-        {
-            Container.Resolve<A>();
-
-            Container.Registrations.Should().ContainSingle(registration => registration.TargetType == typeof(A) && registration.Lifetime is TransientLifetime);
-        }
-
-        [Fact(DisplayName = "The DI container must throw an exception when Resolve is called on an abstract type that was not registered before.")]
-        public void ResolveAbstractionError()
-        {
-            Action act = () => Container.Resolve<IC>();
-
-            act.ShouldThrow<ResolveTypeException>()
-               .And.Message.Should().Contain($"The specified interface type \"{typeof(IC)}\" could not be resolved because there is no concrete type registered for it. Automatic resolve is not possible with types that cannot be instantiated.");
-        }
-
-
         [Fact(DisplayName = "The DI Container must be able to inject itself when it's type without registration name is resolved.")]
         public void SelfInject()
         {
-            var instance = Container.Resolve<ServiceLocator>();
+            var instance = Container.Resolve<ServiceLocatorClient>();
 
             instance.Container.Should().BeSameAs(Container);
+        }
+
+        [Fact(DisplayName = "The DI container must resolve itself when an IServiceProvider instance is requested.")]
+        public void SelfInjectServiceProvider()
+        {
+            var instance = Container.Resolve<IServiceProvider>();
+
+            instance.Should().BeSameAs(Container);
         }
 
         [Fact(DisplayName = "The DI container must be able to resolve types that are instantiated via lambdas.")]

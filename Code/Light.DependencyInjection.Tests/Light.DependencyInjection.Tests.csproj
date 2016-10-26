@@ -67,6 +67,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutomaticResolveTests.cs" />
     <Compile Include="ChildContainerTests.cs" />
     <Compile Include="DisposableTests.cs" />
     <Compile Include="FrameworkInspectionTests.cs" />
