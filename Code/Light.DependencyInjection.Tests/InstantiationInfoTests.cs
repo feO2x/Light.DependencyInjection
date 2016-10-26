@@ -25,6 +25,19 @@ namespace Light.DependencyInjection.Tests
                .And.Message.Should().Contain($"You cannot register type {genericParameterType} because it is a generic parameter type. Only non-abstract types that are either non-generic, closed generic or generic type definitions are allowed.");
         }
 
+        [Fact(DisplayName = "InstantiationInfo must throw a TypeRegistrationException when a bound open generic type is passed in.")]
+        public void BoundOpenGenericTypeError()
+        {
+            var dictionaryGenericTypeDefintion = typeof(Dictionary<,>);
+            var boundOpenGenericType = dictionaryGenericTypeDefintion.MakeGenericType(typeof(string), dictionaryGenericTypeDefintion.GetTypeInfo().GenericTypeParameters[1]); // Dictionary<string, TValue>
+
+            // ReSharper disable once ObjectCreationAsStatement
+            Action act = () => new InstantiationInfoStub(boundOpenGenericType, StandardizedInstantiationFuncitonMock, null);
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"You cannot register type {boundOpenGenericType} because it is a bound open generic type. Please ensure that you provide the generic type definition of this type.");
+        }
+
         private object StandardizedInstantiationFuncitonMock(object[] parameters)
         {
             ++_callCount;

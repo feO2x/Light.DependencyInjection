@@ -26,14 +26,17 @@ namespace Light.DependencyInjection.TypeConstruction
             _instantiationDependencies = instantiationDependencies;
         }
 
+        public IReadOnlyList<InstantiationDependency> InstantiationDependencies => _instantiationDependencies;
+
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckTargetType(Type targetType, TypeInfo targetTypeInfo)
         {
             if (targetTypeInfo.IsGenericParameter)
                 throw new TypeRegistrationException($"You cannot register type {targetType} because it is a generic parameter type. Only non-abstract types that are either non-generic, closed generic or generic type definitions are allowed.");
-        }
 
-        public IReadOnlyList<InstantiationDependency> InstantiationDependencies => _instantiationDependencies;
+            if (targetTypeInfo.IsGenericType && targetTypeInfo.ContainsGenericParameters && targetTypeInfo.IsGenericTypeDefinition == false)
+                throw new TypeRegistrationException($"You cannot register type {targetType} because it is a bound open generic type. Please ensure that you provide the generic type definition of this type.");
+        }
 
         [Conditional(Check.CompileAssertionsSymbol)]
         private void CheckStandardizedInstantiationFunction(Func<object[], object> standardizedInstantiationFunction)
