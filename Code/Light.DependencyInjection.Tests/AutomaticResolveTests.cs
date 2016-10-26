@@ -50,11 +50,22 @@ namespace Light.DependencyInjection.Tests
         }
 
         [Fact(DisplayName = "The DI container must create a non-empty GUID when it is resolved without registering it first.")]
-        public void ResolveGuid()
+        public void ResolveDefaultGuid()
         {
             var guid = Container.Resolve<Guid>();
 
             guid.Should().NotBeEmpty();
+        }
+
+        [Fact(DisplayName = "The default GUID resolve mechanism must be overridable by registering a Guid instance.")]
+        public void OverrideDefaultGuid()
+        {
+            var guid = Guid.NewGuid();
+
+            var resolvedGuid = Container.RegisterInstance(guid)
+                                        .Resolve<Guid>();
+
+            resolvedGuid.Should().Be(guid);
         }
 
         [Fact(DisplayName = "The DI container must throw an exception when Resolve is called on an interface type that was not registered before.")]
