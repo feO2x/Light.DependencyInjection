@@ -31,11 +31,14 @@ namespace Light.DependencyInjection.TypeConstruction
         [Conditional(Check.CompileAssertionsSymbol)]
         private static void CheckTargetType(Type targetType, TypeInfo targetTypeInfo)
         {
+            if (targetTypeInfo.IsInterface)
+                throw new TypeRegistrationException($"You cannot register type {targetType} because it is an interface which cannot be instantiated. Only non-abstract types that are either non-generic, closed generic or generic type definitions are allowed.", targetType);
+
             if (targetTypeInfo.IsGenericParameter)
-                throw new TypeRegistrationException($"You cannot register type {targetType} because it is a generic parameter type. Only non-abstract types that are either non-generic, closed generic or generic type definitions are allowed.");
+                throw new TypeRegistrationException($"You cannot register type {targetType} because it is a generic parameter type. Only non-abstract types that are either non-generic, closed generic or generic type definitions are allowed.", targetType);
 
             if (targetTypeInfo.IsGenericType && targetTypeInfo.ContainsGenericParameters && targetTypeInfo.IsGenericTypeDefinition == false)
-                throw new TypeRegistrationException($"You cannot register type {targetType} because it is a bound open generic type. Please ensure that you provide the generic type definition of this type.");
+                throw new TypeRegistrationException($"You cannot register type {targetType} because it is a bound open generic type. Please ensure that you provide the generic type definition of this type.", targetType);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]

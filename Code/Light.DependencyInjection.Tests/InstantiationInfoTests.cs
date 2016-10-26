@@ -13,6 +13,18 @@ namespace Light.DependencyInjection.Tests
         private int _callCount;
         private readonly object _instanceStub = new object();
 
+        [Fact(DisplayName = "InstantiationInfo must throw a TypeRegistrationException when an interface type is passed in.")]
+        public void InterfaceType()
+        {
+            var interfaceType = typeof(IC);
+
+            // ReSharper disable once ObjectCreationAsStatement
+            Action act = () => new InstantiationInfoStub(interfaceType, StandardizedInstantiationFuncitonMock, null);
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"You cannot register type {interfaceType} because it is an interface which cannot be instantiated. Only non-abstract types that are either non-generic, closed generic or generic type definitions are allowed.");
+        }
+
         [Fact(DisplayName = "InstantiationInfo must throw a TypeRegistrationException when a generic parameter type is passed in.")]
         public void GenericParameterTypeError()
         {
