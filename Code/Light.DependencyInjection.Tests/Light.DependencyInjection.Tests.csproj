@@ -70,6 +70,7 @@
     <Compile Include="ChildContainerTests.cs" />
     <Compile Include="DisposableTests.cs" />
     <Compile Include="FrameworkInspectionTests.cs" />
+    <Compile Include="InstantiationInfoTests.cs" />
     <Compile Include="OptionsTests.cs" />
     <Compile Include="CompileObjectCreationFunctionTests.cs" />
     <Compile Include="DefaultDependencyInjectionContainerTest.cs" />
