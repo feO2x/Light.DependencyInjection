@@ -15,6 +15,7 @@ namespace Light.DependencyInjection
     {
         private static readonly Type DiContainerType = typeof(DependencyInjectionContainer);
         private static readonly Type ServiceProviderType = typeof(IServiceProvider);
+        private static readonly Type GuidType = typeof(Guid);
 
         private readonly RegistrationDictionary _typeMappings;
         public readonly ContainerScope Scope;
@@ -134,6 +135,9 @@ namespace Light.DependencyInjection
 
             if (typeKey == DiContainerType || typeKey == ServiceProviderType)
                 return this;
+
+            if (typeKey == GuidType)
+                return Guid.NewGuid();
 
             registration = GetDefaultRegistration(typeKey);
             return registration.Lifetime.GetInstance(ResolveContext.FromCreationContext(creationContext, registration));

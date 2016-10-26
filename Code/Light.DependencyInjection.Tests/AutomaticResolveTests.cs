@@ -49,6 +49,14 @@ namespace Light.DependencyInjection.Tests
                .And.Message.Should().Contain($"The specified type \"{primitiveType}\" is a primitive type which cannot be automatically resolved by the Dependency Injection Container.");
         }
 
+        [Fact(DisplayName = "The DI container must create a non-empty GUID when it is resolved without registering it first.")]
+        public void ResolveGuid()
+        {
+            var guid = Container.Resolve<Guid>();
+
+            guid.Should().NotBeEmpty();
+        }
+
         [Fact(DisplayName = "The DI container must throw an exception when Resolve is called on an interface type that was not registered before.")]
         public void ResolveInterfaceError()
         {
