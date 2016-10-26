@@ -34,10 +34,10 @@ namespace Light.DependencyInjection.Tests
             Action act = () => new InstantiationInfoStub(interfaceType, StandardizedInstantiationFunctionMock, null);
 
             act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"You cannot register type {interfaceType} because it is an interface which cannot be instantiated. Only non-abstract types that are either non-generic, closed generic, or generic type definitions are allowed.");
+               .And.Message.Should().Contain($"You cannot register type \"{interfaceType}\" because it is an interface which cannot be instantiated. Only non-abstract types that are either non-generic, closed generic, or generic type definitions are allowed.");
         }
 
-        [Fact]
+        [Fact(DisplayName = "InstantiationInfo must throw a TypeRegistrationException when an abstract class type is passed in.")]
         public void AbstractClassError()
         {
             var abstractClassType = typeof(DefaultDependencyInjectionContainerTest);
@@ -46,7 +46,7 @@ namespace Light.DependencyInjection.Tests
             Action act = () => new InstantiationInfoStub(abstractClassType, StandardizedInstantiationFunctionMock, null);
 
             act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"You cannot register type {abstractClassType} because it is an abstract class which cannot be instantiated. Only non-abstract types that are either non-generic, closed generic, or generic type definitions are allowed.");
+               .And.Message.Should().Contain($"You cannot register type \"{abstractClassType}\" because it is an abstract class which cannot be instantiated. Only non-abstract types that are either non-generic, closed generic, or generic type definitions are allowed.");
         }
 
         [Fact(DisplayName = "InstantiationInfo must throw a TypeRegistrationException when a generic parameter type is passed in.")]
@@ -58,7 +58,7 @@ namespace Light.DependencyInjection.Tests
             Action act = () => new InstantiationInfoStub(genericParameterType, StandardizedInstantiationFunctionMock, null);
 
             act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"You cannot register type {genericParameterType} because it is a generic parameter type. Only non-abstract types that are either non-generic, closed generic, or generic type definitions are allowed.");
+               .And.Message.Should().Contain($"You cannot register type \"{genericParameterType}\" because it is a generic parameter type. Only non-abstract types that are either non-generic, closed generic, or generic type definitions are allowed.");
         }
 
         [Fact(DisplayName = "InstantiationInfo must throw a TypeRegistrationException when a bound open generic type is passed in.")]
@@ -71,7 +71,7 @@ namespace Light.DependencyInjection.Tests
             Action act = () => new InstantiationInfoStub(boundOpenGenericType, StandardizedInstantiationFunctionMock, null);
 
             act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"You cannot register type {boundOpenGenericType} because it is a bound open generic type. Please ensure that you provide the generic type definition of this type.");
+               .And.Message.Should().Contain($"You cannot register type \"{boundOpenGenericType}\" because it is a bound open generic type. Please ensure that you provide the generic type definition of this type.");
         }
 
         private object StandardizedInstantiationFunctionMock(object[] parameters)

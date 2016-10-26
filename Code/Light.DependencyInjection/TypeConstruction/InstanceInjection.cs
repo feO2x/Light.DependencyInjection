@@ -25,7 +25,6 @@ namespace Light.DependencyInjection.TypeConstruction
             memberName.MustNotBeNullOrWhiteSpace(nameof(memberName));
             memberType.MustNotBeNull(nameof(memberType));
             declaringType.MustNotBeNull(nameof(declaringType));
-            declaringType.MustBeNonGenericOrClosedConstructedOrGenericTypeDefinition();
 
             MemberName = memberName;
             MemberType = memberType;

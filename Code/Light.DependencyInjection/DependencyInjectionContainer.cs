@@ -13,7 +13,7 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection
 {
-    public sealed class DependencyInjectionContainer : IServiceProvider, IDisposable
+    public class DependencyInjectionContainer : IServiceProvider, IDisposable
     {
         private static readonly Type DiContainerType = typeof(DependencyInjectionContainer);
         private readonly RegistrationDictionary _typeMappings;

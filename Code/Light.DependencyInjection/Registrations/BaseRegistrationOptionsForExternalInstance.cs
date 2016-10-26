@@ -18,7 +18,6 @@ namespace Light.DependencyInjection.Registrations
         protected BaseRegistrationOptionsForExternalInstance(Type targetType,
                                                              IReadOnlyList<Type> ignoredAbstractionTypes)
         {
-            targetType.MustNotBeNull(nameof(targetType));
             ignoredAbstractionTypes.MustNotBeNull(nameof(ignoredAbstractionTypes));
 
             TargetType = targetType;

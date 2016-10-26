@@ -213,7 +213,7 @@ namespace Light.DependencyInjection.Tests
             Action act = () => Register(openConstructedGenericType);
 
             act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"The type \"{openConstructedGenericType}\" cannot be registered with the DI container because it is an open constructed generic type. Only non-generic types, closed constructed generic types or generic type definitions can be registered.");
+               .And.Message.Should().Contain($"You cannot register type \"{openConstructedGenericType}\" because it is a bound open generic type. Please ensure that you provide the generic type definition of this type.");
         }
 
         // ReSharper disable UnusedTypeParameter
@@ -229,7 +229,7 @@ namespace Light.DependencyInjection.Tests
             Action act = () => Register(typeof(IE));
 
             act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"The type \"{typeof(IE)}\" cannot be registered with the DI container because it is an interface type that cannot be instantiated.");
+               .And.Message.Should().Contain($"You cannot register type \"{typeof(IE)}\" because it is an interface which cannot be instantiated. Only non-abstract types that are either non-generic, closed generic, or generic type definitions are allowed.");
         }
 
         [Fact(DisplayName = "Abstract base classes cannot be registered with the DI container because they cannot be instantiated.")]
@@ -238,7 +238,7 @@ namespace Light.DependencyInjection.Tests
             Action act = () => Register(typeof(DefaultDependencyInjectionContainerTest));
 
             act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"The type \"{typeof(DefaultDependencyInjectionContainerTest)}\" cannot be registered with the DI container because it is an abstract class that cannot be instantiated.");
+               .And.Message.Should().Contain($"You cannot register type \"{typeof(DefaultDependencyInjectionContainerTest)}\" because it is an abstract class which cannot be instantiated. Only non-abstract types that are either non-generic, closed generic, or generic type definitions are allowed.");
         }
 
         [Fact(DisplayName = "Generic parameter types cannot be registered with the DI container because they cannot be instantiated.")]
@@ -249,7 +249,7 @@ namespace Light.DependencyInjection.Tests
             Action act = () => Register(genericParameterType);
 
             act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Contain($"The type \"{genericParameterType}\" cannot be registered with the DI container because it is a generic type paramter. Only non-generic types, closed constructed generic types or generic type definitions can be registered.");
+               .And.Message.Should().Contain($"You cannot register type \"{genericParameterType}\" because it is a generic parameter type. Only non-abstract types that are either non-generic, closed generic, or generic type definitions are allowed.");
         }
 
         [Fact(DisplayName = "The DI container must throw an exception when a type is registered that has no public constructor and where no instantiation method is provided.")]

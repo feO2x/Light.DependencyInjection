@@ -20,8 +20,7 @@ namespace Light.DependencyInjection.Registrations
         protected BaseRegistrationOptionsForTypes(Type targetType, IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes)
             : base(targetType, ignoredAbstractionTypes)
         {
-            targetType.MustBeInstantiatable();
-            targetType.MustBeNonGenericOrClosedConstructedOrGenericTypeDefinition();
+            targetType.MustBeContainerCompliant();
             constructorSelector.MustNotBeNull(nameof(constructorSelector));
 
             ConstructorSelector = constructorSelector;

@@ -65,43 +65,19 @@ namespace Light.DependencyInjection.FrameworkExtensions
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
-        public static void MustBeGenericTypeDefinition(this TypeInfo typeInfo)
-        {
-            if (typeInfo.IsGenericTypeDefinition)
-                return;
-
-            throw new TypeRegistrationException($"The type \"{typeInfo.FullName}\" is no generic type definition.", typeInfo.AsType());
-        }
-
-        [Conditional(Check.CompileAssertionsSymbol)]
-        public static void MustBeNonGenericOrClosedConstructedOrGenericTypeDefinition(this Type type)
+        public static void MustBeContainerCompliant(this Type type, ContainerCompliantExceptions customExceptions = null)
         {
             var typeInfo = type.GetTypeInfo();
-
-            if (typeInfo.IsGenericType)
-            {
-                if (typeInfo.IsGenericTypeDefinition)
-                    return;
-
-                if (typeInfo.ContainsGenericParameters == false)
-                    return;
-
-                throw new TypeRegistrationException($"The type \"{type}\" cannot be registered with the DI container because it is an open constructed generic type. Only non-generic types, closed constructed generic types or generic type definitions can be registered.", type);
-            }
-            if (typeInfo.IsGenericParameter)
-                throw new TypeRegistrationException($"The type \"{type}\" cannot be registered with the DI container because it is a generic type paramter. Only non-generic types, closed constructed generic types or generic type definitions can be registered.", type);
-        }
-
-        [Conditional(Check.CompileAssertionsSymbol)]
-        public static void MustBeInstantiatable(this Type type)
-        {
-            var typeInfo = type.GetTypeInfo();
+            customExceptions = customExceptions ?? ContainerCompliantExceptions.Default;
 
             if (typeInfo.IsInterface)
-                throw new TypeRegistrationException($"The type \"{type}\" cannot be registered with the DI container because it is an interface type that cannot be instantiated.", type);
-
+                throw customExceptions.CreateExceptionForInterfaceType(type);
             if (typeInfo.IsAbstract)
-                throw new TypeRegistrationException($"The type \"{type}\" cannot be registered with the DI container because it is an abstract class that cannot be instantiated.", type);
+                throw customExceptions.CreateExceptionForAbstractType(type);
+            if (typeInfo.IsGenericParameter)
+                throw customExceptions.CreateExceptionForGenericParameterType(type);
+            if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters && typeInfo.IsGenericTypeDefinition == false)
+                throw customExceptions.CreateExceptionForOpenGenericType(type);
         }
     }
 }
