@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using Light.DependencyInjection.FrameworkExtensions;
 using Light.DependencyInjection.Lifetimes;
 using Light.DependencyInjection.Multithreading;
@@ -16,6 +14,8 @@ namespace Light.DependencyInjection
     public class DependencyInjectionContainer : IServiceProvider, IDisposable
     {
         private static readonly Type DiContainerType = typeof(DependencyInjectionContainer);
+        private static readonly Type ServiceProviderType = typeof(IServiceProvider);
+
         private readonly RegistrationDictionary _typeMappings;
         public readonly ContainerScope Scope;
         private ContainerServices _services;
@@ -128,16 +128,20 @@ namespace Light.DependencyInjection
 
         internal object ResolveRecursively(TypeKey typeKey, CreationContext creationContext)
         {
-            if (typeKey.Type == DiContainerType && typeKey.RegistrationName == null)
+            var registration = GetRegistration(typeKey);
+            if (registration != null)
+                return registration.Lifetime.GetInstance(ResolveContext.FromCreationContext(creationContext, registration));
+
+            if (typeKey == DiContainerType || typeKey == ServiceProviderType)
                 return this;
 
-            var registration = GetRegistration(typeKey) ?? GetDefaultRegistration(typeKey);
+            registration = GetDefaultRegistration(typeKey);
             return registration.Lifetime.GetInstance(ResolveContext.FromCreationContext(creationContext, registration));
         }
 
         private Registration GetDefaultRegistration(TypeKey typeKey)
         {
-            CheckIfTypeIsInstantiable(typeKey.Type);
+            typeKey.Type.MustBeResolveCompliant();
 
             var registration = _typeMappings.GetOrAdd(typeKey,
                                                       () => Services.CreateDefaultRegistration(typeKey));
@@ -210,21 +214,6 @@ namespace Light.DependencyInjection
         public DependencyInjectionContainer InstantiateAllScopedObjects()
         {
             return InstantiateAllWithLifetime<ScopedLifetime>();
-        }
-
-        [Conditional(Check.CompileAssertionsSymbol)]
-        private static void CheckIfTypeIsInstantiable(Type type)
-        {
-            var typeInfo = type.GetTypeInfo();
-
-            if (typeInfo.IsAbstract)
-                throw new ResolveTypeException($"The specified type \"{type}\" could not be resolved because there is no concrete type registered that should be returned for this polymorphic abstraction.", type);
-
-            if (typeInfo.IsEnum)
-                throw new ResolveTypeException($"The specified type \"{type}\" describes an enum type which has not been registered and which cannot be resolved automatically.", type);
-
-            if (typeInfo.BaseType == typeof(MulticastDelegate))
-                throw new ResolveTypeException($"The specified type \"{type}\" describes a delegate type which has not been registered and which cannot be resolved automatically.", type);
         }
 
         public T[] ResolveAll<T>() // TODO: with ParameterOverrides?

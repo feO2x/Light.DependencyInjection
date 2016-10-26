@@ -82,7 +82,7 @@ namespace Light.DependencyInjection.Tests
             Action act = () => Container.Resolve<IC>();
 
             act.ShouldThrow<ResolveTypeException>()
-               .And.Message.Should().Contain($"The specified type \"{typeof(IC)}\" could not be resolved because there is no concrete type registered that should be returned for this polymorphic abstraction.");
+               .And.Message.Should().Contain($"The specified interface type \"{typeof(IC)}\" could not be resolved because there is no concrete type registered for it. Automatic resolve is not possible with types that cannot be instantiated.");
         }
 
 

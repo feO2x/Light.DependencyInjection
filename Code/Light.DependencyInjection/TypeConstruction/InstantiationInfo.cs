@@ -17,7 +17,7 @@ namespace Light.DependencyInjection.TypeConstruction
 
         protected InstantiationInfo(Type targetType, Func<object[], object> standardizedInstantiationFunction, InstantiationDependency[] instantiationDependencies)
         {
-            targetType.MustBeContainerCompliant();
+            targetType.MustBeRegistrationCompliant();
             TargetTypeInfo = targetType.GetTypeInfo();
             
             CheckStandardizedInstantiationFunction(standardizedInstantiationFunction);

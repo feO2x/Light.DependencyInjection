@@ -65,10 +65,10 @@ namespace Light.DependencyInjection.FrameworkExtensions
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]
-        public static void MustBeContainerCompliant(this Type type, ContainerCompliantExceptions customExceptions = null)
+        public static void MustBeRegistrationCompliant(this Type type, RegisterComplianceExceptions customExceptions = null)
         {
             var typeInfo = type.GetTypeInfo();
-            customExceptions = customExceptions ?? ContainerCompliantExceptions.Default;
+            customExceptions = customExceptions ?? RegisterComplianceExceptions.Default;
 
             if (typeInfo.IsInterface)
                 throw customExceptions.CreateExceptionForInterfaceType(type);
@@ -78,6 +78,21 @@ namespace Light.DependencyInjection.FrameworkExtensions
                 throw customExceptions.CreateExceptionForGenericParameterType(type);
             if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters && typeInfo.IsGenericTypeDefinition == false)
                 throw customExceptions.CreateExceptionForOpenGenericType(type);
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        public static void MustBeResolveCompliant(this Type type, ResolveComplianceExceptions customExceptions = null)
+        {
+            customExceptions = customExceptions ?? ResolveComplianceExceptions.Default;
+            type.MustBeRegistrationCompliant(customExceptions);
+
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsGenericTypeDefinition)
+                throw customExceptions.CreateExceptionForGenericTypeDefinition(type);
+            if (typeInfo.IsEnum)
+                throw customExceptions.CreateExceptionForEnumType(type);
+            if (typeInfo.BaseType == typeof(MulticastDelegate))
+                throw customExceptions.CreateExceptionForDelegateType(type);
         }
     }
 }

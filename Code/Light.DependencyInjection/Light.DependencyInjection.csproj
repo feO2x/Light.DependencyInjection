@@ -34,7 +34,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="FrameworkExtensions\ContainerCompliantExceptions.cs" />
+    <Compile Include="FrameworkExtensions\RegisterComplianceExceptions.cs" />
+    <Compile Include="FrameworkExtensions\ResolveComplianceExceptions.cs" />
     <Compile Include="Lifetimes\ExternalInstanceLifetime.cs" />
     <Compile Include="Lifetimes\Lifetime.cs" />
     <Compile Include="Lifetimes\PerResolveLifetime.cs" />
