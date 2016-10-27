@@ -6,8 +6,14 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.FrameworkExtensions
 {
+    /// <summary>
+    ///     Provides extension methods used for precondition checks.
+    /// </summary>
     public static class GuardClausesExtensions
     {
+        /// <summary>
+        ///     Gets the list of primitive types that the DI container cannot resolve automatically.
+        /// </summary>
         public static readonly IList<Type> PrimitiveTypes = new[]
                                                             {
                                                                 typeof(int),
@@ -27,6 +33,9 @@ namespace Light.DependencyInjection.FrameworkExtensions
                                                                 typeof(DateTimeOffset)
                                                             };
 
+        /// <summary>
+        ///     Checks if the specified type inherits from or implements the base type.
+        /// </summary>
         public static bool InheritsFromOrImplements(this Type parameter, Type baseType)
         {
             var baseTypeInfo = baseType.GetTypeInfo();
@@ -53,6 +62,9 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return false;
         }
 
+        /// <summary>
+        ///     Ensures that the specified type inherits from the base type, or otherwise throws a <see cref="TypeRegistrationException" />.
+        /// </summary>
         [Conditional(Check.CompileAssertionsSymbol)]
         public static void MustInheritFromOrImplement(this Type parameter, Type baseType)
         {
@@ -71,6 +83,9 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return type.GetGenericTypeDefinition() == other;
         }
 
+        /// <summary>
+        ///     Checks that the specified type is a closed generic variant of the specified generic type definition, or otherwise throws a <see cref="ResolveTypeException" />.
+        /// </summary>
         [Conditional(Check.CompileAssertionsSymbol)]
         public static void MustBeClosedVariantOf(this Type type, Type genericTypeDefinition)
         {
@@ -84,6 +99,9 @@ namespace Light.DependencyInjection.FrameworkExtensions
                 throw new ResolveTypeException($"The type \"{type}\" is not a closed variant of the generic type definition \"{genericTypeDefinition}\".", type);
         }
 
+        /// <summary>
+        ///     Checks if the specified type can be registered with the DI container.
+        /// </summary>
         [Conditional(Check.CompileAssertionsSymbol)]
         public static void MustBeRegistrationCompliant(this Type type, RegisterComplianceExceptions customExceptions = null)
         {
@@ -100,6 +118,9 @@ namespace Light.DependencyInjection.FrameworkExtensions
                 throw customExceptions.CreateExceptionForOpenGenericType(type);
         }
 
+        /// <summary>
+        ///     Checks if the specified type can be resolved by the DI container.
+        /// </summary>
         [Conditional(Check.CompileAssertionsSymbol)]
         public static void MustBeResolveCompliant(this Type type, ResolveComplianceExceptions customExceptions = null)
         {
