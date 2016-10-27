@@ -5,8 +5,14 @@ using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.FrameworkExtensions
 {
+    /// <summary>
+    ///     Provides extension methods for the <see cref="StringBuilder" /> class.
+    /// </summary>
     public static class StringBuilderExtensions
     {
+        /// <summary>
+        ///     Appends words in a comma-separated way, inserting an and between the last and second-to-last word.
+        /// </summary>
         public static StringBuilder AppendWordEnumeration<T>(this StringBuilder stringBuilder, IEnumerable<T> words, string commaSeparator = ", ", string andSeparator = " and ", bool surroundWordsWithQuotationMarks = true)
         {
             // ReSharper disable PossibleMultipleEnumeration
