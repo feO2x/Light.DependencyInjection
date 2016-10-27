@@ -17,6 +17,8 @@ namespace Light.DependencyInjection.Registrations
         public readonly TypeCreationInfo TypeCreationInfo;
         public readonly TypeKey TypeKey;
 
+        public static bool UseFullTypeNamesForToString = false;
+
         public Registration(TypeKey typeKey, Lifetime lifetime, bool shouldTrackDisposables = true)
         {
             CheckLifetime(lifetime);
@@ -61,7 +63,8 @@ namespace Light.DependencyInjection.Registrations
 
         private string CreateToStringText()
         {
-            return $"Registration \"{TargetType}\"{TypeKey.GetWithRegistrationNameText()}";
+            var typeName = UseFullTypeNamesForToString ? TargetType.FullName : TargetType.Name;
+            return $"Registration for type \"{typeName}\"{TypeKey.GetWithRegistrationNameText()}";
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]

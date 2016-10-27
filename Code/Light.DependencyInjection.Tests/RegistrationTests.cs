@@ -50,5 +50,26 @@ namespace Light.DependencyInjection.Tests
             registration.TypeKey.Should().Be(typeCreationInfo.TypeKey);
             registration.TargetTypeInfo.Should().BeSameAs(typeCreationInfo.TargetTypeInfo);
         }
+
+        [Fact(DisplayName = "Registration uses only the normal type name for ToString by default.")]
+        public void ToStringWithTypeName()
+        {
+            var instance = new A();
+            var registration = new Registration(typeof(A), new ExternalInstanceLifetime(instance));
+
+            registration.ToString().Should().Contain($"\"{typeof(A).Name}\"");
+        }
+
+        [Fact(DisplayName = "Registration uses the full type name for ToString when the configures UseFullTypeNamesForToString.")]
+        public void ToStringWithFullTypeName()
+        {
+            Registration.UseFullTypeNamesForToString = true;
+            var instance = new A();
+            var registration = new Registration(typeof(A), new ExternalInstanceLifetime(instance));
+
+            registration.ToString().Should().Contain($"\"{typeof(A).FullName}\"");
+
+            Registration.UseFullTypeNamesForToString = false;
+        }
     }
 }

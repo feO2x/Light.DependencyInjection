@@ -9,7 +9,7 @@
 
         public static string GetWithRegistrationNameText(this TypeKey typeKey)
         {
-            return typeKey.RegistrationName == null ? "" : $" with registration name \"{typeKey.RegistrationName}\"";
+            return typeKey.RegistrationName == null ? "" : $" with name \"{typeKey.RegistrationName}\"";
         }
     }
 }
