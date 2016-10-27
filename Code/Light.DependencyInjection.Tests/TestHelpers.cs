@@ -9,14 +9,14 @@ namespace Light.DependencyInjection.Tests
 
     public class B
     {
-        public readonly A OtherObject;
+        public readonly A ReferenceToA;
         public readonly int Value;
 
-        public B(A otherObject, int value)
+        public B(A referenceToA, int value)
         {
-            otherObject.MustNotBeNull(nameof(otherObject));
+            referenceToA.MustNotBeNull(nameof(referenceToA));
 
-            OtherObject = otherObject;
+            ReferenceToA = referenceToA;
             Value = value;
         }
     }

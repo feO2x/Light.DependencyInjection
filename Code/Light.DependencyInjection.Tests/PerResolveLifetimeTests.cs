@@ -13,7 +13,7 @@ namespace Light.DependencyInjection.Tests
 
             var instanceOfL = Container.Resolve<L>();
 
-            instanceOfL.ReferenceToA.Should().BeSameAs(instanceOfL.ReferenceToB.OtherObject);
+            instanceOfL.ReferenceToA.Should().BeSameAs(instanceOfL.ReferenceToB.ReferenceToA);
         }
 
         [Fact(DisplayName = "The PerResolveLifetime must return different instances for different calls to DiContainer.Resolve.")]

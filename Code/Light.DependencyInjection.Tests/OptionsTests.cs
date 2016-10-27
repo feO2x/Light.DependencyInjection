@@ -183,14 +183,14 @@ namespace Light.DependencyInjection.Tests
 
             var instanceOfB = Container.Resolve<B>();
 
-            instanceOfB.OtherObject.Should().NotBeNull();
+            instanceOfB.ReferenceToA.Should().NotBeNull();
         }
 
         public static readonly IEnumerable<object[]> ResolveInstantiationMethodDependencyWithNonDefaultRegistrationData =
             new[]
             {
                 new object[] { new Action<IRegistrationOptionsForType<B>>(options => options.ResolveInstantiationParameter<A>().WithName("MySpecialA")) },
-                new object[] { new Action<IRegistrationOptionsForType<B>>(options => options.ResolveInstantiationParameter("otherObject").WithName("MySpecialA")) }
+                new object[] { new Action<IRegistrationOptionsForType<B>>(options => options.ResolveInstantiationParameter("referenceToA").WithName("MySpecialA")) }
             };
 
         [Fact(DisplayName = "Clients must be able to add a registration name for field injections that the container uses to resolve the child value.")]

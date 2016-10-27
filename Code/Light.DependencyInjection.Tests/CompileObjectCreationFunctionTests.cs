@@ -26,7 +26,7 @@ namespace Light.DependencyInjection.Tests
             var createdObject = compiledCreationFunction(parameters);
 
             var instanceOfB = createdObject.MustBeOfType<B>();
-            instanceOfB.OtherObject.Should().BeSameAs(parameters[0]);
+            instanceOfB.ReferenceToA.Should().BeSameAs(parameters[0]);
             instanceOfB.Value.Should().Be(42);
         }
 

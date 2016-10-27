@@ -103,7 +103,7 @@ namespace Light.DependencyInjection.Tests
 
             var instanceOfB = Container.Resolve<B>();
 
-            instanceOfB.OtherObject.Should().NotBeNull();
+            instanceOfB.ReferenceToA.Should().NotBeNull();
             instanceOfB.Value.Should().Be(_intValue);
         }
 
@@ -122,7 +122,7 @@ namespace Light.DependencyInjection.Tests
 
             var instanceOfB = Container.Resolve<B>();
 
-            instanceOfB.OtherObject.Should().NotBeNull();
+            instanceOfB.ReferenceToA.Should().NotBeNull();
             instanceOfB.Value.Should().Be(67);
         }
     }

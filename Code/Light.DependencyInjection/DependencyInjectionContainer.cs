@@ -16,6 +16,7 @@ namespace Light.DependencyInjection
         private static readonly Type DiContainerType = typeof(DependencyInjectionContainer);
         private static readonly Type ServiceProviderType = typeof(IServiceProvider);
         private static readonly Type GuidType = typeof(Guid);
+        private readonly Dictionary<TypeKey, object> _registrationOverrides = new Dictionary<TypeKey, object>();
 
         private readonly RegistrationDictionary _typeMappings;
         public readonly ContainerScope Scope;
@@ -105,33 +106,45 @@ namespace Light.DependencyInjection
 
         public T Resolve<T>(string registrationName = null)
         {
-            return (T) ResolveRecursively(new TypeKey(typeof(T), registrationName),
-                                          CreationContext.CreateInitial(this));
+            return (T) PerformResolve(new TypeKey(typeof(T), registrationName),
+                                      CreationContext.CreateInitial(this));
         }
 
         public object Resolve(Type type, string registrationName = null)
         {
-            return ResolveRecursively(new TypeKey(type, registrationName),
-                                      CreationContext.CreateInitial(this));
+            return PerformResolve(new TypeKey(type, registrationName),
+                                  CreationContext.CreateInitial(this));
         }
 
         public T Resolve<T>(ParameterOverrides parameterOverrides, string registrationName = null)
         {
-            return (T) ResolveRecursively(new TypeKey(typeof(T), registrationName),
-                                          CreationContext.CreateInitial(this, parameterOverrides));
+            return (T) PerformResolve(new TypeKey(typeof(T), registrationName),
+                                      CreationContext.CreateInitial(this, parameterOverrides));
         }
 
         public object Resolve(Type type, ParameterOverrides parameterOverrides, string registrationName = null)
         {
-            return ResolveRecursively(new TypeKey(type, registrationName),
-                                      CreationContext.CreateInitial(this, parameterOverrides));
+            return PerformResolve(new TypeKey(type, registrationName),
+                                  CreationContext.CreateInitial(this, parameterOverrides));
+        }
+
+        private object PerformResolve(TypeKey typeKey, CreationContext initialContext)
+        {
+            var resolvedValue = ResolveRecursively(typeKey, initialContext);
+            _registrationOverrides.Clear();
+            return resolvedValue;
         }
 
         internal object ResolveRecursively(TypeKey typeKey, CreationContext creationContext)
         {
             var registration = GetRegistration(typeKey);
             if (registration != null)
+            {
+                object instance;
+                if (_registrationOverrides.TryGetValue(registration.TypeKey, out instance))
+                    return instance;
                 return registration.Lifetime.GetInstance(ResolveContext.FromCreationContext(creationContext, registration));
+            }
 
             if (typeKey == DiContainerType || typeKey == ServiceProviderType)
                 return this;
@@ -227,7 +240,7 @@ namespace Light.DependencyInjection
             return InstantiateAllWithLifetime<ScopedLifetime>();
         }
 
-        public T[] ResolveAll<T>() // TODO: with ParameterOverrides?
+        public T[] ResolveAll<T>()
         {
             var enumerator = _typeMappings.GetRegistrationEnumeratorForType(typeof(T));
             var instances = new T[enumerator.GetNumberOfRegistrations()];
@@ -237,11 +250,12 @@ namespace Light.DependencyInjection
             {
                 instances[currentIndex++] = (T) enumerator.Current.Lifetime.GetInstance(new ResolveContext(this, enumerator.Current, resolveScope));
             }
+            _registrationOverrides.Clear();
 
             return instances;
         }
 
-        public object[] ResolveAll(Type type) // TODO: with ParameterOverrides?
+        public object[] ResolveAll(Type type)
         {
             type.MustNotBeNull(nameof(type));
 
@@ -253,8 +267,23 @@ namespace Light.DependencyInjection
             {
                 instances[currentIndex++] = enumerator.Current.Lifetime.GetInstance(new ResolveContext(this, enumerator.Current, resolveScope));
             }
+            _registrationOverrides.Clear();
 
             return instances;
+        }
+
+        public DependencyInjectionContainer WithRegistrationOverride<T>(T instance, string registrationName = null)
+        {
+            _registrationOverrides.Add(new TypeKey(typeof(T), registrationName), instance);
+            return this;
+        }
+
+        public DependencyInjectionContainer WithRegistrationOverride(object instance, string registrationName = null)
+        {
+            instance.MustNotBeNull(nameof(instance));
+
+            _registrationOverrides.Add(new TypeKey(instance.GetType(), registrationName), instance);
+            return this;
         }
     }
 }
