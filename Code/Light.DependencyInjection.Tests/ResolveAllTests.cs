@@ -38,6 +38,17 @@ namespace Light.DependencyInjection.Tests
             allDummies.First(o => o is DummyA).Should().BeSameAs(dummyA);
         }
 
+        [Fact(DisplayName = "Clients must be able to override a registration type before calling the non-generic variant of ResolveAll.")]
+        public void ResolveAllNonGenericWithOverrideMapping()
+        {
+            var dummyA = new DummyA();
+            Container.OverrideMapping(dummyA, nameof(DummyA));
+
+            var allDummies = Container.ResolveAll(typeof(IDummyInterface));
+
+            allDummies.First(o => o is DummyA).Should().BeSameAs(dummyA);
+        }
+
         public interface IDummyInterface { }
 
         public class DummyA : IDummyInterface { }
