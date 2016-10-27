@@ -41,6 +41,7 @@ namespace Light.DependencyInjection
 
 
         public IReadOnlyList<Registration> Registrations => _typeMappings.Registrations;
+        public IReadOnlyDictionary<TypeKey, object> OverriddenMappings => _overriddenMappings;
 
         public ContainerServices Services
         {
@@ -167,7 +168,11 @@ namespace Light.DependencyInjection
             var resolveScope = Services.ResolveScopeFactory.CreateLazyScope();
             while (enumerator.MoveNext())
             {
-                instances[currentIndex++] = (T) enumerator.Current.Lifetime.GetInstance(new ResolveContext(this, enumerator.Current, resolveScope));
+                var registration = enumerator.Current;
+                object instance;
+                if (_overriddenMappings.TryGetValue(registration.TypeKey, out instance) == false)
+                    instance = registration.Lifetime.GetInstance(new ResolveContext(this, registration, resolveScope));
+                instances[currentIndex++] = (T) instance;
             }
             _overriddenMappings.Clear();
 

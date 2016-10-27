@@ -8,19 +8,34 @@ namespace Light.DependencyInjection.Tests
 {
     public sealed class ResolveAllTests : DefaultDependencyInjectionContainerTest
     {
-        [Fact(DisplayName = "The DI Container must be able to resolve all registrations of a certain abstraction type that were registered with a name.")]
-        public void ResolveAll()
+        private static readonly IEnumerable<Type> AllDummyTypes = new[] { typeof(DummyA), typeof(DummyB), typeof(DummyC) };
+
+        public ResolveAllTests()
         {
-            IEnumerable<Type> allDummyTypes = new[] { typeof(DummyA), typeof(DummyB), typeof(DummyC) };
-            foreach (var dummyType in allDummyTypes)
+            foreach (var dummyType in AllDummyTypes)
             {
                 Container.RegisterTransient(dummyType, options => options.UseTypeNameAsRegistrationName()
                                                                          .MapToAllImplementedInterfaces());
             }
+        }
+
+        [Fact(DisplayName = "The DI Container must be able to resolve all registrations of a certain abstraction type that were registered with a name.")]
+        public void ResolveAll()
+        {
+            var allDummies = Container.ResolveAll<IDummyInterface>();
+
+            allDummies.Select(dummy => dummy.GetType()).Should().BeEquivalentTo(AllDummyTypes);
+        }
+
+        [Fact(DisplayName = "Clients must be able to override a registration type before calling ResolveAll.")]
+        public void ResolveAllWithOverrideMapping()
+        {
+            var dummyA = new DummyA();
+            Container.OverrideMapping(dummyA, nameof(DummyA));
 
             var allDummies = Container.ResolveAll<IDummyInterface>();
 
-            allDummies.Select(dummy => dummy.GetType()).Should().BeEquivalentTo(allDummyTypes);
+            allDummies.First(o => o is DummyA).Should().BeSameAs(dummyA);
         }
 
         public interface IDummyInterface { }
