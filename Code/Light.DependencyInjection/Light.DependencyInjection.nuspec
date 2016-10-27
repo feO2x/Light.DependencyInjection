@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<package>
+  <metadata>
+    <id>Light.DependencyInjection</id>
+    <version>0.1.0</version>
+    <authors>Kenny Pflug</authors>
+    <owners>Kenny Pflug</owners>
+    <licenseUrl>https://raw.githubusercontent.com/feO2x/Light.DependencyInjection/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/feO2x/Light.DependencyInjection</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/feO2x/Light.GuardClauses/master/Images/light_logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A lightweight DI container for .NET.</description>
+    <releaseNotes>
+      Basic functionality of Light.DependencyInjection:
+        - Resolve types through abstractions
+        - Automatic resolve of concrete types
+        - TypeCreationInfo API to ask how a certain type is instantiated
+        - Override instantiation parameters and instance injections of the requested dependency or override mappings before calling Resolve
+        - Fast because of dynamically compiled injection code
+        - Injects GUIDs automatically
+        - Support for child containers / scopes
+        - Extendable lifetimes
+        - Fluent API to configure your registrations
+    </releaseNotes>
+    <copyright>Copyright © 2016 Kenny Pflug</copyright>
+    <tags>DependencyInjection DependencyInjectionContainer DI LooseCoupling IoC</tags>
+    <!-- TODO Dependency to Light.GuardClauses -->
+  </metadata>
+  <files>
+    <file src="bin\signedRelease\Light.DependencyInjection.dll" target="lib\portable-net45+netcore45+wpa81+wp8" />
+    <file src="bin\signedRelease\Light.DependencyInjection.xml" target="lib\portable-net45+netcore45+wpa81+wp8" />
+  </files>
+</package>
