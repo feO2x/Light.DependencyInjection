@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class OverrideRegistrationTests : DefaultDependencyInjectionContainerTest
+    public sealed class OverrideMappingTests : DefaultDependencyInjectionContainerTest
     {
         [Fact(DisplayName = "Clients must be able to override a registration for a single resolve.")]
         public void OverrideRegistration()
@@ -33,6 +33,20 @@ namespace Light.DependencyInjection.Tests
             var instance = Container.Resolve<IC>();
 
             instance.Should().BeSameAs(otherC);
+        }
+
+        [Fact(DisplayName = "Clients must be able to override a registration whose instances is accessed through an abstraction.")]
+        public void OverrideRegistrationAccessedByAbstraction()
+        {
+            var overridenC = new C(new A());
+            Container.RegisterTransient<M>()
+                     .RegisterSingleton<IC, C>()
+                     .OverrideMapping(overridenC);
+
+            var instanceOfM = Container.Resolve<M>();
+
+            instanceOfM.First.Should().BeSameAs(overridenC);
+            instanceOfM.Second.Should().BeSameAs(overridenC);
         }
 
         [Fact(DisplayName = "Clients must be able to override an abstract-type-to-concrete-type-mapping with a non-generic API.")]
