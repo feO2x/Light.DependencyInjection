@@ -16,7 +16,7 @@ namespace Light.DependencyInjection
         private static readonly Type DiContainerType = typeof(DependencyInjectionContainer);
         private static readonly Type ServiceProviderType = typeof(IServiceProvider);
         private static readonly Type GuidType = typeof(Guid);
-        private readonly Dictionary<TypeKey, object> _registrationOverrides = new Dictionary<TypeKey, object>();
+        private readonly Dictionary<TypeKey, object> _overriddenMappings = new Dictionary<TypeKey, object>();
 
         private readonly RegistrationDictionary _typeMappings;
         public readonly ContainerScope Scope;
@@ -131,18 +131,21 @@ namespace Light.DependencyInjection
         private object PerformResolve(TypeKey typeKey, CreationContext initialContext)
         {
             var resolvedValue = ResolveRecursively(typeKey, initialContext);
-            _registrationOverrides.Clear();
+            _overriddenMappings.Clear();
             return resolvedValue;
         }
 
         internal object ResolveRecursively(TypeKey typeKey, CreationContext creationContext)
         {
+            object overriddenInstance;
+            if (_overriddenMappings.TryGetValue(typeKey, out overriddenInstance))
+                return overriddenInstance;
+
             var registration = GetRegistration(typeKey);
             if (registration != null)
             {
-                object instance;
-                if (_registrationOverrides.TryGetValue(registration.TypeKey, out instance))
-                    return instance;
+                if (_overriddenMappings.TryGetValue(registration.TypeKey, out overriddenInstance))
+                    return overriddenInstance;
                 return registration.Lifetime.GetInstance(ResolveContext.FromCreationContext(creationContext, registration));
             }
 
@@ -166,7 +169,7 @@ namespace Light.DependencyInjection
             {
                 instances[currentIndex++] = (T) enumerator.Current.Lifetime.GetInstance(new ResolveContext(this, enumerator.Current, resolveScope));
             }
-            _registrationOverrides.Clear();
+            _overriddenMappings.Clear();
 
             return instances;
         }
@@ -183,7 +186,7 @@ namespace Light.DependencyInjection
             {
                 instances[currentIndex++] = enumerator.Current.Lifetime.GetInstance(new ResolveContext(this, enumerator.Current, resolveScope));
             }
-            _registrationOverrides.Clear();
+            _overriddenMappings.Clear();
 
             return instances;
         }
@@ -216,17 +219,17 @@ namespace Light.DependencyInjection
             return new ParameterOverrides(targetRegistration.TypeCreationInfo);
         }
 
-        public DependencyInjectionContainer WithRegistrationOverride<T>(T instance, string registrationName = null)
+        public DependencyInjectionContainer OverrideMapping<T>(T instance, string registrationName = null)
         {
-            _registrationOverrides.Add(new TypeKey(typeof(T), registrationName), instance);
+            _overriddenMappings.Add(new TypeKey(typeof(T), registrationName), instance);
             return this;
         }
 
-        public DependencyInjectionContainer WithRegistrationOverride(object instance, string registrationName = null)
+        public DependencyInjectionContainer OverrideMapping(object instance, string registrationName = null)
         {
             instance.MustNotBeNull(nameof(instance));
 
-            _registrationOverrides.Add(new TypeKey(instance.GetType(), registrationName), instance);
+            _overriddenMappings.Add(new TypeKey(instance.GetType(), registrationName), instance);
             return this;
         }
 
