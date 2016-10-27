@@ -10,8 +10,14 @@ using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.FrameworkExtensions
 {
+    /// <summary>
+    ///     Provides extension method for reflection based types.
+    /// </summary>
     public static class ReflectionExtensions
     {
+        /// <summary>
+        ///     Creates the dynamically compiled standardized instantiation function from the specified constructor info.
+        /// </summary>
         public static Func<object[], object> CompileStandardizedInstantiationFunction(this ConstructorInfo constructorInfo)
         {
             constructorInfo.MustNotBeNull(nameof(constructorInfo));
@@ -30,6 +36,9 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return Expression.Lambda<Func<object[], object>>(newExpression, parameterExpression).Compile();
         }
 
+        /// <summary>
+        ///     Creates the dynamically compiled standardized instantiation function from the specified static method.
+        /// </summary>
         public static Func<object[], object> CompileStandardizedInstantiationFunction(this MethodInfo staticMethodInfo, Type targetType)
         {
             targetType.MustNotBeNull(nameof(targetType));
@@ -50,6 +59,9 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return Expression.Lambda<Func<object[], object>>(callStaticFactoryExpression, parameterExpression).Compile();
         }
 
+        /// <summary>
+        ///     Creates the dynamically compiled standardized instantiation function from the specified delegate.
+        /// </summary>
         public static Func<object[], object> CompileStandardizedInstantiationFunction(this Delegate @delegate, Type targetType)
         {
             @delegate.MustNotBeNull(nameof(@delegate));
@@ -107,6 +119,9 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return argumentExpressions;
         }
 
+        /// <summary>
+        ///     Returns the default constructor of the specified list of constructors, or null if it cannot be found.
+        /// </summary>
         public static ConstructorInfo FindDefaultConstructor(this IEnumerable<ConstructorInfo> constructors)
         {
             var constructorList = constructors.AsList();
@@ -121,6 +136,9 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return null;
         }
 
+        /// <summary>
+        ///     Returns the constructor with the specified arguments from the list, or null if it cannot be found.
+        /// </summary>
         public static ConstructorInfo FindConstructorWithArgumentTypes(this IEnumerable<ConstructorInfo> constructors, params Type[] parameterTypes)
         {
             parameterTypes.MustNotBeNull(nameof(parameterTypes));
@@ -154,6 +172,9 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return true;
         }
 
+        /// <summary>
+        ///     Checks if the specified method is a public instance method returning the target type.
+        /// </summary>
         public static bool IsPublicStaticCreationMethodForType(this MethodInfo methodInfo, Type targetType)
         {
             methodInfo.MustNotBeNull(nameof(methodInfo));
@@ -164,6 +185,9 @@ namespace Light.DependencyInjection.FrameworkExtensions
                    methodInfo.ReturnType == targetType;
         }
 
+        /// <summary>
+        ///     Tries to extract the property info from the specified expression of the form "o => o.Property".
+        /// </summary>
         public static PropertyInfo ExtractSettableInstancePropertyInfo<T, TProperty>(this Expression<Func<T, TProperty>> expression, Type targetType)
         {
             expression.MustNotBeNull(nameof(expression));
@@ -197,11 +221,17 @@ namespace Light.DependencyInjection.FrameworkExtensions
                 throw new TypeRegistrationException($"The property info you provided does not belong to the target type \"{targetType}\".", targetType);
         }
 
+        /// <summary>
+        ///     Checks if the specified property is a public instance property that can be set.
+        /// </summary>
         public static bool IsPublicSettableInstancePropertyInfo(this PropertyInfo propertyInfo)
         {
             return propertyInfo != null && propertyInfo.CanWrite && propertyInfo.SetMethod.IsStatic == false && propertyInfo.GetIndexParameters().Length == 0;
         }
 
+        /// <summary>
+        ///     Tries to extract the field info from the specified expression of the form "o => o.Field".
+        /// </summary>
         public static FieldInfo ExtractSettableInstanceFieldInfo<T, TField>(this Expression<Func<T, TField>> expression, Type targetType)
         {
             expression.MustNotBeNull(nameof(expression));
@@ -234,11 +264,17 @@ namespace Light.DependencyInjection.FrameworkExtensions
                 throw new TypeRegistrationException($"The field info you provided does not belong to the target type \"{targetType}\".", targetType);
         }
 
+        /// <summary>
+        ///     Checks if the specified field info describes a public settable instance field.
+        /// </summary>
         public static bool IsPublicSettableInstanceFieldInfo(this FieldInfo fieldInfo)
         {
             return fieldInfo != null && fieldInfo.IsPublic && fieldInfo.IsStatic == false && fieldInfo.IsInitOnly == false;
         }
 
+        /// <summary>
+        ///     Creates the instantiation dependencies out of the specified method.
+        /// </summary>
         public static InstantiationDependency[] CreateDefaultInstantiationDependencies(this MethodBase methodInfo)
         {
             methodInfo.MustNotBeNull(nameof(methodInfo));
@@ -256,11 +292,17 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return instantiationDependencies;
         }
 
+        /// <summary>
+        ///     Gets the default constructor from the specified type, or null if this constructor is not present.
+        /// </summary>
         public static ConstructorInfo GetDefaultConstructor(this Type type)
         {
             return type.GetTypeInfo().DeclaredConstructors.FindDefaultConstructor();
         }
 
+        /// <summary>
+        ///     Gets the default constructor from the specified type info, or null if this constructor is not present.
+        /// </summary>
         public static ConstructorInfo GetDefaultConstructor(this TypeInfo typeInfo)
         {
             typeInfo.MustNotBeNull(nameof(typeInfo));
@@ -268,6 +310,9 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return typeInfo.DeclaredConstructors.FindDefaultConstructor();
         }
 
+        /// <summary>
+        ///     Checks if the specified type info implements <see cref="IDisposable" />.
+        /// </summary>
         public static bool IsImplementingIDisposable(this TypeInfo typeInfo)
         {
             typeInfo.MustNotBeNull(nameof(typeInfo));
@@ -275,6 +320,9 @@ namespace Light.DependencyInjection.FrameworkExtensions
             return typeInfo.ImplementedInterfaces.Contains(typeof(IDisposable));
         }
 
+        /// <summary>
+        ///     Returns the resolved item type of the specified <see cref="IEnumerable{T}" /> type.
+        /// </summary>
         public static Type GetItemTypeOfEnumerable(this Type type)
         {
             type.MustNotBeNull(nameof(type));
