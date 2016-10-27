@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using Xunit;
 
 namespace Light.DependencyInjection.Tests
@@ -21,17 +22,38 @@ namespace Light.DependencyInjection.Tests
             instanceOfL.ReferenceToB.ReferenceToA.Should().BeSameAs(otherInstanceOfA);
         }
 
-        [Fact(DisplayName = "Clients must be able to override an abstract type to concrete type mapping, even when the concrete types differ.")]
+        [Fact(DisplayName = "Clients must be able to override an abstract-type-to-concrete-type-mapping, even when the concrete types differ.")]
         public void OverrideAbstraction()
         {
             IC otherC = new OtherC();
             Container.RegisterSingleton<C>(options => options.MapToAbstractions(typeof(IC)))
                      .OverrideMapping(otherC);
 
-            
+
             var instance = Container.Resolve<IC>();
 
             instance.Should().BeSameAs(otherC);
+        }
+
+        [Fact(DisplayName = "Clients must be able to override an abstract-type-to-concrete-type-mapping with a non-generic API.")]
+        public void OverrideAbstractionNonGeneric()
+        {
+            var otherC = new OtherC();
+            Container.RegisterSingleton<C>(options => options.MapToAllImplementedInterfaces())
+                     .OverrideMapping(otherC, typeof(IC));
+
+            var instance = Container.Resolve<IC>();
+
+            instance.Should().BeSameAs(otherC);
+        }
+
+        [Fact(DisplayName = "The non-generic variant of OverrideMapping must throw a TypeRegistrationException when the provided type is not a base type of the specified instance.")]
+        public void OverrideAbstractionError()
+        {
+            Action act = () => Container.OverrideMapping(new A(), typeof(IC));
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Contain($"The concrete type \"{typeof(A)}\" does not inherit from or implement type \"{typeof(IC)}\".");
         }
 
         public sealed class OtherC : IC { }

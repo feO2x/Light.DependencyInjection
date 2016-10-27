@@ -233,6 +233,15 @@ namespace Light.DependencyInjection
             return this;
         }
 
+        public DependencyInjectionContainer OverrideMapping(object instance, Type baseType, string registrationName = null)
+        {
+            instance.MustNotBeNull(nameof(instance));
+            instance.GetType().MustInheritFromOrImplement(baseType);
+
+            _overriddenMappings.Add(new TypeKey(baseType, registrationName), instance);
+            return this;
+        }
+
         public Registration GetRegistration<T>(string registrationName = null)
         {
             return GetRegistration(new TypeKey(typeof(T), registrationName));
