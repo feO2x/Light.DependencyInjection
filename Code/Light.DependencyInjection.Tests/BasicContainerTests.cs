@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Light.DependencyInjection.Tests
 {
-    public sealed class ResolveTests : DefaultDependencyInjectionContainerTest
+    public sealed class BasicContainerTests : DefaultDependencyInjectionContainerTest
     {
         [Fact(DisplayName = "The DI container must return one and the same instance when a type is registered as a Singleton.")]
         public void ResolveSingleton()
@@ -124,6 +124,12 @@ namespace Light.DependencyInjection.Tests
 
             instanceOfB.ReferenceToA.Should().NotBeNull();
             instanceOfB.Value.Should().Be(67);
+        }
+
+        [Fact(DisplayName = "The DI container must implement IServiceProvider.")]
+        public void ImplementsIServiceProvider()
+        {
+            Container.Should().BeAssignableTo<IServiceProvider>();
         }
     }
 }
