@@ -156,6 +156,38 @@ namespace Light.DependencyInjection
             return registration.Lifetime.GetInstance(ResolveContext.FromCreationContext(creationContext, registration));
         }
 
+        public T[] ResolveAll<T>()
+        {
+            var enumerator = _typeMappings.GetRegistrationEnumeratorForType(typeof(T));
+            var instances = new T[enumerator.GetNumberOfRegistrations()];
+            var currentIndex = 0;
+            var resolveScope = Services.ResolveScopeFactory.CreateLazyScope();
+            while (enumerator.MoveNext())
+            {
+                instances[currentIndex++] = (T) enumerator.Current.Lifetime.GetInstance(new ResolveContext(this, enumerator.Current, resolveScope));
+            }
+            _registrationOverrides.Clear();
+
+            return instances;
+        }
+
+        public object[] ResolveAll(Type type)
+        {
+            type.MustNotBeNull(nameof(type));
+
+            var enumerator = _typeMappings.GetRegistrationEnumeratorForType(type);
+            var instances = new object[enumerator.GetNumberOfRegistrations()];
+            var currentIndex = 0;
+            var resolveScope = Services.ResolveScopeFactory.CreateLazyScope();
+            while (enumerator.MoveNext())
+            {
+                instances[currentIndex++] = enumerator.Current.Lifetime.GetInstance(new ResolveContext(this, enumerator.Current, resolveScope));
+            }
+            _registrationOverrides.Clear();
+
+            return instances;
+        }
+
         private Registration GetDefaultRegistration(TypeKey typeKey)
         {
             typeKey.Type.MustBeResolveCompliant();
@@ -182,6 +214,20 @@ namespace Light.DependencyInjection
             var typeKey = new TypeKey(type, registrationName);
             var targetRegistration = GetRegistration(typeKey) ?? GetDefaultRegistration(typeKey);
             return new ParameterOverrides(targetRegistration.TypeCreationInfo);
+        }
+
+        public DependencyInjectionContainer WithRegistrationOverride<T>(T instance, string registrationName = null)
+        {
+            _registrationOverrides.Add(new TypeKey(typeof(T), registrationName), instance);
+            return this;
+        }
+
+        public DependencyInjectionContainer WithRegistrationOverride(object instance, string registrationName = null)
+        {
+            instance.MustNotBeNull(nameof(instance));
+
+            _registrationOverrides.Add(new TypeKey(instance.GetType(), registrationName), instance);
+            return this;
         }
 
         public Registration GetRegistration<T>(string registrationName = null)
@@ -238,52 +284,6 @@ namespace Light.DependencyInjection
         public DependencyInjectionContainer InstantiateAllScopedObjects()
         {
             return InstantiateAllWithLifetime<ScopedLifetime>();
-        }
-
-        public T[] ResolveAll<T>()
-        {
-            var enumerator = _typeMappings.GetRegistrationEnumeratorForType(typeof(T));
-            var instances = new T[enumerator.GetNumberOfRegistrations()];
-            var currentIndex = 0;
-            var resolveScope = Services.ResolveScopeFactory.CreateLazyScope();
-            while (enumerator.MoveNext())
-            {
-                instances[currentIndex++] = (T) enumerator.Current.Lifetime.GetInstance(new ResolveContext(this, enumerator.Current, resolveScope));
-            }
-            _registrationOverrides.Clear();
-
-            return instances;
-        }
-
-        public object[] ResolveAll(Type type)
-        {
-            type.MustNotBeNull(nameof(type));
-
-            var enumerator = _typeMappings.GetRegistrationEnumeratorForType(type);
-            var instances = new object[enumerator.GetNumberOfRegistrations()];
-            var currentIndex = 0;
-            var resolveScope = Services.ResolveScopeFactory.CreateLazyScope();
-            while (enumerator.MoveNext())
-            {
-                instances[currentIndex++] = enumerator.Current.Lifetime.GetInstance(new ResolveContext(this, enumerator.Current, resolveScope));
-            }
-            _registrationOverrides.Clear();
-
-            return instances;
-        }
-
-        public DependencyInjectionContainer WithRegistrationOverride<T>(T instance, string registrationName = null)
-        {
-            _registrationOverrides.Add(new TypeKey(typeof(T), registrationName), instance);
-            return this;
-        }
-
-        public DependencyInjectionContainer WithRegistrationOverride(object instance, string registrationName = null)
-        {
-            instance.MustNotBeNull(nameof(instance));
-
-            _registrationOverrides.Add(new TypeKey(instance.GetType(), registrationName), instance);
-            return this;
         }
     }
 }
