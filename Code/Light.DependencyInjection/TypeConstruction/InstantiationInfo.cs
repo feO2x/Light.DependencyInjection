@@ -16,7 +16,7 @@ namespace Light.DependencyInjection.TypeConstruction
         private readonly InstantiationDependency[] _instantiationDependencies;
 
         /// <summary>
-        ///     Gets the standardized instantiation function.
+        ///     Gets the Standardized Instantiation Function.
         /// </summary>
         public readonly Func<object[], object> StandardizedInstantiationFunction;
 
