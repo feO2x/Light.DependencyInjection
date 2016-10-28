@@ -5,10 +5,20 @@ using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.TypeConstruction
 {
+    /// <summary>
+    ///     Represents an <see cref="InstantiationInfo" /> that calls a constructor.
+    /// </summary>
     public sealed class ConstructorInstantiationInfo : InstantiationInfo
     {
+        /// <summary>
+        ///     Gets the info for the constructor the is called by this instance.
+        /// </summary>
         public readonly ConstructorInfo ConstructorInfo;
 
+        /// <summary>
+        ///     Initializes a new instance of <see cref="ConstructorInstantiationInfo" />.
+        /// </summary>
+        /// <param name="constructorInfo">The constructor that will be called to instantiate the target type.</param>
         public ConstructorInstantiationInfo(ConstructorInfo constructorInfo)
             : base(constructorInfo.DeclaringType,
                    constructorInfo.CompileStandardizedInstantiationFunction(),
@@ -17,6 +27,7 @@ namespace Light.DependencyInjection.TypeConstruction
             ConstructorInfo = constructorInfo;
         }
 
+        /// <inheritdoc />
         protected override InstantiationInfo BindToClosedGenericTypeInternal(Type closedGenericType, TypeInfo closedGenericTypeInfo)
         {
             if (InstantiationDependencies == null || InstantiationDependencies.Count == 0)
