@@ -3,8 +3,12 @@ using Light.DependencyInjection.FrameworkExtensions;
 
 namespace Light.DependencyInjection.TypeConstruction
 {
+    /// <summary>
+    ///     Represents the default implementation of <see cref="IInjectorForUnknownInstanceMembers" /> that can perform property and field injection via reflection.
+    /// </summary>
     public sealed class DefaultInjectorForUnknownInstanceMembers : IInjectorForUnknownInstanceMembers
     {
+        /// <inheritdoc />
         public void InjectValue(MemberInfo memberInfo, object instance, object value)
         {
             var propertyInfo = memberInfo as PropertyInfo;
