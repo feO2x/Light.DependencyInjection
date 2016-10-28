@@ -5,21 +5,44 @@ using System.Linq;
 using System.Reflection;
 using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
+using Light.GuardClauses.Exceptions;
 
 namespace Light.DependencyInjection.TypeConstruction
 {
-    public struct ParameterOverrides
+    /// <summary>
+    ///     Represents a structure that allows you to override the dependencies of the top level resolved object.
+    /// </summary>
+    public struct DependencyOverrides
     {
+        /// <summary>
+        ///     Gets the type creation info for the target type.
+        /// </summary>
         public readonly TypeCreationInfo TypeCreationInfo;
+
+        /// <summary>
+        ///     Gets the array that will be passed when calling the Standardized Instantiation Function.
+        /// </summary>
         public readonly object[] InstantiationParameters;
+
         private Dictionary<InstanceInjection, object> _instanceInjectionOverrides;
         private List<UnknownInjectionDescription> _additionalInjections;
 
+        /// <summary>
+        ///     Gets the dictionary containing all overrides for instance injections.
+        /// </summary>
         public IReadOnlyDictionary<InstanceInjection, object> InstanceInjectionOverrides => _instanceInjectionOverrides;
 
+        /// <summary>
+        ///     Gets the list of additional injections (i.e. injections that could not be mapped to existing <see cref="InstanceInjection" /> objects).
+        /// </summary>
         public IReadOnlyList<UnknownInjectionDescription> AdditionalInjections => _additionalInjections;
 
-        public ParameterOverrides(TypeCreationInfo typeCreationInfo)
+        /// <summary>
+        ///     Initializes a new instance of <see cref="DependencyOverrides" />.
+        /// </summary>
+        /// <param name="typeCreationInfo">The type creation info of the target type whose dependencies should be overridden.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="typeCreationInfo" /> is null.</exception>
+        public DependencyOverrides(TypeCreationInfo typeCreationInfo)
         {
             typeCreationInfo.MustNotBeNull(nameof(typeCreationInfo));
 
@@ -31,8 +54,20 @@ namespace Light.DependencyInjection.TypeConstruction
             _additionalInjections = null;
         }
 
-        public ParameterOverrides OverrideInstantiationParameter(string parameterName, object value)
+        /// <summary>
+        ///     Injects the given value into the parameter with the specified name.
+        /// </summary>
+        /// <param name="parameterName">The name of the parameter.</param>
+        /// <param name="value">The value to be injected into the Standardized Instantiation Function.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="parameterName" /> is null.</exception>
+        /// #
+        /// <exception cref="EmptyStringException">Thrown when <paramref name="parameterName" /> is an empty string.</exception>
+        /// <exception cref="StringIsOnlyWhiteSpaceException">Thrown when <paramref name="parameterName" />contains only whitespace.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="parameterName" /> is not a valid parameter name of the instantiation function.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when there are no Standardized Instantiation Function takes no parameters.</exception>
+        public DependencyOverrides OverrideInstantiationParameter(string parameterName, object value)
         {
+            parameterName.MustNotBeNullOrWhiteSpace(nameof(parameterName));
             EnsureInstantiationParameterNotNull();
 
             for (var i = 0; i < TypeCreationInfo.InstantiationInfo.InstantiationDependencies.Count; i++)
@@ -54,7 +89,15 @@ namespace Light.DependencyInjection.TypeConstruction
                 throw new InvalidOperationException($"You cannot override an instantiation method parameter for type \"{TypeCreationInfo.TargetType}\" because the instantiation method is parametersless.");
         }
 
-        public ParameterOverrides OverrideInstantiationParameter(Type type, object value)
+        /// <summary>
+        ///     Injects the given value into the parameter with the specified unique type.
+        /// </summary>
+        /// <param name="type">The type of the parameter. This type must be unique within the parameter list.</param>
+        /// <param name="value">The value to be injected into the Standardized Instantiation Function.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="type" /> is not a unique type in the parameter list or when there is no parameter with the given type.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when there are no Standardized Instantiation Function takes no parameters.</exception>
+        public DependencyOverrides OverrideInstantiationParameter(Type type, object value)
         {
             type.MustNotBeNull(nameof(type));
             EnsureInstantiationParameterNotNull();
@@ -64,7 +107,14 @@ namespace Light.DependencyInjection.TypeConstruction
             return this;
         }
 
-        public ParameterOverrides OverrideInstantiationParameter<T>(object value)
+        /// <summary>
+        ///     Injects the given value into the parameter with the specified unique type.
+        /// </summary>
+        /// <typeparam name="T">The type of the parameter. This type must be unique within the parameter list.</typeparam>
+        /// <param name="value">The value to be injected into the Standardized Instantiation Function.</param>
+        /// <exception cref="ArgumentException">Thrown when the specified type is not a unique type in the parameter list or when there is no parameter with the given type.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when there are no Standardized Instantiation Function takes no parameters.</exception>
+        public DependencyOverrides OverrideInstantiationParameter<T>(object value)
         {
             OverrideInstantiationParameter(typeof(T), value);
             return this;
@@ -90,8 +140,20 @@ namespace Light.DependencyInjection.TypeConstruction
             return targetIndex;
         }
 
-        public ParameterOverrides OverrideMember(string memberName, object value)
+        /// <summary>
+        ///     Injects the given value into the specified member after the target instance was created.
+        /// </summary>
+        /// <param name="memberName">The name of the target member.</param>
+        /// <param name="value">The value to be injected into the member.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="memberName" /> is null.</exception>
+        /// #
+        /// <exception cref="EmptyStringException">Thrown when <paramref name="memberName" /> is an empty string.</exception>
+        /// <exception cref="StringIsOnlyWhiteSpaceException">Thrown when <paramref name="memberName" />contains only whitespace.</exception>
+        /// <exception cref="ArgumentException">Thrown when the target type does not contain a member with the given name.</exception>
+        public DependencyOverrides OverrideMember(string memberName, object value)
         {
+            memberName.MustNotBeNullOrWhiteSpace(nameof(memberName));
+
             var instanceInjection = FindInstanceInjection(memberName);
             if (TryAddInstanceInjectionOverride(instanceInjection, value))
                 return this;
@@ -104,7 +166,14 @@ namespace Light.DependencyInjection.TypeConstruction
             return this;
         }
 
-        public ParameterOverrides OverrideMember(MemberInfo memberInfo, object value)
+        /// <summary>
+        ///     Injects the given value into the specified member after the target instance was created.
+        /// </summary>
+        /// <param name="memberInfo">The info describing the target member.</param>
+        /// <param name="value">The value to be injected into the member.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="memberInfo" /> is null.</exception>
+        /// <exception cref="ArgumentNullException">Throw when the declaring type of <paramref name="memberInfo" /> is not the target type.</exception>
+        public DependencyOverrides OverrideMember(MemberInfo memberInfo, object value)
         {
             CheckMemberInfo(memberInfo);
 
@@ -163,14 +232,6 @@ namespace Light.DependencyInjection.TypeConstruction
         private List<UnknownInjectionDescription> GetAdditionalInjections()
         {
             return _additionalInjections ?? (_additionalInjections = new List<UnknownInjectionDescription>());
-        }
-    }
-
-    public static class ParameterOverridesExtensions
-    {
-        public static object EscapeNullIfNecessary(this object value)
-        {
-            return value ?? ExplicitlyPassedNull.Instance;
         }
     }
 }

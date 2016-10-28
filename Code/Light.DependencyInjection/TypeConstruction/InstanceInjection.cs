@@ -98,9 +98,9 @@ namespace Light.DependencyInjection.TypeConstruction
         public void InjectValue(object instance, ResolveContext context)
         {
             object value;
-            if (context.ParameterOverrides.HasValue)
+            if (context.DependencyOverrides.HasValue)
             {
-                if (context.ParameterOverrides.Value.InstanceInjectionOverrides.TryGetValue(this, out value))
+                if (context.DependencyOverrides.Value.InstanceInjectionOverrides.TryGetValue(this, out value))
                     goto SetValue;
             }
             value = _dependencyResolver.Resolve(MemberType, TargetRegistrationName, context);

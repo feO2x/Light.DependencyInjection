@@ -17,9 +17,9 @@ namespace Light.DependencyInjection.Services
         public readonly DependencyInjectionContainer Container;
 
         /// <summary>
-        ///     Gets the parameter overrides for this resolve call (if present).
+        ///     Gets the dependency overrides for this resolve call (if present).
         /// </summary>
-        public readonly ParameterOverrides? ParameterOverrides;
+        public readonly DependencyOverrides? DependencyOverrides;
 
         /// <summary>
         ///     Gets the registration of the current resolve call.
@@ -31,21 +31,21 @@ namespace Light.DependencyInjection.Services
         /// </summary>
         public readonly Lazy<Dictionary<TypeKey, object>> LazyResolveScope;
 
-        private ResolveContext(DependencyInjectionContainer container, ParameterOverrides? parameterOverrides)
+        private ResolveContext(DependencyInjectionContainer container, DependencyOverrides? dependencyOverrides)
         {
             Container = container;
-            ParameterOverrides = parameterOverrides;
+            DependencyOverrides = dependencyOverrides;
             Registration = null;
             LazyResolveScope = container.Services.ResolveScopeFactory.CreateLazyScope();
         }
 
         private ResolveContext(DependencyInjectionContainer container,
-                               ParameterOverrides? parameterOverrides,
+                               DependencyOverrides? dependencyOverrides,
                                Registration registration,
                                Lazy<Dictionary<TypeKey, object>> lazyResolveScope)
         {
             Container = container;
-            ParameterOverrides = parameterOverrides;
+            DependencyOverrides = dependencyOverrides;
             Registration = registration;
             LazyResolveScope = lazyResolveScope;
         }
@@ -70,7 +70,7 @@ namespace Light.DependencyInjection.Services
         public static ResolveContext FromCreationContext(CreationContext creationContext, Lazy<Dictionary<TypeKey, object>> resolveScope)
         {
             return new ResolveContext(creationContext.Container,
-                                      creationContext.ParameterOverrides,
+                                      creationContext.DependencyOverrides,
                                       creationContext.Registration,
                                       resolveScope);
         }
@@ -78,11 +78,11 @@ namespace Light.DependencyInjection.Services
         /// <summary>
         ///     Creates the <see cref="ResolveContext" /> instance for the initial call to <see cref="DependencyInjectionContainer.ResolveRecursively" />.
         /// </summary>
-        public static ResolveContext CreateInitial(DependencyInjectionContainer container, ParameterOverrides? parameterOverrides = null)
+        public static ResolveContext CreateInitial(DependencyInjectionContainer container, DependencyOverrides? dependencyOverrides = null)
         {
             container.MustNotBeNull(nameof(container));
 
-            return new ResolveContext(container, parameterOverrides);
+            return new ResolveContext(container, dependencyOverrides);
         }
     }
 }

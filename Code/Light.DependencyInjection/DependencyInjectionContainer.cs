@@ -195,33 +195,33 @@ namespace Light.DependencyInjection
 
         /// <summary>
         ///     Resolves the object graph for the given type, with an optional registration name. Overrides dependencies
-        ///     with the specified <paramref name="parameterOverrides" />.
+        ///     with the specified <paramref name="dependencyOverrides" />.
         /// </summary>
         /// <typeparam name="T">The type of the object graph root.</typeparam>
-        /// <param name="parameterOverrides">The values that will be injected on the top level instance.</param>
+        /// <param name="dependencyOverrides">The values that will be injected into the top level instance.</param>
         /// <param name="registrationName">The name of the target registration (optional).</param>
         /// <returns>The instantiated object graph.</returns>
         /// <exception cref="ResolveTypeException">Thrown when the given type could not be resolved properly.</exception>
-        public T Resolve<T>(ParameterOverrides parameterOverrides, string registrationName = null)
+        public T Resolve<T>(DependencyOverrides dependencyOverrides, string registrationName = null)
         {
             return (T) PerformResolve(new TypeKey(typeof(T), registrationName),
-                                      ResolveContext.CreateInitial(this, parameterOverrides));
+                                      ResolveContext.CreateInitial(this, dependencyOverrides));
         }
 
         /// <summary>
         ///     Resolves the object graph for the given type, with an optional registration name. Overrides dependencies
-        ///     with the specified <paramref name="parameterOverrides" />.
+        ///     with the specified <paramref name="dependencyOverrides" />.
         /// </summary>
         /// <param name="type">The type of the object graph root.</param>
-        /// <param name="parameterOverrides">The values that will be injected on the top level instance.</param>
+        /// <param name="dependencyOverrides">The values that will be injected on the top level instance.</param>
         /// <param name="registrationName">The name of the target registration (optional).</param>
         /// <returns>The instantiated object graph.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is null.</exception>
         /// <exception cref="ResolveTypeException">Thrown when the given type could not be resolved properly.</exception>
-        public object Resolve(Type type, ParameterOverrides parameterOverrides, string registrationName = null)
+        public object Resolve(Type type, DependencyOverrides dependencyOverrides, string registrationName = null)
         {
             return PerformResolve(new TypeKey(type, registrationName),
-                                  ResolveContext.CreateInitial(this, parameterOverrides));
+                                  ResolveContext.CreateInitial(this, dependencyOverrides));
         }
 
         private object PerformResolve(TypeKey typeKey, ResolveContext initialContext)
@@ -321,30 +321,30 @@ namespace Light.DependencyInjection
         }
 
         /// <summary>
-        ///     Creates a <see cref="ParameterOverrides" /> instance that can be used to override dependencies for the
+        ///     Creates a <see cref="DependencyOverrides" /> instance that can be used to override dependencies for the
         ///     top-level instance of the resolved object graph.
         /// </summary>
-        /// <typeparam name="T">The type the <see cref="ParameterOverrides" /> should be created for.</typeparam>
+        /// <typeparam name="T">The type the <see cref="DependencyOverrides" /> should be created for.</typeparam>
         /// <param name="registrationName">The name of the target registration (optional).</param>
-        public ParameterOverrides OverrideParametersFor<T>(string registrationName = null)
+        public DependencyOverrides OverrideDependenciesFor<T>(string registrationName = null)
         {
-            return OverrideParametersFor(typeof(T), registrationName);
+            return OverrideDependenciesFor(typeof(T), registrationName);
         }
 
         /// <summary>
-        ///     Creates a <see cref="ParameterOverrides" /> instance that can be used to override dependencies for the
+        ///     Creates a <see cref="DependencyOverrides" /> instance that can be used to override dependencies for the
         ///     top-level instance of the resolved object graph.
         /// </summary>
-        /// <param name="type">The type the <see cref="ParameterOverrides" /> should be created for.</param>
+        /// <param name="type">The type the <see cref="DependencyOverrides" /> should be created for.</param>
         /// <param name="registrationName">The name of the target registration (optional).</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is null.</exception>
         /// <exception cref="InvalidOperationException">Thrown when the target registration has no TypeCreationInfo associated with it (e.g. when the registration describes an external instance).</exception>
-        public ParameterOverrides OverrideParametersFor(Type type, string registrationName = null)
+        public DependencyOverrides OverrideDependenciesFor(Type type, string registrationName = null)
         {
             var typeKey = new TypeKey(type, registrationName);
             var targetRegistration = GetRegistration(typeKey) ?? GetDefaultRegistration(typeKey);
             EnsureTargetRegistrationHasTypeCreationInfo(targetRegistration);
-            return new ParameterOverrides(targetRegistration.TypeCreationInfo);
+            return new DependencyOverrides(targetRegistration.TypeCreationInfo);
         }
 
         [Conditional(Check.CompileAssertionsSymbol)]

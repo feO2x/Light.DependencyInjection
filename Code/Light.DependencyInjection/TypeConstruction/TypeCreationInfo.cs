@@ -73,11 +73,11 @@ namespace Light.DependencyInjection.TypeConstruction
             }
 
             // Check if there are injections on members that are not configured with the Di Container
-            if (context.ParameterOverrides == null || context.ParameterOverrides.Value.AdditionalInjections == null)
+            if (context.DependencyOverrides == null || context.DependencyOverrides.Value.AdditionalInjections == null)
                 return;
 
 
-            var additionalInjections = context.ParameterOverrides.Value.AdditionalInjections;
+            var additionalInjections = context.DependencyOverrides.Value.AdditionalInjections;
             for (var i = 0; i < additionalInjections.Count; i++)
             {
                 var injectionDescription = additionalInjections[i];

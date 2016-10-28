@@ -49,7 +49,7 @@ namespace Light.DependencyInjection.Services
         }
 
         /// <summary>
-        ///     Gets or sets the service that is used to perform instance injections for type members that are unkown to the DI container (relevant for <see cref="ParameterOverrides" />).
+        ///     Gets or sets the service that is used to perform instance injections for type members that are unkown to the DI container (relevant for <see cref="DependencyOverrides" />).
         ///     Defaults to an instance of <see cref="DefaultInjectorForUnknownInstanceMembers" /> which performs property and field injection via reflection.
         /// </summary>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="value" /> is null.</exception>

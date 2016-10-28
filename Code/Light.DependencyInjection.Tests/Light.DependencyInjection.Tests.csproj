@@ -76,7 +76,7 @@
     <Compile Include="CompileObjectCreationFunctionTests.cs" />
     <Compile Include="DefaultDependencyInjectionContainerTest.cs" />
     <Compile Include="ImmutableAvlNodeTests.cs" />
-    <Compile Include="ParameterOverridesTests.cs" />
+    <Compile Include="DependencyOverridesTests.cs" />
     <Compile Include="PerResolveLifetimeTests.cs" />
     <Compile Include="RegistrationOptionsErrorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

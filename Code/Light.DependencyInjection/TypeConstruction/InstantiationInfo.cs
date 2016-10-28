@@ -69,13 +69,13 @@ namespace Light.DependencyInjection.TypeConstruction
         /// </summary>
         /// <param name="context">The context used to resolve child values recursively.</param>
         /// <returns>The new instance of the target type.</returns>
-        public virtual object Instantiate(ResolveContext context)
+        public object Instantiate(ResolveContext context)
         {
             if (InstantiationDependencies == null || _instantiationDependencies.Length == 0)
                 return StandardizedInstantiationFunction(null);
 
             // Check if there is something to override
-            if (context.ParameterOverrides == null)
+            if (context.DependencyOverrides == null)
             {
                 // If not, use the context (i.e. the DI container) to resolve all dependencies
                 var parameters = new object[_instantiationDependencies.Length];
@@ -87,18 +87,18 @@ namespace Light.DependencyInjection.TypeConstruction
                 return StandardizedInstantiationFunction(parameters);
             }
 
-            // Else use the array of the ParameterOverrides to instantiate the object
-            var parameterOverrides = context.ParameterOverrides.Value;
-            for (var i = 0; i < parameterOverrides.InstantiationParameters.Length; ++i)
+            // Else use the array of the dependency overrides to instantiate the object
+            var dependencyOverrides = context.DependencyOverrides.Value;
+            for (var i = 0; i < dependencyOverrides.InstantiationParameters.Length; ++i)
             {
-                var instantiationParameter = parameterOverrides.InstantiationParameters[i];
+                var instantiationParameter = dependencyOverrides.InstantiationParameters[i];
                 if (instantiationParameter == null)
-                    parameterOverrides.InstantiationParameters[i] = _instantiationDependencies[i].ResolveDependency(context);
+                    dependencyOverrides.InstantiationParameters[i] = _instantiationDependencies[i].ResolveDependency(context);
                 else if (instantiationParameter is ExplicitlyPassedNull)
-                    parameterOverrides.InstantiationParameters[i] = null;
+                    dependencyOverrides.InstantiationParameters[i] = null;
             }
 
-            return StandardizedInstantiationFunction(parameterOverrides.InstantiationParameters);
+            return StandardizedInstantiationFunction(dependencyOverrides.InstantiationParameters);
         }
 
         /// <summary>

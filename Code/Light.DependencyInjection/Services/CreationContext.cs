@@ -23,9 +23,9 @@ namespace Light.DependencyInjection.Services
         public readonly Registration Registration;
 
         /// <summary>
-        ///     Gets the parameter overrides for this resolve call (if present).
+        ///     Gets the dependency overrides for this resolve call (if present).
         /// </summary>
-        public readonly ParameterOverrides? ParameterOverrides;
+        public readonly DependencyOverrides? DependencyOverrides;
 
         private readonly Lazy<Dictionary<TypeKey, object>> _lazyResolveScope;
 
@@ -35,11 +35,11 @@ namespace Light.DependencyInjection.Services
         /// <param name="container">The <see cref="DependencyInjectionContainer" /> instance.</param>
         /// <param name="registration">The target registration to be instantiated.</param>
         /// <param name="lazyResolveScope">The scope for this resolve call.</param>
-        /// <param name="parameterOverrides">The parameter overrides for this resolve call.</param>
+        /// <param name="dependencyOverrides">The dependency overrides for this resolve call.</param>
         public CreationContext(DependencyInjectionContainer container,
                                Registration registration,
                                Lazy<Dictionary<TypeKey, object>> lazyResolveScope,
-                               ParameterOverrides? parameterOverrides = null)
+                               DependencyOverrides? dependencyOverrides = null)
         {
             container.MustNotBeNull(nameof(container));
             CheckThatRegistrationDoesNotDescribeGenericTypeDefinition(registration);
@@ -48,7 +48,7 @@ namespace Light.DependencyInjection.Services
             Container = container;
             Registration = registration;
             _lazyResolveScope = lazyResolveScope;
-            ParameterOverrides = parameterOverrides;
+            DependencyOverrides = dependencyOverrides;
         }
 
 
@@ -69,7 +69,7 @@ namespace Light.DependencyInjection.Services
             return new CreationContext(context.Container,
                                        registration,
                                        context.LazyResolveScope,
-                                       context.ParameterOverrides);
+                                       context.DependencyOverrides);
         }
 
         /// <summary>
