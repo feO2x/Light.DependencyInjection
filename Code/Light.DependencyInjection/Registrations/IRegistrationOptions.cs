@@ -260,22 +260,103 @@ namespace Light.DependencyInjection.Registrations
         IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, object> createInstance);
     }
 
+    /// <summary>
+    ///     Represents the abstraction for configuring registrations that are instantiated by the DI container.
+    /// </summary>
+    /// <typeparam name="T">The concrete target type.</typeparam>
     public interface IRegistrationOptionsForType<T> : IBaseRegistrationOptionsForType<IRegistrationOptionsForType<T>>
     {
+        /// <summary>
+        ///     Configures the registration to use the specified delegate to instantiate the target type.
+        /// </summary>
         IRegistrationOptionsForType<T> InstantiateWith(Func<T> createInstance);
+
+        /// <summary>
+        ///     Configures the registration to use the specified delegate to instantiate the target type.
+        /// </summary>
         IRegistrationOptionsForType<T> InstantiateWith<TParameter>(Func<TParameter, T> createInstance);
+
+        /// <summary>
+        ///     Configures the registration to use the specified delegate to instantiate the target type.
+        /// </summary>
         IRegistrationOptionsForType<T> InstantiateWith<T1, T2>(Func<T1, T2, T> createInstance);
+
+        /// <summary>
+        ///     Configures the registration to use the specified delegate to instantiate the target type.
+        /// </summary>
         IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3>(Func<T1, T2, T3, T> createInstance);
+
+        /// <summary>
+        ///     Configures the registration to use the specified delegate to instantiate the target type.
+        /// </summary>
         IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3, T4>(Func<T1, T2, T3, T4, T> createInstance);
+
+        /// <summary>
+        ///     Configures the registration to use the specified delegate to instantiate the target type.
+        /// </summary>
         IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, T> createInstance);
+
+        /// <summary>
+        ///     Configures the registration to use the specified delegate to instantiate the target type.
+        /// </summary>
         IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3, T4, T5, T6>(Func<T1, T2, T3, T4, T5, T6, T> createInstance);
+
+        /// <summary>
+        ///     Configures the registration to use the specified delegate to instantiate the target type.
+        /// </summary>
         IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3, T4, T5, T6, T7>(Func<T1, T2, T3, T4, T5, T6, T7, T> createInstance);
+
+        /// <summary>
+        ///     Configures the registration to use the specified delegate to instantiate the target type.
+        /// </summary>
         IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T> createInstance);
+
+        /// <summary>
+        ///     Configures the registration to use the specified delegate to instantiate the target type.
+        /// </summary>
         IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T> createInstance);
+
+        /// <summary>
+        ///     Configures the registration to use the specified delegate to instantiate the target type.
+        /// </summary>
         IRegistrationOptionsForType<T> InstantiateWith<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T> createInstance);
-        IRegistrationOptionsForType<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression, string resolvedRegistrationName = null);
-        IRegistrationOptionsForType<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression, string resolvedRegistrationName = null);
+
+        /// <summary>
+        ///     Configures the registration to perform the specified property injection after an instance of the target type was created.
+        /// </summary>
+        /// <typeparam name="TProperty">The type of the target property.</typeparam>
+        /// <param name="selectPropertyExpression">The expression that selects the target property (in the form of o => o.Property).</param>
+        /// <param name="targetRegistrationName">The registration name used to resolve the child value for the property (optional).</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="selectPropertyExpression" /> is null.</exception>
+        /// <exception cref="TypeRegistrationException">Thrown when the expression does not return a public settable instance property of the target type.</exception>
+        IRegistrationOptionsForType<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression, string targetRegistrationName = null);
+
+        /// <summary>
+        ///     Configures the registration to perform the specified field injection after an instance of the target type was created.
+        /// </summary>
+        /// <typeparam name="TField">The type of the target field.</typeparam>
+        /// <param name="selectFieldExpression">The expression that selects the target field (in the form of o => o.Field).</param>
+        /// <param name="targetRegistrationName">The registration name used to resolve the child value for the field (optional).</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="selectFieldExpression" /> is null.</exception>
+        /// <exception cref="TypeRegistrationException">Thrown when the expression does not return a public settable instance field of the target type.</exception>
+        IRegistrationOptionsForType<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression, string targetRegistrationName = null);
+
+        /// <summary>
+        ///     Configures the registration to resolve all instances for the specified property injection.
+        /// </summary>
+        /// <typeparam name="TProperty">The type of the property.</typeparam>
+        /// <param name="selectPropertyExpression">The expression that selects the target property (in the form of o => o.Property).</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="selectPropertyExpression" /> is null.</exception>
+        /// <exception cref="TypeRegistrationException">Thrown when the expression does not return a property that is configured for property injection.</exception>
         IRegistrationOptionsForType<T> ResolveAllForProperty<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression);
+
+        /// <summary>
+        ///     Configures the registration to resolve all instances for the specified field injection.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="selectFieldExpression">The expression that selects the target field (in the form of o => o.Field).</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="selectFieldExpression" /> is null.</exception>
+        /// <exception cref="TypeRegistrationException">Thrown when the expression does not return a field that is configured for field injection.</exception>
         IRegistrationOptionsForType<T> ResolveAllForField<TField>(Expression<Func<T, TField>> selectFieldExpression);
     }
 }
