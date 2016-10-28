@@ -6,8 +6,12 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
 {
+    /// <summary>
+    ///     Represents an <see cref="IConstructorSelector" /> that tries to select the constructor with the most parameters.
+    /// </summary>
     public sealed class ConstructorWithMostParametersSelector : IConstructorSelector
     {
+        /// <inheritdoc />
         public ConstructorInfo SelectTargetConstructor(TypeInfo typeInfo)
         {
             var constructorsWithMostParameters = typeInfo.DeclaredConstructors
