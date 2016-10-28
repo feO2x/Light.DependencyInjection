@@ -2,21 +2,60 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Light.DependencyInjection.Services;
 
 namespace Light.DependencyInjection.Registrations
 {
+    /// <summary>
+    ///     Represents the abstraction for configuring registrations that return an externally created instance (i.e. the DI container does not create instances of the corresponding type).
+    /// </summary>
+    /// <typeparam name="TConcreteOptions">The options type that is returned by the fluent API.</typeparam>
     public interface IBaseRegistrationOptionsForExternalInstance<out TConcreteOptions>
         where TConcreteOptions : class, IBaseRegistrationOptionsForExternalInstance<TConcreteOptions>
     {
+        /// <summary>
+        ///     Associates the given name with the registration.
+        /// </summary>
         TConcreteOptions UseRegistrationName(string registrationName);
+
+        /// <summary>
+        ///     Uses the name (not full name) of the concrete target type as the registration name.
+        /// </summary>
         TConcreteOptions UseTypeNameAsRegistrationName();
+
+        /// <summary>
+        ///     Uses the full type name of the concrete target type as the registration name.
+        /// </summary>
         TConcreteOptions UseFullTypeNameAsRegistrationName();
+
+        /// <summary>
+        ///     The DI container will not track disposable instances if you set this option. Only applies when the concrete type implements <see cref="IDisposable" />.
+        /// </summary>
         TConcreteOptions DisableIDisposableTrackingForThisType();
+
+        /// <summary>
+        ///     Maps the given abstractions to the concrete type.
+        /// </summary>
+        /// <exception cref="TypeRegistrationException">Thrown when the concrete type does not implement or derive from any of the given abstraction types.</exception>
         TConcreteOptions MapToAbstractions(params Type[] abstractionTypes);
+
+        /// <summary>
+        ///     Maps the given abstractions to the concrete type.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="abstractionTypes" /> is null.</exception>
+        /// <exception cref="TypeRegistrationException">Thrown when the concrete type does not implement or derive from any of the given abstraction types.</exception>
         TConcreteOptions MapToAbstractions(IEnumerable<Type> abstractionTypes);
+
+        /// <summary>
+        ///     Maps the concrete type to all interfaces that it implements. The interfaces of <see cref="ContainerServices.IgnoredAbstractionTypes" /> will not be mapped.
+        /// </summary>
         TConcreteOptions MapToAllImplementedInterfaces();
     }
 
+    /// <summary>
+    ///     Represents the abstraction for configuring registrations that return an externally created instance (i.e. the DI container does not create instances of the corresponding type).
+    ///     Is a variant of <see cref="IBaseRegistrationOptionsForExternalInstance{TConcreteOptions}" /> without the generic parameter for increased readability.
+    /// </summary>
     public interface IRegistrationOptionsForExternalInstance : IBaseRegistrationOptionsForExternalInstance<IRegistrationOptionsForExternalInstance> { }
 
     public interface IBaseRegistrationOptionsForType<out TConcreteOptions> : IBaseRegistrationOptionsForExternalInstance<TConcreteOptions>
