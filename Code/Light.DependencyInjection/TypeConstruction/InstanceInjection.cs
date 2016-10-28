@@ -76,6 +76,7 @@ namespace Light.DependencyInjection.TypeConstruction
         /// <summary>
         ///     Gets or sets the dependency resolver being used to retrieve the child value that will be injected into the target member.
         /// </summary>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/> is null.</exception>
         public IDependencyResolver DependencyResolver
         {
             get { return _dependencyResolver; }
