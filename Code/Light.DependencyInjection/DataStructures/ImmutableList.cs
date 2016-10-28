@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Light.GuardClauses;
 
-namespace Light.DependencyInjection.Multithreading
+namespace Light.DependencyInjection.DataStructures
 {
     public sealed class ImmutableList<T> : IEnumerable<T>
     {

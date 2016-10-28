@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Light.DependencyInjection.Registrations;
-using Light.DependencyInjection.Services;
 
-namespace Light.DependencyInjection.Multithreading
+namespace Light.DependencyInjection.Services
 {
     public sealed class ThreadSafeContainerScope : ContainerScope
     {

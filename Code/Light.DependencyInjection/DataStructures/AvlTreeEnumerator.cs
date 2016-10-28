@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Light.GuardClauses;
 
-namespace Light.DependencyInjection.Multithreading
+namespace Light.DependencyInjection.DataStructures
 {
     public struct AvlTreeEnumerator<TRegistration> : IEnumerator<ImmutableAvlNode<TRegistration>>
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Light.DependencyInjection.Registrations;
 
-namespace Light.DependencyInjection.Multithreading
+namespace Light.DependencyInjection.DataStructures
 {
     public interface IGrowBucketContainerStrategy
     {

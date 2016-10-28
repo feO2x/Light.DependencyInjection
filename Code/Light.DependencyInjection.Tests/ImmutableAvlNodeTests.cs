@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using Light.DependencyInjection.Multithreading;
+using Light.DependencyInjection.DataStructures;
 using Light.DependencyInjection.Registrations;
 using Xunit;
 

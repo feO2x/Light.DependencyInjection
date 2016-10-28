@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Light.DependencyInjection.DataStructures;
 using Light.DependencyInjection.FrameworkExtensions;
 using Light.DependencyInjection.Lifetimes;
-using Light.DependencyInjection.Multithreading;
 using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.Services;
 using Light.DependencyInjection.TypeConstruction;

@@ -4,7 +4,7 @@ using System.Diagnostics;
 using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
 
-namespace Light.DependencyInjection.Multithreading
+namespace Light.DependencyInjection.DataStructures
 {
     public sealed class ImmutableAvlNode<TRegistration>
     {

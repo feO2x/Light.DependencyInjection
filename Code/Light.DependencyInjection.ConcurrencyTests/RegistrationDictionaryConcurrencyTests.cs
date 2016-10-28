@@ -1,6 +1,6 @@
 ﻿using System.Threading;
+using Light.DependencyInjection.DataStructures;
 using Light.DependencyInjection.Lifetimes;
-using Light.DependencyInjection.Multithreading;
 using Light.DependencyInjection.Registrations;
 using Microsoft.Concurrency.TestTools.UnitTesting;
 

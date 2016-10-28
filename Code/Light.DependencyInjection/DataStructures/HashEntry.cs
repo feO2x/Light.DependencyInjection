@@ -1,4 +1,4 @@
-﻿namespace Light.DependencyInjection.Multithreading
+﻿namespace Light.DependencyInjection.DataStructures
 {
     public struct HashEntry<TKey, TValue>
     {

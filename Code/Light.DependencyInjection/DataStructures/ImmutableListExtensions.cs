@@ -1,7 +1,7 @@
 ﻿using System;
 using Light.GuardClauses;
 
-namespace Light.DependencyInjection.Multithreading
+namespace Light.DependencyInjection.DataStructures
 {
     public static class ImmutableListExtensions
     {
