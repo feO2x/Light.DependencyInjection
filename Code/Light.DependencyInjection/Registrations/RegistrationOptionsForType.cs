@@ -9,66 +9,98 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
+    /// <summary>
+    ///     Represents the options for configuring registrations that are instantiated by the DI container.
+    /// </summary>
     public sealed class RegistrationOptionsForType : BaseRegistrationOptionsForType<IRegistrationOptionsForType>, IRegistrationOptionsForType
     {
+        /// <summary>
+        ///     Initializes a new instance of <see cref="RegistrationOptionsForType" />
+        /// </summary>
+        /// <param name="targetType">The target type of these options.</param>
+        /// <param name="constructorSelector">The service that selects a constructor from the target type when the client did not specify any.</param>
+        /// <param name="ignoredAbstractionTypes">The list of abstraction types that are ignored when abstraction types are mapped to the target type.</param>
+        /// <exception cref="ArgumentNullException">Thrown when any parameter is null.</exception>
+        /// <exception cref="TypeRegistrationException">Thrown when <paramref name="targetType" /> is an interface, an abstract class, a generic parameter type, or a open generic type.</exception>
         public RegistrationOptionsForType(Type targetType, IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes) :
             base(targetType, constructorSelector, ignoredAbstractionTypes) { }
 
+        /// <inheritdoc />
         public IRegistrationOptionsForType InstantiateWith(Func<object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
+        /// <inheritdoc />
         public IRegistrationOptionsForType InstantiateWith<TParameter>(Func<TParameter, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
+        /// <inheritdoc />
         public IRegistrationOptionsForType InstantiateWith<T1, T2>(Func<T1, T2, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
+        /// <inheritdoc />
         public IRegistrationOptionsForType InstantiateWith<T1, T2, T3>(Func<T1, T2, T3, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
+        /// <inheritdoc />
         public IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4>(Func<T1, T2, T3, T4, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
+        /// <inheritdoc />
         public IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
+        /// <inheritdoc />
         public IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4, T5, T6>(Func<T1, T2, T3, T4, T5, T6, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
+        /// <inheritdoc />
         public IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4, T5, T6, T7>(Func<T1, T2, T3, T4, T5, T6, T7, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
+        /// <inheritdoc />
         public IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1, T2, T3, T4, T5, T6, T7, T8, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
+        /// <inheritdoc />
         public IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
+        /// <inheritdoc />
         public IRegistrationOptionsForType InstantiateWith<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, object> createInstance)
         {
             return SetDelegateInstantiationInfo(createInstance);
         }
 
+        /// <summary>
+        ///     Creates a <see cref="Registration" /> instance out of these options and registers it with the target container.
+        /// </summary>
+        /// <param name="container">The container that will be populated.</param>
+        /// <param name="targetType">The concrete target type to be registered.</param>
+        /// <param name="configureOptions">The delegate that configures an instance of these options.</param>
+        /// <param name="lifetime">The lifetime that should be associated with the registration.</param>
+        /// <param name="abstractionType">The abstraction type that should be mapped to the target type.</param>
+        /// <returns>The container for method chaining.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="container" />, <paramref name="targetType" />, or <paramref name="lifetime" /> is null.</exception>
         public static DependencyInjectionContainer PerformRegistration(DependencyInjectionContainer container,
                                                                        Type targetType,
                                                                        Action<IRegistrationOptionsForType> configureOptions,
@@ -77,7 +109,7 @@ namespace Light.DependencyInjection.Registrations
         {
             container.MustNotBeNull(nameof(container));
 
-            var options = new RegistrationOptionsForType(targetType, container.Services.ConstructorSelector, container.Services.IgnoredAbstractionTypes);
+            var options = container.Services.CreateRegistrationOptions(targetType);
             if (abstractionType != null)
                 options.MapToAbstractions(abstractionType);
             configureOptions?.Invoke(options);
