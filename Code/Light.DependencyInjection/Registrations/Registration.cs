@@ -47,7 +47,7 @@ namespace Light.DependencyInjection.Registrations
         public readonly TypeKey TypeKey;
 
         /// <summary>
-        ///     Creates a new instance of <see cref="Registration" /> with a lifetime that does not require a <see cref="TypeCreationInfo" /> (e.g. the <see cref="ExternalInstanceLifetime" />).
+        ///     Initializes a new instance of <see cref="Registration" /> with a lifetime that does not require a <see cref="TypeCreationInfo" /> (e.g. the <see cref="ExternalInstanceLifetime" />).
         /// </summary>
         /// <param name="typeKey">The type key that uniquely identifies this registration.</param>
         /// <param name="lifetime">The lifetime of the registration. This instance must return false for Lifetime.RequiresTypeCreationInfo.</param>
@@ -66,7 +66,7 @@ namespace Light.DependencyInjection.Registrations
         }
 
         /// <summary>
-        ///     Creates a new instance of <see cref="Registration" /> with a lifetime and type creation info.
+        ///     Initializes a new instance of <see cref="Registration" /> with a lifetime and type creation info.
         /// </summary>
         /// <param name="lifetime">The lifetime of the registration.</param>
         /// <param name="typeCreationInfo">The type creation info used to instantiate the target type.</param>

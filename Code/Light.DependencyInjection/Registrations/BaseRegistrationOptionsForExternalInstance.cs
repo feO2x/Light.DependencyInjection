@@ -7,14 +7,43 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
+    /// <summary>
+    ///     Represents the abstraction for configuring registrations that return an externally created instance (i.e. the DI container does not create instances of the corresponding type).
+    /// </summary>
+    /// <typeparam name="TConcreteOptions">The options type that is returned by the fluent API.</typeparam>
     public abstract class BaseRegistrationOptionsForExternalInstance<TConcreteOptions> : IBaseRegistrationOptionsForExternalInstance<TConcreteOptions> where TConcreteOptions : class, IBaseRegistrationOptionsForExternalInstance<TConcreteOptions>
     {
+        /// <summary>
+        ///     Gets the abstraction types that are mapped to the target type.
+        /// </summary>
         protected readonly HashSet<Type> AbstractionTypes = new HashSet<Type>();
+
+        /// <summary>
+        ///     Gets the list of abstraction types that are ignored when abstraction types are mapped to the target type.
+        /// </summary>
         protected readonly IReadOnlyList<Type> IgnoredAbstractionTypes;
+
+        /// <summary>
+        ///     Gets the target type of these options.
+        /// </summary>
         protected readonly Type TargetType;
+
+        /// <summary>
+        ///     Gets the type info of the target type.
+        /// </summary>
         protected readonly TypeInfo TargetTypeInfo;
+
+        /// <summary>
+        ///     Gets the this reference cast to TConcreteOptions.
+        /// </summary>
         protected readonly TConcreteOptions This;
 
+        /// <summary>
+        ///     Initializes a new instance of <see cref="BaseRegistrationOptionsForExternalInstance{TConcreteOptions}" />.
+        /// </summary>
+        /// <param name="targetType">The target type of these options.</param>
+        /// <param name="ignoredAbstractionTypes">The list of abstraction types that are ignored when abstraction types are mapped to the target type.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="targetType" /> or <paramref name="ignoredAbstractionTypes" /> is null.</exception>
         protected BaseRegistrationOptionsForExternalInstance(Type targetType,
                                                              IReadOnlyList<Type> ignoredAbstractionTypes)
         {
@@ -27,28 +56,42 @@ namespace Light.DependencyInjection.Registrations
             EnsureThisIsNotNull();
         }
 
+        /// <summary>
+        ///     Gets the abstraction types that map to the target type.
+        /// </summary>
         public IEnumerable<Type> MappedAbstractionTypes => AbstractionTypes;
 
+        /// <summary>
+        ///     Gets the value indicating whether the DI container should track <see cref="IDisposable" /> instances of the target type.
+        /// </summary>
         public bool IsContainerTrackingDisposables { get; protected set; } = true;
+
+        /// <summary>
+        ///     Gets the name of the target registration.
+        /// </summary>
         public string RegistrationName { get; protected set; }
 
+        /// <inheritdoc />
         public TConcreteOptions UseRegistrationName(string registrationName)
         {
             RegistrationName = registrationName;
             return This;
         }
 
+        /// <inheritdoc />
         public TConcreteOptions DisableIDisposableTrackingForThisType()
         {
             IsContainerTrackingDisposables = false;
             return This;
         }
 
+        /// <inheritdoc />
         public TConcreteOptions MapToAllImplementedInterfaces()
         {
             return MapToAbstractions(TargetTypeInfo.ImplementedInterfaces);
         }
 
+        /// <inheritdoc />
         public TConcreteOptions MapToAbstractions(IEnumerable<Type> abstractionTypes)
         {
             // ReSharper disable PossibleMultipleEnumeration
@@ -67,17 +110,20 @@ namespace Light.DependencyInjection.Registrations
             // ReSharper restore PossibleMultipleEnumeration
         }
 
+        /// <inheritdoc />
         public TConcreteOptions MapToAbstractions(params Type[] abstractionTypes)
         {
             return MapToAbstractions((IEnumerable<Type>) abstractionTypes);
         }
 
+        /// <inheritdoc />
         public TConcreteOptions UseTypeNameAsRegistrationName()
         {
             RegistrationName = TargetType.Name;
             return This;
         }
 
+        /// <inheritdoc />
         public TConcreteOptions UseFullTypeNameAsRegistrationName()
         {
             RegistrationName = TargetType.FullName;
