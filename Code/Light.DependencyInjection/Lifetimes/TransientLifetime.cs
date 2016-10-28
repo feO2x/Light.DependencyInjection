@@ -15,7 +15,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// <summary>
         ///     Returns a new instance.
         /// </summary>
-        public override object GetInstance(ResolveContext context)
+        public override object GetInstance(CreationContext context)
         {
             return context.CreateInstance();
         }

@@ -49,7 +49,7 @@ namespace Light.DependencyInjection.TypeConstruction
             set { TargetRegistrationName = value; }
         }
 
-        public void InjectValue(object instance, CreationContext context)
+        public void InjectValue(object instance, ResolveContext context)
         {
             object value;
             if (context.ParameterOverrides.HasValue)

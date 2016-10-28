@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.TypeConstruction;
 using Light.GuardClauses;
@@ -17,72 +18,98 @@ namespace Light.DependencyInjection.Services
         public readonly DependencyInjectionContainer Container;
 
         /// <summary>
-        ///     Gets the parameter overrides for this resolve call (if present).
-        /// </summary>
-        public readonly ParameterOverrides? ParameterOverrides;
-
-        /// <summary>
         ///     Gets the registration that should be instantiated.
         /// </summary>
         public readonly Registration Registration;
 
         /// <summary>
-        ///     Gets the scope of this resolve call.
+        ///     Gets the parameter overrides for this resolve call (if present).
         /// </summary>
-        public readonly Lazy<Dictionary<TypeKey, object>> LazyResolveScope;
+        public readonly ParameterOverrides? ParameterOverrides;
 
-        private CreationContext(DependencyInjectionContainer container, ParameterOverrides? parameterOverrides)
-        {
-            Container = container;
-            ParameterOverrides = parameterOverrides;
-            Registration = null;
-            LazyResolveScope = container.Services.ResolveScopeFactory.CreateLazyScope();
-        }
-
-        private CreationContext(DependencyInjectionContainer container,
-                                ParameterOverrides? parameterOverrides,
-                                Registration registration,
-                                Lazy<Dictionary<TypeKey, object>> lazyResolveScope)
-        {
-            Container = container;
-            ParameterOverrides = parameterOverrides;
-            Registration = registration;
-            LazyResolveScope = lazyResolveScope;
-        }
+        private readonly Lazy<Dictionary<TypeKey, object>> _lazyResolveScope;
 
         /// <summary>
-        ///     Checks if the requested type key is part of the resolve scope. If not, then a recursive resolve is performed on the DI container.
+        ///     Initializes a new instance of <see cref="CreationContext" />.
         /// </summary>
-        /// <param name="requestedTypeKey">The type key uniquely identifying the requested instance.</param>
-        /// <returns>The retrieved or resolved instance.</returns>
-        public object ResolveChildValue(TypeKey requestedTypeKey)
-        {
-            object perResolveInstance;
-            if (LazyResolveScope.IsValueCreated && LazyResolveScope.Value.TryGetValue(requestedTypeKey, out perResolveInstance))
-                return perResolveInstance;
-
-            return Container.ResolveRecursively(requestedTypeKey, this);
-        }
-
-        /// <summary>
-        ///     Creates a <see cref="CreationContext" /> instance from the specified <see cref="ResolveContext" />.
-        /// </summary>
-        public static CreationContext FromResolveContext(ResolveContext resolveContext, Lazy<Dictionary<TypeKey, object>> resolveScope)
-        {
-            return new CreationContext(resolveContext.Container,
-                                       resolveContext.ParameterOverrides,
-                                       resolveContext.Registration,
-                                       resolveScope);
-        }
-
-        /// <summary>
-        ///     Creates the <see cref="CreationContext" /> instance for the initial call to <see cref="DependencyInjectionContainer.ResolveRecursively" />.
-        /// </summary>
-        public static CreationContext CreateInitial(DependencyInjectionContainer container, ParameterOverrides? parameterOverrides = null)
+        /// <param name="container">The <see cref="DependencyInjectionContainer" /> instance.</param>
+        /// <param name="registration">The target registration to be instantiated.</param>
+        /// <param name="lazyResolveScope">The scope for this resolve call.</param>
+        /// <param name="parameterOverrides">The parameter overrides for this resolve call.</param>
+        public CreationContext(DependencyInjectionContainer container,
+                               Registration registration,
+                               Lazy<Dictionary<TypeKey, object>> lazyResolveScope,
+                               ParameterOverrides? parameterOverrides = null)
         {
             container.MustNotBeNull(nameof(container));
+            CheckThatRegistrationDoesNotDescribeGenericTypeDefinition(registration);
+            lazyResolveScope.MustNotBeNull(nameof(lazyResolveScope));
 
-            return new CreationContext(container, parameterOverrides);
+            Container = container;
+            Registration = registration;
+            _lazyResolveScope = lazyResolveScope;
+            ParameterOverrides = parameterOverrides;
+        }
+
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private static void CheckThatRegistrationDoesNotDescribeGenericTypeDefinition(Registration registration)
+        {
+            registration.MustNotBeNull(nameof(registration));
+
+            if (registration.IsRegistrationForGenericTypeDefinition)
+                throw new ResolveTypeException($"The type {registration.TargetType} cannot be resolved because it describes a generic type definition.", registration.TargetType);
+        }
+
+        /// <summary>
+        ///     Creates a new <see cref="CreationContext" /> instance from the specified resolve context and registration.
+        /// </summary>
+        public static CreationContext FromCreationContext(ResolveContext context, Registration registration)
+        {
+            return new CreationContext(context.Container,
+                                       registration,
+                                       context.LazyResolveScope,
+                                       context.ParameterOverrides);
+        }
+
+        /// <summary>
+        ///     Instantiates the registration's type using the registration's type creation info.
+        /// </summary>
+        /// <returns>A new intance of the target type.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when the registration is not associated with a type creation info.</exception>
+        public object CreateInstance()
+        {
+            EnsureTypeCreationInfoIsNotNull();
+
+            return Registration.TypeCreationInfo.CreateInstance(ResolveContext.FromCreationContext(this, _lazyResolveScope));
+        }
+
+        [Conditional(Check.CompileAssertionsSymbol)]
+        private void EnsureTypeCreationInfoIsNotNull()
+        {
+            if (Registration.TypeCreationInfo == null)
+                throw new InvalidOperationException($"Cannot instantiate type {Registration.TypeKey.GetFullRegistrationName()} because no Type Creation Info was registered for it.");
+        }
+
+        /// <summary>
+        ///     Tries to retrieve the target type from the resolve scope, an instantiates it if retrieval was not possible.
+        /// </summary>
+        public object GetOrCreatePerResolveInstance()
+        {
+            object perResolveInstance;
+            if (_lazyResolveScope.IsValueCreated == false)
+            {
+                perResolveInstance = CreateInstance();
+                _lazyResolveScope.Value.Add(Registration.TypeKey, perResolveInstance);
+                return perResolveInstance;
+            }
+
+            if (_lazyResolveScope.Value.TryGetValue(Registration.TypeKey, out perResolveInstance))
+                return perResolveInstance;
+
+            perResolveInstance = CreateInstance();
+            _lazyResolveScope.Value.Add(Registration.TypeKey, perResolveInstance);
+            return perResolveInstance;
         }
     }
 }

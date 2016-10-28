@@ -36,7 +36,7 @@ namespace Light.DependencyInjection.TypeConstruction
             set { TargetRegistrationName = value; }
         }
 
-        public object ResolveDependency(CreationContext context)
+        public object ResolveDependency(ResolveContext context)
         {
             return _dependencyResolver.Resolve(ParameterType, TargetRegistrationName, context);
         }

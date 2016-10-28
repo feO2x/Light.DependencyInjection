@@ -15,7 +15,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// <summary>
         ///     Creates a new instance if the is non for the current container scope, otherwise the existing instance will be returned.
         /// </summary>
-        public override object GetInstance(ResolveContext context)
+        public override object GetInstance(CreationContext context)
         {
             return context.Container.Scope.GetOrAddScopedInstance(context.Registration.TypeKey,
                                                                   context.CreateInstance);

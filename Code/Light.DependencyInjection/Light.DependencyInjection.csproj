@@ -63,7 +63,7 @@
     <Compile Include="Services\ChildContainerOptions.cs" />
     <Compile Include="Services\ContainerScope.cs" />
     <Compile Include="Services\ResolveScopeFactory.cs" />
-    <Compile Include="Services\CreationContext.cs" />
+    <Compile Include="Services\ResolveContext.cs" />
     <Compile Include="Services\DefaultContainerScopeFactory.cs" />
     <Compile Include="Services\IContainerScopeFactory.cs" />
     <Compile Include="Services\ThreadSafeContainerScopeFactory.cs" />
@@ -99,7 +99,7 @@
     <Compile Include="TypeConstruction\InstantiationDependency.cs" />
     <Compile Include="TypeConstruction\ParameterOverrides.cs" />
     <Compile Include="TypeConstruction\PropertyInjection.cs" />
-    <Compile Include="Services\ResolveContext.cs" />
+    <Compile Include="Services\CreationContext.cs" />
     <Compile Include="TypeConstruction\UnknownInjectionDescription.cs" />
     <Compile Include="TypeConstruction\StaticMethodInstantiationInfo.cs" />
     <Compile Include="Services\ContainerServices.cs" />

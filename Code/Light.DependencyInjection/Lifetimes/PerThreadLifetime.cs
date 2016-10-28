@@ -13,7 +13,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// <summary>
         ///     Creates a new instance if it does not exist for the current thread, else the existing instance will be returned.
         /// </summary>
-        public override object GetInstance(ResolveContext context)
+        public override object GetInstance(CreationContext context)
         {
             if (_threadLocal.IsValueCreated == false)
                 _threadLocal.Value = context.CreateInstance();

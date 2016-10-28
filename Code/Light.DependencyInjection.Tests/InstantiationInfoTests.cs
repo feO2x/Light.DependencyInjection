@@ -19,7 +19,7 @@ namespace Light.DependencyInjection.Tests
         {
             var instantiationInfo = new InstantiationInfoStub(typeof(object), StandardizedInstantiationFunctionMock, null);
 
-            var createdInstance = instantiationInfo.Instantiate(new CreationContext());
+            var createdInstance = instantiationInfo.Instantiate(new ResolveContext());
 
             createdInstance.Should().BeSameAs(_instanceStub);
             _callCount.Should().Be(1);

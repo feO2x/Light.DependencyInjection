@@ -38,7 +38,7 @@ namespace Light.DependencyInjection.TypeConstruction
             standardizedInstantiationFunction.MustNotBeNull(nameof(StaticMethodInstantiationInfo));
         }
 
-        public virtual object Instantiate(CreationContext context)
+        public virtual object Instantiate(ResolveContext context)
         {
             if (InstantiationDependencies == null || _instantiationDependencies.Length == 0)
                 return StandardizedInstantiationFunction(null);

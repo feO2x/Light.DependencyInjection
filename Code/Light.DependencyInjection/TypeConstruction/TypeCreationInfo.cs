@@ -54,7 +54,7 @@ namespace Light.DependencyInjection.TypeConstruction
             }
         }
 
-        public object CreateInstance(CreationContext context)
+        public object CreateInstance(ResolveContext context)
         {
             var instance = InstantiationInfo.Instantiate(context);
             PerformInstanceInjections(instance, context);
@@ -63,7 +63,7 @@ namespace Light.DependencyInjection.TypeConstruction
             return instance;
         }
 
-        private void PerformInstanceInjections(object instance, CreationContext context)
+        private void PerformInstanceInjections(object instance, ResolveContext context)
         {
             // Perform injections for members that were configured
             if (_instanceInjections != null && _instanceInjections.Length > 0)

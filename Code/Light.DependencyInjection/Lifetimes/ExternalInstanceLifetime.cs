@@ -28,7 +28,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// <summary>
         ///     Return the external instance.
         /// </summary>
-        public override object GetInstance(ResolveContext context)
+        public override object GetInstance(CreationContext context)
         {
             return _value;
         }

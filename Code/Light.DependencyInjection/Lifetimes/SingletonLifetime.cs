@@ -12,7 +12,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// <summary>
         ///     Creates an instance if it has not been created before, otherwise returns the existing singleton.
         /// </summary>
-        public override object GetInstance(ResolveContext context)
+        public override object GetInstance(CreationContext context)
         {
             if (_instance == null)
             {

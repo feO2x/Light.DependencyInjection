@@ -15,7 +15,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// <summary>
         ///     Creates a new instance if it was not created before during a Resolve call, otherwise returns the existing instance.
         /// </summary>
-        public override object GetInstance(ResolveContext context)
+        public override object GetInstance(CreationContext context)
         {
             return context.GetOrCreatePerResolveInstance();
         }

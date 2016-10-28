@@ -8,7 +8,7 @@ namespace Light.DependencyInjection.TypeConstruction
     {
         public static readonly DefaultDependencyResolver Instance = new DefaultDependencyResolver();
 
-        public object Resolve(Type type, string registrationName, CreationContext context)
+        public object Resolve(Type type, string registrationName, ResolveContext context)
         {
             return context.ResolveChildValue(new TypeKey(type, registrationName));
         }
