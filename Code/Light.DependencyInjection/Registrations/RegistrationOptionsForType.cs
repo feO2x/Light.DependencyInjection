@@ -9,7 +9,7 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public sealed class RegistrationOptionsForType : BaseRegistrationOptionsForTypes<IRegistrationOptionsForType>, IRegistrationOptionsForType
+    public sealed class RegistrationOptionsForType : BaseRegistrationOptionsForType<IRegistrationOptionsForType>, IRegistrationOptionsForType
     {
         public RegistrationOptionsForType(Type targetType, IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes) :
             base(targetType, constructorSelector, ignoredAbstractionTypes) { }
@@ -87,7 +87,7 @@ namespace Light.DependencyInjection.Registrations
         }
     }
 
-    public sealed class RegistrationOptionsForType<T> : BaseRegistrationOptionsForTypes<IRegistrationOptionsForType<T>>, IRegistrationOptionsForType<T>
+    public sealed class RegistrationOptionsForType<T> : BaseRegistrationOptionsForType<IRegistrationOptionsForType<T>>, IRegistrationOptionsForType<T>
     {
         public RegistrationOptionsForType(IConstructorSelector constructorSelector, IReadOnlyList<Type> ignoredAbstractionTypes)
             : base(typeof(T), constructorSelector, ignoredAbstractionTypes) { }

@@ -73,7 +73,7 @@
     <Compile Include="TypeConstruction\DelegateInstantiationInfo.cs" />
     <Compile Include="TypeConstruction\IDependencyResolver.cs" />
     <Compile Include="TypeConstruction\IInjectorForUnknownInstanceMembers.cs" />
-    <Compile Include="Registrations\BaseRegistrationOptionsForTypes.cs" />
+    <Compile Include="Registrations\BaseRegistrationOptionsForType.cs" />
     <Compile Include="Registrations\ChildRegistrationNameOptions.cs" />
     <Compile Include="Registrations\IChildRegistrationNameOptions.cs" />
     <Compile Include="Registrations\TypeKeyExtensions.cs" />
