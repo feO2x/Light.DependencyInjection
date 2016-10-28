@@ -7,10 +7,21 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
 {
+    /// <summary>
+    ///     Represents an <see cref="InstanceInjection" /> that injects a value into a property of the target instance.
+    /// </summary>
     public sealed class PropertyInjection : InstanceInjection
     {
+        /// <summary>
+        ///     Gets the info of the property that is called internally.
+        /// </summary>
         public readonly PropertyInfo PropertyInfo;
 
+        /// <summary>
+        ///     Initializes a new instance of <see cref="PropertyInjection" />.
+        /// </summary>
+        /// <param name="propertyInfo">The info of the property that should be populated.</param>
+        /// <param name="targetRegistrationName">The name of the target registration whose resolved value should be injected into the property (optional).</param>
         public PropertyInjection(PropertyInfo propertyInfo, string targetRegistrationName = null)
             : base(propertyInfo.Name, propertyInfo.PropertyType, propertyInfo.DeclaringType, CreateSetValueAction(propertyInfo), targetRegistrationName)
         {
@@ -43,6 +54,7 @@ namespace Light.DependencyInjection.TypeConstruction
             throw new TypeRegistrationException($"The property info \"{propertyInfo}\" does not describe a public instance property with a setter.", propertyInfo.DeclaringType);
         }
 
+        /// <inheritdoc />
         protected override InstanceInjection BindToClosedGenericTypeInternal(Type closedGenericType, TypeInfo closedGenericTypeInfo)
         {
             return new PropertyInjection(closedGenericTypeInfo.GetDeclaredProperty(PropertyInfo.Name), TargetRegistrationName);

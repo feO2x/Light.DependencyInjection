@@ -7,10 +7,21 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
 {
+    /// <summary>
+    ///     Represents an <see cref="InstanceInjection" /> that injects a value into a field of the target instance.
+    /// </summary>
     public sealed class FieldInjection : InstanceInjection
     {
+        /// <summary>
+        ///     Gets the info of the field that is populated.
+        /// </summary>
         public readonly FieldInfo FieldInfo;
 
+        /// <summary>
+        ///     Initializes a new instance of <see cref="FieldInjection" />.
+        /// </summary>
+        /// <param name="fieldInfo">The info of the property that should be populated.</param>
+        /// <param name="targetRegistrationName">The name of the target registration whose resolved value should be injected into the field (optional).</param>
         public FieldInjection(FieldInfo fieldInfo, string targetRegistrationName = null)
             : base(fieldInfo.Name, fieldInfo.FieldType, fieldInfo.DeclaringType, CreateSetValueAction(fieldInfo), targetRegistrationName)
         {
@@ -43,6 +54,7 @@ namespace Light.DependencyInjection.TypeConstruction
             throw new TypeRegistrationException($"The field info \"{fieldInfo}\" does not describe a public instance field.", fieldInfo.DeclaringType);
         }
 
+        /// <inheritdoc />
         protected override InstanceInjection BindToClosedGenericTypeInternal(Type closedGenericType, TypeInfo closedGenericTypeInfo)
         {
             return new FieldInjection(closedGenericTypeInfo.GetDeclaredField(FieldInfo.Name), TargetRegistrationName);
