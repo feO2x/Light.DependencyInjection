@@ -36,7 +36,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// <summary>
         ///     Throws a <see cref="NotSupportedException" /> because external instances cannot describe a generic type definition.
         /// </summary>
-        public override Lifetime ProvideInstanceForResolvedGenericTypeDefinition()
+        public override Lifetime BindToClosedGenericType()
         {
             throw new NotSupportedException("A lifetime with an external value cannot be attached to a registration for a generic type definition.");
         }

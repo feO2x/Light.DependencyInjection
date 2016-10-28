@@ -28,7 +28,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// <summary>
         ///     Returns a new instance of this lifetime.
         /// </summary>
-        public override Lifetime ProvideInstanceForResolvedGenericTypeDefinition()
+        public override Lifetime BindToClosedGenericType()
         {
             return new SingletonLifetime();
         }

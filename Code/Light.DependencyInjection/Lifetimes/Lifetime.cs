@@ -34,7 +34,7 @@ namespace Light.DependencyInjection.Lifetimes
         ///     If a Lifetime implementation holds state, then a new lifetime should be returned, otherwise a singleton should be returned
         ///     to decrease the number of instances in memory.
         /// </summary>
-        public abstract Lifetime ProvideInstanceForResolvedGenericTypeDefinition();
+        public abstract Lifetime BindToClosedGenericType();
 
         /// <summary>
         ///     Gets the string representation of this lifetime.

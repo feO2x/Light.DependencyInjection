@@ -23,7 +23,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// <summary>
         ///     Return reference to itself.
         /// </summary>
-        public override Lifetime ProvideInstanceForResolvedGenericTypeDefinition()
+        public override Lifetime BindToClosedGenericType()
         {
             return this;
         }
