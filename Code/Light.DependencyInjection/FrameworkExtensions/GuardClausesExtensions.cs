@@ -119,12 +119,12 @@ namespace Light.DependencyInjection.FrameworkExtensions
         }
 
         /// <summary>
-        ///     Checks if the specified type can be resolved by the DI container.
+        ///     Checks if the specified type can be automatically resolved by the DI container.
         /// </summary>
         [Conditional(Check.CompileAssertionsSymbol)]
-        public static void MustBeResolveCompliant(this Type type, ResolveComplianceExceptions customExceptions = null)
+        public static void MustBeAutomaticResolveCompliant(this Type type, AutomaticResolveComplianceExceptions customExceptions = null)
         {
-            customExceptions = customExceptions ?? ResolveComplianceExceptions.Default;
+            customExceptions = customExceptions ?? AutomaticResolveComplianceExceptions.Default;
             type.MustBeRegistrationCompliant(customExceptions);
 
             var typeInfo = type.GetTypeInfo();

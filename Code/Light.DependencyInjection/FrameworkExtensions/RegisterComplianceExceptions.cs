@@ -83,7 +83,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
         }
 
         /// <summary>
-        ///     Creates the default exception for interface types.
+        ///     Creates the default <see cref="TypeRegistrationException"/> for interface types.
         /// </summary>
         public static Exception CreateDefaultExceptionForInterfaceType(Type interfaceType)
         {
@@ -91,7 +91,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
         }
 
         /// <summary>
-        ///     Creates the default exception for abstract class types.
+        ///     Creates the default <see cref="TypeRegistrationException"/> for abstract class types.
         /// </summary>
         public static Exception CreateDefaultExceptionForAbstractType(Type abstractType)
         {
@@ -99,7 +99,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
         }
 
         /// <summary>
-        ///     Creates the default exception for generic parameter types.
+        ///     Creates the default <see cref="TypeRegistrationException"/> for generic parameter types.
         /// </summary>
         public static Exception CreateDefaultExceptionForGenericParameterType(Type genericParameterType)
         {
@@ -107,7 +107,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
         }
 
         /// <summary>
-        ///     Creates the default exception for open generic types.
+        ///     Creates the default <see cref="TypeRegistrationException"/> for open generic types.
         /// </summary>
         public static Exception CreateDefaultExceptionForOpenGenericType(Type openGenericType)
         {
@@ -115,7 +115,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
         }
 
         /// <summary>
-        ///     Creates a shallow copy this instance.
+        ///     Creates a shallow copy of this instance.
         /// </summary>
         public RegisterComplianceExceptions Clone()
         {

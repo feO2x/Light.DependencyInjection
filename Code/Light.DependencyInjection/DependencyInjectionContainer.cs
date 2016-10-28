@@ -306,7 +306,7 @@ namespace Light.DependencyInjection
 
         private Registration GetDefaultRegistration(TypeKey typeKey)
         {
-            typeKey.Type.MustBeResolveCompliant();
+            typeKey.Type.MustBeAutomaticResolveCompliant();
 
             try
             {
