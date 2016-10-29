@@ -1,21 +1,60 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.DataStructures
 {
+    /// <summary>
+    ///     Represents a single node of an AVL tree with <see cref="TypeKey" /> as the key type. This data structure is immutable, thus if the
+    ///     (sub-)tree is changed, new instances with the updated values will be returned.
+    /// </summary>
+    /// <typeparam name="TRegistration">The registration type that is stored as a value.</typeparam>
     public sealed class ImmutableAvlNode<TRegistration>
     {
+        /// <summary>
+        ///     Gets an empty immutable node.
+        /// </summary>
         public static readonly ImmutableAvlNode<TRegistration> Empty = new ImmutableAvlNode<TRegistration>();
+
+        /// <summary>
+        ///     Gets the collection containing the entries having the same hash codes.
+        /// </summary>
         public readonly ImmutableList<HashEntry<TypeKey, TRegistration>> Duplicates;
+
+        /// <summary>
+        ///     Gets the number of entries in the whole AVL (sub-)tree.
+        /// </summary>
         public readonly int EntryCount;
+
+        /// <summary>
+        ///     Gets the hash entry of this node.
+        /// </summary>
         public readonly HashEntry<TypeKey, TRegistration> HashEntry;
+
+        /// <summary>
+        ///     Gets the height of this whole AVL (sub-)tree.
+        /// </summary>
         public readonly int Height;
+
+        /// <summary>
+        ///     Gets the value indicating whether this node is empty.
+        /// </summary>
         public readonly bool IsEmpty;
+
+        /// <summary>
+        ///     Gets the left subtree.
+        /// </summary>
         public readonly ImmutableAvlNode<TRegistration> LeftChild;
+
+        /// <summary>
+        ///     Gets the number of nodes in the whole AVL (sub-)tree.
+        /// </summary>
         public readonly int NodeCount;
+
+        /// <summary>
+        ///     Gets the right subtree.
+        /// </summary>
         public readonly ImmutableAvlNode<TRegistration> RightChild;
 
         private ImmutableAvlNode(ImmutableAvlNode<TRegistration> previousNode, ImmutableList<HashEntry<TypeKey, TRegistration>> newDuplicates)
@@ -91,6 +130,13 @@ namespace Light.DependencyInjection.DataStructures
                                                        RightChild.RightChild);
         }
 
+        /// <summary>
+        ///     Tries to find the registration with the specified hash code and type key in the AVL (sub-)tree.
+        /// </summary>
+        /// <param name="hashCode">The hash code of the target node.</param>
+        /// <param name="key">The key that uniquely identifies the value.</param>
+        /// <param name="value">The value to be retrieved.</param>
+        /// <returns>True if the value could be retrieved, else false.</returns>
         public bool TryFind(int hashCode, TypeKey key, out TRegistration value)
         {
             var currentNode = this;
@@ -118,6 +164,12 @@ namespace Light.DependencyInjection.DataStructures
             }
         }
 
+        /// <summary>
+        ///     Checks if a registration with the specified hash code and type key exists in the AVL (sub-)tree.
+        /// </summary>
+        /// <param name="hashCode">The hash code of the target node.</param>
+        /// <param name="typeKey">The key that uniquely identifies the value.</param>
+        /// <returns>True if the registration is present, else false.</returns>
         public bool TryFind(int hashCode, TypeKey typeKey)
         {
             var currentNode = this;
@@ -133,6 +185,12 @@ namespace Light.DependencyInjection.DataStructures
             }
         }
 
+        /// <summary>
+        ///     Adds the specified hash entry in a new immutable AVL tree.
+        /// </summary>
+        /// <param name="newEntry">The entry to be added.</param>
+        /// <returns>The new tree containing the new entry.</returns>
+        /// <exception cref="ArgumentException">Thrown when the specified entry already exists in the tree.</exception>
         public ImmutableAvlNode<TRegistration> Add(HashEntry<TypeKey, TRegistration> newEntry)
         {
             if (IsEmpty)
@@ -188,6 +246,12 @@ namespace Light.DependencyInjection.DataStructures
                 throw new ArgumentException($"The entry {newEntry} already exists in this AVL node.", nameof(newEntry));
         }
 
+        /// <summary>
+        ///     Returns a new immutable AVL tree where an existing hash entry is replaced with the specified one, having the same hash code and key.
+        /// </summary>
+        /// <param name="entry">The entry that will replace the existing one.</param>
+        /// <returns>The new AVL tree containing the specified entry.</returns>
+        /// <exception cref="ArgumentException">Thrown when no hash entry with the hash code and key of <paramref name="entry" /> exists.</exception>
         public ImmutableAvlNode<TRegistration> Replace(HashEntry<TypeKey, TRegistration> entry)
         {
             if (entry.HashCode < HashEntry.HashCode)
@@ -212,42 +276,20 @@ namespace Light.DependencyInjection.DataStructures
             throw new ArgumentException($"The entry with hashcode {entry.HashCode} and key {entry.Key} does not exist in the AVL node and thus cannot be replaced.");
         }
 
-        public IEnumerable<TRegistration> GetAllRegistrationsWithType(Type type)
-        {
-            if (IsEmpty)
-                yield break;
-
-            foreach (var registration in LeftChild.GetAllRegistrationsWithType(type))
-            {
-                yield return registration;
-            }
-
-            if (HashEntry.Key.Type == type)
-                yield return HashEntry.Value;
-
-            foreach (var duplicate in Duplicates)
-            {
-                if (duplicate.Key.Type == type)
-                    yield return duplicate.Value;
-            }
-
-            foreach (var registration in RightChild.GetAllRegistrationsWithType(type))
-            {
-                yield return registration;
-            }
-        }
-
+        /// <summary>
+        ///     Gets an enumerator for this AVL tree that iterates in sorted hash code order.
+        /// </summary>
         public AvlTreeEnumerator<TRegistration> GetEnumerator()
         {
             return new AvlTreeEnumerator<TRegistration>(this);
         }
 
+        /// <summary>
+        ///     Gets the string representation of this AVL node.
+        /// </summary>
         public override string ToString()
         {
-            if (IsEmpty)
-                return "Empty AVL node";
-
-            return $"AVL node with hash {HashEntry.HashCode}";
+            return IsEmpty ? "Empty AVL node" : $"AVL node with hash {HashEntry.HashCode}";
         }
     }
 }
