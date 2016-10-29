@@ -29,7 +29,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\signedRelease\Light.DependencyInjection.dll" target="lib\portable-net45+netcore45+wpa81+wp8" />
-    <file src="bin\signedRelease\Light.DependencyInjection.xml" target="lib\portable-net45+netcore45+wpa81+wp8" />
+    <file src="bin\SignedRelease\Light.DependencyInjection.dll" target="lib\portable-net45+netcore45+wpa81+wp8" />
+    <file src="bin\SignedRelease\Light.DependencyInjection.xml" target="lib\portable-net45+netcore45+wpa81+wp8" />
   </files>
 </package>
