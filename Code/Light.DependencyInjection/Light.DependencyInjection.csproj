@@ -46,9 +46,9 @@
     <Compile Include="Lifetimes\SingletonLifetime.cs" />
     <Compile Include="Lifetimes\TransientLifetime.cs" />
     <Compile Include="DataStructures\HashEntry.cs" />
-    <Compile Include="DataStructures\IGrowBucketContainerStrategy.cs" />
+    <Compile Include="DataStructures\IGrowBucketsStrategy.cs" />
     <Compile Include="DataStructures\ImmutableAvlNode.cs" />
-    <Compile Include="DataStructures\ImmutableRegistrationsContainer.cs" />
+    <Compile Include="DataStructures\ImmutableRegistrationBuckets.cs" />
     <Compile Include="DataStructures\ImmutableList.cs" />
     <Compile Include="DataStructures\ImmutableListExtensions.cs" />
     <Compile Include="DataStructures\PrimeNumberLinearStrategy.cs" />

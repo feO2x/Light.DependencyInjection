@@ -9,14 +9,14 @@ namespace Light.DependencyInjection.DataStructures
     public sealed class RegistrationDictionary
     {
         private readonly object _bucketContainerLock = new object();
-        private ImmutableRegistrationsContainer _bucketContainer;
+        private ImmutableRegistrationBuckets _bucketContainer;
 
         public RegistrationDictionary()
             : this(RegistrationDictionaryOptions.Create()) { }
 
         public RegistrationDictionary(RegistrationDictionaryOptions options)
         {
-            _bucketContainer = ImmutableRegistrationsContainer.CreateEmpty(options.GrowContainerStrategy);
+            _bucketContainer = ImmutableRegistrationBuckets.CreateEmpty(options.GrowContainerStrategy);
         }
 
         public RegistrationDictionary(RegistrationDictionary other)
@@ -61,7 +61,7 @@ namespace Light.DependencyInjection.DataStructures
 
             lock (_bucketContainerLock)
             {
-                ImmutableRegistrationsContainer newBucketContainer;
+                ImmutableRegistrationBuckets newBucketContainer;
                 if (_bucketContainer.GetOrAdd(typeKey, createRegistration, out registration, out newBucketContainer) == false)
                     return false;
 
@@ -75,7 +75,7 @@ namespace Light.DependencyInjection.DataStructures
             bool result;
             lock (_bucketContainerLock)
             {
-                ImmutableRegistrationsContainer newBucketContainer;
+                ImmutableRegistrationBuckets newBucketContainer;
                 result = _bucketContainer.AddOrReplace(typeKey, registration, out newBucketContainer);
                 _bucketContainer = newBucketContainer;
             }

@@ -4,10 +4,10 @@ namespace Light.DependencyInjection.DataStructures
 {
     public struct RegistrationDictionaryOptions
     {
-        private IGrowBucketContainerStrategy _growContainerStrategy;
-        public static readonly IGrowBucketContainerStrategy DefaultGrowContainerStrategy = new PrimeNumberLinearStrategy();
+        private IGrowBucketsStrategy _growContainerStrategy;
+        public static readonly IGrowBucketsStrategy DefaultGrowContainerStrategy = new PrimeNumberLinearStrategy();
 
-        public IGrowBucketContainerStrategy GrowContainerStrategy
+        public IGrowBucketsStrategy GrowContainerStrategy
         {
             get { return _growContainerStrategy; }
             set
