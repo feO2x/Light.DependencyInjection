@@ -1,9 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.DataStructures
 {
+    /// <summary>
+    ///     Represents an <see cref="IEnumerator{T}" /> that iterates through <see cref="ImmutableAvlNode{TRegistration}" /> trees in sorted hash code order.
+    /// </summary>
+    /// <typeparam name="TRegistration">The type of the registration stored in the AVL tree.</typeparam>
     public struct AvlTreeEnumerator<TRegistration> : IEnumerator<ImmutableAvlNode<TRegistration>>
     {
         private Stack _stack;
@@ -11,17 +16,25 @@ namespace Light.DependencyInjection.DataStructures
         private ImmutableAvlNode<TRegistration> _currentNode;
         private State _state;
 
+        /// <summary>
+        ///     Initializes a new instance of <see cref="AvlTreeEnumerator{TRegistration}" />.
+        /// </summary>
+        /// <param name="rootNode">The AVL tree that will be iterated.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="rootNode" /> is null.</exception>
         public AvlTreeEnumerator(ImmutableAvlNode<TRegistration> rootNode)
         {
             rootNode.MustNotBeNull(nameof(rootNode));
 
             _rootNode = rootNode;
-            _stack = new Stack(rootNode.Height); // TODO: maybe we can reduce the capacity here to log(height)
+            _stack = new Stack(rootNode.Height); // TODO: maybe we can reduce the capacity here to log(height)?
             _currentNode = null;
             _state = State.AtStart;
         }
 
-
+        /// <summary>
+        ///     Advances the enumerator to the next node of the AVL tree.
+        /// </summary>
+        /// <returns>true if the enumerator was successfully advanced to the next node; false if the enumerator has passed the end of the AVL tree.</returns>
         public bool MoveNext()
         {
             if (_state == State.Completed)
@@ -62,7 +75,7 @@ namespace Light.DependencyInjection.DataStructures
                 // Check if the current node was already returned last call
                 if (_state == State.ReturnedCurrentNode)
                 {
-                    // Check if there is right child that has to be returned
+                    // Check if there is a right child that has to be returned
                     if (_currentNode.RightChild.IsEmpty == false)
                     {
                         _currentNode = _currentNode.RightChild;
@@ -86,16 +99,25 @@ namespace Light.DependencyInjection.DataStructures
             // ReSharper restore PossibleNullReferenceException
         }
 
+        /// <summary>
+        ///     Sets the enumerator to its initial position, which is before the first element in the AVL tree.
+        /// </summary>
         public void Reset()
         {
             _currentNode = null;
             _state = State.AtStart;
         }
 
+        /// <summary>
+        ///     Gets the current node of the AVL tree.
+        /// </summary>
         public ImmutableAvlNode<TRegistration> Current => _currentNode;
 
         object IEnumerator.Current => _currentNode;
 
+        /// <summary>
+        ///     Does nothing because this enumerator references no resources that must be diposed.
+        /// </summary>
         public void Dispose() { }
 
         private enum State
