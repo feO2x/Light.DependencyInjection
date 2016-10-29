@@ -116,6 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.DependencyInjection.nuspec" />
+    <None Include="Light.DependencyInjection.Public.snk" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
