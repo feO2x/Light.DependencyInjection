@@ -24,7 +24,9 @@
     </releaseNotes>
     <copyright>Copyright © 2016 Kenny Pflug</copyright>
     <tags>DependencyInjection DependencyInjectionContainer DI LooseCoupling IoC</tags>
-    <!-- TODO Dependency to Light.GuardClauses -->
+    <dependencies>
+      <dependency id="Light.GuardClauses" version="1.2.0" />
+    </dependencies>
   </metadata>
   <files>
     <file src="bin\signedRelease\Light.DependencyInjection.dll" target="lib\portable-net45+netcore45+wpa81+wp8" />
