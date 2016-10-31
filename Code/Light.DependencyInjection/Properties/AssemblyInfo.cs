@@ -6,5 +6,5 @@ using System.Resources;
 [assembly: AssemblyCompany("Kenny Pflug")]
 [assembly: AssemblyProduct("Light.DependencyInjection")]
 [assembly: AssemblyCopyright("Copyright © Kenny Pflug 2016")]
-[assembly: AssemblyVersion("0.1.0")]
+[assembly: AssemblyVersion("0.1.1")]
 [assembly: NeutralResourcesLanguage("en")]

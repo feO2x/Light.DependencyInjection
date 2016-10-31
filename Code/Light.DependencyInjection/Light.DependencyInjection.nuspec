@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Light.DependencyInjection</id>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
     <authors>Kenny Pflug</authors>
     <owners>Kenny Pflug</owners>
     <licenseUrl>https://raw.githubusercontent.com/feO2x/Light.DependencyInjection/master/LICENSE</licenseUrl>
@@ -11,16 +11,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A lightweight DI container for .NET.</description>
     <releaseNotes>
-      Basic functionality of Light.DependencyInjection:
-        - Resolve types through abstractions
-        - Automatic resolve of concrete types
-        - TypeCreationInfo API to ask how a certain type is instantiated
-        - Override instantiation parameters and instance injections of the requested dependency or override mappings before calling Resolve
-        - Fast because of dynamically compiled injection code
-        - Injects GUIDs automatically
-        - Support for child containers / scopes
-        - Extendable lifetimes
-        - Fluent API to configure your registrations
+      Eliminated Threading issues:
+        - RegistrationDictionary now uses SemaphoreSlim
+        - OverriddenMappings are now thread-safe
     </releaseNotes>
     <copyright>Copyright © 2016 Kenny Pflug</copyright>
     <tags>DependencyInjection DependencyInjectionContainer DI LooseCoupling IoC</tags>
