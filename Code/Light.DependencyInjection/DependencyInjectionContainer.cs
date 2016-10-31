@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Light.DependencyInjection.DataStructures;
 using Light.DependencyInjection.FrameworkExtensions;
 using Light.DependencyInjection.Lifetimes;
@@ -22,7 +23,7 @@ namespace Light.DependencyInjection
         private static readonly Type DiContainerType = typeof(DependencyInjectionContainer);
         private static readonly Type ServiceProviderType = typeof(IServiceProvider);
         private static readonly Type GuidType = typeof(Guid);
-        private readonly Dictionary<TypeKey, object> _overriddenMappings = new Dictionary<TypeKey, object>();
+        private readonly ThreadLocal<Dictionary<TypeKey, object>> _overriddenMappings = new ThreadLocal<Dictionary<TypeKey, object>>(() => new Dictionary<TypeKey, object>());
         private readonly RegistrationDictionary _typeMappings;
 
         /// <summary>
@@ -65,7 +66,7 @@ namespace Light.DependencyInjection
         /// <summary>
         ///     Gets the dictionary containing all mappings that will override existing mappings and registrations on the next call to Resolve / ResolveAll.
         /// </summary>
-        public IReadOnlyDictionary<TypeKey, object> OverriddenMappings => _overriddenMappings;
+        public IReadOnlyDictionary<TypeKey, object> OverriddenMappings => _overriddenMappings.Value;
 
         /// <summary>
         ///     Gets or sets the container services that are used internally.
@@ -227,20 +228,20 @@ namespace Light.DependencyInjection
         private object PerformResolve(TypeKey typeKey, ResolveContext initialContext)
         {
             var resolvedValue = ResolveRecursively(typeKey, initialContext);
-            _overriddenMappings.Clear();
+            TryClearOverriddenMappings();
             return resolvedValue;
         }
 
         internal object ResolveRecursively(TypeKey typeKey, ResolveContext resolveContext)
         {
             object overriddenInstance;
-            if (_overriddenMappings.TryGetValue(typeKey, out overriddenInstance))
+            if (TryGetInstanceFromOverriddenMapping(typeKey, out overriddenInstance))
                 return overriddenInstance;
 
             var registration = GetRegistration(typeKey);
             if (registration != null)
             {
-                if (_overriddenMappings.TryGetValue(registration.TypeKey, out overriddenInstance))
+                if (TryGetInstanceFromOverriddenMapping(registration.TypeKey, out overriddenInstance))
                     return overriddenInstance;
                 return registration.Lifetime.GetInstance(CreationContext.FromCreationContext(resolveContext, registration));
             }
@@ -270,11 +271,11 @@ namespace Light.DependencyInjection
             {
                 var registration = enumerator.Current;
                 object instance;
-                if (_overriddenMappings.TryGetValue(registration.TypeKey, out instance) == false)
+                if (TryGetInstanceFromOverriddenMapping(registration.TypeKey, out instance) == false)
                     instance = registration.Lifetime.GetInstance(new CreationContext(this, registration, resolveScope));
                 instances[currentIndex++] = (T) instance;
             }
-            _overriddenMappings.Clear();
+            TryClearOverriddenMappings();
 
             return instances;
         }
@@ -295,11 +296,11 @@ namespace Light.DependencyInjection
             {
                 var registration = enumerator.Current;
                 object instance;
-                if (_overriddenMappings.TryGetValue(registration.TypeKey, out instance) == false)
+                if (TryGetInstanceFromOverriddenMapping(registration.TypeKey, out instance) == false)
                     instance = registration.Lifetime.GetInstance(new CreationContext(this, registration, resolveScope));
                 instances[currentIndex++] = instance;
             }
-            _overriddenMappings.Clear();
+            TryClearOverriddenMappings();
 
             return instances;
         }
@@ -364,7 +365,7 @@ namespace Light.DependencyInjection
         /// <returns>The container for method chaining.</returns>
         public DependencyInjectionContainer OverrideMapping<T>(T instance, string registrationName = null)
         {
-            _overriddenMappings.Add(new TypeKey(typeof(T), registrationName), instance);
+            _overriddenMappings.Value.Add(new TypeKey(typeof(T), registrationName), instance);
             return this;
         }
 
@@ -381,7 +382,7 @@ namespace Light.DependencyInjection
         {
             instance.MustNotBeNull(nameof(instance));
 
-            _overriddenMappings.Add(new TypeKey(instance.GetType(), registrationName), instance);
+            _overriddenMappings.Value.Add(new TypeKey(instance.GetType(), registrationName), instance);
             return this;
         }
 
@@ -400,8 +401,23 @@ namespace Light.DependencyInjection
             instance.MustNotBeNull(nameof(instance));
             instance.GetType().MustInheritFromOrImplement(baseType);
 
-            _overriddenMappings.Add(new TypeKey(baseType, registrationName), instance);
+            _overriddenMappings.Value.Add(new TypeKey(baseType, registrationName), instance);
             return this;
+        }
+
+        private bool TryGetInstanceFromOverriddenMapping(TypeKey typeKey, out object instance)
+        {
+            if (_overriddenMappings.IsValueCreated)
+                return _overriddenMappings.Value.TryGetValue(typeKey, out instance);
+
+            instance = null;
+            return false;
+        }
+
+        private void TryClearOverriddenMappings()
+        {
+            if (_overriddenMappings.IsValueCreated)
+                _overriddenMappings.Value.Clear();
         }
 
         /// <summary>
