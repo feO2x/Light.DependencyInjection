@@ -13,7 +13,7 @@ namespace Light.DependencyInjection.DataStructures
     /// </summary>
     public sealed class RegistrationDictionary
     {
-        private readonly object _bucketContainerLock = new object();
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
         private ImmutableRegistrationBuckets _bucketContainer;
 
         /// <summary>
@@ -104,15 +104,14 @@ namespace Light.DependencyInjection.DataStructures
         {
             createRegistration.MustNotBeNull(nameof(createRegistration));
 
-            lock (_bucketContainerLock)
-            {
-                ImmutableRegistrationBuckets newBucketContainer;
-                if (_bucketContainer.GetOrAdd(typeKey, createRegistration, out registration, out newBucketContainer) == false)
-                    return false;
+            _semaphore.Wait();
+            ImmutableRegistrationBuckets newBucketContainer;
+            if (_bucketContainer.GetOrAdd(typeKey, createRegistration, out registration, out newBucketContainer) == false)
+                return false;
 
-                _bucketContainer = newBucketContainer;
-                return true;
-            }
+            _bucketContainer = newBucketContainer;
+            _semaphore.Release();
+            return true;
         }
 
         /// <summary>
@@ -124,12 +123,12 @@ namespace Light.DependencyInjection.DataStructures
         public bool AddOrReplace(TypeKey typeKey, Registration registration)
         {
             bool result;
-            lock (_bucketContainerLock)
-            {
-                ImmutableRegistrationBuckets newBucketContainer;
-                result = _bucketContainer.AddOrReplace(typeKey, registration, out newBucketContainer);
-                _bucketContainer = newBucketContainer;
-            }
+
+            _semaphore.Wait();
+            ImmutableRegistrationBuckets newBucketContainer;
+            result = _bucketContainer.AddOrReplace(typeKey, registration, out newBucketContainer);
+            _bucketContainer = newBucketContainer;
+            _semaphore.Release();
             return result;
         }
 
