@@ -212,7 +212,7 @@ namespace Light.DependencyInjection.Registrations
             fieldInfo.MustNotBeNull(nameof(fieldInfo));
             CheckFieldInfo(fieldInfo, TargetType);
 
-            AddInstanceInjection(new FieldInjection(fieldInfo, targetRegistrationName));
+            AddInstanceInjection(new FieldInjection(TargetType, fieldInfo, targetRegistrationName));
             return This;
         }
 

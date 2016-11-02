@@ -20,10 +20,11 @@ namespace Light.DependencyInjection.TypeConstruction
         /// <summary>
         ///     Initializes a new instance of <see cref="FieldInjection" />.
         /// </summary>
+        /// <param name="targetType">The target type of the field injection.</param>
         /// <param name="fieldInfo">The info of the property that should be populated.</param>
         /// <param name="targetRegistrationName">The name of the target registration whose resolved value should be injected into the field (optional).</param>
-        public FieldInjection(FieldInfo fieldInfo, string targetRegistrationName = null)
-            : base(fieldInfo.Name, fieldInfo.FieldType, fieldInfo.DeclaringType, CreateSetValueAction(fieldInfo), targetRegistrationName)
+        public FieldInjection(Type targetType, FieldInfo fieldInfo, string targetRegistrationName = null)
+            : base(fieldInfo.Name, fieldInfo.FieldType, targetType, CreateSetValueAction(fieldInfo), targetRegistrationName)
         {
             CheckFieldInfo(fieldInfo);
 
@@ -57,7 +58,7 @@ namespace Light.DependencyInjection.TypeConstruction
         /// <inheritdoc />
         protected override InstanceInjection BindToClosedGenericTypeInternal(Type closedGenericType, TypeInfo closedGenericTypeInfo)
         {
-            return new FieldInjection(closedGenericTypeInfo.GetDeclaredField(FieldInfo.Name), TargetRegistrationName);
+            return new FieldInjection(closedGenericType, closedGenericTypeInfo.GetDeclaredField(FieldInfo.Name), TargetRegistrationName);
         }
     }
 }

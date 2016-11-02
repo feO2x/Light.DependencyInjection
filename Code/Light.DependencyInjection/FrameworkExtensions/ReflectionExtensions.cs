@@ -260,7 +260,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
         {
             if (fieldInfo.IsPublicSettableInstanceFieldInfo() == false)
                 throw new TypeRegistrationException($"The specified expression does not describe a settable instance field of type \"{targetType}\". Please use an expression like the following one: \"o => o.Field\".", targetType);
-            if (fieldInfo.DeclaringType != targetType)
+            if (targetType.GetRuntimeField(fieldInfo.Name) == null)
                 throw new TypeRegistrationException($"The field info you provided does not belong to the target type \"{targetType}\".", targetType);
         }
 

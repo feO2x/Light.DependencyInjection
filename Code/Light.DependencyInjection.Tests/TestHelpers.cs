@@ -160,6 +160,8 @@ namespace Light.DependencyInjection.Tests
         public G ReferenceToG;
     }
 
+    public class SubJ : J { }
+
     public class K
     {
         public readonly string First;
