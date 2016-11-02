@@ -140,7 +140,7 @@ namespace Light.DependencyInjection.Registrations
         {
             selectPropertyExpression.MustNotBeNull(nameof(selectPropertyExpression));
 
-            AddInstanceInjection(new PropertyInjection(selectPropertyExpression.ExtractSettableInstancePropertyInfo(TargetType), targetRegistrationName));
+            AddInstanceInjection(new PropertyInjection(TargetType, selectPropertyExpression.ExtractSettableInstancePropertyInfo(TargetType), targetRegistrationName));
             return this;
         }
 

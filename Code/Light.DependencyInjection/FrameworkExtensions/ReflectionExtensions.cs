@@ -217,7 +217,7 @@ namespace Light.DependencyInjection.FrameworkExtensions
         {
             if (propertyInfo.IsPublicSettableInstancePropertyInfo() == false)
                 throw new TypeRegistrationException($"The specified expression does not describe a settable instance property of type \"{targetType}\". Please use an expression like the following one: \"o => o.Property\".", targetType);
-            if (propertyInfo.DeclaringType != targetType)
+            if (targetType.GetRuntimeProperty(propertyInfo.Name) == null)
                 throw new TypeRegistrationException($"The property info you provided does not belong to the target type \"{targetType}\".", targetType);
         }
 

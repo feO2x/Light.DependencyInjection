@@ -205,6 +205,16 @@ namespace Light.DependencyInjection.Tests
             instanceOfJ.ReferenceToG.ReferenceToA.Should().NotBeNull();
         }
 
+        [Fact(DisplayName = "Clients must be able to add a property injection with a property from a target type's base class.")]
+        public void PropertyInjectionWithPropertyFromBaseClass()
+        {
+            Register<SubG>(options => options.AddPropertyInjection(g => g.ReferenceToA));
+
+            var subG = Container.Resolve<SubG>();
+
+            subG.ReferenceToA.Should().NotBeNull();
+        }
+
         [Fact(DisplayName = "Open constructed generic types must not be registered with the DI container.")]
         public void OpenConstructedGenericTypesNotAllowed()
         {

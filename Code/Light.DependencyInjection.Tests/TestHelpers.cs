@@ -135,6 +135,8 @@ namespace Light.DependencyInjection.Tests
         }
     }
 
+    public class SubG : G { }
+
     public class H
     {
         public static A StaticInstance;
