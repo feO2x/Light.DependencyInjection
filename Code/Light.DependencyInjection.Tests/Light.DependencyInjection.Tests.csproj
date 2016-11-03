@@ -82,6 +82,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OverrideMappingTests.cs" />
     <Compile Include="RegistrationTests.cs" />
+    <Compile Include="ReplaceMappingTests.cs" />
     <Compile Include="ResolveAllForTests.cs" />
     <Compile Include="ResolveAllTests.cs" />
     <Compile Include="BasicContainerTests.cs" />
