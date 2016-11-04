@@ -122,17 +122,7 @@ namespace Light.DependencyInjection.Tests
 
     public class G : IG
     {
-        private A _referenceToA;
-
-        public A ReferenceToA
-        {
-            get { return _referenceToA; }
-            set
-            {
-                value.MustNotBeNull(nameof(value));
-                _referenceToA = value;
-            }
-        }
+        public A ReferenceToA { get; set; }
     }
 
     public class H

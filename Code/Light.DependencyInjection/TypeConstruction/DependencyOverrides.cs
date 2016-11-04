@@ -213,7 +213,7 @@ namespace Light.DependencyInjection.TypeConstruction
                 return false;
 
             var instanceInjectionOverrides = GetInstanceInjectionOverrides();
-            instanceInjectionOverrides.Add(instanceInjection, value.EscapeNullIfNecessary());
+            instanceInjectionOverrides.Add(instanceInjection, value);
             return true;
         }
 
