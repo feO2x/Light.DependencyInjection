@@ -102,5 +102,21 @@ namespace Light.DependencyInjection.Tests
 
             instanceOfG.ReferenceToA.Should().BeSameAs(instanceOfA);
         }
+
+        [Fact(DisplayName = "Clients must be able to override a property will null.")]
+        public void OverrideUnknownPropertyWithNull()
+        {
+            var parameterOverrides = Container.OverrideDependenciesFor<Node>().OverrideMember(nameof(Node.ChildProperty), null);
+            var node = Container.Resolve<Node>(parameterOverrides);
+
+            node.ChildProperty.Should().BeNull();
+        }
+
+        public sealed class Node
+        {
+            public Node ChildField;
+
+            public Node ChildProperty { get; set; }
+        }
     }
 }

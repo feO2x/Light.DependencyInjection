@@ -60,7 +60,6 @@ namespace Light.DependencyInjection.TypeConstruction
         /// <param name="parameterName">The name of the parameter.</param>
         /// <param name="value">The value to be injected into the Standardized Instantiation Function.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="parameterName" /> is null.</exception>
-        /// #
         /// <exception cref="EmptyStringException">Thrown when <paramref name="parameterName" /> is an empty string.</exception>
         /// <exception cref="StringIsOnlyWhiteSpaceException">Thrown when <paramref name="parameterName" />contains only whitespace.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="parameterName" /> is not a valid parameter name of the instantiation function.</exception>
@@ -221,7 +220,7 @@ namespace Light.DependencyInjection.TypeConstruction
         private void AddAdditionalInjections(MemberInfo targetMember, object value)
         {
             var additionalInjections = GetAdditionalInjections();
-            additionalInjections.Add(new UnknownInjectionDescription(targetMember, value.EscapeNullIfNecessary()));
+            additionalInjections.Add(new UnknownInjectionDescription(targetMember, value));
         }
 
         private Dictionary<InstanceInjection, object> GetInstanceInjectionOverrides()
