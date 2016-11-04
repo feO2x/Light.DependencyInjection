@@ -132,6 +132,17 @@ namespace Light.DependencyInjection.Tests
             instanceOfG.ReferenceToA.Should().BeNull();
         }
 
+        [Fact(DisplayName = "Clients must be able to override a registered property with null.")]
+        public void OverrideKnownFieldWithNull()
+        {
+            Container.RegisterTransient<J>(options => options.AddFieldInjection(o => o.ReferenceToG));
+
+            var overrides = Container.OverrideDependenciesFor<J>().OverrideMember(nameof(J.ReferenceToG), null);
+            var instanceOfJ = Container.Resolve<J>(overrides);
+
+            instanceOfJ.ReferenceToG.Should().BeNull();
+        }
+
         public sealed class Node
         {
             public Node ChildField;
