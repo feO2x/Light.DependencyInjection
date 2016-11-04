@@ -125,6 +125,8 @@ namespace Light.DependencyInjection.Tests
         public A ReferenceToA { get; set; }
     }
 
+    public class SubG : G { }
+
     public class H
     {
         public static A StaticInstance;
@@ -147,6 +149,8 @@ namespace Light.DependencyInjection.Tests
     {
         public G ReferenceToG;
     }
+
+    public class SubJ : J { }
 
     public class K
     {

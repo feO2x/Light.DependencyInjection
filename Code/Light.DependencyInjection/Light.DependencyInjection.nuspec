@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Light.DependencyInjection</id>
-    <version>0.1.1</version>
+    <version>0.1.3</version>
     <authors>Kenny Pflug</authors>
     <owners>Kenny Pflug</owners>
     <licenseUrl>https://raw.githubusercontent.com/feO2x/Light.DependencyInjection/master/LICENSE</licenseUrl>
@@ -11,9 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A lightweight DI container for .NET.</description>
     <releaseNotes>
-      Eliminated Threading issues:
-        - RegistrationDictionary now uses SemaphoreSlim
-        - OverriddenMappings are now thread-safe
+      Fixed bug where external instance registrations did not overwrite existing type mappings.
     </releaseNotes>
     <copyright>Copyright © 2016 Kenny Pflug</copyright>
     <tags>DependencyInjection DependencyInjectionContainer DI LooseCoupling IoC</tags>

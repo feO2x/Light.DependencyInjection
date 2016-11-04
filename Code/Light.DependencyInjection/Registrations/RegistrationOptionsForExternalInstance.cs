@@ -29,7 +29,8 @@ namespace Light.DependencyInjection.Registrations
 
             container.Register(new Registration(new TypeKey(TargetType, RegistrationName),
                                                 new ExternalInstanceLifetime(externalInstance),
-                                                IsContainerTrackingDisposables));
+                                                IsContainerTrackingDisposables),
+                               AbstractionTypes);
         }
 
         /// <summary>

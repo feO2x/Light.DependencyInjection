@@ -20,10 +20,11 @@ namespace Light.DependencyInjection.TypeConstruction
         /// <summary>
         ///     Initializes a new instance of <see cref="PropertyInjection" />.
         /// </summary>
+        /// <param name="targetType">The type that the property info belongs to.</param>
         /// <param name="propertyInfo">The info of the property that should be populated.</param>
         /// <param name="targetRegistrationName">The name of the target registration whose resolved value should be injected into the property (optional).</param>
-        public PropertyInjection(PropertyInfo propertyInfo, string targetRegistrationName = null)
-            : base(propertyInfo.Name, propertyInfo.PropertyType, propertyInfo.DeclaringType, CreateSetValueAction(propertyInfo), targetRegistrationName)
+        public PropertyInjection(Type targetType, PropertyInfo propertyInfo, string targetRegistrationName = null)
+            : base(propertyInfo.Name, propertyInfo.PropertyType, targetType, CreateSetValueAction(propertyInfo), targetRegistrationName)
         {
             CheckPropertyInfo(propertyInfo);
 
@@ -57,7 +58,7 @@ namespace Light.DependencyInjection.TypeConstruction
         /// <inheritdoc />
         protected override InstanceInjection BindToClosedGenericTypeInternal(Type closedGenericType, TypeInfo closedGenericTypeInfo)
         {
-            return new PropertyInjection(closedGenericTypeInfo.GetDeclaredProperty(PropertyInfo.Name), TargetRegistrationName);
+            return new PropertyInjection(closedGenericType, closedGenericTypeInfo.GetDeclaredProperty(PropertyInfo.Name), TargetRegistrationName);
         }
     }
 }

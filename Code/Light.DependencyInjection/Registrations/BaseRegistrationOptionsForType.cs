@@ -202,7 +202,7 @@ namespace Light.DependencyInjection.Registrations
             propertyInfo.MustNotBeNull(nameof(propertyInfo));
             CheckPropertyInfo(propertyInfo, TargetType);
 
-            AddInstanceInjection(new PropertyInjection(propertyInfo, targetRegistrationName));
+            AddInstanceInjection(new PropertyInjection(TargetType, propertyInfo, targetRegistrationName));
             return This;
         }
 
@@ -212,7 +212,7 @@ namespace Light.DependencyInjection.Registrations
             fieldInfo.MustNotBeNull(nameof(fieldInfo));
             CheckFieldInfo(fieldInfo, TargetType);
 
-            AddInstanceInjection(new FieldInjection(fieldInfo, targetRegistrationName));
+            AddInstanceInjection(new FieldInjection(TargetType, fieldInfo, targetRegistrationName));
             return This;
         }
 
