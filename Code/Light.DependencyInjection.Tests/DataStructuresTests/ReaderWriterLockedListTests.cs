@@ -30,5 +30,19 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
 
             testTarget.Capacity.Should().Be(ReaderWriterLockedList<object>.DefaultCapacity);
         }
+
+        [Theory]
+        [InlineData(new[] { 1, 2, 3, 4, 5 }, 0, 10, new[] { 10, 1, 2, 3, 4, 5 })]
+        [InlineData(new[] { "Foo", "Bar", "Baz" }, 1, "Qux", new[] { "Foo", "Qux", "Bar", "Baz" })]
+        [InlineData(new[] { "Foo", "Bar" }, "2", "Baz", new[] { "Foo", "Bar", "Baz" })]
+        [InlineData(new int[] { }, 0, 42, new[] { 42 })]
+        public void Insert<T>(T[] existingItems, int index, T item, T[] expected)
+        {
+            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+
+            testTarget.Insert(index, item);
+
+            testTarget.Should().Equal(expected);
+        }
     }
 }
