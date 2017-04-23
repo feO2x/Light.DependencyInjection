@@ -3,15 +3,51 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using Light.GuardClauses;
+using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.DataStructures
 {
     public sealed class ReaderWriterLockedList<T> : IList<T>, IDisposable
     {
+        public const int DefaultCapacity = 4;
         private readonly IEqualityComparer<T> _equalityComparer = EqualityComparer<T>.Default;
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
         private int _count;
-        private T[] _internalArray = new T[4];
+        private T[] _internalArray;
+
+        public ReaderWriterLockedList(int initialCapacity = DefaultCapacity)
+        {
+            initialCapacity.MustNotBeLessThan(0);
+
+            _internalArray = new T[initialCapacity];
+        }
+
+        public ReaderWriterLockedList(IEnumerable<T> initialItems)
+        {
+            var initialItemsList = initialItems.AsList();
+            var targetCapacity = 2;
+            while (targetCapacity < initialItemsList.Count)
+                targetCapacity *= 2;
+
+            _internalArray = new T[targetCapacity];
+            var currentIndex = 0;
+            foreach (var item in initialItemsList)
+            {
+                _internalArray[currentIndex++] = item;
+            }
+            _count = initialItemsList.Count;
+        }
+
+        public int Capacity
+        {
+            get
+            {
+                _lock.EnterReadLock();
+                var capacity = _internalArray.Length;
+                _lock.ExitReadLock();
+                return capacity;
+            }
+        }
 
         public void Dispose()
         {
@@ -103,12 +139,22 @@ namespace Light.DependencyInjection.DataStructures
             return result;
         }
 
-        public int Count => _count;
+        public int Count
+        {
+            get
+            {
+                _lock.EnterReadLock();
+                var count = _count;
+                _lock.ExitReadLock();
+                return count;
+            }
+        }
+
         public bool IsReadOnly => false;
 
-        public IEnumerator<T> GetEnumerator()
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -208,6 +254,11 @@ namespace Light.DependencyInjection.DataStructures
                     _lock.ExitWriteLock();
                 }
             }
+        }
+
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(_internalArray, _count, _lock);
         }
 
         private void ExchangeInternalArrayWithLargerOneIfNecessary()
