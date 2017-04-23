@@ -6,7 +6,7 @@ using Xunit;
 namespace Light.DependencyInjection.Tests.DataStructuresTests
 {
     [Trait("Category", "Functional Tests")]
-    public class ReaderWriterLockedListTests
+    public sealed class ReaderWriterLockedListTests
     {
         [Theory]
         [InlineData(new[] { 1, 2, 3 }, 4)]
@@ -41,6 +41,19 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             var testTarget = new ReaderWriterLockedList<T>(existingItems);
 
             testTarget.Insert(index, item);
+
+            testTarget.Should().Equal(expected);
+        }
+
+        [Theory]
+        [InlineData(new[] { 1, 2, 3 }, 2, 42, new[] { 1, 2, 42 })]
+        [InlineData(new[] { "Foo", "Bar" }, 0, "Baz", new[] { "Baz", "Bar" })]
+        public void Overwrite<T>(T[] existingItems, int index, T item, T[] expected)
+        {
+            // ReSharper disable once UseObjectOrCollectionInitializer
+            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+
+            testTarget[index] = item;
 
             testTarget.Should().Equal(expected);
         }
