@@ -71,5 +71,18 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
 
             testTarget.Capacity.Should().BeGreaterThan(initialCapacity * 2);
         }
+
+        [Theory]
+        [InlineData(new[] { 1, 2, 3 })]
+        [InlineData(new[] { 42, -188, 481, 67, -55454, 12 })]
+        [InlineData(new int[] { })]
+        public void Clear(int[] initialItems)
+        {
+            var testTarget = new ReaderWriterLockedList<int>(initialItems);
+
+            testTarget.Clear();
+
+            testTarget.Should().BeEmpty();
+        }
     }
 }
