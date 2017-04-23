@@ -84,5 +84,19 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
 
             testTarget.Should().BeEmpty();
         }
+
+        [Theory]
+        [InlineData(new[] { 1, 2, 3, 4 }, 3, true)]
+        [InlineData(new[] { 42, -13, 5 }, 6, false)]
+        [InlineData(new[] { "Foo", "Bar", "Baz" }, "Foo", true)]
+        [InlineData(new string[] { }, "Foo", false)]
+        public void Contains<T>(T[] existingItems, T item, bool expected)
+        {
+            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+
+            var actual = testTarget.Contains(item);
+
+            actual.Should().Be(expected);
+        }
     }
 }
