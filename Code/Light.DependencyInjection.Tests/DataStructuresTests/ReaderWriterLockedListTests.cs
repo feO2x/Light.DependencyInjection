@@ -57,5 +57,19 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
 
             testTarget.Should().Equal(expected);
         }
+
+        [Fact]
+        public void IncreaseCapacity()
+        {
+            var testTarget = new ReaderWriterLockedList<int>();
+            var initialCapacity = testTarget.Capacity;
+
+            for (var i = 0; i < initialCapacity * 2; i++)
+            {
+                testTarget.Add(i);
+            }
+
+            testTarget.Capacity.Should().BeGreaterThan(initialCapacity * 2);
+        }
     }
 }
