@@ -22,5 +22,13 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             var expected = new List<T>(existingItems) { itemToAdd };
             testTarget.Should().Equal(expected);
         }
+
+        [Fact]
+        public void InitialCapacity()
+        {
+            var testTarget = new ReaderWriterLockedList<object>();
+
+            testTarget.Capacity.Should().Be(ReaderWriterLockedList<object>.DefaultCapacity);
+        }
     }
 }
