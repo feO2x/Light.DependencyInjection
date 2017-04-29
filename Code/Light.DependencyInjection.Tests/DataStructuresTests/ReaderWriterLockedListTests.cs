@@ -98,5 +98,20 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
 
             actual.Should().Be(expected);
         }
+
+        [Theory]
+        [InlineData(new[] { 1, 2, 3 }, 2, 1)]
+        [InlineData(new[] { 42, 87, 1005 }, -4, -1)]
+        [InlineData(new[] { "Foo", "Bar", "Baz" }, "Foo", 0)]
+        [InlineData(new[] { "Foo", "Bar", "Baz" }, "Baz", 2)]
+        [InlineData(new string[] { }, "Foo", -1)]
+        public void IndexOf<T>(T[] existingItems, T item, int expectedIndex)
+        {
+            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+
+            var actualIndex = testTarget.IndexOf(item);
+
+            actualIndex.Should().Be(expectedIndex);
+        }
     }
 }
