@@ -128,5 +128,17 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             actualReturnValue.Should().Be(expectedReturnValue);
             testTarget.Should().Equal(expectedCollection);
         }
+
+        [Theory]
+        [InlineData(new[] { 1, 2, 3 }, 2, new[] { 1, 2 })]
+        [InlineData(new[] { "Foo", "Bar", "Baz" }, 0, new[] { "Bar", "Baz" })]
+        public void RemoveAt<T>(T[] existingItems, int index, T[] expectedCollection)
+        {
+            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+
+            testTarget.RemoveAt(index);
+
+            testTarget.Should().Equal(expectedCollection);
+        }
     }
 }
