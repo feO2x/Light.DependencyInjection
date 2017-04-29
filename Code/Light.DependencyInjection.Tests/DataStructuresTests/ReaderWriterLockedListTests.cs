@@ -113,5 +113,20 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
 
             actualIndex.Should().Be(expectedIndex);
         }
+
+        [Theory]
+        [InlineData(new[] { 1, 2, 3 }, 2, new[] { 1, 3 }, true)]
+        [InlineData(new[] { 1, 2, 3 }, 5, new[] { 1, 2, 3 }, false)]
+        [InlineData(new[] { "Foo", "Bar" }, "Foo", new[] { "Bar" }, true)]
+        [InlineData(new string[] { }, "Foo", new string[] { }, false)]
+        public void Remove<T>(T[] existingItems, T item, T[] expectedCollection, bool expectedReturnValue)
+        {
+            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+
+            var actualReturnValue = testTarget.Remove(item);
+
+            actualReturnValue.Should().Be(expectedReturnValue);
+            testTarget.Should().Equal(expectedCollection);
+        }
     }
 }
