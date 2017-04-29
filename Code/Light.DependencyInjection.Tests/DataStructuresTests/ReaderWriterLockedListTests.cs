@@ -140,5 +140,18 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
 
             testTarget.Should().Equal(expectedCollection);
         }
+
+        [Theory]
+        [InlineData(new[] { 1, 2, 3 }, 2, 3)]
+        [InlineData(new[] { 1, 2, 3 }, 0, 1)]
+        [InlineData(new[] { "Foo", "Bar" }, 1, "Bar")]
+        public void Get<T>(T[] existingItems, int index, T expected)
+        {
+            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+
+            var actual = testTarget[index];
+
+            actual.Should().Be(expected);
+        }
     }
 }
