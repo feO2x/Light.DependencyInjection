@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Light.GuardClauses;
 using Light.GuardClauses.FrameworkExtensions;
 
@@ -40,7 +41,7 @@ namespace Light.DependencyInjection.Registrations
         /// </summary>
         /// <param name="type">The <see cref="Type" /> associated with the new type key.</param>
         /// <param name="registrationName">The name of the registration (optional).</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> or <paramref name="registrationName"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> or <paramref name="registrationName" /> is null.</exception>
         public TypeKey(Type type, string registrationName = "")
         {
             type.MustNotBeNull(nameof(type));
@@ -128,6 +129,24 @@ namespace Light.DependencyInjection.Registrations
         public static implicit operator Type(TypeKey typeKey)
         {
             return typeKey.Type;
+        }
+
+        /// <summary>
+        ///     Gets the value indicating if this instance was created with the default struct initializer
+        ///     (i.e. this instance contains no values).
+        /// </summary>
+        public bool IsEmpty => Type == null;
+
+        /// <summary>
+        ///     Checks if this instance was created with the default struct initializer,
+        ///     if yes, an <see cref="ArgumentException" /> is thrown.
+        /// </summary>
+        /// <param name="parameterName">The name of the parameter (optional).</param>
+        [Conditional(Check.CompileAssertionsSymbol)]
+        public void MustNotBeEmpty(string parameterName = null)
+        {
+            if (IsEmpty)
+                throw new ArgumentException($"The specified type key must not be empty", parameterName);
         }
     }
 }

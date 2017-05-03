@@ -139,9 +139,32 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
             {
                 new object[] { new TypeKey(typeof(string), "Foo"), true },
                 new object[] { new TypeKey(typeof(int)), false },
-                new[] { new object(), false},
-                new object[] { null, false}
-               
+                new[] { new object(), false },
+                new object[] { null, false }
             };
+
+        [Theory]
+        [MemberData(nameof(IsEmptyData))]
+        public void IsEmpty(TypeKey typeKey, bool expected)
+        {
+            typeKey.IsEmpty.Should().Be(expected);
+        }
+
+        public static readonly TestData IsEmptyData =
+            new[]
+            {
+                new object[] { new TypeKey(), true },
+                new object[] { new TypeKey(typeof(string)), false },
+                new object[] { new TypeKey(typeof(int), "Foo"), false }
+            };
+
+        [Fact]
+        public void MustNotBeEmpty()
+        {
+            Action act = () => new TypeKey().MustNotBeEmpty("foo");
+
+            act.ShouldThrow<ArgumentException>()
+               .And.ParamName.Should().Be("foo");
+        }
     }
 }

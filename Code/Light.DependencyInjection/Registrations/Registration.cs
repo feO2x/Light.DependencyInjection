@@ -6,6 +6,13 @@ namespace Light.DependencyInjection.Registrations
 {
     public sealed class Registration
     {
+        public readonly TypeKey TypeKey;
 
+        public Registration(TypeKey typeKey)
+        {
+            typeKey.MustNotBeEmpty(nameof(typeKey));
+
+            TypeKey = typeKey;
+        }
     }
 }
