@@ -6,5 +6,6 @@ namespace Light.DependencyInjection.Registrations
 {
     public sealed class Registration
     {
+
     }
 }
