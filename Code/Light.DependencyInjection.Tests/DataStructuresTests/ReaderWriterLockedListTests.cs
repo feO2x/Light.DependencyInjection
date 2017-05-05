@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using Light.DependencyInjection.DataStructures;
 using Xunit;
+using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
 namespace Light.DependencyInjection.Tests.DataStructuresTests
 {
@@ -153,5 +154,24 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
 
             actual.Should().Be(expected);
         }
+
+        [Theory]
+        [MemberData(nameof(CopyToData))]
+        public void CopyTo<T>(T[] existingItems, T[] array, int startIndex)
+        {
+            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+
+            testTarget.CopyTo(array, startIndex);
+
+            array.Should().Contain(existingItems);
+        }
+
+        public static readonly TestData CopyToData =
+            new[]
+            {
+                new object[] { new[] { "Foo", "Bar", "Baz" }, new string[3], 0 },
+                new object[] { new[] { "Foo", "Bar", "Baz" }, new string[5], 2 },
+                new object[] { new[] { 1, 2, 3, 4, 5 }, new int[10], 0 }
+            };
     }
 }
