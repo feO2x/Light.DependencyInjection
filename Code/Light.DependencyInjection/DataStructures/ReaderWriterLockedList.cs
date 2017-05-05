@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
+using Light.DependencyInjection.Threading;
 using Light.GuardClauses;
 using Light.GuardClauses.FrameworkExtensions;
 
@@ -11,7 +11,7 @@ namespace Light.DependencyInjection.DataStructures
     {
         public const int DefaultCapacity = 4;
         private readonly IEqualityComparer<T> _equalityComparer = EqualityComparer<T>.Default;
-        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+        private readonly IReaderWriterLock _lock = new ReaderWriterLockSlim();
         private int _count;
         private T[] _internalArray;
 
@@ -285,12 +285,12 @@ namespace Light.DependencyInjection.DataStructures
         {
             private readonly T[] _internalArray;
             private readonly int _count;
-            private readonly ReaderWriterLockSlim _lock;
+            private readonly IReaderWriterLock _lock;
             private T _current;
             private int _currentIndex;
             private bool _isLockAquired;
 
-            public Enumerator(T[] internalArray, int count, ReaderWriterLockSlim @lock)
+            public Enumerator(T[] internalArray, int count, IReaderWriterLock @lock)
             {
                 internalArray.MustNotBeNull();
                 @lock.MustNotBeNull();
