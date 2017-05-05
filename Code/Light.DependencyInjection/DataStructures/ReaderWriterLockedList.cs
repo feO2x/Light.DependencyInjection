@@ -3,39 +3,31 @@ using System.Collections;
 using System.Collections.Generic;
 using Light.DependencyInjection.Threading;
 using Light.GuardClauses;
-using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.DataStructures
 {
     public sealed class ReaderWriterLockedList<T> : IList<T>, IDisposable
     {
-        public const int DefaultCapacity = 4;
-        private readonly IEqualityComparer<T> _equalityComparer = EqualityComparer<T>.Default;
-        private readonly IReaderWriterLock _lock = new ReaderWriterLockSlim();
+        private readonly IEqualityComparer<T> _equalityComparer;
+        private readonly IGrowArrayStrategy<T> _growArrayStrategy;
+        private readonly IReaderWriterLock _lock;
         private int _count;
         private T[] _internalArray;
 
-        public ReaderWriterLockedList(int initialCapacity = DefaultCapacity)
+        public ReaderWriterLockedList() : this(new ReaderWriterLockedListOptions<T>()) { }
+
+        public ReaderWriterLockedList(ReaderWriterLockedListOptions<T> options)
         {
-            initialCapacity.MustNotBeLessThan(0);
+            options.MustNotBeNull(nameof(options));
 
-            _internalArray = new T[initialCapacity];
-        }
-
-        public ReaderWriterLockedList(IEnumerable<T> initialItems)
-        {
-            var initialItemsList = initialItems.AsList();
-            var targetCapacity = 2;
-            while (targetCapacity < initialItemsList.Count)
-                targetCapacity *= 2;
-
-            _internalArray = new T[targetCapacity];
-            var currentIndex = 0;
-            foreach (var item in initialItemsList)
-            {
-                _internalArray[currentIndex++] = item;
-            }
-            _count = initialItemsList.Count;
+            _equalityComparer = options.EqualityComparer;
+            _lock = options.Lock;
+            _growArrayStrategy = options.GrowArrayStrategy;
+            IReadOnlyList<T> initialItems = null;
+            if (options.InitialItems != null)
+                initialItems = options.InitialItems.AsReadOnlyList();
+            _internalArray = _growArrayStrategy.CreateInitialArray(initialItems);
+            _count = initialItems?.Count ?? 0;
         }
 
         public int Capacity
@@ -183,7 +175,7 @@ namespace Light.DependencyInjection.DataStructures
         {
             index.MustNotBeLessThan(0, nameof(index));
 
-            _lock.EnterReadLock();
+            _lock.EnterWriteLock();
             try
             {
                 index.MustNotBeGreaterThan(_count, nameof(index));
@@ -199,7 +191,7 @@ namespace Light.DependencyInjection.DataStructures
             }
             finally
             {
-                _lock.ExitReadLock();
+                _lock.ExitWriteLock();
             }
         }
 
@@ -266,10 +258,7 @@ namespace Light.DependencyInjection.DataStructures
             if (_count + 1 < _internalArray.Length)
                 return;
 
-            var newSize = _internalArray.Length * 2;
-            var newArray = new T[newSize];
-            Array.Copy(_internalArray, newArray, _internalArray.Length);
-            _internalArray = newArray;
+            _internalArray = _growArrayStrategy.CreateLargerArrayFrom(_internalArray);
         }
 
         private void InternalRemoveAt(int index)

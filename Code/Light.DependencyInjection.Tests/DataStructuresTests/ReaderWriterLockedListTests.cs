@@ -9,6 +9,13 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
     [Trait("Category", "Functional Tests")]
     public sealed class ReaderWriterLockedListTests
     {
+        private readonly ReaderWriterLockSpy _lockSpy = new ReaderWriterLockSpy();
+
+        private ReaderWriterLockedListOptions<T> CreateOptions<T>(IEnumerable<T> existingItems = null)
+        {
+            return new ReaderWriterLockedListOptions<T>(_lockSpy, initialItems: existingItems);
+        }
+
         [Theory]
         [InlineData(new[] { 1, 2, 3 }, 4)]
         [InlineData(new[] { "Foo", "Bar" }, "Baz")]
@@ -16,21 +23,14 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         public void Add<T>(T[] existingItems, T itemToAdd)
         {
             // ReSharper disable once UseObjectOrCollectionInitializer
-            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
 
             testTarget.Add(itemToAdd);
 
             var expected = new List<T>(existingItems) { itemToAdd };
             testTarget.Should().Equal(expected);
             testTarget.Count.Should().Be(existingItems.Length + 1);
-        }
-
-        [Fact]
-        public void InitialCapacity()
-        {
-            var testTarget = new ReaderWriterLockedList<object>();
-
-            testTarget.Capacity.Should().Be(ReaderWriterLockedList<object>.DefaultCapacity);
+            _lockSpy.MustHaveUsedWriteLockExactlyOnce();
         }
 
         [Theory]
@@ -40,12 +40,13 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [InlineData(new int[] { }, 0, 42, new[] { 42 })]
         public void Insert<T>(T[] existingItems, int index, T item, T[] expected)
         {
-            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
 
             testTarget.Insert(index, item);
 
             testTarget.Should().Equal(expected);
             testTarget.Count.Should().Be(existingItems.Length + 1);
+            _lockSpy.MustHaveUsedWriteLockExactlyOnce();
         }
 
         [Theory]
@@ -54,12 +55,13 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         public void Overwrite<T>(T[] existingItems, int index, T item, T[] expected)
         {
             // ReSharper disable once UseObjectOrCollectionInitializer
-            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
 
             testTarget[index] = item;
 
             testTarget.Should().Equal(expected);
             testTarget.Count.Should().Be(existingItems.Length);
+            _lockSpy.MustHaveUsedWriteLockExactlyOnce();
         }
 
         [Fact]
@@ -80,14 +82,15 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [InlineData(new[] { 1, 2, 3 })]
         [InlineData(new[] { 42, -188, 481, 67, -55454, 12 })]
         [InlineData(new int[] { })]
-        public void Clear(int[] initialItems)
+        public void Clear(int[] existingItems)
         {
-            var testTarget = new ReaderWriterLockedList<int>(initialItems);
+            var testTarget = new ReaderWriterLockedList<int>(CreateOptions(existingItems));
 
             testTarget.Clear();
 
             testTarget.Should().BeEmpty();
             testTarget.Count.Should().Be(0);
+            _lockSpy.MustHaveUsedWriteLockExactlyOnce();
         }
 
         [Theory]
@@ -97,11 +100,12 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [InlineData(new string[] { }, "Foo", false)]
         public void Contains<T>(T[] existingItems, T item, bool expected)
         {
-            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
 
             var actual = testTarget.Contains(item);
 
             actual.Should().Be(expected);
+            _lockSpy.MustHaveUsedReadLockExactlyOnce();
         }
 
         [Theory]
@@ -112,11 +116,12 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [InlineData(new string[] { }, "Foo", -1)]
         public void IndexOf<T>(T[] existingItems, T item, int expectedIndex)
         {
-            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
 
             var actualIndex = testTarget.IndexOf(item);
 
             actualIndex.Should().Be(expectedIndex);
+            _lockSpy.MustHaveUsedReadLockExactlyOnce();
         }
 
         [Theory]
@@ -126,12 +131,14 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [InlineData(new string[] { }, "Foo", new string[] { }, false)]
         public void Remove<T>(T[] existingItems, T item, T[] expectedCollection, bool expectedReturnValue)
         {
-            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
 
             var wasRemoved = testTarget.Remove(item);
 
             wasRemoved.Should().Be(expectedReturnValue);
             testTarget.Should().Equal(expectedCollection);
+            _lockSpy.MustHaveUsedWriteLockExactlyOnce();
+
             if (wasRemoved)
                 testTarget.Count.Should().Be(existingItems.Length - 1);
         }
@@ -141,12 +148,13 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [InlineData(new[] { "Foo", "Bar", "Baz" }, 0, new[] { "Bar", "Baz" })]
         public void RemoveAt<T>(T[] existingItems, int index, T[] expectedCollection)
         {
-            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
 
             testTarget.RemoveAt(index);
 
             testTarget.Should().Equal(expectedCollection);
             testTarget.Count.Should().Be(existingItems.Length - 1);
+            _lockSpy.MustHaveUsedWriteLockExactlyOnce();
         }
 
         [Theory]
@@ -155,22 +163,25 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [InlineData(new[] { "Foo", "Bar" }, 1, "Bar")]
         public void Get<T>(T[] existingItems, int index, T expected)
         {
-            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+            // ReSharper disable once CollectionNeverUpdated.Local
+            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
 
             var actual = testTarget[index];
 
             actual.Should().Be(expected);
+            _lockSpy.MustHaveUsedReadLockExactlyOnce();
         }
 
         [Theory]
         [MemberData(nameof(CopyToData))]
         public void CopyTo<T>(T[] existingItems, T[] array, int startIndex)
         {
-            var testTarget = new ReaderWriterLockedList<T>(existingItems);
+            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
 
             testTarget.CopyTo(array, startIndex);
 
             array.Should().Contain(existingItems);
+            _lockSpy.MustHaveUsedReadLockExactlyOnce();
         }
 
         public static readonly TestData CopyToData =

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Light.GuardClauses;
-using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.DataStructures
 {
@@ -17,26 +16,24 @@ namespace Light.DependencyInjection.DataStructures
             InitialCapacity = initialCapacity;
         }
 
-        public T[] CreateInitialArray(IEnumerable<T> existingItems = null)
+        public T[] CreateInitialArray(IReadOnlyList<T> existingItems = null)
         {
-            // ReSharper disable PossibleMultipleEnumeration
             if (existingItems.IsNullOrEmpty())
                 return new T[InitialCapacity];
 
-            var existingItemsList = existingItems.AsList();
             var initialCapacity = InitialCapacity;
             checked
             {
-                if (initialCapacity < existingItemsList.Count)
+                // ReSharper disable once PossibleNullReferenceException
+                if (initialCapacity < existingItems.Count)
                     initialCapacity *= 2;
             }
             var initialArray = new T[initialCapacity];
-            for (var i = 0; i < existingItemsList.Count; i++)
+            for (var i = 0; i < existingItems.Count; i++)
             {
-                initialArray[i] = existingItemsList[i];
+                initialArray[i] = existingItems[i];
             }
             return initialArray;
-            // ReSharper restore PossibleMultipleEnumeration
         }
 
         public T[] CreateLargerArrayFrom(T[] array)

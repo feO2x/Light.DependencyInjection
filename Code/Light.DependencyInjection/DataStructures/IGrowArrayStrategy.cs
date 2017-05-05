@@ -4,7 +4,7 @@ namespace Light.DependencyInjection.DataStructures
 {
     public interface IGrowArrayStrategy<T>
     {
-        T[] CreateInitialArray(IEnumerable<T> existingItems);
+        T[] CreateInitialArray(IReadOnlyList<T> existingItems);
         T[] CreateLargerArrayFrom(T[] array);
     }
 }
