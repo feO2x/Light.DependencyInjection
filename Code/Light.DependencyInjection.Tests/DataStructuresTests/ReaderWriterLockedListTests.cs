@@ -22,6 +22,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
 
             var expected = new List<T>(existingItems) { itemToAdd };
             testTarget.Should().Equal(expected);
+            testTarget.Count.Should().Be(existingItems.Length + 1);
         }
 
         [Fact]
@@ -44,6 +45,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             testTarget.Insert(index, item);
 
             testTarget.Should().Equal(expected);
+            testTarget.Count.Should().Be(existingItems.Length + 1);
         }
 
         [Theory]
@@ -57,6 +59,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             testTarget[index] = item;
 
             testTarget.Should().Equal(expected);
+            testTarget.Count.Should().Be(existingItems.Length);
         }
 
         [Fact]
@@ -84,6 +87,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             testTarget.Clear();
 
             testTarget.Should().BeEmpty();
+            testTarget.Count.Should().Be(0);
         }
 
         [Theory]
@@ -124,10 +128,12 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         {
             var testTarget = new ReaderWriterLockedList<T>(existingItems);
 
-            var actualReturnValue = testTarget.Remove(item);
+            var wasRemoved = testTarget.Remove(item);
 
-            actualReturnValue.Should().Be(expectedReturnValue);
+            wasRemoved.Should().Be(expectedReturnValue);
             testTarget.Should().Equal(expectedCollection);
+            if (wasRemoved)
+                testTarget.Count.Should().Be(existingItems.Length - 1);
         }
 
         [Theory]
@@ -140,6 +146,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             testTarget.RemoveAt(index);
 
             testTarget.Should().Equal(expectedCollection);
+            testTarget.Count.Should().Be(existingItems.Length - 1);
         }
 
         [Theory]
@@ -173,5 +180,13 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
                 new object[] { new[] { "Foo", "Bar", "Baz" }, new string[5], 2 },
                 new object[] { new[] { 1, 2, 3, 4, 5 }, new int[10], 0 }
             };
+
+        [Fact]
+        public void IsReadOnlyIsAlwaysFalse()
+        {
+            IList<object> testTarget = new ReaderWriterLockedList<object>();
+
+            testTarget.IsReadOnly.Should().BeFalse();
+        }
     }
 }

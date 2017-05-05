@@ -150,7 +150,7 @@ namespace Light.DependencyInjection.DataStructures
             }
         }
 
-        public bool IsReadOnly => false;
+        bool ICollection<T>.IsReadOnly => false;
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
