@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using Light.GuardClauses;
 using Light.GuardClauses.FrameworkExtensions;
 
@@ -142,11 +141,12 @@ namespace Light.DependencyInjection.Registrations
         ///     if yes, an <see cref="ArgumentException" /> is thrown.
         /// </summary>
         /// <param name="parameterName">The name of the parameter (optional).</param>
-        [Conditional(Check.CompileAssertionsSymbol)]
-        public void MustNotBeEmpty(string parameterName = null)
+        public TypeKey MustNotBeEmpty(string parameterName = null)
         {
             if (IsEmpty)
-                throw new ArgumentException($"The specified type key must not be empty", parameterName);
+                throw new ArgumentException("The specified type key must not be empty.", parameterName);
+
+            return this;
         }
     }
 }
