@@ -9,7 +9,7 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
     [Trait("Category", "Functional Tests")]
     public sealed class TypeKeyTests
     {
-        [Theory]
+        [Theory(DisplayName = "A type key can be initialized without a registration name. In this case, RegistrationName must be an empty string and the hash codes must be created from the passed in Type object.")]
         [InlineData(typeof(object))]
         [InlineData(typeof(int))]
         [InlineData(typeof(string))]
@@ -30,7 +30,7 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
                    .And.Be(typeKey.ToString());
         }
 
-        [Theory]
+        [Theory(DisplayName = "A type key can be initialized with a registration name. In this case, RegistrationName must be the passed in string and the hash code must be created from both type and registrationName.")]
         [InlineData(typeof(object), "Foo")]
         [InlineData(typeof(string), "Bar")]
         [InlineData(typeof(double), "Baz")]
@@ -44,7 +44,7 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
             typeKey.HashCode.Should().NotBe(type.GetHashCode());
         }
 
-        [Fact]
+        [Fact(DisplayName = "The constructor of TypeKey must throw an ArgumentNullException when type is null.")]
         public void TypeNull()
         {
             // ReSharper disable once ObjectCreationAsStatement
@@ -54,7 +54,7 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
                .And.ParamName.Should().Be("type");
         }
 
-        [Fact]
+        [Fact(DisplayName = "The constructor of TypeKey must throw an ArgumentNullException when registration name is null.")]
         public void RegistrationNameNull()
         {
             // ReSharper disable once ObjectCreationAsStatement
@@ -64,7 +64,7 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
                .And.ParamName.Should().Be("registrationName");
         }
 
-        [Theory]
+        [Theory(DisplayName = "Type Keys with the same values (type and registration name) must be equal (Value Object).")]
         [InlineData(typeof(int), "Foo")]
         [InlineData(typeof(string), "")]
         public void TwoTypeKeyInstancesAreEqualWhenTypeAndRegistrationNameAreIdentical(Type type, string registrationName)
@@ -76,7 +76,7 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
             (first != second).Should().BeFalse();
         }
 
-        [Theory]
+        [Theory(DisplayName = "Type Keys with different values (type and registration name) must not be equal (Value Object).")]
         [MemberData(nameof(DifferentTypeKeys))]
         public void DifferentTypeKeysAreNotEqual(TypeKey first, TypeKey second)
         {
@@ -92,7 +92,7 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
                 new object[] { new TypeKey(typeof(int)), new TypeKey(typeof(int), "Baz") }
             };
 
-        [Theory]
+        [Theory(DisplayName = "Type objects can be implicitly converted to TypeKey instances.")]
         [InlineData(typeof(string))]
         [InlineData(typeof(bool))]
         [InlineData(typeof(decimal))]
@@ -103,7 +103,7 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
             CheckTypeKeyInvariantsAfterInitializationWithType(type, typeKey);
         }
 
-        [Fact]
+        [Fact(DisplayName = "TypeKey instances can be implicitly converted to Type objects.")]
         public void ImplicitConversionToType()
         {
             var typeKey = new TypeKey(typeof(string), "Foo");
@@ -113,7 +113,7 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
             type.Should().BeSameAs(typeKey.Type);
         }
 
-        [Theory]
+        [Theory(DisplayName = "The overridden GetHashCode method must return the HashCode computed on initialization.")]
         [InlineData(typeof(string), "")]
         [InlineData(typeof(float), "Foo")]
         public void GetHashCodeReturnsHashCode(Type type, string registrationName)
@@ -123,7 +123,7 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
             typeKey.GetHashCode().Should().Be(typeKey.HashCode);
         }
 
-        [Theory]
+        [Theory(DisplayName = "Equals(object) must behave correctly.")]
         [MemberData(nameof(ObjectEqualsData))]
         public void ObjectEquals(object compareObject, bool expected)
         {
@@ -143,7 +143,7 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
                 new object[] { null, false }
             };
 
-        [Theory]
+        [Theory(DisplayName = "IsEmpty must return true if the TypeKey instance was created via struct initializer (not the constructor).")]
         [MemberData(nameof(IsEmptyData))]
         public void IsEmpty(TypeKey typeKey, bool expected)
         {
@@ -158,7 +158,7 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
                 new object[] { new TypeKey(typeof(int), "Foo"), false }
             };
 
-        [Fact]
+        [Fact(DisplayName = "MustNotBeEmpty must throw an ArgumentException when the TypeKey was not instantiated via the constructor.")]
         public void MustNotBeEmpty()
         {
             Action act = () => new TypeKey().MustNotBeEmpty("foo");

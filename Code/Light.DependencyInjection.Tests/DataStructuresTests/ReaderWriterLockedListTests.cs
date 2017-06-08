@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using FluentAssertions;
 using Light.DependencyInjection.DataStructures;
 using Xunit;
@@ -16,7 +17,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             return new ReaderWriterLockedListOptions<T>(_lockSpy, initialItems: existingItems);
         }
 
-        [Theory]
+        [Theory(DisplayName = "Add must insert the items at the end of the list.")]
         [InlineData(new[] { 1, 2, 3 }, 4)]
         [InlineData(new[] { "Foo", "Bar" }, "Baz")]
         [InlineData(new string[] { }, "Foo")]
@@ -33,7 +34,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             _lockSpy.MustHaveUsedWriteLockExactlyOnce();
         }
 
-        [Theory]
+        [Theory(DisplayName = "Insert must insert the items at the specified index.")]
         [InlineData(new[] { 1, 2, 3, 4, 5 }, 0, 10, new[] { 10, 1, 2, 3, 4, 5 })]
         [InlineData(new[] { "Foo", "Bar", "Baz" }, 1, "Qux", new[] { "Foo", "Qux", "Bar", "Baz" })]
         [InlineData(new[] { "Foo", "Bar" }, "2", "Baz", new[] { "Foo", "Bar", "Baz" })]
@@ -49,7 +50,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             _lockSpy.MustHaveUsedWriteLockExactlyOnce();
         }
 
-        [Theory]
+        [Theory(DisplayName = "The index property must overwrite the existing existing at the specified index with the given value.")]
         [InlineData(new[] { 1, 2, 3 }, 2, 42, new[] { 1, 2, 42 })]
         [InlineData(new[] { "Foo", "Bar" }, 0, "Baz", new[] { "Baz", "Bar" })]
         public void Overwrite<T>(T[] existingItems, int index, T item, T[] expected)
@@ -64,7 +65,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             _lockSpy.MustHaveUsedWriteLockExactlyOnce();
         }
 
-        [Fact]
+        [Fact(DisplayName = "The list must increase its capacity when there is no more space for new items.")]
         public void IncreaseCapacity()
         {
             var testTarget = new ReaderWriterLockedList<int>();
@@ -78,7 +79,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             testTarget.Capacity.Should().BeGreaterThan(initialCapacity * 2);
         }
 
-        [Theory]
+        [Theory(DisplayName = "Clear must remove all items from the list.")]
         [InlineData(new[] { 1, 2, 3 })]
         [InlineData(new[] { 42, -188, 481, 67, -55454, 12 })]
         [InlineData(new int[] { })]
@@ -93,7 +94,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             _lockSpy.MustHaveUsedWriteLockExactlyOnce();
         }
 
-        [Theory]
+        [Theory(DisplayName = "Contains must return true when the specified item is part of the list, else false.")]
         [InlineData(new[] { 1, 2, 3, 4 }, 3, true)]
         [InlineData(new[] { 42, -13, 5 }, 6, false)]
         [InlineData(new[] { "Foo", "Bar", "Baz" }, "Foo", true)]
@@ -108,7 +109,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             _lockSpy.MustHaveUsedReadLockExactlyOnce();
         }
 
-        [Theory]
+        [Theory(DisplayName = "IndexOf must return the index of the target item if it is part of the list, or else -1.")]
         [InlineData(new[] { 1, 2, 3 }, 2, 1)]
         [InlineData(new[] { 42, 87, 1005 }, -4, -1)]
         [InlineData(new[] { "Foo", "Bar", "Baz" }, "Foo", 0)]
@@ -124,7 +125,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             _lockSpy.MustHaveUsedReadLockExactlyOnce();
         }
 
-        [Theory]
+        [Theory(DisplayName = "Remove must remove the specified item and return true if the item is part of the list, else it must return false.")]
         [InlineData(new[] { 1, 2, 3 }, 2, new[] { 1, 3 }, true)]
         [InlineData(new[] { 1, 2, 3 }, 5, new[] { 1, 2, 3 }, false)]
         [InlineData(new[] { "Foo", "Bar" }, "Foo", new[] { "Bar" }, true)]
@@ -143,7 +144,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
                 testTarget.Count.Should().Be(existingItems.Length - 1);
         }
 
-        [Theory]
+        [Theory(DisplayName = "RemoveAt must remove the item at the specified index.")]
         [InlineData(new[] { 1, 2, 3 }, 2, new[] { 1, 2 })]
         [InlineData(new[] { "Foo", "Bar", "Baz" }, 0, new[] { "Bar", "Baz" })]
         public void RemoveAt<T>(T[] existingItems, int index, T[] expectedCollection)
@@ -157,7 +158,6 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             _lockSpy.MustHaveUsedWriteLockExactlyOnce();
         }
 
-        [Theory]
         [InlineData(new[] { 1, 2, 3 }, 2, 3)]
         [InlineData(new[] { 1, 2, 3 }, 0, 1)]
         [InlineData(new[] { "Foo", "Bar" }, 1, "Bar")]
@@ -172,7 +172,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             _lockSpy.MustHaveUsedReadLockExactlyOnce();
         }
 
-        [Theory]
+        [Theory(DisplayName = "CopyTo must copy the all items to the target array, starting from the specified target index.")]
         [MemberData(nameof(CopyToData))]
         public void CopyTo<T>(T[] existingItems, T[] array, int startIndex)
         {
@@ -192,7 +192,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
                 new object[] { new[] { 1, 2, 3, 4, 5 }, new int[10], 0 }
             };
 
-        [Fact]
+        [Fact(DisplayName = "IsReadonly must always return false.")]
         public void IsReadOnlyIsAlwaysFalse()
         {
             IList<object> testTarget = new ReaderWriterLockedList<object>();

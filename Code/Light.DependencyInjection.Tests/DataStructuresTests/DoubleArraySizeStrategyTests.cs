@@ -8,13 +8,13 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
     [Trait("Category", "Functional Tests")]
     public sealed class DoubleArraySizeStrategyTests
     {
-        [Fact]
+        [Fact(DisplayName = "The default capacity of DoubleArraySizeStrategy is four.")]
         public void DefaultCapacityIsFour()
         {
             DoubleArraySizeStrategy<int>.DefaultCapacity.Should().Be(4);
         }
 
-        [Fact]
+        [Fact(DisplayName = "An array that is created via DoubleArraySizeStrategy must have the default initial capacity.")]
         public void InitialArrayWithoutExistingItems()
         {
             var testTarget = new DoubleArraySizeStrategy<int>();
@@ -24,7 +24,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             array.Length.Should().Be(testTarget.InitialCapacity);
         }
 
-        [Theory]
+        [Theory(DisplayName = "DoubleArraySizeStrategy must increase the initial capacity when existing items exceed the default capacity.")]
         [InlineData(new[] { 1, 2, 3 }, 4)]
         [InlineData(new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, 8)]
         [InlineData(new[] { "Foo", "Bar", "Baz", "Qux", "Quux", "Corge", "Grault" }, 8)]
@@ -38,7 +38,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             array.MustStartWith(existingItems);
         }
 
-        [Theory]
+        [Theory(DisplayName = "DoubleArraySizeStrategy must double the capacity when CreateLargerArrayFrom is called.")]
         [InlineData(new[] { 1, 2, 3, 4, 5, 6 })]
         [InlineData(new[] { 1, 2, 3 })]
         public void IncreaseArraySize<T>(T[] array)

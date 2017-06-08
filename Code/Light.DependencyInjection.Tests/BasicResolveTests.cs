@@ -6,7 +6,7 @@ namespace Light.DependencyInjection.Tests
     [Trait("Category", "Functional Tests")]
     public sealed class BasicResolveTests
     {
-        [Fact]
+        [Fact(DisplayName = "The DI Container must create two instances when a type with a transient lifetime is resolved two times.")]
         public void TransientResolve()
         {
             var container = new DiContainer().RegisterTransient<ClassWithoutDependencies>();
