@@ -59,13 +59,12 @@ namespace Light.DependencyInjection
             if (_standardizedConstructionFunctions.TryGetValue(typeKey, out var standardizedConstructionFunction))
                 return standardizedConstructionFunction();
 
-            var targetRegistration = FindTargetRegistration(typeKey);
-            standardizedConstructionFunction = _services.StandardizedConstructionFunctionFactory.Create(targetRegistration);
+            standardizedConstructionFunction = _services.StandardizedConstructionFunctionFactory.Create(typeKey, this);
             standardizedConstructionFunction = _standardizedConstructionFunctions.GetOrAdd(typeKey, standardizedConstructionFunction);
             return standardizedConstructionFunction();
         }
 
-        private Registration FindTargetRegistration(TypeKey typeKey)
+        public Registration GetRegistration(TypeKey typeKey)
         {
             // TODO: check if generic type is asked
             if (_registrationMapping.TryGetValue(typeKey.Type, out var registrations) == false ||

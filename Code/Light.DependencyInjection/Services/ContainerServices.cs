@@ -11,7 +11,7 @@ namespace Light.DependencyInjection.Services
     {
         private IConcurrentDictionaryFactory _concurrentDictionaryFactory = new DefaultConcurrentDictionaryFactory();
         private IConcurrentListFactory _concurrentListFactory = new ReaderWriterLockedListFactory();
-        private IStandardizedConstructionFunctionFactory _standardizedConstructionFunctionFactory;
+        private IStandardizedConstructionFunctionFactory _standardizedConstructionFunctionFactory = new DefaultStandardizedConstructionFunctionFactory();
         private IReadOnlyList<Type> _ignoredAbstractionTypes = new[] { typeof(IDisposable) };
         private IDefaultInstantiationInfoSelector _defaultInstantiationInfoSelector = new ConstructorWithMostParametersSelector();
 

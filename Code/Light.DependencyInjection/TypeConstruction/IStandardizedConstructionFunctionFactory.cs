@@ -5,6 +5,6 @@ namespace Light.DependencyInjection.TypeConstruction
 {
     public interface IStandardizedConstructionFunctionFactory
     {
-        Func<object> Create(Registration registration);
+        Func<object> Create(TypeKey typeKey, DiContainer container);
     }
 }
