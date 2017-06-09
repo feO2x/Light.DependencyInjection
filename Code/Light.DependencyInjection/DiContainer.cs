@@ -86,5 +86,10 @@ namespace Light.DependencyInjection
         {
             return new RegistrationOptions<TConcrete>(container.Services.DefaultInstantiationInfoSelector).PerformRegistration(container, new SingletonLifetime(), configureRegistration);
         }
+
+        public static DiContainer RegisterInstance<T>(this DiContainer container, T instance)
+        {
+            return new RegistrationOptions<T>(container.Services.DefaultInstantiationInfoSelector).PerformRegistration(container, new ExternalInstanceLifetime(instance));
+        }
     }
 }

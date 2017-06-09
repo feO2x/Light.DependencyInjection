@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using FluentAssertions;
+using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
 namespace Light.DependencyInjection.Tests
 {
@@ -30,5 +31,23 @@ namespace Light.DependencyInjection.Tests
             first.Should().NotBeNull();
             first.Should().BeSameAs(second);
         }
+
+        [Theory(DisplayName = "The DI Container must resolve the reference to an instance that was passed to it on registration.")]
+        [MemberData(nameof(ExternalInstanceData))]
+        public void ExternalInstanceResolve<T>(T instance)
+        {
+            var container = new DiContainer().RegisterInstance(instance);
+
+            var resolvedInstance = container.Resolve<T>();
+
+            resolvedInstance.Should().BeSameAs(instance);
+        }
+
+        public static readonly TestData ExternalInstanceData =
+            new[]
+            {
+                new object[] { "Foo" },
+                new[] { new object() }
+            };
     }
 }
