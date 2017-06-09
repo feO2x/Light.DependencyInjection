@@ -1,4 +1,6 @@
-﻿namespace Light.DependencyInjection.Lifetimes
+﻿using System;
+
+namespace Light.DependencyInjection.Lifetimes
 {
     public sealed class ExternalInstanceLifetime : Lifetime
     {
@@ -9,7 +11,7 @@
             Value = value;
         }
 
-        public override object ResolveInstance(ResolveContext resolveContext)
+        public override object ResolveInstance(Func<object> createInstance)
         {
             return Value;
         }

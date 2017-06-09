@@ -18,5 +18,17 @@ namespace Light.DependencyInjection.Tests
             second.Should().NotBeNull();
             first.Should().NotBeSameAs(second);
         }
+
+        [Fact(DisplayName = "The DI Container must resolve the same instance when the target type is registered with a singleton lifetime.")]
+        public void SingletonResolve()
+        {
+            var container = new DiContainer().RegisterSingleton<ClassWithoutDependencies>();
+
+            var first = container.Resolve<ClassWithoutDependencies>();
+            var second = container.Resolve<ClassWithoutDependencies>();
+
+            first.Should().NotBeNull();
+            first.Should().BeSameAs(second);
+        }
     }
 }

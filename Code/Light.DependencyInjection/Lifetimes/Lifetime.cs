@@ -1,4 +1,5 @@
-﻿using Light.DependencyInjection.TypeConstruction;
+﻿using System;
+using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Lifetimes
 {
@@ -19,7 +20,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// </summary>
         /// <param name="isCreatingNewInstances">
         ///     The value indicating whether this lifetime creates new instances at some point when <see cref="ResolveInstance" /> is called.
-        ///     This value should only be set to false when the lifetime never calls <see cref="ResolveContext.CreateNewInstance" /> within <see cref="ResolveInstance" />
+        ///     This value should only be set to false when <see cref="ResolveInstance"/> never calls createInstance
         ///     and thusly, the container does not need to construct a <see cref="TypeConstructionInfo" /> for the target type.
         /// </param>
         /// <param name="toStringText">
@@ -35,7 +36,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// <summary>
         ///     Gets the requested instance.
         /// </summary>
-        public abstract object ResolveInstance(ResolveContext resolveContext);
+        public abstract object ResolveInstance(Func<object> createInstance);
 
         /// <summary>
         ///     Gets the text representation of this lifetime.

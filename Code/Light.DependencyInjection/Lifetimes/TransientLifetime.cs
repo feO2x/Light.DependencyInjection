@@ -1,4 +1,6 @@
-﻿namespace Light.DependencyInjection.Lifetimes
+﻿using System;
+
+namespace Light.DependencyInjection.Lifetimes
 {
     /// <summary>
     ///     Represents a lifetime that always creates new instances.
@@ -11,11 +13,11 @@
         public static readonly TransientLifetime Instance = new TransientLifetime();
 
         /// <summary>
-        ///     Requests the <paramref name="resolveContext" /> to create a new instance of the target type.
+        ///     Always creates a new instance using the specified delegate.
         /// </summary>
-        public override object ResolveInstance(ResolveContext resolveContext)
+        public override object ResolveInstance(Func<object> createInstance)
         {
-            return resolveContext.CreateNewInstance();
+            return createInstance();
         }
     }
 }
