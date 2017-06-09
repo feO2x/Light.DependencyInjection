@@ -29,13 +29,20 @@ namespace Light.DependencyInjection.TypeConstruction
                 return createInstance;
             }
 
+            var singletonLifetime = registration.LifeTime as SingletonLifetime;
+            if (singletonLifetime != null)
+            {
+                var singletonInstance = singletonLifetime.ResolveInstance(createInstance);
+                return Expression.Lambda<Func<object>>(Expression.Constant(singletonInstance)).Compile();
+            }
+
             return Expression.Lambda<Func<object>>(Expression.Call(Expression.Constant(registration.LifeTime),
                                                                    LifetimeResolveInstanceMethod,
                                                                    Expression.Constant(createInstance)))
                              .Compile();
         }
 
-        private Func<object> BuildCreateInstanceExpression(Registration registration)
+        private static Func<object> BuildCreateInstanceExpression(Registration registration)
         {
             var constructorInstantiationInfo = registration.TypeConstructionInfo.InstantiationInfo as ConstructorInstantiationInfo;
             if (constructorInstantiationInfo != null)
