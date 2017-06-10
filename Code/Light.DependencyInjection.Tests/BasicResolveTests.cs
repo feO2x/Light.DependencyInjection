@@ -49,5 +49,17 @@ namespace Light.DependencyInjection.Tests
                 new object[] { "Foo" },
                 new[] { new object() }
             };
+
+        [Fact(DisplayName = "The DI container must be able to resolve types with dependencies to other types.")]
+        public void SimpleHierarchicalResolve()
+        {
+            var container = new DiContainer().RegisterTransient<ClassWithoutDependencies>()
+                                             .RegisterTransient<ClassWithDependency>();
+
+            var instance = container.Resolve<ClassWithDependency>();
+
+            instance.Should().NotBeNull();
+            instance.A.Should().NotBeNull();
+        }
     }
 }

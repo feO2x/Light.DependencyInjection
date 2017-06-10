@@ -4,4 +4,14 @@
     {
         
     }
+
+    public class ClassWithDependency
+    {
+        public readonly ClassWithoutDependencies A;
+
+        public ClassWithDependency(ClassWithoutDependencies a)
+        {
+            A = a;
+        }
+    }
 }
