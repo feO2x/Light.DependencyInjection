@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Light.DependencyInjection.Lifetimes;
 using Light.DependencyInjection.Registrations;
+using Light.DependencyInjection.Services;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
@@ -14,6 +16,14 @@ namespace Light.DependencyInjection.TypeConstruction
 
         private static readonly Type FuncOfObjectType = typeof(Func<object>);
 
+        private readonly IDictionary<Type, IInstantiationExpressionFactory> _instantiationExpressionFactories;
+
+        public DefaultStandardizedConstructionFunctionFactory(IDictionary<Type, IInstantiationExpressionFactory> instantiationExpressionFactories)
+        {
+            instantiationExpressionFactories.MustNotBeNullOrEmpty(nameof(instantiationExpressionFactories));
+            _instantiationExpressionFactories = instantiationExpressionFactories;
+        }
+
         public Func<object> Create(TypeKey typeKey, DiContainer container)
         {
             typeKey.MustNotBeEmpty(nameof(typeKey));
@@ -23,7 +33,7 @@ namespace Light.DependencyInjection.TypeConstruction
             return Expression.Lambda<Func<object>>(resolveExpression).Compile();
         }
 
-        private static Expression CreateResolveExpressionRecursively(TypeKey targetTypeKey, DiContainer container)
+        private Expression CreateResolveExpressionRecursively(TypeKey targetTypeKey, DiContainer container)
         {
             var registration = container.GetRegistration(targetTypeKey);
 
@@ -43,9 +53,12 @@ namespace Light.DependencyInjection.TypeConstruction
                     parameterExpressions[i] = CreateResolveExpressionRecursively(new TypeKey(instantiationDependency.ParameterInfo.ParameterType, instantiationDependency.TargetRegistrationName), container);
                 }
             }
-            var constructorInstantitationInfo = (ConstructorInstantiationInfo) registration.TypeConstructionInfo.InstantiationInfo;
-            var createInstanceExpression = Expression.New(constructorInstantitationInfo.ConstructorInfo, parameterExpressions);
 
+            if (_instantiationExpressionFactories.TryGetValue(registration.TypeConstructionInfo.InstantiationInfo.GetType(), out var instantiationExpressionFactory) == false)
+                throw new InvalidOperationException($"There is no instantiationExpressionFactory present for \"{registration.TypeConstructionInfo.InstantiationInfo.GetType()}\". Please check that \"{nameof(DefaultStandardizedConstructionFunctionFactory)}\" is created with all necessary dependencies in \"{nameof(ContainerServices)}\".");
+            var createInstanceExpression = instantiationExpressionFactory.Create(registration.TypeConstructionInfo.InstantiationInfo, parameterExpressions);
+
+            // TODO: should special lifetime handling be performed polymorphically?
             if (registration.LifeTime == TransientLifetime.Instance || registration.LifeTime is TransientLifetime)
                 return createInstanceExpression;
 

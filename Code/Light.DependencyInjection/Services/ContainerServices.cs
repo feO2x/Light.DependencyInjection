@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Light.DependencyInjection.DataStructures;
 using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.TypeConstruction;
@@ -11,9 +12,13 @@ namespace Light.DependencyInjection.Services
     {
         private IConcurrentDictionaryFactory _concurrentDictionaryFactory = new DefaultConcurrentDictionaryFactory();
         private IConcurrentListFactory _concurrentListFactory = new ReaderWriterLockedListFactory();
-        private IStandardizedConstructionFunctionFactory _standardizedConstructionFunctionFactory = new DefaultStandardizedConstructionFunctionFactory();
-        private IReadOnlyList<Type> _ignoredAbstractionTypes = new[] { typeof(IDisposable) };
         private IDefaultInstantiationInfoSelector _defaultInstantiationInfoSelector = new ConstructorWithMostParametersSelector();
+        private IReadOnlyList<Type> _ignoredAbstractionTypes = new[] { typeof(IDisposable) };
+
+        private IStandardizedConstructionFunctionFactory _standardizedConstructionFunctionFactory = new DefaultStandardizedConstructionFunctionFactory(new IInstantiationExpressionFactory[]
+                                                                                                                                                       {
+                                                                                                                                                           new ConstructorInstantiationExpressionFactory()
+                                                                                                                                                       }.ToDictionary(expressionFactory => expressionFactory.InstantiationInfoType));
 
         public IConcurrentDictionaryFactory ConcurrentDictionaryFactory
         {
