@@ -14,4 +14,16 @@
             A = a;
         }
     }
+
+    public class ClassWithTwoDependencies
+    {
+        public readonly ClassWithoutDependencies A;
+        public readonly ClassWithDependency B;
+
+        public ClassWithTwoDependencies(ClassWithoutDependencies a, ClassWithDependency b)
+        {
+            A = a;
+            B = b;
+        }
+    }
 }

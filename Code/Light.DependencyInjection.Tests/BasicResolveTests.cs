@@ -61,5 +61,17 @@ namespace Light.DependencyInjection.Tests
             instance.Should().NotBeNull();
             instance.A.Should().NotBeNull();
         }
+
+        [Fact(DisplayName = "The DI container must be able to resolve a complex object graph where a singleton instance is injected in several other objects.")]
+        public void TwoLevelHierarchicalResolveWithSingletonLeaf()
+        {
+            var container = new DiContainer().RegisterSingleton<ClassWithoutDependencies>()
+                                             .RegisterTransient<ClassWithDependency>()
+                                             .RegisterSingleton<ClassWithTwoDependencies>();
+
+            var instance = container.Resolve<ClassWithTwoDependencies>();
+
+            instance.A.Should().BeSameAs(instance.B.A);
+        }
     }
 }
