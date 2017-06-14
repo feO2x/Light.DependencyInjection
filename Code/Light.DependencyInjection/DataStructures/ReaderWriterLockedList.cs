@@ -6,7 +6,7 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.DataStructures
 {
-    public sealed class ReaderWriterLockedList<T> : IList<T>, IDisposable
+    public sealed class ReaderWriterLockedList<T> : IConcurrentList<T>, IDisposable
     {
         private readonly IEqualityComparer<T> _equalityComparer;
         private readonly IGrowArrayStrategy<T> _growArrayStrategy;
@@ -344,6 +344,16 @@ namespace Light.DependencyInjection.DataStructures
                     _isLockAquired = false;
                 }
             }
+        }
+
+        public T GetOrAdd(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddOrUpdate(T item)
+        {
+            throw new NotImplementedException();
         }
     }
 }

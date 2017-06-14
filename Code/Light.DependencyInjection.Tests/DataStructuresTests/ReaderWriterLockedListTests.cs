@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Reflection;
 using FluentAssertions;
 using Light.DependencyInjection.DataStructures;
 using Xunit;
@@ -158,6 +157,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             _lockSpy.MustHaveUsedWriteLockExactlyOnce();
         }
 
+        [Theory(DisplayName = "The property indexer must return an existing item if it is present.")]
         [InlineData(new[] { 1, 2, 3 }, 2, 3)]
         [InlineData(new[] { 1, 2, 3 }, 0, 1)]
         [InlineData(new[] { "Foo", "Bar" }, 1, "Bar")]
@@ -198,6 +198,12 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             IList<object> testTarget = new ReaderWriterLockedList<object>();
 
             testTarget.IsReadOnly.Should().BeFalse();
+        }
+
+        [Fact(DisplayName = "ReaderWriterLockedList<T> must implement IConcurrentList<T>.")]
+        public void ReaderWriterLockedListMustImplementIConcurrentList()
+        {
+            typeof(ReaderWriterLockedList<object>).Should().Implement<IConcurrentList<object>>();
         }
     }
 }
