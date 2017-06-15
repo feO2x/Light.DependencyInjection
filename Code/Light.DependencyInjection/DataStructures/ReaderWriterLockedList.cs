@@ -51,14 +51,19 @@ namespace Light.DependencyInjection.DataStructures
             _lock.EnterWriteLock();
             try
             {
-                ExchangeInternalArrayWithLargerOneIfNecessary();
-
-                _internalArray[_count++] = item;
+                InternalAdd(item);
             }
             finally
             {
                 _lock.ExitWriteLock();
             }
+        }
+
+        private void InternalAdd(T item)
+        {
+            ExchangeInternalArrayWithLargerOneIfNecessary();
+
+            _internalArray[_count++] = item;
         }
 
         public void Clear()
@@ -374,7 +379,20 @@ namespace Light.DependencyInjection.DataStructures
 
         public void AddOrUpdate(T item)
         {
-            throw new NotImplementedException();
+            _lock.EnterWriteLock();
+
+            try
+            {
+                var indexOfExistingItem = InternalIndexOf(item);
+                if (indexOfExistingItem != -1)
+                    _internalArray[indexOfExistingItem] = item;
+                else
+                    InternalAdd(item);
+            }
+            finally
+            {
+                _lock.ExitWriteLock();
+            }
         }
     }
 }

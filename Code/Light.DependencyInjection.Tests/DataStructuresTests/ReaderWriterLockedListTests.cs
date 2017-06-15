@@ -239,6 +239,36 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
                     .MustHaveUsedUpgradeableReadLockExactlyOnce();
         }
 
+        [Fact(DisplayName = "AddOrUpdate must update the existing item when an equal item is present in the list.")]
+        public void ItemPresentOnAddOrUpdate()
+        {
+            var guid = Guid.NewGuid();
+            var firstDummy = new DummyEntity(guid, "A");
+            var secondDummy = new DummyEntity(guid, "B");
+            var testTarget = new ReaderWriterLockedList<DummyEntity>(CreateOptions(new[] { firstDummy }));
+
+            testTarget.AddOrUpdate(secondDummy);
+
+            testTarget.Count.Should().Be(1);
+            testTarget[0].Should().BeSameAs(secondDummy);
+            _lockSpy.MustHaveUsedWriteLockExactlyOnce();
+        }
+
+        [Fact(DisplayName = "AddOrUpdate must add the specified item when an equal item is not present in the list.")]
+        public void ItemNotPresentOnAddOrUpdate()
+        {
+            var firstDummy = new DummyEntity(Guid.NewGuid(), "A");
+            var secondDummy = new DummyEntity(Guid.NewGuid(), "B");
+            var testTarget = new ReaderWriterLockedList<DummyEntity>(CreateOptions(new[] { firstDummy }));
+
+            testTarget.AddOrUpdate(secondDummy);
+
+            testTarget.Count.Should().Be(2);
+            testTarget[0].Should().BeSameAs(firstDummy);
+            testTarget[1].Should().BeSameAs(secondDummy);
+            _lockSpy.MustHaveUsedWriteLockExactlyOnce();
+        }
+
         public sealed class DummyEntity : IEquatable<DummyEntity>
         {
             public readonly Guid Id;
