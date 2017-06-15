@@ -1,9 +1,14 @@
-﻿using System.Collections.Generic;
-
-namespace Light.DependencyInjection.DataStructures
+﻿namespace Light.DependencyInjection.DataStructures
 {
+    /// <summary>
+    ///     Represents a factory that creates instances of <see cref="IConcurrentList{T}" />.
+    /// </summary>
     public interface IConcurrentListFactory
     {
-        IList<T> Create<T>();
+        /// <summary>
+        ///     Creates a new instance of <see cref="IConcurrentList{T}" />.
+        /// </summary>
+        /// <typeparam name="T">The item type of the list.</typeparam>
+        IConcurrentList<T> Create<T>();
     }
 }

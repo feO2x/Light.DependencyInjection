@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Light.DependencyInjection.DataStructures;
 using Light.DependencyInjection.Lifetimes;
 using Light.DependencyInjection.Registrations;
@@ -10,14 +9,14 @@ namespace Light.DependencyInjection
 {
     public class DiContainer
     {
-        private readonly IConcurrentDictionary<Type, IList<Registration>> _registrationMapping;
+        private readonly IConcurrentDictionary<Type, IConcurrentList<Registration>> _registrationMapping;
         private readonly IConcurrentDictionary<TypeKey, Func<object>> _standardizedConstructionFunctions;
         private ContainerServices _services;
 
         public DiContainer(ContainerServices services = null)
         {
             _services = services ?? new ContainerServices();
-            _registrationMapping = _services.ConcurrentDictionaryFactory.Create<Type, IList<Registration>>();
+            _registrationMapping = _services.ConcurrentDictionaryFactory.Create<Type, IConcurrentList<Registration>>();
             _standardizedConstructionFunctions = _services.ConcurrentDictionaryFactory.Create<TypeKey, Func<object>>();
         }
 
@@ -37,8 +36,7 @@ namespace Light.DependencyInjection
                 typeRegistrations = _registrationMapping.GetOrAdd(registration.TypeKey, typeRegistrations);
             }
 
-            // TODO: I need a new interface for a concurrent list. IList<T> doesn't do it.
-            typeRegistrations.Add(registration);
+            typeRegistrations.AddOrUpdate(registration);
             return this;
         }
 
