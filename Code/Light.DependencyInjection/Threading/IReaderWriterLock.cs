@@ -6,7 +6,10 @@ namespace Light.DependencyInjection.Threading
     {
         void EnterReadLock();
         void ExitReadLock();
+        void EnterUpgradeableReadLock();
+        void ExitUpgradeableReadLock();
         void EnterWriteLock();
         void ExitWriteLock();
+
     }
 }

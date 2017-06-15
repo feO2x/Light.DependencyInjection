@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using Light.DependencyInjection.DataStructures;
+using Light.GuardClauses;
 using Xunit;
 using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
@@ -204,6 +206,80 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         public void ReaderWriterLockedListMustImplementIConcurrentList()
         {
             typeof(ReaderWriterLockedList<object>).Should().Implement<IConcurrentList<object>>();
+        }
+
+        [Fact(DisplayName = "GetOrAdd must return an existing item when the specified item is already in the list.")]
+        public void ItemPresentOnGetOrAdd()
+        {
+            var guid = Guid.NewGuid();
+            var firstDummy = new DummyEntity(guid, "A");
+            var secondDummy = new DummyEntity(guid, "B");
+            var testTarget = new ReaderWriterLockedList<DummyEntity>(CreateOptions(new[] { firstDummy }));
+
+            var item = testTarget.GetOrAdd(secondDummy);
+
+            testTarget.Count.Should().Be(1);
+            item.Should().BeSameAs(firstDummy);
+            _lockSpy.MustHaveUsedUpgradeableReadLockExactlyOnce()
+                    .MustNotHaveUsedWriteLock();
+        }
+
+        [Fact(DisplayName = "GetOrAdd must add the specified item and return it when an equal item is not present in the list.")]
+        public void ItemNotPresentOnGetOrAdd()
+        {
+            var firstDummy = new DummyEntity(Guid.NewGuid(), "A");
+            var secondDummy = new DummyEntity(Guid.NewGuid(), "B");
+            var testTarget = new ReaderWriterLockedList<DummyEntity>(CreateOptions(new[] { firstDummy }));
+
+            var item = testTarget.GetOrAdd(secondDummy);
+
+            testTarget.Count.Should().Be(2);
+            item.Should().BeSameAs(secondDummy);
+            _lockSpy.MustHaveUsedWriteLockExactlyOnce()
+                    .MustHaveUsedUpgradeableReadLockExactlyOnce();
+        }
+
+        public sealed class DummyEntity : IEquatable<DummyEntity>
+        {
+            public readonly Guid Id;
+            public readonly string SomeOtherValue;
+
+            public DummyEntity(Guid id, string someOtherValue)
+            {
+                Id = id.MustNotBeEmpty();
+                SomeOtherValue = someOtherValue.MustNotBeNullOrWhiteSpace();
+            }
+
+            public bool Equals(DummyEntity other)
+            {
+                if (ReferenceEquals(other, null))
+                    return false;
+
+                return other.Id == Id;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return Equals(obj as DummyEntity);
+            }
+
+            public override int GetHashCode()
+            {
+                return Id.GetHashCode();
+            }
+
+            public static bool operator ==(DummyEntity first, DummyEntity second)
+            {
+                if (ReferenceEquals(first, second))
+                    return true;
+
+                return !ReferenceEquals(first, null) && first.Equals(second);
+            }
+
+            public static bool operator !=(DummyEntity first, DummyEntity second)
+            {
+                return !(first == second);
+            }
         }
     }
 }

@@ -78,19 +78,17 @@ namespace Light.DependencyInjection.DataStructures
         {
             _lock.EnterReadLock();
 
-            var result = false;
-            for (var i = 0; i < _count; i++)
+            try
             {
-                if (_equalityComparer.Equals(item, _internalArray[i]) == false)
-                    continue;
-
-                result = true;
-                break;
+                return InternalIndexOf(item) != -1;
             }
-
-            _lock.ExitReadLock();
-            return result;
+            finally
+            {
+                _lock.ExitReadLock();
+            }
         }
+
+        
 
         public void CopyTo(T[] array, int arrayIndex)
         {
@@ -158,17 +156,26 @@ namespace Light.DependencyInjection.DataStructures
         {
             _lock.EnterReadLock();
 
-            var targetIndex = -1;
+            try
+            {
+                return InternalIndexOf(item);
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
+        }
+
+        private int InternalIndexOf(T item)
+        {
             for (var i = 0; i < _count; i++)
             {
                 if (_equalityComparer.Equals(_internalArray[i], item) == false)
                     continue;
 
-                targetIndex = i;
-                break;
+                return i;
             }
-            _lock.ExitReadLock();
-            return targetIndex;
+            return -1;
         }
 
         public void Insert(int index, T item)
@@ -348,7 +355,21 @@ namespace Light.DependencyInjection.DataStructures
 
         public T GetOrAdd(T item)
         {
-            throw new NotImplementedException();
+            _lock.EnterUpgradeableReadLock();
+
+            try
+            {
+                var indexOfExistingItem = InternalIndexOf(item);
+                if (indexOfExistingItem != -1)
+                    return _internalArray[indexOfExistingItem];
+
+                Add(item);
+                return item;
+            }
+            finally
+            {
+                _lock.ExitUpgradeableReadLock();
+            }
         }
 
         public void AddOrUpdate(T item)
