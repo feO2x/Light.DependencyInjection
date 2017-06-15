@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using Light.DependencyInjection.DataStructures;
-using Light.DependencyInjection.Lifetimes;
 using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.Services;
 using Light.GuardClauses;
@@ -30,13 +30,36 @@ namespace Light.DependencyInjection
         {
             registration.MustNotBeNull();
 
-            if (_registrationMapping.TryGetValue(registration.TypeKey, out var typeRegistrations) == false)
+            if (_registrationMapping.TryGetValue(registration.TargetType, out var typeRegistrations) == false)
             {
                 typeRegistrations = _services.ConcurrentListFactory.Create<Registration>();
                 typeRegistrations = _registrationMapping.GetOrAdd(registration.TypeKey, typeRegistrations);
             }
 
             typeRegistrations.AddOrUpdate(registration);
+            return this;
+        }
+
+        public DiContainer Register(Registration registration, IEnumerable<Type> abstractionTypes)
+        {
+            // ReSharper disable PossibleMultipleEnumeration
+            registration.MustNotBeNull(nameof(registration));
+            abstractionTypes.MustNotBeNull(nameof(abstractionTypes));
+
+            foreach (var abstractionType in abstractionTypes)
+            {
+                // TODO: Check if the abstraction type actually maps to the concrete type
+                //registration.TargetType.MustInheritFromOrImplement(abstractionType);
+                if (_registrationMapping.TryGetValue(abstractionType, out var typeRegistrations) == false)
+                {
+                    typeRegistrations = _services.ConcurrentListFactory.Create<Registration>();
+                    typeRegistrations = _registrationMapping.GetOrAdd(abstractionType, typeRegistrations);
+                }
+                typeRegistrations.AddOrUpdate(registration);
+            }
+            // ReSharper restore PossibleMultipleEnumeration
+
+            Register(registration);
             return this;
         }
 
@@ -70,24 +93,6 @@ namespace Light.DependencyInjection
                 throw new ResolveException($"There is no registration for {typeKey}");
 
             return targetRegistration;
-        }
-    }
-
-    public static class DiContainerExtensions
-    {
-        public static DiContainer RegisterTransient<TConcrete>(this DiContainer container, Action<IRegistrationOptions<TConcrete>> configureRegistration = null)
-        {
-            return new RegistrationOptions<TConcrete>(container.Services.DefaultInstantiationInfoSelector).PerformRegistration(container, TransientLifetime.Instance, configureRegistration);
-        }
-
-        public static DiContainer RegisterSingleton<TConcrete>(this DiContainer container, Action<IRegistrationOptions<TConcrete>> configureRegistration = null)
-        {
-            return new RegistrationOptions<TConcrete>(container.Services.DefaultInstantiationInfoSelector).PerformRegistration(container, new SingletonLifetime(), configureRegistration);
-        }
-
-        public static DiContainer RegisterInstance<T>(this DiContainer container, T instance)
-        {
-            return new RegistrationOptions<T>(container.Services.DefaultInstantiationInfoSelector).PerformRegistration(container, new ExternalInstanceLifetime(instance));
         }
     }
 }

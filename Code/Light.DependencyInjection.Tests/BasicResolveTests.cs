@@ -73,5 +73,14 @@ namespace Light.DependencyInjection.Tests
 
             instance.A.Should().BeSameAs(instance.B.A);
         }
+
+        [Fact(DisplayName = "The DI container must be able to resolve a concrete type for an interface when this mapping was registered beforehand.")]
+        public void InterfaceMapping()
+        {
+            var instance = new DiContainer().RegisterSingleton<IAbstractionA, ClassWithoutDependencies>()
+                                            .Resolve<IAbstractionA>();
+
+            instance.Should().BeOfType<ClassWithoutDependencies>();
+        }
     }
 }

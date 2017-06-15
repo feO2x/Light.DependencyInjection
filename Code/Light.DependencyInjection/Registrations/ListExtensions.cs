@@ -13,7 +13,7 @@ namespace Light.DependencyInjection.Registrations
             for (var i = 0; i < registrations.Count; i++)
             {
                 registration = registrations[i];
-                if (registration.TypeKey == typeKey)
+                if (registration.RegistrationName == typeKey.RegistrationName)
                     return true;
             }
 

@@ -1,6 +1,6 @@
 ﻿namespace Light.DependencyInjection.Tests
 {
-    public class ClassWithoutDependencies
+    public class ClassWithoutDependencies : IAbstractionA
     {
         
     }
@@ -26,4 +26,6 @@
             B = b;
         }
     }
+
+    public interface IAbstractionA { }
 }

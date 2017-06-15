@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Light.DependencyInjection.Lifetimes;
 using Light.DependencyInjection.TypeConstruction;
@@ -10,6 +11,7 @@ namespace Light.DependencyInjection.Registrations
     {
         private readonly IDefaultInstantiationInfoSelector _defaultInstantiationInfoSelector;
         private readonly string _registrationName = "";
+        private readonly HashSet<Type> _abstractionTypes = new HashSet<Type>();
 
         public RegistrationOptions(IDefaultInstantiationInfoSelector defaultInstantiationInfoSelector)
         {
@@ -22,7 +24,7 @@ namespace Light.DependencyInjection.Registrations
 
             configureRegistration?.Invoke(this);
 
-            container.Register(CreateRegistration(lifetime));
+            container.Register(CreateRegistration(lifetime), _abstractionTypes);
             return container;
         }
 
@@ -40,5 +42,16 @@ namespace Light.DependencyInjection.Registrations
 
             return new Registration(typeKey, lifeTime, typeConstructionInfo);
         }
+
+        public RegistrationOptions<TConcrete> MapToAbstractions(params Type[] abstractionTypes)
+        {
+            foreach (var abstractionType in abstractionTypes)
+            {
+                _abstractionTypes.Add(abstractionType);
+            }
+            
+            return this;
+        }
+        
     }
 }
