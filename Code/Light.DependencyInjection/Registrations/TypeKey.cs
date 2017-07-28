@@ -43,11 +43,8 @@ namespace Light.DependencyInjection.Registrations
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> or <paramref name="registrationName" /> is null.</exception>
         public TypeKey(Type type, string registrationName = "")
         {
-            type.MustNotBeNull(nameof(type));
-            registrationName.MustNotBeNull(nameof(registrationName));
-
-            Type = type;
-            RegistrationName = registrationName;
+            Type = type.MustNotBeNull(nameof(type));
+            RegistrationName = registrationName.MustNotBeNull(nameof(registrationName));
             HashCode = TypeHashCode = type.GetHashCode();
             var registrationNameText = "";
             if (registrationName.IsNullOrWhiteSpace() == false)

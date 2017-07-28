@@ -1,5 +1,10 @@
-﻿using Xunit;
+﻿using System;
+using System.Reflection;
+using Xunit;
 using FluentAssertions;
+using Light.DependencyInjection.Lifetimes;
+using Light.DependencyInjection.Registrations;
+using Light.DependencyInjection.TypeConstruction;
 using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
 namespace Light.DependencyInjection.Tests
@@ -81,6 +86,22 @@ namespace Light.DependencyInjection.Tests
                                             .Resolve<IAbstractionA>();
 
             instance.Should().BeOfType<ClassWithoutDependencies>();
+        }
+
+        [Theory(DisplayName = "The DI Container must throw a TypeRegistrationException when the registered type does not derive from or implement the type that was registered.")]
+        [InlineData(typeof(IComparable))]
+        [InlineData(typeof(Random))]
+        public void InvalidAbstractionType(Type invalidAbstractionType)
+        {
+            TypeKey typeKey = typeof(ClassWithoutDependencies);
+            var constructorInstantiationFactory = new ConstructorInstantiationInfoFactory(typeof(ClassWithoutDependencies).GetConstructor(Type.EmptyTypes));
+            var registration = new Registration(typeKey, TransientLifetime.Instance, new TypeConstructionInfo(typeKey, constructorInstantiationFactory.Create()));
+            var container = new DiContainer();
+
+            Action act = () => container.Register(registration, invalidAbstractionType);
+
+            act.ShouldThrow<TypeRegistrationException>()
+               .And.Message.Should().Be($"Type \"{invalidAbstractionType}\" cannot be used as an abstraction for type \"{typeKey.Type}\" because the latter type does not derive from or implement the former one.");
         }
     }
 }

@@ -40,6 +40,11 @@ namespace Light.DependencyInjection
             return this;
         }
 
+        public DiContainer Register(Registration registration, params Type[] abstractionTypes)
+        {
+            return Register(registration, (IEnumerable<Type>) abstractionTypes);
+        }
+
         public DiContainer Register(Registration registration, IEnumerable<Type> abstractionTypes)
         {
             // ReSharper disable PossibleMultipleEnumeration
@@ -48,8 +53,7 @@ namespace Light.DependencyInjection
 
             foreach (var abstractionType in abstractionTypes)
             {
-                // TODO: Check if the abstraction type actually maps to the concrete type
-                //registration.TargetType.MustInheritFromOrImplement(abstractionType);
+                registration.TargetType.MustDeriveFromOrImplement(abstractionType, exception: () => new TypeRegistrationException($"Type \"{abstractionType}\" cannot be used as an abstraction for type \"{registration.TargetType}\" because the latter type does not derive from or implement the former one.", registration.TargetType));
                 if (_registrationMapping.TryGetValue(abstractionType, out var typeRegistrations) == false)
                 {
                     typeRegistrations = _services.ConcurrentListFactory.Create<Registration>();

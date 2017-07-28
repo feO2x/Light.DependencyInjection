@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.TypeConstruction;
 
 namespace Light.DependencyInjection.Registrations
@@ -14,7 +13,7 @@ namespace Light.DependencyInjection.Registrations
             ConstructorInfo = constructorInfo;
         }
 
-        public override InstantiationInfo Create(string registrationName)
+        public override InstantiationInfo Create(string registrationName = "")
         {
             return new ConstructorInstantiationInfo(new TypeKey(TargetType, registrationName), ConstructorInfo, CreateInstantiationDependencies(registrationName));
         }

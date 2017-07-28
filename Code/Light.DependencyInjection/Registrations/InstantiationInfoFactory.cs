@@ -16,7 +16,7 @@ namespace Light.DependencyInjection.Registrations
             TargetType = targetType.MustNotBeNull();
         }
 
-        public abstract InstantiationInfo Create(string registrationName);
+        public abstract InstantiationInfo Create(string registrationName = "");
 
         protected IReadOnlyList<InstantiationDependency> CreateInstantiationDependencies(string registrationName)
         {
