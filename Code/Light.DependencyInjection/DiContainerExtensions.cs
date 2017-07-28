@@ -6,14 +6,14 @@ namespace Light.DependencyInjection
 {
     public static class DiContainerExtensions
     {
-        public static DiContainer RegisterTransient<TConcrete>(this DiContainer container, Action<IRegistrationOptions<TConcrete>> configureRegistration = null)
+        public static DiContainer RegisterTransient<T>(this DiContainer container, Action<IRegistrationOptions<T>> configureRegistration = null)
         {
-            return new RegistrationOptions<TConcrete>(container.Services.DefaultInstantiationInfoSelector).PerformRegistration(container, TransientLifetime.Instance, configureRegistration);
+            return new RegistrationOptions<T>(container.Services.DefaultInstantiationInfoSelector).PerformRegistration(container, TransientLifetime.Instance, configureRegistration);
         }
 
-        public static DiContainer RegisterSingleton<TConcrete>(this DiContainer container, Action<IRegistrationOptions<TConcrete>> configureRegistration = null)
+        public static DiContainer RegisterSingleton<T>(this DiContainer container, Action<IRegistrationOptions<T>> configureRegistration = null)
         {
-            return new RegistrationOptions<TConcrete>(container.Services.DefaultInstantiationInfoSelector).PerformRegistration(container, new SingletonLifetime(), configureRegistration);
+            return new RegistrationOptions<T>(container.Services.DefaultInstantiationInfoSelector).PerformRegistration(container, new SingletonLifetime(), configureRegistration);
         }
 
         public static DiContainer RegisterSingleton<TAbstract, TConcrete>(this DiContainer container, Action<IRegistrationOptions<TConcrete>> configureRegistration = null) where TConcrete : TAbstract
