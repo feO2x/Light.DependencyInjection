@@ -7,18 +7,20 @@ using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.Services;
 using Light.GuardClauses;
 
-namespace Light.DependencyInjection.TypeConstruction
+namespace Light.DependencyInjection.TypeResolving
 {
     public sealed class DefaultResolveDelegateFactory : IResolveDelegateFactory
     {
         private static readonly MethodInfo LifetimeResolveInstanceMethod = typeof(Lifetime).GetTypeInfo()
                                                                                            .GetDeclaredMethod(nameof(Lifetime.ResolveInstance));
 
-        private static readonly Type FuncOfObjectType = typeof(Func<object>);
+        private static readonly ConstructorInfo ResolveContextConstructor = typeof(ResolveContext).GetTypeInfo()
+                                                                                                  .DeclaredConstructors
+                                                                                                  .FindConstructorWithArgumentTypes(typeof(Func<object>), typeof(ContainerScope), typeof(Registration));
 
-        private readonly IDictionary<Type, IInstantiationExpressionFactory> _instantiationExpressionFactories;
+        private readonly IReadOnlyDictionary<Type, IInstantiationExpressionFactory> _instantiationExpressionFactories;
 
-        public DefaultResolveDelegateFactory(IDictionary<Type, IInstantiationExpressionFactory> instantiationExpressionFactories)
+        public DefaultResolveDelegateFactory(IReadOnlyDictionary<Type, IInstantiationExpressionFactory> instantiationExpressionFactories)
         {
             instantiationExpressionFactories.MustNotBeNullOrEmpty(nameof(instantiationExpressionFactories));
             _instantiationExpressionFactories = instantiationExpressionFactories;
@@ -38,9 +40,10 @@ namespace Light.DependencyInjection.TypeConstruction
             var registration = container.GetRegistration(targetTypeKey);
 
             if (registration.LifeTime.IsCreatingNewInstances == false)
-                return Expression.Call(Expression.Constant(registration.LifeTime),
-                                       LifetimeResolveInstanceMethod,
-                                       Expression.Constant(null, FuncOfObjectType));
+            {
+                var instance = registration.LifeTime.ResolveInstance(new ResolveContext());
+                return Expression.Constant(instance, registration.TargetType);
+            }
 
             var instantiationDependencies = registration.TypeConstructionInfo.InstantiationInfo.InstantiationDependencies;
             Expression[] parameterExpressions = null;
@@ -58,21 +61,22 @@ namespace Light.DependencyInjection.TypeConstruction
                 throw new InvalidOperationException($"There is no instantiationExpressionFactory present for \"{registration.TypeConstructionInfo.InstantiationInfo.GetType()}\". Please check that \"{nameof(DefaultResolveDelegateFactory)}\" is created with all necessary dependencies in \"{nameof(ContainerServices)}\".");
             var createInstanceExpression = instantiationExpressionFactory.Create(registration.TypeConstructionInfo.InstantiationInfo, parameterExpressions);
 
-            // TODO: should special lifetime handling be performed polymorphically?
-            if (registration.LifeTime == TransientLifetime.Instance || registration.LifeTime is TransientLifetime)
-                return createInstanceExpression;
-
             var createInstanceDelegate = Expression.Lambda<Func<object>>(createInstanceExpression).Compile();
             var singletonLifetime = registration.LifeTime as SingletonLifetime;
             if (singletonLifetime != null)
             {
-                var singleton = singletonLifetime.ResolveInstance(createInstanceDelegate);
-                return Expression.Constant(singleton);
+                var singleton = singletonLifetime.ResolveInstance(new ResolveContext(createInstanceDelegate, container.ContainerScope, registration));
+                return Expression.Constant(singleton, registration.TargetType);
             }
 
-            return Expression.Call(Expression.Constant(registration.LifeTime),
-                                   LifetimeResolveInstanceMethod,
-                                   Expression.Constant(createInstanceDelegate));
+            var resolveContextExpression = Expression.New(ResolveContextConstructor,
+                                                          Expression.Constant(createInstanceDelegate),
+                                                          Expression.Constant(container.ContainerScope),
+                                                          Expression.Constant(registration));
+            return Expression.Convert(Expression.Call(Expression.Constant(registration.LifeTime),
+                                                      LifetimeResolveInstanceMethod,
+                                                      resolveContextExpression),
+                                      registration.TargetType);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using Light.DependencyInjection.Registrations;
 
-namespace Light.DependencyInjection.TypeConstruction
+namespace Light.DependencyInjection.TypeResolving
 {
     public interface IResolveDelegateFactory
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using Light.DependencyInjection.Registrations;
+using Light.GuardClauses;
 using Xunit;
 using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
@@ -96,6 +97,23 @@ namespace Light.DependencyInjection.Tests
 
             act.ShouldThrow<TypeRegistrationException>()
                .And.Message.Should().Be($"Type \"{invalidAbstractionType}\" cannot be used as an abstraction for type \"{targetType}\" because the latter type does not derive from or implement the former one.");
+        }
+
+        [Fact(DisplayName = "The DI Container must implement IDisposable.")]
+        public void Disposable()
+        {
+            typeof(DiContainer).Should().Implement<IDisposable>();
+        }
+
+        [Fact(DisplayName = "The DI container must dispose of disposable instances by default when it is disposed itself.")]
+        public void DisposeDisposableObjectsByDefault()
+        {
+            var container = new DiContainer().Register<DisposableSpy>();
+            var disposableInstance = container.Resolve<DisposableSpy>();
+
+            container.Dispose();
+
+            disposableInstance.DisposeMustHaveBeenCalledExactlyOnce();
         }
     }
 }

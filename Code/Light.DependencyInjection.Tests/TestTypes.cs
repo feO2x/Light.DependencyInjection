@@ -1,4 +1,7 @@
-﻿namespace Light.DependencyInjection.Tests
+﻿using System;
+using FluentAssertions;
+
+namespace Light.DependencyInjection.Tests
 {
     public class ClassWithoutDependencies : IAbstractionA
     {
@@ -28,4 +31,21 @@
     }
 
     public interface IAbstractionA { }
+
+    public class DisposableSpy : IDisposable
+    {
+        private int _disposeCallCount;
+
+        public int DisposeCallCount => _disposeCallCount;
+
+        public void Dispose()
+        {
+            _disposeCallCount++;
+        }
+
+        public void DisposeMustHaveBeenCalledExactlyOnce()
+        {
+            _disposeCallCount.Should().Be(1);
+        }
+    }
 }

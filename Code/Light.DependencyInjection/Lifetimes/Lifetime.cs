@@ -1,5 +1,6 @@
 ﻿using System;
 using Light.DependencyInjection.Registrations;
+using Light.DependencyInjection.TypeResolving;
 
 namespace Light.DependencyInjection.Lifetimes
 {
@@ -36,7 +37,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// <summary>
         ///     Gets the requested instance.
         /// </summary>
-        public abstract object ResolveInstance(Func<object> createInstance);
+        public abstract object ResolveInstance(ResolveContext resolveContext);
 
         /// <summary>
         ///     Gets the text representation of this lifetime.

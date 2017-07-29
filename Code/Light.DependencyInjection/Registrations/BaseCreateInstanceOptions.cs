@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using Light.DependencyInjection.Lifetimes;
-using Light.DependencyInjection.TypeConstruction;
 using Light.GuardClauses;
 using Light.GuardClauses.FrameworkExtensions;
 

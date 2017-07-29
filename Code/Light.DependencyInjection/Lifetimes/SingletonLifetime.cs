@@ -1,5 +1,5 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
+using Light.DependencyInjection.TypeResolving;
 
 namespace Light.DependencyInjection.Lifetimes
 {
@@ -7,7 +7,7 @@ namespace Light.DependencyInjection.Lifetimes
     {
         private object _instance;
 
-        public override object ResolveInstance(Func<object> createInstance)
+        public override object ResolveInstance(ResolveContext resolveContext)
         {
             if (_instance != null)
                 return _instance;
@@ -17,7 +17,7 @@ namespace Light.DependencyInjection.Lifetimes
                 if (Volatile.Read(ref _instance) != null)
                     return _instance;
 
-                var instance = createInstance();
+                var instance = resolveContext.CreateInstance();
                 Interlocked.MemoryBarrier();
                 _instance = instance;
                 return _instance;

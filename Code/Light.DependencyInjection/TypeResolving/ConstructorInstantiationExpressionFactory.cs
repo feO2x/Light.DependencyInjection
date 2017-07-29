@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Light.DependencyInjection.Registrations;
 
-namespace Light.DependencyInjection.TypeConstruction
+namespace Light.DependencyInjection.TypeResolving
 {
     public sealed class ConstructorInstantiationExpressionFactory : BaseInstantiationExpressionFactory<ConstructorInstantiationInfo>
     {

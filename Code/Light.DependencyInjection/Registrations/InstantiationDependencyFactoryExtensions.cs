@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Light.DependencyInjection.TypeConstruction;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations

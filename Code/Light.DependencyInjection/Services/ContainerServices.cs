@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Light.DependencyInjection.DataStructures;
 using Light.DependencyInjection.Registrations;
-using Light.DependencyInjection.TypeConstruction;
+using Light.DependencyInjection.TypeResolving;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Services
@@ -14,6 +14,7 @@ namespace Light.DependencyInjection.Services
         private IConcurrentListFactory _concurrentListFactory = new ReaderWriterLockedListFactory();
         private IDefaultInstantiationInfoSelector _defaultInstantiationInfoSelector = new ConstructorWithMostParametersSelector();
         private IReadOnlyList<Type> _ignoredAbstractionTypes = new[] { typeof(IDisposable) };
+        private IContainerScopeFactory _containerScopeFactory = new DefaultContainerScopeFactory();
 
         private IResolveDelegateFactory _resolveDelegateFactory = new DefaultResolveDelegateFactory(new IInstantiationExpressionFactory[]
                                                                                                     {
@@ -48,6 +49,12 @@ namespace Light.DependencyInjection.Services
         {
             get => _concurrentListFactory;
             set => _concurrentListFactory = value.MustNotBeNull();
+        }
+
+        public IContainerScopeFactory ContainerScopeFactory
+        {
+            get => _containerScopeFactory;
+            set => _containerScopeFactory = value.MustNotBeNull();
         }
 
         public RegistrationOptions<T> CreateRegistrationOptions<T>()

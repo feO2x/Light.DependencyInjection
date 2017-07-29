@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Light.DependencyInjection.TypeConstruction;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Light.DependencyInjection.TypeResolving;
 
 namespace Light.DependencyInjection.Lifetimes
 {
@@ -15,9 +15,9 @@ namespace Light.DependencyInjection.Lifetimes
         /// <summary>
         ///     Always creates a new instance using the specified delegate.
         /// </summary>
-        public override object ResolveInstance(Func<object> createInstance)
+        public override object ResolveInstance(ResolveContext resolveContext)
         {
-            return createInstance();
+            return resolveContext.CreateInstance();
         }
     }
 }

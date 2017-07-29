@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using Light.DependencyInjection.Registrations;
 
-namespace Light.DependencyInjection.TypeConstruction
+namespace Light.DependencyInjection.TypeResolving
 {
     public interface IInstantiationExpressionFactory
     {

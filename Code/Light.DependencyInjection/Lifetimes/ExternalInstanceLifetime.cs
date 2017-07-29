@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Light.DependencyInjection.TypeResolving;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Lifetimes
@@ -12,7 +12,7 @@ namespace Light.DependencyInjection.Lifetimes
             Value = value.MustNotBeNull(nameof(value));
         }
 
-        public override object ResolveInstance(Func<object> createInstance)
+        public override object ResolveInstance(ResolveContext resolveContext)
         {
             return Value;
         }

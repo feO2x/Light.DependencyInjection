@@ -6,17 +6,22 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection
 {
-    public class DiContainer
+    public class DiContainer : IDisposable
     {
         private readonly IConcurrentDictionary<Type, IConcurrentList<Registration>> _registrationMapping;
         private readonly IConcurrentDictionary<TypeKey, Func<object>> _resolveDelegates;
         private ContainerServices _services;
+        public readonly ContainerScope ContainerScope;
 
         public DiContainer(ContainerServices services = null)
         {
             _services = services ?? new ContainerServices();
+            ContainerScope = _services.ContainerScopeFactory.CreateScope();
             _registrationMapping = _services.ConcurrentDictionaryFactory.Create<Type, IConcurrentList<Registration>>();
             _resolveDelegates = _services.ConcurrentDictionaryFactory.Create<TypeKey, Func<object>>();
+
+            ContainerScope.TryAddDisposable(_registrationMapping);
+            ContainerScope.TryAddDisposable(_resolveDelegates);
         }
 
         public ContainerServices Services
@@ -120,6 +125,11 @@ namespace Light.DependencyInjection
                 throw new ResolveException($"There is no registration for {typeKey}");
 
             return targetRegistration;
+        }
+
+        public void Dispose()
+        {
+            ContainerScope.Dispose();
         }
     }
 }
