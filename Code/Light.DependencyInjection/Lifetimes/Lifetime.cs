@@ -20,7 +20,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// </summary>
         /// <param name="isCreatingNewInstances">
         ///     The value indicating whether this lifetime creates new instances at some point when <see cref="ResolveInstance" /> is called.
-        ///     This value should only be set to false when <see cref="ResolveInstance"/> never calls createInstance
+        ///     This value should only be set to false when <see cref="ResolveInstance" /> never calls createInstance
         ///     and thusly, the container does not need to construct a <see cref="TypeConstructionInfo" /> for the target type.
         /// </param>
         /// <param name="toStringText">

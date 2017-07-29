@@ -7,29 +7,15 @@ namespace Light.DependencyInjection.Registrations
 {
     public abstract class InstantiationInfoFactory
     {
-        public readonly IReadOnlyList<InstantionDependencyFactory> InstantiationDependencies;
+        public readonly IReadOnlyList<InstantionDependencyFactory> InstantiationDependencyFactories;
         public readonly Type TargetType;
 
-        protected InstantiationInfoFactory(Type targetType, IReadOnlyList<InstantionDependencyFactory> instantiationDependencies)
+        protected InstantiationInfoFactory(Type targetType, IReadOnlyList<InstantionDependencyFactory> instantiationDependencyFactories)
         {
-            InstantiationDependencies = instantiationDependencies.MustNotBeNull();
             TargetType = targetType.MustNotBeNull();
+            InstantiationDependencyFactories = instantiationDependencyFactories.MustNotBeNull();
         }
 
         public abstract InstantiationInfo Create(string registrationName = "");
-
-        protected IReadOnlyList<InstantiationDependency> CreateInstantiationDependencies(string registrationName)
-        {
-            if (InstantiationDependencies.Count == 0)
-                return null;
-
-            var array = new InstantiationDependency[InstantiationDependencies.Count];
-            for (var i = 0; i < array.Length; i++)
-            {
-                array[i] = InstantiationDependencies[i].Create(registrationName);
-            }
-
-            return array;
-        }
     }
 }

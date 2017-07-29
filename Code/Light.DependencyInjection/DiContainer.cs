@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Light.DependencyInjection.DataStructures;
 using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.Services;
@@ -10,14 +9,14 @@ namespace Light.DependencyInjection
     public class DiContainer
     {
         private readonly IConcurrentDictionary<Type, IConcurrentList<Registration>> _registrationMapping;
-        private readonly IConcurrentDictionary<TypeKey, Func<object>> _standardizedConstructionFunctions;
+        private readonly IConcurrentDictionary<TypeKey, Func<object>> _resolveDelegates;
         private ContainerServices _services;
 
         public DiContainer(ContainerServices services = null)
         {
             _services = services ?? new ContainerServices();
             _registrationMapping = _services.ConcurrentDictionaryFactory.Create<Type, IConcurrentList<Registration>>();
-            _standardizedConstructionFunctions = _services.ConcurrentDictionaryFactory.Create<TypeKey, Func<object>>();
+            _resolveDelegates = _services.ConcurrentDictionaryFactory.Create<TypeKey, Func<object>>();
         }
 
         public ContainerServices Services
@@ -26,45 +25,69 @@ namespace Light.DependencyInjection
             set => _services = value.MustNotBeNull();
         }
 
+        public DiContainer Register<T>(Action<IRegistrationOptions<T>> configureRegistration = null)
+        {
+            var registrationOptions = _services.CreateRegistrationOptions<T>();
+            configureRegistration?.Invoke(registrationOptions);
+            return Register(registrationOptions.CreateRegistration());
+        }
+
+        public DiContainer Register(Type targetType, Action<IRegistrationOptions> configureRegistration = null)
+        {
+            var registrationOptions = _services.CreateRegistrationOptions(targetType);
+            configureRegistration?.Invoke(registrationOptions);
+            return Register(registrationOptions.CreateRegistration());
+        }
+
+        public DiContainer Register<TAbstract, TConcrete>(Action<IRegistrationOptions<TConcrete>> configureRegistration = null) where TConcrete : TAbstract
+        {
+            var registrationOptions = _services.CreateRegistrationOptions<TConcrete>();
+            registrationOptions.MapToAbstractions(typeof(TAbstract));
+            configureRegistration?.Invoke(registrationOptions);
+            return Register(registrationOptions.CreateRegistration());
+        }
+
+        public DiContainer Register(Type abstractionType, Type concreteType, Action<IRegistrationOptions> configureRegistration = null)
+        {
+            var registrationOptions = _services.CreateRegistrationOptions(concreteType);
+            registrationOptions.MapToAbstractions(abstractionType);
+            configureRegistration?.Invoke(registrationOptions);
+            return Register(registrationOptions.CreateRegistration());
+        }
+
         public DiContainer Register(Registration registration)
         {
             registration.MustNotBeNull();
 
-            if (_registrationMapping.TryGetValue(registration.TargetType, out var typeRegistrations) == false)
+            AddMapping(registration.TargetType, registration);
+
+            if (registration.MappedAbstractionTypes.IsNullOrEmpty()) return this;
+
+            for (var i = 0; i < registration.MappedAbstractionTypes.Count; i++)
+            {
+                AddMapping(registration.MappedAbstractionTypes[i], registration);
+            }
+            return this;
+        }
+
+        public DiContainer RegisterInstance(object value, Action<IExternalInstanceOptions> configureRegistration = null)
+        {
+            value.MustNotBeNull(nameof(value));
+
+            var registrationOptions = _services.CreateExternalInstanceOptions(value);
+            configureRegistration?.Invoke(registrationOptions);
+
+            return Register(registrationOptions.CreateRegistration());
+        }
+
+        private void AddMapping(Type type, Registration registration)
+        {
+            if (_registrationMapping.TryGetValue(type, out var typeRegistrations) == false)
             {
                 typeRegistrations = _services.ConcurrentListFactory.Create<Registration>();
-                typeRegistrations = _registrationMapping.GetOrAdd(registration.TypeKey, typeRegistrations);
+                typeRegistrations = _registrationMapping.GetOrAdd(type, typeRegistrations);
             }
-
             typeRegistrations.AddOrUpdate(registration);
-            return this;
-        }
-
-        public DiContainer Register(Registration registration, params Type[] abstractionTypes)
-        {
-            return Register(registration, (IEnumerable<Type>) abstractionTypes);
-        }
-
-        public DiContainer Register(Registration registration, IEnumerable<Type> abstractionTypes)
-        {
-            // ReSharper disable PossibleMultipleEnumeration
-            registration.MustNotBeNull(nameof(registration));
-            abstractionTypes.MustNotBeNull(nameof(abstractionTypes));
-
-            foreach (var abstractionType in abstractionTypes)
-            {
-                registration.TargetType.MustDeriveFromOrImplement(abstractionType, exception: () => new TypeRegistrationException($"Type \"{abstractionType}\" cannot be used as an abstraction for type \"{registration.TargetType}\" because the latter type does not derive from or implement the former one.", registration.TargetType));
-                if (_registrationMapping.TryGetValue(abstractionType, out var typeRegistrations) == false)
-                {
-                    typeRegistrations = _services.ConcurrentListFactory.Create<Registration>();
-                    typeRegistrations = _registrationMapping.GetOrAdd(abstractionType, typeRegistrations);
-                }
-                typeRegistrations.AddOrUpdate(registration);
-            }
-            // ReSharper restore PossibleMultipleEnumeration
-
-            Register(registration);
-            return this;
         }
 
         public T Resolve<T>(string registrationName = "")
@@ -81,12 +104,12 @@ namespace Light.DependencyInjection
         {
             typeKey.MustNotBeEmpty(nameof(typeKey));
 
-            if (_standardizedConstructionFunctions.TryGetValue(typeKey, out var standardizedConstructionFunction))
-                return standardizedConstructionFunction();
+            if (_resolveDelegates.TryGetValue(typeKey, out var resolveDelegate))
+                return resolveDelegate();
 
-            standardizedConstructionFunction = _services.StandardizedConstructionFunctionFactory.Create(typeKey, this);
-            standardizedConstructionFunction = _standardizedConstructionFunctions.GetOrAdd(typeKey, standardizedConstructionFunction);
-            return standardizedConstructionFunction();
+            resolveDelegate = _services.ResolveDelegateFactory.Create(typeKey, this);
+            resolveDelegate = _resolveDelegates.GetOrAdd(typeKey, resolveDelegate);
+            return resolveDelegate();
         }
 
         public Registration GetRegistration(TypeKey typeKey)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Light.DependencyInjection.TypeConstruction;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
@@ -21,6 +22,20 @@ namespace Light.DependencyInjection.Registrations
             return instantiationMethod.GetParameters()
                                       .Select(parameterInfo => new InstantionDependencyFactory(targetType, parameterInfo))
                                       .ToList();
+        }
+
+        public static IReadOnlyList<InstantiationDependency> CreateInstantiationDependencies(this IReadOnlyList<InstantionDependencyFactory> instantiationDependencies, string registrationName)
+        {
+            if (instantiationDependencies.Count == 0)
+                return null;
+
+            var array = new InstantiationDependency[instantiationDependencies.Count];
+            for (var i = 0; i < array.Length; i++)
+            {
+                array[i] = instantiationDependencies[i].Create(registrationName);
+            }
+
+            return array;
         }
     }
 }

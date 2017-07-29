@@ -15,10 +15,10 @@ namespace Light.DependencyInjection.Services
         private IDefaultInstantiationInfoSelector _defaultInstantiationInfoSelector = new ConstructorWithMostParametersSelector();
         private IReadOnlyList<Type> _ignoredAbstractionTypes = new[] { typeof(IDisposable) };
 
-        private IStandardizedConstructionFunctionFactory _standardizedConstructionFunctionFactory = new DefaultStandardizedConstructionFunctionFactory(new IInstantiationExpressionFactory[]
-                                                                                                                                                       {
-                                                                                                                                                           new ConstructorInstantiationExpressionFactory()
-                                                                                                                                                       }.ToDictionary(expressionFactory => expressionFactory.InstantiationInfoType));
+        private IResolveDelegateFactory _resolveDelegateFactory = new DefaultResolveDelegateFactory(new IInstantiationExpressionFactory[]
+                                                                                                    {
+                                                                                                        new ConstructorInstantiationExpressionFactory()
+                                                                                                    }.ToDictionary(expressionFactory => expressionFactory.InstantiationInfoType));
 
         public IConcurrentDictionaryFactory ConcurrentDictionaryFactory
         {
@@ -26,10 +26,10 @@ namespace Light.DependencyInjection.Services
             set => _concurrentDictionaryFactory = value.MustNotBeNull();
         }
 
-        public IStandardizedConstructionFunctionFactory StandardizedConstructionFunctionFactory
+        public IResolveDelegateFactory ResolveDelegateFactory
         {
-            get => _standardizedConstructionFunctionFactory;
-            set => _standardizedConstructionFunctionFactory = value.MustNotBeNull();
+            get => _resolveDelegateFactory;
+            set => _resolveDelegateFactory = value.MustNotBeNull();
         }
 
         public IReadOnlyList<Type> IgnoredAbstractionTypes
@@ -48,6 +48,21 @@ namespace Light.DependencyInjection.Services
         {
             get => _concurrentListFactory;
             set => _concurrentListFactory = value.MustNotBeNull();
+        }
+
+        public RegistrationOptions<T> CreateRegistrationOptions<T>()
+        {
+            return new RegistrationOptions<T>(_ignoredAbstractionTypes, _defaultInstantiationInfoSelector);
+        }
+
+        public RegistrationOptions CreateRegistrationOptions(Type targetType)
+        {
+            return new RegistrationOptions(targetType, _ignoredAbstractionTypes, _defaultInstantiationInfoSelector);
+        }
+
+        public ExternalInstanceOptions CreateExternalInstanceOptions(object value)
+        {
+            return new ExternalInstanceOptions(value, _ignoredAbstractionTypes);
         }
     }
 }

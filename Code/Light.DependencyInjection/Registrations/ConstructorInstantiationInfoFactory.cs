@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Light.DependencyInjection.TypeConstruction;
+using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
@@ -8,14 +9,14 @@ namespace Light.DependencyInjection.Registrations
         public readonly ConstructorInfo ConstructorInfo;
 
         public ConstructorInstantiationInfoFactory(ConstructorInfo constructorInfo)
-            : base(constructorInfo.DeclaringType, constructorInfo.ExtractDependencies())
+            : base(constructorInfo.MustNotBeNull(nameof(constructorInfo)).DeclaringType, constructorInfo.ExtractDependencies())
         {
             ConstructorInfo = constructorInfo;
         }
 
         public override InstantiationInfo Create(string registrationName = "")
         {
-            return new ConstructorInstantiationInfo(new TypeKey(TargetType, registrationName), ConstructorInfo, CreateInstantiationDependencies(registrationName));
+            return new ConstructorInstantiationInfo(new TypeKey(TargetType, registrationName), ConstructorInfo, InstantiationDependencyFactories.CreateInstantiationDependencies(registrationName));
         }
     }
 }

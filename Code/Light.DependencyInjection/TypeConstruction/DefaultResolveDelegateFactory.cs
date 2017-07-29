@@ -9,7 +9,7 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeConstruction
 {
-    public sealed class DefaultStandardizedConstructionFunctionFactory : IStandardizedConstructionFunctionFactory
+    public sealed class DefaultResolveDelegateFactory : IResolveDelegateFactory
     {
         private static readonly MethodInfo LifetimeResolveInstanceMethod = typeof(Lifetime).GetTypeInfo()
                                                                                            .GetDeclaredMethod(nameof(Lifetime.ResolveInstance));
@@ -18,7 +18,7 @@ namespace Light.DependencyInjection.TypeConstruction
 
         private readonly IDictionary<Type, IInstantiationExpressionFactory> _instantiationExpressionFactories;
 
-        public DefaultStandardizedConstructionFunctionFactory(IDictionary<Type, IInstantiationExpressionFactory> instantiationExpressionFactories)
+        public DefaultResolveDelegateFactory(IDictionary<Type, IInstantiationExpressionFactory> instantiationExpressionFactories)
         {
             instantiationExpressionFactories.MustNotBeNullOrEmpty(nameof(instantiationExpressionFactories));
             _instantiationExpressionFactories = instantiationExpressionFactories;
@@ -55,7 +55,7 @@ namespace Light.DependencyInjection.TypeConstruction
             }
 
             if (_instantiationExpressionFactories.TryGetValue(registration.TypeConstructionInfo.InstantiationInfo.GetType(), out var instantiationExpressionFactory) == false)
-                throw new InvalidOperationException($"There is no instantiationExpressionFactory present for \"{registration.TypeConstructionInfo.InstantiationInfo.GetType()}\". Please check that \"{nameof(DefaultStandardizedConstructionFunctionFactory)}\" is created with all necessary dependencies in \"{nameof(ContainerServices)}\".");
+                throw new InvalidOperationException($"There is no instantiationExpressionFactory present for \"{registration.TypeConstructionInfo.InstantiationInfo.GetType()}\". Please check that \"{nameof(DefaultResolveDelegateFactory)}\" is created with all necessary dependencies in \"{nameof(ContainerServices)}\".");
             var createInstanceExpression = instantiationExpressionFactory.Create(registration.TypeConstructionInfo.InstantiationInfo, parameterExpressions);
 
             // TODO: should special lifetime handling be performed polymorphically?

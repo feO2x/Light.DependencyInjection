@@ -1,4 +1,5 @@
 ﻿using System;
+using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Lifetimes
 {
@@ -8,7 +9,7 @@ namespace Light.DependencyInjection.Lifetimes
 
         public ExternalInstanceLifetime(object value) : base(false)
         {
-            Value = value;
+            Value = value.MustNotBeNull(nameof(value));
         }
 
         public override object ResolveInstance(Func<object> createInstance)

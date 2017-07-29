@@ -15,7 +15,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must create two instances when a type with a transient lifetime is resolved two times.")]
         public void TransientResolve()
         {
-            var container = new DiContainer().RegisterTransient<ClassWithoutDependencies>();
+            var container = new DiContainer().Register<ClassWithoutDependencies>();
 
             var first = container.Resolve<ClassWithoutDependencies>();
             var second = container.Resolve<ClassWithoutDependencies>();
@@ -28,7 +28,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must resolve the same instance when the target type is registered with a singleton lifetime.")]
         public void SingletonResolve()
         {
-            var container = new DiContainer().RegisterSingleton<ClassWithoutDependencies>();
+            var container = new DiContainer().Register<ClassWithoutDependencies>(options => options.UseSingletonLifetime());
 
             var first = container.Resolve<ClassWithoutDependencies>();
             var second = container.Resolve<ClassWithoutDependencies>();
@@ -58,8 +58,8 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI container must be able to resolve types with dependencies to other types.")]
         public void SimpleHierarchicalResolve()
         {
-            var container = new DiContainer().RegisterTransient<ClassWithoutDependencies>()
-                                             .RegisterTransient<ClassWithDependency>();
+            var container = new DiContainer().Register<ClassWithoutDependencies>()
+                                             .Register<ClassWithDependency>();
 
             var instance = container.Resolve<ClassWithDependency>();
 
@@ -70,9 +70,9 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI container must be able to resolve a complex object graph where a singleton instance is injected in several other objects.")]
         public void TwoLevelHierarchicalResolveWithSingletonLeaf()
         {
-            var container = new DiContainer().RegisterSingleton<ClassWithoutDependencies>()
-                                             .RegisterTransient<ClassWithDependency>()
-                                             .RegisterSingleton<ClassWithTwoDependencies>();
+            var container = new DiContainer().Register<ClassWithoutDependencies>(options => options.UseSingletonLifetime())
+                                             .Register<ClassWithDependency>()
+                                             .Register<ClassWithTwoDependencies>(options => options.UseSingletonLifetime());
 
             var instance = container.Resolve<ClassWithTwoDependencies>();
 
@@ -82,7 +82,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI container must be able to resolve a concrete type for an interface when this mapping was registered beforehand.")]
         public void InterfaceMapping()
         {
-            var instance = new DiContainer().RegisterSingleton<IAbstractionA, ClassWithoutDependencies>()
+            var instance = new DiContainer().Register<IAbstractionA, ClassWithoutDependencies>()
                                             .Resolve<IAbstractionA>();
 
             instance.Should().BeOfType<ClassWithoutDependencies>();
@@ -93,15 +93,12 @@ namespace Light.DependencyInjection.Tests
         [InlineData(typeof(Random))]
         public void InvalidAbstractionType(Type invalidAbstractionType)
         {
-            TypeKey typeKey = typeof(ClassWithoutDependencies);
-            var constructorInstantiationFactory = new ConstructorInstantiationInfoFactory(typeof(ClassWithoutDependencies).GetConstructor(Type.EmptyTypes));
-            var registration = new Registration(typeKey, TransientLifetime.Instance, new TypeConstructionInfo(typeKey, constructorInstantiationFactory.Create()));
             var container = new DiContainer();
-
-            Action act = () => container.Register(registration, invalidAbstractionType);
+            var targetType = typeof(ClassWithoutDependencies);
+            Action act = () => container.Register(invalidAbstractionType, targetType);
 
             act.ShouldThrow<TypeRegistrationException>()
-               .And.Message.Should().Be($"Type \"{invalidAbstractionType}\" cannot be used as an abstraction for type \"{typeKey.Type}\" because the latter type does not derive from or implement the former one.");
+               .And.Message.Should().Be($"Type \"{invalidAbstractionType}\" cannot be used as an abstraction for type \"{targetType}\" because the latter type does not derive from or implement the former one.");
         }
     }
 }
