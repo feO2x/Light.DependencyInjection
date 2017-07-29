@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using Light.DependencyInjection.Registrations;
 
-namespace Light.DependencyInjection.TypeConstruction
+namespace Light.DependencyInjection.Registrations
 {
     public abstract class InstantiationInfo
     {

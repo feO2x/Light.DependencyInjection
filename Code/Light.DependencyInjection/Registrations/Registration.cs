@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using Light.DependencyInjection.Lifetimes;
-using Light.DependencyInjection.TypeConstruction;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
     public sealed class Registration : IEquatable<Registration>
     {
+        public readonly bool IsTrackingDisposables;
         public readonly Lifetime LifeTime;
+        public readonly IReadOnlyList<Type> MappedAbstractionTypes;
         public readonly TypeConstructionInfo TypeConstructionInfo;
         public readonly TypeKey TypeKey;
-        public readonly IReadOnlyList<Type> MappedAbstractionTypes;
-        public readonly bool IsTrackingDisposables;
 
         public Registration(TypeKey typeKey, Lifetime lifeTime, TypeConstructionInfo typeConstructionInfo = null, IReadOnlyList<Type> mappedAbstractionTypes = null, bool isTrackingDisposables = true)
         {

@@ -1,5 +1,5 @@
 ﻿using System;
-using Light.DependencyInjection.TypeConstruction;
+using Light.DependencyInjection.Registrations;
 
 namespace Light.DependencyInjection.Lifetimes
 {

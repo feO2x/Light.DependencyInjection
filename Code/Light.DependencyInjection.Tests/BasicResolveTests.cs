@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Reflection;
-using Xunit;
 using FluentAssertions;
-using Light.DependencyInjection.Lifetimes;
 using Light.DependencyInjection.Registrations;
-using Light.DependencyInjection.TypeConstruction;
+using Xunit;
 using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
 namespace Light.DependencyInjection.Tests

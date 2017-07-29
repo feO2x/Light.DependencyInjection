@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Light.DependencyInjection.Registrations;
 
 namespace Light.DependencyInjection.TypeConstruction
 {

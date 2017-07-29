@@ -4,7 +4,7 @@ using System.Reflection;
 using Light.GuardClauses;
 using Light.GuardClauses.FrameworkExtensions;
 
-namespace Light.DependencyInjection.TypeConstruction
+namespace Light.DependencyInjection.Registrations
 {
     public static class ReflectionExtensions
     {

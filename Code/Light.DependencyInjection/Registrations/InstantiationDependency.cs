@@ -1,8 +1,7 @@
 ﻿using System.Reflection;
-using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
 
-namespace Light.DependencyInjection.TypeConstruction
+namespace Light.DependencyInjection.Registrations
 {
     public sealed class InstantiationDependency
     {
