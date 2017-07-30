@@ -11,7 +11,7 @@ namespace Light.DependencyInjection.TypeResolving
 
         public Expression Create(InstantiationInfo instantiationInfo, Expression[] parameterExpressions)
         {
-            return Create(instantiationInfo.MustBeOfType<T>(), parameterExpressions);
+            return Create(instantiationInfo.MustBeOfType<T>(nameof(instantiationInfo)), parameterExpressions);
         }
 
         protected abstract Expression Create(T instantiationInfo, Expression[] parameterExpressions);

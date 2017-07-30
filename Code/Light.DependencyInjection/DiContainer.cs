@@ -22,6 +22,7 @@ namespace Light.DependencyInjection
 
             ContainerScope.TryAddDisposable(_registrationMapping);
             ContainerScope.TryAddDisposable(_resolveDelegates);
+            _services.ContainerSetup.Setup(this);
         }
 
         public ContainerServices Services

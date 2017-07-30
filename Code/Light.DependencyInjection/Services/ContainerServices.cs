@@ -15,10 +15,12 @@ namespace Light.DependencyInjection.Services
         private IDefaultInstantiationInfoSelector _defaultInstantiationInfoSelector = new ConstructorWithMostParametersSelector();
         private IReadOnlyList<Type> _ignoredAbstractionTypes = new[] { typeof(IDisposable) };
         private IContainerScopeFactory _containerScopeFactory = new DefaultContainerScopeFactory();
+        private IContainerSetup _containerSetup = new DefaultDiContainerSetup();
 
         private IResolveDelegateFactory _resolveDelegateFactory = new DefaultResolveDelegateFactory(new IInstantiationExpressionFactory[]
                                                                                                     {
-                                                                                                        new ConstructorInstantiationExpressionFactory()
+                                                                                                        new ConstructorInstantiationExpressionFactory(),
+                                                                                                        new DelegateInstantiationExpressionFactory()
                                                                                                     }.ToDictionary(expressionFactory => expressionFactory.InstantiationInfoType));
 
         public IConcurrentDictionaryFactory ConcurrentDictionaryFactory
@@ -55,6 +57,12 @@ namespace Light.DependencyInjection.Services
         {
             get => _containerScopeFactory;
             set => _containerScopeFactory = value.MustNotBeNull();
+        }
+
+        public IContainerSetup ContainerSetup
+        {
+            get => _containerSetup;
+            set => _containerSetup = value.MustNotBeNull();
         }
 
         public RegistrationOptions<T> CreateRegistrationOptions<T>()

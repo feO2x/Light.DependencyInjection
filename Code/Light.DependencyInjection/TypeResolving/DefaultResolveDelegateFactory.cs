@@ -32,7 +32,7 @@ namespace Light.DependencyInjection.TypeResolving
             container.MustNotBeNull(nameof(container));
 
             var resolveExpression = CreateResolveExpressionRecursively(typeKey, container);
-            return Expression.Lambda<Func<object>>(resolveExpression).Compile();
+            return resolveExpression.CompileToFuncOfObject();
         }
 
         private Expression CreateResolveExpressionRecursively(TypeKey targetTypeKey, DiContainer container)
@@ -61,7 +61,8 @@ namespace Light.DependencyInjection.TypeResolving
                 throw new InvalidOperationException($"There is no instantiationExpressionFactory present for \"{registration.TypeConstructionInfo.InstantiationInfo.GetType()}\". Please check that \"{nameof(DefaultResolveDelegateFactory)}\" is created with all necessary dependencies in \"{nameof(ContainerServices)}\".");
             var createInstanceExpression = instantiationExpressionFactory.Create(registration.TypeConstructionInfo.InstantiationInfo, parameterExpressions);
 
-            var createInstanceDelegate = Expression.Lambda<Func<object>>(createInstanceExpression).Compile();
+            // TODO: provide an extension point to create expressions for known lifetime types
+            var createInstanceDelegate = createInstanceExpression.CompileToFuncOfObject();
             var singletonLifetime = registration.LifeTime as SingletonLifetime;
             if (singletonLifetime != null)
             {

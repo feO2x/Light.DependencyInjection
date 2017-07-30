@@ -115,5 +115,11 @@ namespace Light.DependencyInjection.Tests
 
             disposableInstance.DisposeMustHaveBeenCalledExactlyOnce();
         }
+
+        [Fact(DisplayName = "The DI container must be able to automatically resolve GUIDs.")]
+        public void AutomaticGuidResolving()
+        {
+            new DiContainer().Resolve<Guid>().Should().NotBeEmpty();
+        }
     }
 }
