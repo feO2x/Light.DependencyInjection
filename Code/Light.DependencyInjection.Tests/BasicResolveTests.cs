@@ -1,7 +1,6 @@
 ﻿using System;
 using FluentAssertions;
 using Light.DependencyInjection.Registrations;
-using Light.GuardClauses;
 using Xunit;
 using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
@@ -120,6 +119,16 @@ namespace Light.DependencyInjection.Tests
         public void AutomaticGuidResolving()
         {
             new DiContainer().Resolve<Guid>().Should().NotBeEmpty();
+        }
+
+        [Fact(DisplayName = "The DI Container must be able to automatically resolve itself.")]
+        public void AutomaticContainerResolving()
+        {
+            var container = new DiContainer().Register<ServiceLocatorClient>();
+
+            var serviceLocatorClient = container.Resolve<ServiceLocatorClient>();
+
+            serviceLocatorClient.Container.Should().BeSameAs(container);
         }
     }
 }

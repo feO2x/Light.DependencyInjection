@@ -10,5 +10,11 @@ namespace Light.DependencyInjection.Services
             return container.MustNotBeNull(nameof(container))
                             .Register<Guid>(options => options.InstantiateVia(Guid.NewGuid));
         }
+
+        public static DiContainer AddDefaultContainerRegistration(this DiContainer container)
+        {
+            return container.MustNotBeNull(nameof(container))
+                            .RegisterInstance(container, options => options.DisableIDisposableTracking());
+        }
     }
 }

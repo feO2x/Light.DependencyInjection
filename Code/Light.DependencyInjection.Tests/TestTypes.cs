@@ -3,10 +3,7 @@ using FluentAssertions;
 
 namespace Light.DependencyInjection.Tests
 {
-    public class ClassWithoutDependencies : IAbstractionA
-    {
-        
-    }
+    public class ClassWithoutDependencies : IAbstractionA { }
 
     public class ClassWithDependency
     {
@@ -46,6 +43,16 @@ namespace Light.DependencyInjection.Tests
         public void DisposeMustHaveBeenCalledExactlyOnce()
         {
             _disposeCallCount.Should().Be(1);
+        }
+    }
+
+    public class ServiceLocatorClient
+    {
+        public readonly DiContainer Container;
+
+        public ServiceLocatorClient(DiContainer container)
+        {
+            Container = container;
         }
     }
 }

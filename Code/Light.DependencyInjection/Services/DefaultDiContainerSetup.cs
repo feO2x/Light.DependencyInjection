@@ -4,7 +4,8 @@
     {
         public void Setup(DiContainer container)
         {
-            container.AddDefaultGuidRegistration();
+            container.AddDefaultGuidRegistration()
+                     .AddDefaultContainerRegistration();
         }
     }
 }

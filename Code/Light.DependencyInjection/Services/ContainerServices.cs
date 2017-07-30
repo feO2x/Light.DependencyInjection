@@ -8,6 +8,7 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Services
 {
+    // TODO: this class should be made immutable
     public sealed class ContainerServices
     {
         private IConcurrentDictionaryFactory _concurrentDictionaryFactory = new DefaultConcurrentDictionaryFactory();
