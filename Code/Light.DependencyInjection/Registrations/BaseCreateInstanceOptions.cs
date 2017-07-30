@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using Light.DependencyInjection.DataStructures;
 using Light.DependencyInjection.Lifetimes;
 using Light.GuardClauses;
 using Light.GuardClauses.FrameworkExtensions;
@@ -11,6 +12,7 @@ namespace Light.DependencyInjection.Registrations
     public abstract class BaseCreateInstanceOptions<TOptions> : BaseExternalInstanceOptions<TOptions>, ICreateInstanceOptions<TOptions> where TOptions : class, ICreateInstanceOptions<TOptions>
     {
         protected readonly IDefaultInstantiationInfoSelector DefaultInstantiationInfoSelector;
+        protected readonly List<InstanceManipulationFactory> InstanceManipulationFactories = new List<InstanceManipulationFactory>();
         private InstantiationInfoFactory _instantiationInfoFactory;
         private Lifetime _lifetime = TransientLifetime.Instance;
 
@@ -101,10 +103,23 @@ namespace Light.DependencyInjection.Registrations
 
         public TOptions AddPropertyInjection(PropertyInfo propertyInfo, string targetRegistrationName = "")
         {
-            throw new NotImplementedException();
+            var propertyInjectionFactory = new PropertyInjectionFactory(propertyInfo);
+            propertyInjectionFactory.DependencyFactory.TargetRegistrationName = targetRegistrationName;
+            InstanceManipulationFactories.AddOrReplace(propertyInjectionFactory);
+            return This;
+        }
+
+        public TOptions AddPropertyInjection(string propertyName, string targetRegistrationName = "")
+        {
+            return AddPropertyInjection(TargetType.GetRuntimeProperty(propertyName), targetRegistrationName);
         }
 
         public TOptions AddFieldInjection(FieldInfo fieldInfo, string targetRegistrationName = "")
+        {
+            throw new NotImplementedException();
+        }
+
+        public TOptions AddFieldInjection(string fieldName, string targetRegistrationName = "")
         {
             throw new NotImplementedException();
         }
@@ -154,7 +169,9 @@ namespace Light.DependencyInjection.Registrations
             var typeKey = new TypeKey(TargetType, RegistrationName);
             return new Registration(typeKey,
                                     _lifetime,
-                                    new TypeConstructionInfo(typeKey, _instantiationInfoFactory.Create(RegistrationName)),
+                                    new TypeConstructionInfo(typeKey,
+                                                             _instantiationInfoFactory.Create(RegistrationName),
+                                                             InstanceManipulationFactories.CreateInstanceManipulations(RegistrationName)),
                                     MappedAbstractionTypes.Count > 0 ? MappedAbstractionTypes.AsReadOnlyList() : null,
                                     IsTrackingDisposables);
         }

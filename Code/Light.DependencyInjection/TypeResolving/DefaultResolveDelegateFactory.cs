@@ -53,7 +53,7 @@ namespace Light.DependencyInjection.TypeResolving
                 for (var i = 0; i < instantiationDependencies.Count; i++)
                 {
                     var instantiationDependency = instantiationDependencies[i];
-                    parameterExpressions[i] = CreateResolveExpressionRecursively(new TypeKey(instantiationDependency.ParameterInfo.ParameterType, instantiationDependency.TargetRegistrationName), container);
+                    parameterExpressions[i] = CreateResolveExpressionRecursively(new TypeKey(instantiationDependency.DependencyType, instantiationDependency.TargetRegistrationName), container);
                 }
             }
 

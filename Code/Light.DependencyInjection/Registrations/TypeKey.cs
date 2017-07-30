@@ -25,17 +25,6 @@ namespace Light.DependencyInjection.Registrations
         public readonly int HashCode;
 
         /// <summary>
-        ///     Gets the hash code of the <see cref="Type" />.
-        /// </summary>
-        public readonly int TypeHashCode;
-
-        /// <summary>
-        ///     Gets the full registration name in the following format: "TypeKey.Type.FullName" with name "TypeKey.RegistrationName".
-        ///     The last part will be ommited if registration name is null.
-        /// </summary>
-        public readonly string FullRegistrationName;
-
-        /// <summary>
         ///     Initializes a new instance of <see cref="TypeKey" />.
         /// </summary>
         /// <param name="type">The <see cref="Type" /> associated with the new type key.</param>
@@ -45,14 +34,7 @@ namespace Light.DependencyInjection.Registrations
         {
             Type = type.MustNotBeNull(nameof(type));
             RegistrationName = registrationName.MustNotBeNull(nameof(registrationName));
-            HashCode = TypeHashCode = type.GetHashCode();
-            var registrationNameText = "";
-            if (registrationName.IsNullOrWhiteSpace() == false)
-            {
-                HashCode = Equality.CreateHashCode(type, registrationName);
-                registrationNameText = $" with name \"{registrationName}\"";
-            }
-            FullRegistrationName = $"\"{Type}\"{registrationNameText}";
+            HashCode = registrationName.IsNullOrWhiteSpace() ? type.GetHashCode() : Equality.CreateHashCode(type, registrationName);
         }
 
         /// <summary>
@@ -107,7 +89,7 @@ namespace Light.DependencyInjection.Registrations
         /// </summary>
         public override string ToString()
         {
-            return FullRegistrationName;
+            return RegistrationName.IsNullOrWhiteSpace() ? Type.ToString() : $"\"{Type}\" with name \"{RegistrationName}\"";
         }
 
         /// <summary>
@@ -131,7 +113,7 @@ namespace Light.DependencyInjection.Registrations
         ///     Gets the value indicating if this instance was created with the default struct initializer
         ///     (i.e. this instance contains no values).
         /// </summary>
-        public bool IsEmpty => Type == null;
+        public bool IsEmpty => ReferenceEquals(Type, null);
 
         /// <summary>
         ///     Checks if this instance was created with the default struct initializer,

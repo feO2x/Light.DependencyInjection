@@ -23,11 +23,8 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
         private static void CheckTypeKeyInvariantsAfterInitializationWithType(Type type, TypeKey typeKey)
         {
             typeKey.Type.Should().BeSameAs(type);
-            typeKey.TypeHashCode.Should().Be(type.GetHashCode())
-                   .And.Be(typeKey.HashCode);
+            typeKey.HashCode.Should().Be(type.GetHashCode());
             typeKey.RegistrationName.Should().BeEmpty();
-            typeKey.FullRegistrationName.Should().Be($"\"{type}\"")
-                   .And.Be(typeKey.ToString());
         }
 
         [Theory(DisplayName = "A type key can be initialized with a registration name. In this case, RegistrationName must be the passed in string and the hash code must be created from both type and registrationName.")]
@@ -39,8 +36,7 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
             var typeKey = new TypeKey(type, registrationName);
 
             typeKey.RegistrationName.Should().BeSameAs(registrationName);
-            typeKey.FullRegistrationName.Should().Be($"\"{type}\" with name \"{registrationName}\"")
-                   .And.Be(typeKey.ToString());
+            typeKey.ToString().Should().Be($"\"{type}\" with name \"{registrationName}\"");
             typeKey.HashCode.Should().NotBe(type.GetHashCode());
         }
 

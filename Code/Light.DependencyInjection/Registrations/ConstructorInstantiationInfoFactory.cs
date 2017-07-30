@@ -15,7 +15,7 @@ namespace Light.DependencyInjection.Registrations
 
         public override InstantiationInfo Create(string registrationName = "")
         {
-            return new ConstructorInstantiationInfo(new TypeKey(TargetType, registrationName), ConstructorInfo, InstantiationDependencyFactories.CreateInstantiationDependencies(registrationName));
+            return new ConstructorInstantiationInfo(new TypeKey(TargetType, registrationName), ConstructorInfo, InstantiationDependencyFactories.CreateDependencies());
         }
     }
 }

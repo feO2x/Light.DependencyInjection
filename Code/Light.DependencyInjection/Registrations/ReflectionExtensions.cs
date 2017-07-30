@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Light.GuardClauses;
 using Light.GuardClauses.FrameworkExtensions;
@@ -53,6 +54,49 @@ namespace Light.DependencyInjection.Registrations
                     return false;
             }
             return true;
+        }
+
+        public static IReadOnlyList<DependencyFactory> ExtractDependency(this PropertyInfo propertyInfo)
+        {
+            return propertyInfo.MustNotBeNull(nameof(propertyInfo)).SetMethod.ExtractDependencies();
+        }
+
+        public static IReadOnlyList<DependencyFactory> ExtractDependencies(this MethodBase instantiationMethod)
+        {
+            instantiationMethod.MustNotBeNull(nameof(instantiationMethod));
+
+            return instantiationMethod.GetParameters()
+                                      .Select(parameterInfo => new DependencyFactory(parameterInfo.Name, parameterInfo.ParameterType))
+                                      .ToList();
+        }
+
+        public static IReadOnlyList<Dependency> CreateDependencies(this IReadOnlyList<DependencyFactory> dependencyFactories)
+        {
+            if (dependencyFactories.MustNotBeNull(nameof(dependencyFactories)).Count == 0)
+                return null;
+
+            var array = new Dependency[dependencyFactories.Count];
+            for (var i = 0; i < array.Length; i++)
+            {
+                array[i] = dependencyFactories[i].Create();
+            }
+
+            return array;
+        }
+
+        public static IReadOnlyList<InstanceManipulation> CreateInstanceManipulations(this IReadOnlyList<InstanceManipulationFactory> instanceManipulationFactories, string registrationName = "")
+        {
+            if (instanceManipulationFactories.MustNotBeNull(nameof(instanceManipulationFactories)).Count == 0)
+                return null;
+
+            var array = new InstanceManipulation[instanceManipulationFactories.Count];
+
+            for (var i = 0; i < instanceManipulationFactories.Count; i++)
+            {
+                array[i] = instanceManipulationFactories[i].Create(registrationName);
+            }
+
+            return array;
         }
     }
 }

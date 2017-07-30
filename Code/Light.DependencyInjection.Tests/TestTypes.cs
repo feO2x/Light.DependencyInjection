@@ -55,4 +55,9 @@ namespace Light.DependencyInjection.Tests
             Container = container;
         }
     }
+
+    public class ClassWithProperty
+    {
+        public ClassWithoutDependencies InstanceWithoutDependencies { get; set; }
+    }
 }

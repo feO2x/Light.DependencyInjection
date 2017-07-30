@@ -10,7 +10,7 @@ namespace Light.DependencyInjection.Registrations
 
         public ConstructorInstantiationInfo(TypeKey typeKey,
                                             ConstructorInfo constructorInfo,
-                                            IReadOnlyList<InstantiationDependency> instantiationDependencies)
+                                            IReadOnlyList<Dependency> instantiationDependencies)
             : base(typeKey, instantiationDependencies)
         {
             ConstructorInfo = constructorInfo.MustNotBeNull();

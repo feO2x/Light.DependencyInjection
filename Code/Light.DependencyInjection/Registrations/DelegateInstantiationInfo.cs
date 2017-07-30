@@ -10,7 +10,7 @@ namespace Light.DependencyInjection.Registrations
 
         public DelegateInstantiationInfo(TypeKey typeKey,
                                          Delegate @delegate,
-                                         IReadOnlyList<InstantiationDependency> instantiationDependencies)
+                                         IReadOnlyList<Dependency> instantiationDependencies)
             : base(typeKey, instantiationDependencies)
         {
             Delegate = @delegate.MustNotBeNull(nameof(@delegate));

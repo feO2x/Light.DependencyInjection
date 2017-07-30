@@ -64,5 +64,10 @@ namespace Light.DependencyInjection.Registrations
         {
             return !(first == second);
         }
+
+        public override string ToString()
+        {
+            return TypeKey.ToString();
+        }
     }
 }

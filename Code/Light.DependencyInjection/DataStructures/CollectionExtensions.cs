@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.DataStructures
 {
     public static class CollectionExtensions
     {
-        public static IReadOnlyList<T> AsReadOnlyList<T>(this IEnumerable<T> enumerable)
+        public static IList<T> AddOrReplace<T>(this IList<T> list, T item)
         {
-            // ReSharper disable PossibleMultipleEnumeration
-            enumerable.MustNotBeNull(nameof(enumerable));
+            var index = list.MustNotBeNull(nameof(list)).IndexOf(item);
+            if (index == -1)
+                list.Add(item);
+            else
+                list[index] = item;
 
-            return enumerable as IReadOnlyList<T> ?? enumerable.ToList();
-            // ReSharper restore PossibleMultipleEnumeration
+            return list;
         }
     }
 }

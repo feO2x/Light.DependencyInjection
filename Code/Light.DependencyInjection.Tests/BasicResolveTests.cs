@@ -104,7 +104,7 @@ namespace Light.DependencyInjection.Tests
             typeof(DiContainer).Should().Implement<IDisposable>();
         }
 
-        [Fact(DisplayName = "The DI container must dispose of disposable instances by default when it is disposed itself.")]
+        [Fact(DisplayName = "The DI Container must dispose of disposable instances by default when it is disposed itself.")]
         public void DisposeDisposableObjectsByDefault()
         {
             var container = new DiContainer().Register<DisposableSpy>();
@@ -115,7 +115,7 @@ namespace Light.DependencyInjection.Tests
             disposableInstance.DisposeMustHaveBeenCalledExactlyOnce();
         }
 
-        [Fact(DisplayName = "The DI container must be able to automatically resolve GUIDs.")]
+        [Fact(DisplayName = "The DI Container must be able to automatically resolve GUIDs.")]
         public void AutomaticGuidResolving()
         {
             new DiContainer().Resolve<Guid>().Should().NotBeEmpty();
@@ -129,6 +129,17 @@ namespace Light.DependencyInjection.Tests
             var serviceLocatorClient = container.Resolve<ServiceLocatorClient>();
 
             serviceLocatorClient.Container.Should().BeSameAs(container);
+        }
+
+        [Fact(DisplayName = "The DI Container must be able to perform Property Injection when it is configured for the target type.")]
+        public void PropertyInjection()
+        {
+            var container = new DiContainer().Register<ClassWithoutDependencies>()
+                                             .Register<ClassWithProperty>(options => options.AddPropertyInjection(nameof(ClassWithProperty.InstanceWithoutDependencies)));
+
+            var instanceWithProperty = container.Resolve<ClassWithProperty>();
+
+            instanceWithProperty.InstanceWithoutDependencies.Should().NotBeNull();
         }
     }
 }
