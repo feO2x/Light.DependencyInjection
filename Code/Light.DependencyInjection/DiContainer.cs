@@ -10,26 +10,22 @@ namespace Light.DependencyInjection
     {
         private readonly IConcurrentDictionary<Type, IConcurrentList<Registration>> _registrationMapping;
         private readonly IConcurrentDictionary<TypeKey, Func<object>> _resolveDelegates;
-        private ContainerServices _services;
+        private readonly ContainerServices _services;
         public readonly ContainerScope ContainerScope;
 
         public DiContainer(ContainerServices services = null)
         {
-            _services = services ?? new ContainerServices();
+            _services = services ?? new ContainerServicesBuilder().Build();
             ContainerScope = _services.ContainerScopeFactory.CreateScope();
             _registrationMapping = _services.ConcurrentDictionaryFactory.Create<Type, IConcurrentList<Registration>>();
             _resolveDelegates = _services.ConcurrentDictionaryFactory.Create<TypeKey, Func<object>>();
 
             ContainerScope.TryAddDisposable(_registrationMapping);
             ContainerScope.TryAddDisposable(_resolveDelegates);
-            _services.ContainerSetup.Setup(this);
+            _services.SetupContainer?.Invoke(this);
         }
 
-        public ContainerServices Services
-        {
-            get => _services;
-            set => _services = value.MustNotBeNull();
-        }
+        public ContainerServices Services => _services;
 
         public DiContainer Register<T>(Action<IRegistrationOptions<T>> configureRegistration = null)
         {
