@@ -2,7 +2,7 @@
 
 namespace Light.DependencyInjection.Registrations
 {
-    public abstract class InstantiationInfo
+    public abstract class InstantiationInfo : IDependencyInfo
     {
         public readonly IReadOnlyList<Dependency> InstantiationDependencies;
         public readonly TypeKey TypeKey;
@@ -12,5 +12,7 @@ namespace Light.DependencyInjection.Registrations
             TypeKey = typeKey.MustNotBeEmpty();
             InstantiationDependencies = instantiationDependencies;
         }
+
+        IReadOnlyList<Dependency> IDependencyInfo.Dependencies => InstantiationDependencies;
     }
 }

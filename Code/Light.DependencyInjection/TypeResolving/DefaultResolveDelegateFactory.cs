@@ -18,12 +18,18 @@ namespace Light.DependencyInjection.TypeResolving
                                                                                                   .DeclaredConstructors
                                                                                                   .FindConstructorWithArgumentTypes(typeof(Func<object>), typeof(ContainerScope), typeof(Registration));
 
+        private readonly IReadOnlyDictionary<Type, IInstanceManipulationExpressionFactory> _instanceManipulationExpressionFactories;
+
         private readonly IReadOnlyDictionary<Type, IInstantiationExpressionFactory> _instantiationExpressionFactories;
 
-        public DefaultResolveDelegateFactory(IReadOnlyDictionary<Type, IInstantiationExpressionFactory> instantiationExpressionFactories)
+        public DefaultResolveDelegateFactory(IReadOnlyDictionary<Type, IInstantiationExpressionFactory> instantiationExpressionFactories,
+                                             IReadOnlyDictionary<Type, IInstanceManipulationExpressionFactory> instanceManipulationExpressionFactories)
         {
             instantiationExpressionFactories.MustNotBeNullOrEmpty(nameof(instantiationExpressionFactories));
+            instanceManipulationExpressionFactories.MustNotBeNullOrEmpty(nameof(instanceManipulationExpressionFactories));
+
             _instantiationExpressionFactories = instantiationExpressionFactories;
+            _instanceManipulationExpressionFactories = instanceManipulationExpressionFactories;
         }
 
         public Func<object> Create(TypeKey typeKey, DiContainer container)
@@ -45,24 +51,10 @@ namespace Light.DependencyInjection.TypeResolving
                 return Expression.Constant(instance, registration.TargetType);
             }
 
-            var instantiationDependencies = registration.TypeConstructionInfo.InstantiationInfo.InstantiationDependencies;
-            Expression[] parameterExpressions = null;
-            if (instantiationDependencies.IsNullOrEmpty() == false)
-            {
-                parameterExpressions = new Expression[instantiationDependencies.Count];
-                for (var i = 0; i < instantiationDependencies.Count; i++)
-                {
-                    var instantiationDependency = instantiationDependencies[i];
-                    parameterExpressions[i] = CreateResolveExpressionRecursively(new TypeKey(instantiationDependency.DependencyType, instantiationDependency.TargetRegistrationName), container);
-                }
-            }
+            var constructionExpression = CreateConstructionExpression(registration, container);
 
-            if (_instantiationExpressionFactories.TryGetValue(registration.TypeConstructionInfo.InstantiationInfo.GetType(), out var instantiationExpressionFactory) == false)
-                throw new InvalidOperationException($"There is no instantiationExpressionFactory present for \"{registration.TypeConstructionInfo.InstantiationInfo.GetType()}\". Please check that \"{nameof(DefaultResolveDelegateFactory)}\" is created with all necessary dependencies in \"{nameof(ContainerServices)}\".");
-            var createInstanceExpression = instantiationExpressionFactory.Create(registration.TypeConstructionInfo.InstantiationInfo, parameterExpressions);
-
-            // TODO: provide an extension point to create expressions for known lifetime types
-            var createInstanceDelegate = createInstanceExpression.CompileToFuncOfObject();
+            // TODO: provide an extension point to create expressions for known lifetime types that do not require the compilation of the construction expression
+            var createInstanceDelegate = constructionExpression.CompileToFuncOfObject();
             var singletonLifetime = registration.LifeTime as SingletonLifetime;
             if (singletonLifetime != null)
             {
@@ -78,6 +70,59 @@ namespace Light.DependencyInjection.TypeResolving
                                                       LifetimeResolveInstanceMethod,
                                                       resolveContextExpression),
                                       registration.TargetType);
+        }
+
+        private Expression CreateConstructionExpression(Registration registration, DiContainer container)
+        {
+            // Create the expression that instantiates the target object
+            var instantiationDependencies = registration.TypeConstructionInfo.InstantiationInfo.InstantiationDependencies;
+            var parameterExpressions = ResolveDependenciesRecursivelyIfNecessary(instantiationDependencies, container);
+
+            // Use the correct factory to create the expression that instantiates the target type
+            if (_instantiationExpressionFactories.TryGetValue(registration.TypeConstructionInfo.InstantiationInfo.GetType(), out var instantiationExpressionFactory) == false)
+                throw new InvalidOperationException($"There is no instantiationExpressionFactory present for \"{registration.TypeConstructionInfo.InstantiationInfo.GetType()}\". Please check that \"{nameof(DefaultResolveDelegateFactory)}\" is created with all necessary dependencies in \"{nameof(ContainerServices)}\".");
+            var instantiationExpression = instantiationExpressionFactory.Create(registration.TypeConstructionInfo.InstantiationInfo, parameterExpressions);
+
+            // If there are no instance manipulations, then simply return the instantiation expression
+            if (registration.TypeConstructionInfo.InstanceManipulations.IsNullOrEmpty())
+                return instantiationExpression;
+
+            // Else we need a block that holds the target object in a variable and performs each instance manipulation in one statement
+            // The first statement is always the assignment of the instantiationExpression to a variable that holds the instance
+            var instanceVariableExpression = Expression.Variable(registration.TargetType);
+            var assignVariableExpression = Expression.Assign(instanceVariableExpression, instantiationExpression);
+            var blockExpressions = new Expression[registration.TypeConstructionInfo.InstanceManipulations.Count + 2];   // +2 for assignment and return statements
+            blockExpressions[0] = assignVariableExpression; // variable assign statement
+
+            // The subsequent statements hold the instance manipulations (e.g. property injection, field injection, calling methods, etc.)
+            for (var i = 0; i < registration.TypeConstructionInfo.InstanceManipulations.Count; i++)
+            {
+                var instanceManipulation = registration.TypeConstructionInfo.InstanceManipulations[i];
+                parameterExpressions = ResolveDependenciesRecursivelyIfNecessary(instanceManipulation.Dependencies, container);
+
+                if (_instanceManipulationExpressionFactories.TryGetValue(instanceManipulation.GetType(), out var instanceManipulationExpressionFactory) == false)
+                    throw new InvalidOperationException($"There is no instanceManipulationExpressionFactory present for \"{instanceManipulation.GetType()}\". Please check that \"{nameof(DefaultResolveDelegateFactory)}\" is created with all necessary dependencies in \"{nameof(ContainerServices)}\".");
+                blockExpressions[i + 1] = instanceManipulationExpressionFactory.Create(instanceManipulation, instanceVariableExpression, parameterExpressions);
+            }
+
+            blockExpressions[blockExpressions.Length - 1] = instanceVariableExpression; // Return statement
+
+            return Expression.Block(registration.TargetType, new[] { instanceVariableExpression }, blockExpressions);
+        }
+
+        private Expression[] ResolveDependenciesRecursivelyIfNecessary(IReadOnlyList<Dependency> dependencies, DiContainer container)
+        {
+            if (dependencies.IsNullOrEmpty())
+                return null;
+
+            var resolvedDependencyExpressions = new Expression[dependencies.Count];
+            for (var i = 0; i < dependencies.Count; i++)
+            {
+                var dependency = dependencies[i];
+                resolvedDependencyExpressions[i] = CreateResolveExpressionRecursively(new TypeKey(dependency.DependencyType, dependency.TargetRegistrationName), container);
+            }
+
+            return resolvedDependencyExpressions;
         }
     }
 }

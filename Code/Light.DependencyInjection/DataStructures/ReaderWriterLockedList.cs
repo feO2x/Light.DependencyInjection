@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Light.DependencyInjection.Threading;
 using Light.GuardClauses;
+using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.DataStructures
 {
@@ -41,11 +42,6 @@ namespace Light.DependencyInjection.DataStructures
             }
         }
 
-        public void Dispose()
-        {
-            _lock.Dispose();
-        }
-
         public void Add(T item)
         {
             _lock.EnterWriteLock();
@@ -57,13 +53,6 @@ namespace Light.DependencyInjection.DataStructures
             {
                 _lock.ExitWriteLock();
             }
-        }
-
-        private void InternalAdd(T item)
-        {
-            ExchangeInternalArrayWithLargerOneIfNecessary();
-
-            _internalArray[_count++] = item;
         }
 
         public void Clear()
@@ -93,7 +82,6 @@ namespace Light.DependencyInjection.DataStructures
             }
         }
 
-        
 
         public void CopyTo(T[] array, int arrayIndex)
         {
@@ -171,18 +159,6 @@ namespace Light.DependencyInjection.DataStructures
             }
         }
 
-        private int InternalIndexOf(T item)
-        {
-            for (var i = 0; i < _count; i++)
-            {
-                if (_equalityComparer.Equals(_internalArray[i], item) == false)
-                    continue;
-
-                return i;
-            }
-            return -1;
-        }
-
         public void Insert(int index, T item)
         {
             index.MustNotBeLessThan(0, nameof(index));
@@ -258,6 +234,67 @@ namespace Light.DependencyInjection.DataStructures
                     _lock.ExitWriteLock();
                 }
             }
+        }
+
+        public T GetOrAdd(T item)
+        {
+            _lock.EnterUpgradeableReadLock();
+
+            try
+            {
+                var indexOfExistingItem = InternalIndexOf(item);
+                if (indexOfExistingItem != -1)
+                    return _internalArray[indexOfExistingItem];
+
+                Add(item);
+                return item;
+            }
+            finally
+            {
+                _lock.ExitUpgradeableReadLock();
+            }
+        }
+
+        public void AddOrUpdate(T item)
+        {
+            _lock.EnterWriteLock();
+
+            try
+            {
+                var indexOfExistingItem = InternalIndexOf(item);
+                if (indexOfExistingItem != -1)
+                    _internalArray[indexOfExistingItem] = item;
+                else
+                    InternalAdd(item);
+            }
+            finally
+            {
+                _lock.ExitWriteLock();
+            }
+        }
+
+        public void Dispose()
+        {
+            _lock.Dispose();
+        }
+
+        private void InternalAdd(T item)
+        {
+            ExchangeInternalArrayWithLargerOneIfNecessary();
+
+            _internalArray[_count++] = item;
+        }
+
+        private int InternalIndexOf(T item)
+        {
+            for (var i = 0; i < _count; i++)
+            {
+                if (_equalityComparer.Equals(_internalArray[i], item) == false)
+                    continue;
+
+                return i;
+            }
+            return -1;
         }
 
         public Enumerator GetEnumerator()
@@ -355,43 +392,6 @@ namespace Light.DependencyInjection.DataStructures
                     _lock.ExitReadLock();
                     _isLockAquired = false;
                 }
-            }
-        }
-
-        public T GetOrAdd(T item)
-        {
-            _lock.EnterUpgradeableReadLock();
-
-            try
-            {
-                var indexOfExistingItem = InternalIndexOf(item);
-                if (indexOfExistingItem != -1)
-                    return _internalArray[indexOfExistingItem];
-
-                Add(item);
-                return item;
-            }
-            finally
-            {
-                _lock.ExitUpgradeableReadLock();
-            }
-        }
-
-        public void AddOrUpdate(T item)
-        {
-            _lock.EnterWriteLock();
-
-            try
-            {
-                var indexOfExistingItem = InternalIndexOf(item);
-                if (indexOfExistingItem != -1)
-                    _internalArray[indexOfExistingItem] = item;
-                else
-                    InternalAdd(item);
-            }
-            finally
-            {
-                _lock.ExitWriteLock();
             }
         }
     }

@@ -5,7 +5,7 @@ using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public abstract class InstanceManipulation : IEquatable<InstanceManipulation>
+    public abstract class InstanceManipulation : IDependencyInfo, IEquatable<InstanceManipulation>
     {
         public readonly TypeKey TypeKey;
         public readonly string MemberName;
@@ -34,5 +34,7 @@ namespace Light.DependencyInjection.Registrations
         {
             return Equality.CreateHashCode(TypeKey, MemberName);
         }
+
+        IReadOnlyList<Dependency> IDependencyInfo.Dependencies => Dependencies;
     }
 }
