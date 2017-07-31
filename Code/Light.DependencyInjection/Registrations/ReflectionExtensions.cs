@@ -61,6 +61,12 @@ namespace Light.DependencyInjection.Registrations
             return propertyInfo.MustNotBeNull(nameof(propertyInfo)).SetMethod.ExtractDependencies();
         }
 
+        public static IReadOnlyList<DependencyFactory> ExtractDependency(this FieldInfo fieldInfo)
+        {
+            fieldInfo.MustNotBeNull(nameof(fieldInfo));
+            return new[] { new DependencyFactory(fieldInfo.Name, fieldInfo.FieldType) };
+        }
+
         public static IReadOnlyList<DependencyFactory> ExtractDependencies(this MethodBase instantiationMethod)
         {
             instantiationMethod.MustNotBeNull(nameof(instantiationMethod));

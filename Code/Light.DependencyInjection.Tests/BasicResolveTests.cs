@@ -132,7 +132,7 @@ namespace Light.DependencyInjection.Tests
             serviceLocatorClient.Container.Should().BeSameAs(container);
         }
 
-        [Fact(DisplayName = "The DI Container must be able to perform Property Injection when it is configured for the target type.")]
+        [Fact(DisplayName = "The DI Container must be able to perform Property Injection when this is configured for the target type.")]
         public void PropertyInjection()
         {
             var container = new DiContainer().Register<ClassWithoutDependencies>()
@@ -155,6 +155,17 @@ namespace Light.DependencyInjection.Tests
             instance.Should().NotBeNull();
             instance.InstanceWithProperty.Should().NotBeNull();
             instance.InstanceWithProperty.MustBeOfType<ClassWithProperty>().InstanceWithoutDependencies.Should().NotBeNull();
+        }
+
+        [Fact(DisplayName = "The DI Container must be able to perform Field Injection when this is configured for the target type.")]
+        public void FieldInjection()
+        {
+            var container = new DiContainer().RegisterInstance(true, options => options.UseRegistrationName("The Boolean"))
+                                             .Register<ClassWithPublicField>(options => options.AddFieldInjection(nameof(ClassWithPublicField.PublicField), "The Boolean"));
+
+            var instanceWithPublicField = container.Resolve<ClassWithPublicField>();
+
+            instanceWithPublicField.PublicField.Should().BeTrue();
         }
     }
 }

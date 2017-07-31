@@ -72,4 +72,9 @@ namespace Light.DependencyInjection.Tests
             InstanceWithProperty = instanceWithProperty;
         }
     }
+
+    public class ClassWithPublicField
+    {
+        public bool PublicField;
+    }
 }

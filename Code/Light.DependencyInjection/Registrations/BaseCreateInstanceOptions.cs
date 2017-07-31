@@ -116,12 +116,15 @@ namespace Light.DependencyInjection.Registrations
 
         public TOptions AddFieldInjection(FieldInfo fieldInfo, string targetRegistrationName = "")
         {
-            throw new NotImplementedException();
+            var fieldInjectionFactory = new FieldInjectionFactory(fieldInfo);
+            fieldInjectionFactory.DependencyFactory.TargetRegistrationName = targetRegistrationName;
+            InstanceManipulationFactories.AddOrReplace(fieldInjectionFactory);
+            return This;
         }
 
         public TOptions AddFieldInjection(string fieldName, string targetRegistrationName = "")
         {
-            throw new NotImplementedException();
+            return AddFieldInjection(TargetType.GetRuntimeField(fieldName), targetRegistrationName);
         }
 
         public TOptions UseLifetime(Lifetime lifetime)

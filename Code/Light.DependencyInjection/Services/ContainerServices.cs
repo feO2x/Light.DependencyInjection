@@ -67,7 +67,8 @@ namespace Light.DependencyInjection.Services
                                                      }.ToDictionary(expressionFactory => expressionFactory.InstantiationInfoType),
                                                      new IInstanceManipulationExpressionFactory[]
                                                      {
-                                                         new PropertyInjectionExpressionFactory()
+                                                         new PropertyInjectionExpressionFactory(),
+                                                         new FieldInjectionExpressionFactory()
                                                      }.ToDictionary(expressionFactory => expressionFactory.InstanceManipulationType));
         }
     }
