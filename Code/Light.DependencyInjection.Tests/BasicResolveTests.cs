@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using Light.DependencyInjection.Registrations;
+using Light.GuardClauses;
 using Xunit;
 using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
@@ -140,6 +141,20 @@ namespace Light.DependencyInjection.Tests
             var instanceWithProperty = container.Resolve<ClassWithProperty>();
 
             instanceWithProperty.InstanceWithoutDependencies.Should().NotBeNull();
+        }
+
+        [Fact(DisplayName = "The DI Container must be able to resolve a polymorphic graph where a child object performs property injection.")]
+        public void ComplexGraphWithPropertyInjectionAndPolymorphism()
+        {
+            var container = new DiContainer().Register<ClassWithoutDependencies>()
+                                             .Register<IEmptyInterface, ClassWithProperty>(options => options.AddPropertyInjection(nameof(ClassWithProperty.InstanceWithoutDependencies)))
+                                             .Register<ClassWithPropertyInjectionDependency>();
+
+            var instance = container.Resolve<ClassWithPropertyInjectionDependency>();
+
+            instance.Should().NotBeNull();
+            instance.InstanceWithProperty.Should().NotBeNull();
+            instance.InstanceWithProperty.MustBeOfType<ClassWithProperty>().InstanceWithoutDependencies.Should().NotBeNull();
         }
     }
 }

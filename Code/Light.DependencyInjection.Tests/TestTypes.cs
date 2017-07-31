@@ -56,8 +56,20 @@ namespace Light.DependencyInjection.Tests
         }
     }
 
-    public class ClassWithProperty
+    public class ClassWithProperty : IEmptyInterface
     {
         public ClassWithoutDependencies InstanceWithoutDependencies { get; set; }
+    }
+
+    public interface IEmptyInterface { }
+
+    public class ClassWithPropertyInjectionDependency
+    {
+        public readonly IEmptyInterface InstanceWithProperty;
+
+        public ClassWithPropertyInjectionDependency(IEmptyInterface instanceWithProperty)
+        {
+            InstanceWithProperty = instanceWithProperty;
+        }
     }
 }
