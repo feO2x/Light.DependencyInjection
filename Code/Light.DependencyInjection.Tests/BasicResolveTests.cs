@@ -167,5 +167,15 @@ namespace Light.DependencyInjection.Tests
 
             instanceWithPublicField.PublicField.Should().BeTrue();
         }
+
+        [Theory(DisplayName = "The DI Container must be able to perform automatic registration when the specified type can be instantiated using the default registration settings.")]
+        [InlineData(typeof(ClassWithoutDependencies))]
+        [InlineData(typeof(ClassWithDependency))]
+        public void AutomaticRegistration(Type targetType)
+        {
+            var instance = new DiContainer().Resolve(targetType);
+
+            instance.Should().NotBeNull().And.BeAssignableTo(targetType);
+        }
     }
 }

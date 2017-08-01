@@ -15,6 +15,7 @@ namespace Light.DependencyInjection.Services
         private IReadOnlyList<Type> _ignoredAbstractionTypes = ContainerServices.DefaultIgnoredAbstractionTypes;
         private IResolveDelegateFactory _resolveDelegateFactory = ContainerServices.CreateDefaultResolveDelegateFactory();
         private Action<DiContainer> _setupContainer = ContainerServices.DefaultSetupContainer;
+        private IAutomaticRegistrationFactory _automaticRegistrationFactory = new DefaultAutomaticRegistrationFactory();
 
         public ContainerServicesBuilder WithConcurrentDictionaryFactory(IConcurrentDictionaryFactory concurrentDictionaryFactory)
         {
@@ -64,6 +65,12 @@ namespace Light.DependencyInjection.Services
             return this;
         }
 
+        public ContainerServicesBuilder WithAutomaticRegistrationFactory(IAutomaticRegistrationFactory automaticRegistrationFactory)
+        {
+            _automaticRegistrationFactory = automaticRegistrationFactory;
+            return this;
+        }
+
         public ContainerServices Build()
         {
             return new ContainerServices(_concurrentDictionaryFactory,
@@ -72,6 +79,7 @@ namespace Light.DependencyInjection.Services
                                          _ignoredAbstractionTypes,
                                          _containerScopeFactory,
                                          _resolveDelegateFactory,
+                                         _automaticRegistrationFactory,
                                          _setupContainer);
         }
     }

@@ -19,6 +19,7 @@ namespace Light.DependencyInjection.Services
         public readonly IReadOnlyList<Type> IgnoredAbstractionTypes;
         public readonly IResolveDelegateFactory ResolveDelegateFactory;
         public readonly Action<DiContainer> SetupContainer;
+        public readonly IAutomaticRegistrationFactory AutomaticRegistrationFactory;
 
         public ContainerServices(IConcurrentDictionaryFactory concurrentDictionaryFactory,
                                  IConcurrentListFactory concurrentListFactory,
@@ -26,6 +27,7 @@ namespace Light.DependencyInjection.Services
                                  IReadOnlyList<Type> ignoredAbstractionTypes,
                                  IContainerScopeFactory containerScopeFactory,
                                  IResolveDelegateFactory resolveDelegateFactory,
+                                 IAutomaticRegistrationFactory automaticRegistrationFactory,
                                  Action<DiContainer> setupContainer = null)
         {
             ConcurrentDictionaryFactory = concurrentDictionaryFactory.MustNotBeNull(nameof(concurrentDictionaryFactory));
@@ -34,6 +36,7 @@ namespace Light.DependencyInjection.Services
             IgnoredAbstractionTypes = ignoredAbstractionTypes.MustNotBeNull(nameof(ignoredAbstractionTypes));
             ContainerScopeFactory = containerScopeFactory.MustNotBeNull(nameof(containerScopeFactory));
             ResolveDelegateFactory = resolveDelegateFactory.MustNotBeNull(nameof(resolveDelegateFactory));
+            AutomaticRegistrationFactory = automaticRegistrationFactory.MustNotBeNull(nameof(automaticRegistrationFactory));
             SetupContainer = setupContainer;
         }
 

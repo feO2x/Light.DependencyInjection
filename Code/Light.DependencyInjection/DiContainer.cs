@@ -117,9 +117,12 @@ namespace Light.DependencyInjection
         public Registration GetRegistration(TypeKey typeKey)
         {
             // TODO: check if generic type is asked
-            if (_registrationMapping.TryGetValue(typeKey.Type, out var registrations) == false ||
-                registrations.TryFindRegistration(typeKey, out var targetRegistration) == false)
-                throw new ResolveException($"There is no registration for {typeKey}");
+            if (_registrationMapping.TryGetValue(typeKey.Type, out var registrations) && registrations.TryFindRegistration(typeKey, out var targetRegistration))
+                return targetRegistration;
+
+            targetRegistration = _services.AutomaticRegistrationFactory.CreateDefaultRegistration(typeKey, this);
+            if (targetRegistration != null)
+                Register(targetRegistration);
 
             return targetRegistration;
         }
