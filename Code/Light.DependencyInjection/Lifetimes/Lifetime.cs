@@ -1,5 +1,4 @@
-﻿using System;
-using Light.DependencyInjection.Registrations;
+﻿using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.TypeResolving;
 
 namespace Light.DependencyInjection.Lifetimes
@@ -26,12 +25,12 @@ namespace Light.DependencyInjection.Lifetimes
         /// </param>
         /// <param name="toStringText">
         ///     The text that is returned when <see cref="ToString" /> is called.
-        ///     If null is specified, <see cref="ToString" /> will return the name of the lifetime's type (not the full name).
+        ///     If null is specified, <see cref="ToString" /> will return the name of the lifetime's type (not the fully qualified name).
         /// </param>
         protected Lifetime(bool isCreatingNewInstances = true, string toStringText = null)
         {
             IsCreatingNewInstances = isCreatingNewInstances;
-            _toStringText = toStringText ?? GetType().Name;
+            _toStringText = toStringText;
         }
 
         /// <summary>
@@ -44,7 +43,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// </summary>
         public override string ToString()
         {
-            return _toStringText;
+            return _toStringText ?? GetType().Name;
         }
     }
 }

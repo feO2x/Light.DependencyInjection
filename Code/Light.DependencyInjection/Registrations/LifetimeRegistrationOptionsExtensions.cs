@@ -13,5 +13,10 @@ namespace Light.DependencyInjection.Registrations
         {
             return registrationOptions.UseLifetime(new SingletonLifetime());
         }
+
+        public static TOptions UseScopedLifetime<TOptions>(this TOptions registrationOptions) where TOptions : ICreateInstanceOptions<TOptions>
+        {
+            return registrationOptions.UseLifetime(ScopedLifetime.Instance);
+        }
     }
 }

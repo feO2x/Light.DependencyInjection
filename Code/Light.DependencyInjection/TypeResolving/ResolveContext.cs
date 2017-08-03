@@ -1,6 +1,5 @@
 ﻿using System;
 using Light.DependencyInjection.Registrations;
-using Light.DependencyInjection.Services;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeResolving
@@ -8,13 +7,13 @@ namespace Light.DependencyInjection.TypeResolving
     public struct ResolveContext
     {
         public readonly Registration Registration;
-        public readonly ContainerScope Scope;
+        public readonly DiContainer Container;
         private readonly Func<object> _createInstance;
 
-        public ResolveContext(Func<object> createInstance, ContainerScope scope, Registration registration)
+        public ResolveContext(Func<object> createInstance, DiContainer container, Registration registration)
         {
             _createInstance = createInstance.MustNotBeNull(nameof(createInstance));
-            Scope = scope.MustNotBeNull(nameof(scope));
+            Container = container.MustNotBeNull(nameof(container));
             Registration = registration.MustNotBeNull(nameof(registration));
         }
 
@@ -25,7 +24,17 @@ namespace Light.DependencyInjection.TypeResolving
 
             var instance = _createInstance();
             if (Registration.IsTrackingDisposables)
-                Scope.TryAddDisposable(instance);
+                Container.ContainerScope.TryAddDisposable(instance);
+            return instance;
+        }
+
+        public object GetOrAddScopedInstance()
+        {
+            if (Container.ContainerScope.GetOrAddScopedInstance(Registration.TypeKey, _createInstance, out var instance) && Registration.IsTrackingDisposables)
+            {
+                Container.ContainerScope.TryAddDisposable(instance);
+            }
+
             return instance;
         }
     }

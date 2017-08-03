@@ -8,7 +8,7 @@ namespace Light.DependencyInjection
 {
     public class DiContainer : IDisposable
     {
-        private readonly IConcurrentDictionary<Type, IConcurrentList<Registration>> _registrationMapping;
+        private readonly IConcurrentDictionary<Type, IConcurrentList<Registration>> _registrationMappings;
         private readonly IConcurrentDictionary<TypeKey, Func<object>> _resolveDelegates;
         private readonly ContainerServices _services;
         public readonly ContainerScope ContainerScope;
@@ -17,12 +17,20 @@ namespace Light.DependencyInjection
         {
             _services = services ?? new ContainerServicesBuilder().Build();
             ContainerScope = _services.ContainerScopeFactory.CreateScope();
-            _registrationMapping = _services.ConcurrentDictionaryFactory.Create<Type, IConcurrentList<Registration>>();
+            _registrationMappings = _services.ConcurrentDictionaryFactory.Create<Type, IConcurrentList<Registration>>();
             _resolveDelegates = _services.ConcurrentDictionaryFactory.Create<TypeKey, Func<object>>();
 
-            ContainerScope.TryAddDisposable(_registrationMapping);
+            ContainerScope.TryAddDisposable(_registrationMappings);
             ContainerScope.TryAddDisposable(_resolveDelegates);
             _services.SetupContainer?.Invoke(this);
+        }
+
+        private DiContainer(DiContainer parentContainer)
+        {
+            _registrationMappings = parentContainer._registrationMappings;
+            _resolveDelegates = parentContainer._resolveDelegates;
+            _services = parentContainer._services;
+            ContainerScope = _services.ContainerScopeFactory.CreateScope(parentContainer.ContainerScope);
         }
 
         public ContainerServices Services => _services;
@@ -84,10 +92,10 @@ namespace Light.DependencyInjection
 
         private void AddMapping(Type type, Registration registration)
         {
-            if (_registrationMapping.TryGetValue(type, out var typeRegistrations) == false)
+            if (_registrationMappings.TryGetValue(type, out var typeRegistrations) == false)
             {
                 typeRegistrations = _services.ConcurrentListFactory.Create<Registration>();
-                typeRegistrations = _registrationMapping.GetOrAdd(type, typeRegistrations);
+                typeRegistrations = _registrationMappings.GetOrAdd(type, typeRegistrations);
             }
             typeRegistrations.AddOrUpdate(registration);
         }
@@ -117,7 +125,7 @@ namespace Light.DependencyInjection
         public Registration GetRegistration(TypeKey typeKey)
         {
             // TODO: check if generic type is asked
-            if (_registrationMapping.TryGetValue(typeKey.Type, out var registrations) && registrations.TryFindRegistration(typeKey, out var targetRegistration))
+            if (_registrationMappings.TryGetValue(typeKey.Type, out var registrations) && registrations.TryFindRegistration(typeKey, out var targetRegistration))
                 return targetRegistration;
 
             targetRegistration = _services.AutomaticRegistrationFactory.CreateDefaultRegistration(typeKey, this);
@@ -125,6 +133,11 @@ namespace Light.DependencyInjection
                 Register(targetRegistration);
 
             return targetRegistration;
+        }
+
+        public DiContainer CreateChildContainer()
+        {
+            return new DiContainer(this);
         }
 
         public void Dispose()

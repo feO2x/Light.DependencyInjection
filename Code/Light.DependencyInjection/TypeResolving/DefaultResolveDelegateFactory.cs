@@ -16,7 +16,7 @@ namespace Light.DependencyInjection.TypeResolving
 
         private static readonly ConstructorInfo ResolveContextConstructor = typeof(ResolveContext).GetTypeInfo()
                                                                                                   .DeclaredConstructors
-                                                                                                  .FindConstructorWithArgumentTypes(typeof(Func<object>), typeof(ContainerScope), typeof(Registration));
+                                                                                                  .FindConstructorWithArgumentTypes(typeof(Func<object>), typeof(DiContainer), typeof(Registration));
 
         private readonly IReadOnlyDictionary<Type, IInstanceManipulationExpressionFactory> _instanceManipulationExpressionFactories;
 
@@ -58,13 +58,13 @@ namespace Light.DependencyInjection.TypeResolving
             var singletonLifetime = registration.LifeTime as SingletonLifetime;
             if (singletonLifetime != null)
             {
-                var singleton = singletonLifetime.ResolveInstance(new ResolveContext(createInstanceDelegate, container.ContainerScope, registration));
+                var singleton = singletonLifetime.ResolveInstance(new ResolveContext(createInstanceDelegate, container, registration));
                 return Expression.Constant(singleton, registration.TargetType);
             }
 
             var resolveContextExpression = Expression.New(ResolveContextConstructor,
                                                           Expression.Constant(createInstanceDelegate),
-                                                          Expression.Constant(container.ContainerScope),
+                                                          Expression.Constant(container),
                                                           Expression.Constant(registration));
             return Expression.Convert(Expression.Call(Expression.Constant(registration.LifeTime),
                                                       LifetimeResolveInstanceMethod,
