@@ -8,7 +8,7 @@ namespace Light.DependencyInjection.Registrations
     public sealed class Registration : IEquatable<Registration>
     {
         public readonly bool IsTrackingDisposables;
-        public readonly Lifetime LifeTime;
+        public readonly Lifetime Lifetime;
         public readonly IReadOnlyList<Type> MappedAbstractionTypes;
         public readonly TypeConstructionInfo TypeConstructionInfo;
         public readonly TypeKey TypeKey;
@@ -16,7 +16,7 @@ namespace Light.DependencyInjection.Registrations
         public Registration(TypeKey typeKey, Lifetime lifeTime, TypeConstructionInfo typeConstructionInfo = null, IReadOnlyList<Type> mappedAbstractionTypes = null, bool isTrackingDisposables = true)
         {
             TypeKey = typeKey.MustNotBeEmpty(nameof(typeKey));
-            LifeTime = lifeTime.MustNotBeNull(nameof(lifeTime));
+            Lifetime = lifeTime.MustNotBeNull(nameof(lifeTime));
             if (lifeTime.IsCreatingNewInstances == false) return;
 
             TypeConstructionInfo = typeConstructionInfo.MustNotBeNull(message: "The Type Construction Info must not be null when the Lifetime of the registration is able to create new instances of the target type.");

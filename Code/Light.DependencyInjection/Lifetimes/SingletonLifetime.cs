@@ -7,7 +7,7 @@ namespace Light.DependencyInjection.Lifetimes
     {
         private object _instance;
 
-        public override object ResolveInstance(ResolveContext resolveContext)
+        public override object ResolveInstance(IResolveContext resolveContext)
         {
             if (_instance != null)
                 return _instance;

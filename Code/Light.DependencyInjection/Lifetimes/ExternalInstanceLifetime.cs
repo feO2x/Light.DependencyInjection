@@ -12,7 +12,7 @@ namespace Light.DependencyInjection.Lifetimes
             Value = value.MustNotBeNull(nameof(value));
         }
 
-        public override object ResolveInstance(ResolveContext resolveContext)
+        public override object ResolveInstance(IResolveContext resolveContext)
         {
             return Value;
         }

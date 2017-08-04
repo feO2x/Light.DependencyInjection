@@ -2,6 +2,7 @@
 using Light.DependencyInjection.DataStructures;
 using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.Services;
+using Light.DependencyInjection.TypeResolving;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection
@@ -9,19 +10,19 @@ namespace Light.DependencyInjection
     public class DiContainer : IDisposable
     {
         private readonly IConcurrentDictionary<Type, IConcurrentList<Registration>> _registrationMappings;
-        private readonly IConcurrentDictionary<TypeKey, Func<DiContainer, object>> _resolveDelegates;
+        private readonly IConcurrentDictionary<TypeKey, ResolveDelegate> _resolveDelegates;
         private readonly ContainerServices _services;
-        public readonly ContainerScope ContainerScope;
+        public readonly ContainerScope Scope;
 
         public DiContainer(ContainerServices services = null)
         {
             _services = services ?? new ContainerServicesBuilder().Build();
-            ContainerScope = _services.ContainerScopeFactory.CreateScope();
+            Scope = _services.ContainerScopeFactory.CreateScope();
             _registrationMappings = _services.ConcurrentDictionaryFactory.Create<Type, IConcurrentList<Registration>>();
-            _resolveDelegates = _services.ConcurrentDictionaryFactory.Create<TypeKey, Func<DiContainer, object>>();
+            _resolveDelegates = _services.ConcurrentDictionaryFactory.Create<TypeKey, ResolveDelegate>();
 
-            ContainerScope.TryAddDisposable(_registrationMappings);
-            ContainerScope.TryAddDisposable(_resolveDelegates);
+            Scope.TryAddDisposable(_registrationMappings);
+            Scope.TryAddDisposable(_resolveDelegates);
             _services.SetupContainer?.Invoke(this);
         }
 
@@ -30,7 +31,7 @@ namespace Light.DependencyInjection
             _registrationMappings = parentContainer._registrationMappings;
             _resolveDelegates = parentContainer._resolveDelegates;
             _services = parentContainer._services;
-            ContainerScope = _services.ContainerScopeFactory.CreateScope(parentContainer.ContainerScope);
+            Scope = _services.ContainerScopeFactory.CreateScope(parentContainer.Scope);
         }
 
         public ContainerServices Services => _services;
@@ -80,7 +81,7 @@ namespace Light.DependencyInjection
             return this;
         }
 
-        public DiContainer RegisterInstance(object value, Action<IExternalInstanceOptions> configureRegistration = null)
+        public DiContainer Register(object value, Action<IExternalInstanceOptions> configureRegistration = null)
         {
             value.MustNotBeNull(nameof(value));
 
@@ -114,12 +115,12 @@ namespace Light.DependencyInjection
         {
             typeKey.MustNotBeEmpty(nameof(typeKey));
 
-            if (_resolveDelegates.TryGetValue(typeKey, out var resolveDelegate))
-                return resolveDelegate(this);
-
-            resolveDelegate = _services.ResolveDelegateFactory.Create(typeKey, this);
-            resolveDelegate = _resolveDelegates.GetOrAdd(typeKey, resolveDelegate);
-            return resolveDelegate(this);
+            if (_resolveDelegates.TryGetValue(typeKey, out var resolveDelegate) == false)
+            {
+                resolveDelegate = _services.ResolveDelegateFactory.Create(typeKey, this);
+                resolveDelegate = _resolveDelegates.GetOrAdd(typeKey, resolveDelegate);
+            }
+            return resolveDelegate(new ResolveContext(this));
         }
 
         public Registration GetRegistration(TypeKey typeKey)
@@ -142,7 +143,7 @@ namespace Light.DependencyInjection
 
         public void Dispose()
         {
-            ContainerScope.Dispose();
+            Scope.Dispose();
         }
     }
 }

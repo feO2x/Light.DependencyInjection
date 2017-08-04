@@ -23,5 +23,10 @@ namespace Light.DependencyInjection.Registrations
         {
             return registrationOptions.UseLifetime(HierarchicalScopedLifetime.Instance);
         }
+
+        public static TOptions UsePerResolveLifetime<TOptions>(this TOptions registrationOptions) where TOptions : ICreateInstanceOptions<TOptions>
+        {
+            return registrationOptions.UseLifetime(PerResolveLifetime.Instance);
+        }
     }
 }

@@ -39,7 +39,7 @@ namespace Light.DependencyInjection.Tests
         [MemberData(nameof(ExternalInstanceData))]
         public void ExternalInstanceResolve<T>(T instance)
         {
-            var container = new DiContainer().RegisterInstance(instance);
+            var container = new DiContainer().Register(instance);
 
             var resolvedInstance = container.Resolve<T>();
 
@@ -160,7 +160,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must be able to perform Field Injection when this is configured for the target type.")]
         public void FieldInjection()
         {
-            var container = new DiContainer().RegisterInstance(true, options => options.UseRegistrationName("The Boolean"))
+            var container = new DiContainer().Register(true, options => options.UseRegistrationName("The Boolean"))
                                              .Register<ClassWithPublicField>(options => options.AddFieldInjection(nameof(ClassWithPublicField.PublicField), "The Boolean"));
 
             var instanceWithPublicField = container.Resolve<ClassWithPublicField>();
@@ -177,5 +177,21 @@ namespace Light.DependencyInjection.Tests
 
             instance.Should().NotBeNull().And.BeAssignableTo(targetType);
         }
+
+        [Fact(DisplayName = "The DI Container must be able to inject the same instance during a single Resolve call when the PerResolveLifetime is used.")]
+        public void PerResolveInstance()
+        {
+            var container = new DiContainer().Register<ClassWithoutDependencies>(options => options.UsePerResolveLifetime())
+                                             .Register<ClassWithDependency>()
+                                             .Register<ClassWithTwoDependencies>();
+
+            var firstObjectGraph = container.Resolve<ClassWithTwoDependencies>();
+            var secondOjbectGraph = container.Resolve<ClassWithTwoDependencies>();
+
+            firstObjectGraph.A.Should().BeSameAs(firstObjectGraph.B.A);
+            secondOjbectGraph.A.Should().BeSameAs(secondOjbectGraph.B.A);
+            firstObjectGraph.A.Should().NotBeSameAs(secondOjbectGraph.A);
+        }
+
     }
 }

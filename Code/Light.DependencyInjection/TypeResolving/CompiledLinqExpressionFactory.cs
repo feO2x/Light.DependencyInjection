@@ -14,15 +14,10 @@ namespace Light.DependencyInjection.TypeResolving
         private static readonly MethodInfo LifetimeResolveInstanceMethod = typeof(Lifetime).GetTypeInfo()
                                                                                            .GetDeclaredMethod(nameof(Lifetime.ResolveInstance));
 
-        private static readonly ConstructorInfo ResolveContextConstructor = typeof(ResolveContext).GetTypeInfo()
-                                                                                                  .DeclaredConstructors
-                                                                                                  .FindConstructorWithArgumentTypes(typeof(Func<DiContainer, object>), typeof(DiContainer), typeof(Registration));
-
+        private static readonly MethodInfo ChangeResolvedTypeMethod = KnownTypes.ResolveContextType.GetTypeInfo().GetDeclaredMethod(nameof(ResolveContext.ChangeResolvedType));
+        private static readonly ParameterExpression ResolveContextParameterExpression = Expression.Parameter(KnownTypes.ResolveContextType);
         private readonly IReadOnlyDictionary<Type, IInstanceManipulationExpressionFactory> _instanceManipulationExpressionFactories;
-
         private readonly IReadOnlyDictionary<Type, IInstantiationExpressionFactory> _instantiationExpressionFactories;
-
-        private static readonly ParameterExpression DiContainerExpression = Expression.Parameter(KnownTypes.DiContainerType);
 
         public CompiledLinqExpressionFactory(IReadOnlyDictionary<Type, IInstantiationExpressionFactory> instantiationExpressionFactories,
                                              IReadOnlyDictionary<Type, IInstanceManipulationExpressionFactory> instanceManipulationExpressionFactories)
@@ -34,52 +29,58 @@ namespace Light.DependencyInjection.TypeResolving
             _instanceManipulationExpressionFactories = instanceManipulationExpressionFactories;
         }
 
-        public Func<DiContainer, object> Create(TypeKey typeKey, DiContainer container)
+        public ResolveDelegate Create(TypeKey typeKey, DiContainer container)
         {
             typeKey.MustNotBeEmpty(nameof(typeKey));
             container.MustNotBeNull(nameof(container));
 
-            var diContainerExpression = DiContainerExpression;
-            var resolveExpression = CreateResolveExpressionRecursively(typeKey, container, diContainerExpression);
-            return resolveExpression.CompileToResolveDelegate(diContainerExpression);
+            var resolveExpression = CreateResolveExpressionRecursively(typeKey, container);
+            return resolveExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
         }
 
-        private Expression CreateResolveExpressionRecursively(TypeKey targetTypeKey, DiContainer container, ParameterExpression diContainerExpression)
+        private Expression CreateResolveExpressionRecursively(TypeKey targetTypeKey, DiContainer container)
         {
+            // First get the registration that maps to the target type key
             var registration = container.GetRegistration(targetTypeKey);
 
-            if (registration.LifeTime.IsCreatingNewInstances == false)
+            // Check if the lifetime of the registration would need to create a new instance.
+            // If not, then we can immediately get the instance of the lifetime without creating a ResolveContext
+            if (registration.Lifetime.IsCreatingNewInstances == false)
             {
-                var instance = registration.LifeTime.ResolveInstance(new ResolveContext());
+                var instance = registration.Lifetime.ResolveInstance(null);
                 return Expression.Constant(instance, registration.TargetType);
             }
 
-            var constructionExpression = CreateConstructionExpression(registration, container, diContainerExpression);
+            // Else we need to create a construction expression that instantiates the target type and performs any instance manipulations
+            var constructionExpression = CreateConstructionExpression(registration, container);
 
-            // TODO: provide an extension point to create expressions for known lifetime types that do not require the compilation of the construction expression
-            var createInstanceDelegate = constructionExpression.CompileToResolveDelegate(diContainerExpression);
-            var singletonLifetime = registration.LifeTime as SingletonLifetime;
-            if (singletonLifetime != null)
+            // TODO: provide an extension point to create expressions for known lifetimes that do not require the compilation of the construction expression
+            // Compile the construction expression to a delegate so that it can be used with lifetimes
+            var compiledDelegate = constructionExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
+
+            // If it is a singleton lifetime, then immediately resolve the instance and return it as a constant expression
+            if (registration.Lifetime is SingletonLifetime singletonLifetime)
             {
-                var singleton = singletonLifetime.ResolveInstance(new ResolveContext(createInstanceDelegate, container, registration));
+                var singleton = singletonLifetime.ResolveInstance(new ResolveContext(container, registration, compiledDelegate));
                 return Expression.Constant(singleton, registration.TargetType);
             }
 
-            var resolveContextExpression = Expression.New(ResolveContextConstructor,
-                                                          Expression.Constant(createInstanceDelegate),
-                                                          diContainerExpression,
-                                                          Expression.Constant(registration));
-            return Expression.Convert(Expression.Call(Expression.Constant(registration.LifeTime),
+            // Else create a expression that calls the target lifetime using the compiled delegate
+            var resolveContextExpression = Expression.Call(ResolveContextParameterExpression,
+                                                           ChangeResolvedTypeMethod,
+                                                           Expression.Constant(registration),
+                                                           Expression.Constant(compiledDelegate));
+            return Expression.Convert(Expression.Call(Expression.Constant(registration.Lifetime),
                                                       LifetimeResolveInstanceMethod,
                                                       resolveContextExpression),
                                       registration.TargetType);
         }
 
-        private Expression CreateConstructionExpression(Registration registration, DiContainer container, ParameterExpression diContainerExpression)
+        private Expression CreateConstructionExpression(Registration registration, DiContainer container)
         {
             // Create the expression that instantiates the target object
             var instantiationDependencies = registration.TypeConstructionInfo.InstantiationInfo.InstantiationDependencies;
-            var parameterExpressions = ResolveDependenciesRecursivelyIfNecessary(instantiationDependencies, container, diContainerExpression);
+            var parameterExpressions = ResolveDependenciesRecursivelyIfNecessary(instantiationDependencies, container);
 
             // Use the correct factory to create the expression that instantiates the target type
             if (_instantiationExpressionFactories.TryGetValue(registration.TypeConstructionInfo.InstantiationInfo.GetType(), out var instantiationExpressionFactory) == false)
@@ -94,14 +95,14 @@ namespace Light.DependencyInjection.TypeResolving
             // The first statement is always the assignment of the instantiationExpression to a variable that holds the instance
             var instanceVariableExpression = Expression.Variable(registration.TargetType);
             var assignVariableExpression = Expression.Assign(instanceVariableExpression, instantiationExpression);
-            var blockExpressions = new Expression[registration.TypeConstructionInfo.InstanceManipulations.Count + 2];   // +2 for assignment and return statements
+            var blockExpressions = new Expression[registration.TypeConstructionInfo.InstanceManipulations.Count + 2]; // +2 for assignment and return statements
             blockExpressions[0] = assignVariableExpression; // variable assign statement
 
             // The subsequent statements hold the instance manipulations (e.g. property injection, field injection, calling methods, etc.)
             for (var i = 0; i < registration.TypeConstructionInfo.InstanceManipulations.Count; i++)
             {
                 var instanceManipulation = registration.TypeConstructionInfo.InstanceManipulations[i];
-                parameterExpressions = ResolveDependenciesRecursivelyIfNecessary(instanceManipulation.Dependencies, container, diContainerExpression);
+                parameterExpressions = ResolveDependenciesRecursivelyIfNecessary(instanceManipulation.Dependencies, container);
 
                 if (_instanceManipulationExpressionFactories.TryGetValue(instanceManipulation.GetType(), out var instanceManipulationExpressionFactory) == false)
                     throw new InvalidOperationException($"There is no instanceManipulationExpressionFactory present for \"{instanceManipulation.GetType()}\". Please check that \"{nameof(CompiledLinqExpressionFactory)}\" is created with all necessary dependencies in \"{nameof(ContainerServices)}\".");
@@ -113,7 +114,7 @@ namespace Light.DependencyInjection.TypeResolving
             return Expression.Block(registration.TargetType, new[] { instanceVariableExpression }, blockExpressions);
         }
 
-        private Expression[] ResolveDependenciesRecursivelyIfNecessary(IReadOnlyList<Dependency> dependencies, DiContainer container, ParameterExpression diContainerExpression)
+        private Expression[] ResolveDependenciesRecursivelyIfNecessary(IReadOnlyList<Dependency> dependencies, DiContainer container)
         {
             if (dependencies.IsNullOrEmpty())
                 return null;
@@ -122,7 +123,7 @@ namespace Light.DependencyInjection.TypeResolving
             for (var i = 0; i < dependencies.Count; i++)
             {
                 var dependency = dependencies[i];
-                resolvedDependencyExpressions[i] = CreateResolveExpressionRecursively(new TypeKey(dependency.DependencyType, dependency.TargetRegistrationName), container, diContainerExpression);
+                resolvedDependencyExpressions[i] = CreateResolveExpressionRecursively(new TypeKey(dependency.DependencyType, dependency.TargetRegistrationName), container);
             }
 
             return resolvedDependencyExpressions;

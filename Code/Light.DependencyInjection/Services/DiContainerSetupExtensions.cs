@@ -14,7 +14,7 @@ namespace Light.DependencyInjection.Services
         public static DiContainer AddDefaultContainerRegistration(this DiContainer container)
         {
             return container.MustNotBeNull(nameof(container))
-                            .RegisterInstance(container, options => options.DisableIDisposableTracking());
+                            .Register(container, options => options.DisableIDisposableTracking());
         }
     }
 }

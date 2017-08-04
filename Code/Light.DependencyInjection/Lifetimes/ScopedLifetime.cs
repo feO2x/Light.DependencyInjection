@@ -6,9 +6,9 @@ namespace Light.DependencyInjection.Lifetimes
     {
         public static readonly ScopedLifetime Instance = new ScopedLifetime();
 
-        public override object ResolveInstance(ResolveContext resolveContext)
+        public override object ResolveInstance(IResolveContext resolveContext)
         {
-            return resolveContext.Container.ContainerScope.TryGetScopedInstance(resolveContext.Registration.TypeKey, out var instance) ? instance : resolveContext.Container.ContainerScope.GetOrAddScopedInstance(resolveContext.Registration.TypeKey, resolveContext.CreateInstance);
+            return resolveContext.Container.Scope.TryGetScopedInstance(resolveContext.Registration.TypeKey, out var instance) ? instance : resolveContext.Container.Scope.GetOrAddScopedInstance(resolveContext.Registration.TypeKey, resolveContext.CreateInstance);
         }
     }
 }

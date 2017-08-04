@@ -15,7 +15,7 @@ namespace Light.DependencyInjection.Lifetimes
         /// <summary>
         ///     Always creates a new instance using the specified delegate.
         /// </summary>
-        public override object ResolveInstance(ResolveContext resolveContext)
+        public override object ResolveInstance(IResolveContext resolveContext)
         {
             return resolveContext.CreateInstance();
         }
