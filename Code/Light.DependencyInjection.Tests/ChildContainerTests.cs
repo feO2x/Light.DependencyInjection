@@ -1,6 +1,8 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using Light.DependencyInjection.Registrations;
 using Xunit;
+using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
 namespace Light.DependencyInjection.Tests
 {
@@ -18,10 +20,11 @@ namespace Light.DependencyInjection.Tests
             scopedInstanceFromChildContainer.Should().BeSameAs(scopedInstanceFromParentContainer);
         }
 
-        [Fact(DisplayName = "A child container must create its own scoped instance when the parent container has none available.")]
-        public void DifferentScopedInstances()
+        [Theory(DisplayName = "A child container must create its own scoped instance when the parent container has none available.")]
+        [MemberData(nameof(DifferentScopedInstancesData))]
+        public void DifferentScopedInstances(Action<IRegistrationOptions<ClassWithoutDependencies>> configureLifetime)
         {
-            var parentContainer = new DiContainer().Register<ClassWithoutDependencies>(options => options.UseScopedLifetime());
+            var parentContainer = new DiContainer().Register(configureLifetime);
 
             var childContainer1 = parentContainer.CreateChildContainer();
             var instanceOf1 = childContainer1.Resolve<ClassWithoutDependencies>();
@@ -29,6 +32,35 @@ namespace Light.DependencyInjection.Tests
             var instanceOf2 = childContainer2.Resolve<ClassWithoutDependencies>();
 
             instanceOf1.Should().NotBeSameAs(instanceOf2);
+        }
+
+        public static readonly TestData DifferentScopedInstancesData =
+            new[]
+            {
+                new object[]
+                {
+                    new Action<IRegistrationOptions<ClassWithoutDependencies>>(options => options.UseScopedLifetime())
+                },
+                new object[]
+                {
+                    new Action<IRegistrationOptions<ClassWithoutDependencies>>(options => options.UseHierarchicalScopedLifetime())
+                }
+            };
+
+        [Fact(DisplayName = "A child container must not return the scoped instances of the parent when a HierarchicalScopedLifetime is used.")]
+        public void DoNotAccessParentScopedInstancesForHierarchicalScopedLifetimeRegistrations()
+        {
+            var parentContainer = new DiContainer().Register<ClassWithoutDependencies>(options => options.UseHierarchicalScopedLifetime());
+            var parentInstance1 = parentContainer.Resolve<ClassWithoutDependencies>();
+            var parentInstance2 = parentContainer.Resolve<ClassWithoutDependencies>();
+            parentInstance1.Should().BeSameAs(parentInstance2);
+
+            var childContainer = parentContainer.CreateChildContainer();
+            var childInstance1 = childContainer.Resolve<ClassWithoutDependencies>();
+            var childInstance2 = childContainer.Resolve<ClassWithoutDependencies>();
+
+            childInstance1.Should().BeSameAs(childInstance2);
+            childInstance1.Should().NotBeSameAs(parentInstance1);
         }
     }
 }

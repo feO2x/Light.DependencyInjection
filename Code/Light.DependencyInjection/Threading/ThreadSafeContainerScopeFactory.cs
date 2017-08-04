@@ -1,4 +1,6 @@
-﻿namespace Light.DependencyInjection.Services
+﻿using Light.DependencyInjection.Services;
+
+namespace Light.DependencyInjection.Threading
 {
     public sealed class ThreadSafeContainerScopeFactory : IContainerScopeFactory
     {

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Light.DependencyInjection.Registrations;
+using Light.DependencyInjection.Services;
 
-namespace Light.DependencyInjection.Services
+namespace Light.DependencyInjection.Threading
 {
     public sealed class ThreadSafeContainerScope : ContainerScope
     {
@@ -24,19 +25,19 @@ namespace Light.DependencyInjection.Services
             }
         }
 
-        public override bool TryGetScopedInstance(TypeKey typeKey, out object instance)
+        public override bool TryGetScopedInstance(TypeKey typeKey, out object instance, bool searchInParentScope = true)
         {
             lock (_lock)
             {
-                return base.TryGetScopedInstance(typeKey, out instance);
+                return base.TryGetScopedInstance(typeKey, out instance, searchInParentScope);
             }
         }
 
-        public override bool GetOrAddScopedInstance(TypeKey typeKey, Func<object> createInstance, out object instance)
+        public override bool GetOrAddScopedInstance(TypeKey typeKey, Func<object> createInstance, out object instance, bool searchInParentScope = true)
         {
             lock (_lock)
             {
-                return base.GetOrAddScopedInstance(typeKey, createInstance, out instance);
+                return base.GetOrAddScopedInstance(typeKey, createInstance, out instance, searchInParentScope);
             }
         }
 

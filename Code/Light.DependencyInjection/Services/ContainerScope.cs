@@ -26,19 +26,19 @@ namespace Light.DependencyInjection.Services
             }
         }
 
-        public virtual bool TryGetScopedInstance(TypeKey typeKey, out object instance)
+        public virtual bool TryGetScopedInstance(TypeKey typeKey, out object instance, bool searchInParentScope = true)
         {
             if (_scopedObjects.TryGetValue(typeKey, out instance))
                 return true;
 
-            return ParentScope != null && ParentScope.TryGetScopedInstance(typeKey, out instance);
+            return searchInParentScope && ParentScope != null && ParentScope.TryGetScopedInstance(typeKey, out instance);
         }
 
-        public virtual bool GetOrAddScopedInstance(TypeKey typeKey, Func<object> createInstance, out object instance)
+        public virtual bool GetOrAddScopedInstance(TypeKey typeKey, Func<object> createInstance, out object instance, bool searchInParentScope = true)
         {
             createInstance.MustNotBeNull(nameof(createInstance));
 
-            if (TryGetScopedInstance(typeKey, out instance))
+            if (TryGetScopedInstance(typeKey, out instance, searchInParentScope))
                 return false;
 
             instance = createInstance();
@@ -46,10 +46,10 @@ namespace Light.DependencyInjection.Services
             return true;
         }
 
-        public object GetOrAddScopedInstance(TypeKey typeKey, Func<object> createInstance)
+        public object GetOrAddScopedInstance(TypeKey typeKey, Func<object> createInstance, bool searchInParentScope = true)
         {
             object instance;
-            GetOrAddScopedInstance(typeKey, createInstance, out instance);
+            GetOrAddScopedInstance(typeKey, createInstance, out instance, searchInParentScope);
             return instance;
         }
 
