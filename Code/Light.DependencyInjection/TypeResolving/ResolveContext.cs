@@ -10,15 +10,16 @@ namespace Light.DependencyInjection.TypeResolving
         private ResolveDelegate _createInstance;
         private Dictionary<TypeKey, object> _perResolveInstances;
         private Registration _registration;
+        private DiContainer _container;
 
         public ResolveContext(DiContainer container)
         {
-            Container = container.MustNotBeNull(nameof(container));
+            _container = container.MustNotBeNull(nameof(container));
         }
 
         public ResolveContext(DiContainer container, Registration registration, ResolveDelegate createInstance)
         {
-            Container = container.MustNotBeNull(nameof(container));
+            _container = container.MustNotBeNull(nameof(container));
             _registration = registration.MustNotBeNull(nameof(registration));
             _createInstance = createInstance.MustNotBeNull(nameof(createInstance));
         }
@@ -34,7 +35,7 @@ namespace Light.DependencyInjection.TypeResolving
             return instance;
         }
 
-        public DiContainer Container { get; }
+        public DiContainer Container => _container;
 
         public Registration Registration => _registration;
 
@@ -80,6 +81,18 @@ namespace Light.DependencyInjection.TypeResolving
         {
             _registration = registration.MustNotBeNull(nameof(registration));
             _createInstance = createInstance.MustNotBeNull(nameof(createInstance));
+            return this;
+        }
+
+        public ResolveContext ChangeContainer(DiContainer container)
+        {
+            _container = container.MustNotBeNull(nameof(container));
+            return this;
+        }
+
+        public ResolveContext Clear()
+        {
+            _perResolveInstances?.Clear();
             return this;
         }
     }

@@ -20,6 +20,7 @@ namespace Light.DependencyInjection.Services
         public readonly IResolveDelegateFactory ResolveDelegateFactory;
         public readonly Action<DiContainer> SetupContainer;
         public readonly IAutomaticRegistrationFactory AutomaticRegistrationFactory;
+        public readonly IResolveContextFactory ResolveContextFactory;
 
         public ContainerServices(IConcurrentDictionaryFactory concurrentDictionaryFactory,
                                  IConcurrentListFactory concurrentListFactory,
@@ -28,6 +29,7 @@ namespace Light.DependencyInjection.Services
                                  IContainerScopeFactory containerScopeFactory,
                                  IResolveDelegateFactory resolveDelegateFactory,
                                  IAutomaticRegistrationFactory automaticRegistrationFactory,
+                                 IResolveContextFactory resolveContextFactory,
                                  Action<DiContainer> setupContainer = null)
         {
             ConcurrentDictionaryFactory = concurrentDictionaryFactory.MustNotBeNull(nameof(concurrentDictionaryFactory));
@@ -37,6 +39,7 @@ namespace Light.DependencyInjection.Services
             ContainerScopeFactory = containerScopeFactory.MustNotBeNull(nameof(containerScopeFactory));
             ResolveDelegateFactory = resolveDelegateFactory.MustNotBeNull(nameof(resolveDelegateFactory));
             AutomaticRegistrationFactory = automaticRegistrationFactory.MustNotBeNull(nameof(automaticRegistrationFactory));
+            ResolveContextFactory = resolveContextFactory.MustNotBeNull(nameof(resolveContextFactory));
             SetupContainer = setupContainer;
         }
 

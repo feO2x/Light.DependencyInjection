@@ -11,48 +11,46 @@ namespace Light.DependencyInjection
     {
         private readonly IConcurrentDictionary<Type, IConcurrentList<Registration>> _registrationMappings;
         private readonly IConcurrentDictionary<TypeKey, ResolveDelegate> _resolveDelegates;
-        private readonly ContainerServices _services;
+        public readonly ContainerServices Services;
         public readonly ContainerScope Scope;
 
         public DiContainer(ContainerServices services = null)
         {
-            _services = services ?? new ContainerServicesBuilder().Build();
-            Scope = _services.ContainerScopeFactory.CreateScope();
-            _registrationMappings = _services.ConcurrentDictionaryFactory.Create<Type, IConcurrentList<Registration>>();
-            _resolveDelegates = _services.ConcurrentDictionaryFactory.Create<TypeKey, ResolveDelegate>();
+            Services = services ?? new ContainerServicesBuilder().Build();
+            Scope = Services.ContainerScopeFactory.CreateScope();
+            _registrationMappings = Services.ConcurrentDictionaryFactory.Create<Type, IConcurrentList<Registration>>();
+            _resolveDelegates = Services.ConcurrentDictionaryFactory.Create<TypeKey, ResolveDelegate>();
 
             Scope.TryAddDisposable(_registrationMappings);
             Scope.TryAddDisposable(_resolveDelegates);
-            _services.SetupContainer?.Invoke(this);
+            Services.SetupContainer?.Invoke(this);
         }
 
         private DiContainer(DiContainer parentContainer)
         {
             _registrationMappings = parentContainer._registrationMappings;
             _resolveDelegates = parentContainer._resolveDelegates;
-            _services = parentContainer._services;
-            Scope = _services.ContainerScopeFactory.CreateScope(parentContainer.Scope);
+            Services = parentContainer.Services;
+            Scope = Services.ContainerScopeFactory.CreateScope(parentContainer.Scope);
         }
-
-        public ContainerServices Services => _services;
 
         public DiContainer Register<T>(Action<IRegistrationOptions<T>> configureRegistration = null)
         {
-            var registrationOptions = _services.CreateRegistrationOptions<T>();
+            var registrationOptions = Services.CreateRegistrationOptions<T>();
             configureRegistration?.Invoke(registrationOptions);
             return Register(registrationOptions.CreateRegistration());
         }
 
         public DiContainer Register(Type targetType, Action<IRegistrationOptions> configureRegistration = null)
         {
-            var registrationOptions = _services.CreateRegistrationOptions(targetType);
+            var registrationOptions = Services.CreateRegistrationOptions(targetType);
             configureRegistration?.Invoke(registrationOptions);
             return Register(registrationOptions.CreateRegistration());
         }
 
         public DiContainer Register<TAbstract, TConcrete>(Action<IRegistrationOptions<TConcrete>> configureRegistration = null) where TConcrete : TAbstract
         {
-            var registrationOptions = _services.CreateRegistrationOptions<TConcrete>();
+            var registrationOptions = Services.CreateRegistrationOptions<TConcrete>();
             registrationOptions.MapToAbstractions(typeof(TAbstract));
             configureRegistration?.Invoke(registrationOptions);
             return Register(registrationOptions.CreateRegistration());
@@ -60,7 +58,7 @@ namespace Light.DependencyInjection
 
         public DiContainer Register(Type abstractionType, Type concreteType, Action<IRegistrationOptions> configureRegistration = null)
         {
-            var registrationOptions = _services.CreateRegistrationOptions(concreteType);
+            var registrationOptions = Services.CreateRegistrationOptions(concreteType);
             registrationOptions.MapToAbstractions(abstractionType);
             configureRegistration?.Invoke(registrationOptions);
             return Register(registrationOptions.CreateRegistration());
@@ -85,7 +83,7 @@ namespace Light.DependencyInjection
         {
             value.MustNotBeNull(nameof(value));
 
-            var registrationOptions = _services.CreateExternalInstanceOptions(value);
+            var registrationOptions = Services.CreateExternalInstanceOptions(value);
             configureRegistration?.Invoke(registrationOptions);
 
             return Register(registrationOptions.CreateRegistration());
@@ -95,7 +93,7 @@ namespace Light.DependencyInjection
         {
             if (_registrationMappings.TryGetValue(type, out var typeRegistrations) == false)
             {
-                typeRegistrations = _services.ConcurrentListFactory.Create<Registration>();
+                typeRegistrations = Services.ConcurrentListFactory.Create<Registration>();
                 typeRegistrations = _registrationMappings.GetOrAdd(type, typeRegistrations);
             }
             typeRegistrations.AddOrUpdate(registration);
@@ -117,10 +115,10 @@ namespace Light.DependencyInjection
 
             if (_resolveDelegates.TryGetValue(typeKey, out var resolveDelegate) == false)
             {
-                resolveDelegate = _services.ResolveDelegateFactory.Create(typeKey, this);
+                resolveDelegate = Services.ResolveDelegateFactory.Create(typeKey, this);
                 resolveDelegate = _resolveDelegates.GetOrAdd(typeKey, resolveDelegate);
             }
-            return resolveDelegate(new ResolveContext(this));
+            return resolveDelegate(Services.ResolveContextFactory.Create(this));
         }
 
         public Registration GetRegistration(TypeKey typeKey)
@@ -129,7 +127,7 @@ namespace Light.DependencyInjection
             if (_registrationMappings.TryGetValue(typeKey.Type, out var registrations) && registrations.TryFindRegistration(typeKey, out var targetRegistration))
                 return targetRegistration;
 
-            targetRegistration = _services.AutomaticRegistrationFactory.CreateDefaultRegistration(typeKey, this);
+            targetRegistration = Services.AutomaticRegistrationFactory.CreateDefaultRegistration(typeKey, this);
             if (targetRegistration != null)
                 Register(targetRegistration);
 

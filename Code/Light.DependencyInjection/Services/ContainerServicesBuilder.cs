@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Light.DependencyInjection.DataStructures;
 using Light.DependencyInjection.Registrations;
+using Light.DependencyInjection.Threading;
 using Light.DependencyInjection.TypeResolving;
 
 namespace Light.DependencyInjection.Services
@@ -16,6 +17,7 @@ namespace Light.DependencyInjection.Services
         private IResolveDelegateFactory _resolveDelegateFactory = ContainerServices.CreateDefaultResolveDelegateFactory();
         private Action<DiContainer> _setupContainer = ContainerServices.DefaultSetupContainer;
         private IAutomaticRegistrationFactory _automaticRegistrationFactory = new DefaultAutomaticRegistrationFactory();
+        private IResolveContextFactory _resolveContextFactory = new PerThreadResolveContextFactory();
 
         public ContainerServicesBuilder WithConcurrentDictionaryFactory(IConcurrentDictionaryFactory concurrentDictionaryFactory)
         {
@@ -71,6 +73,12 @@ namespace Light.DependencyInjection.Services
             return this;
         }
 
+        public ContainerServicesBuilder WithResolveContextFactory(IResolveContextFactory resolveContextFactory)
+        {
+            _resolveContextFactory = resolveContextFactory;
+            return this;
+        }
+
         public ContainerServices Build()
         {
             return new ContainerServices(_concurrentDictionaryFactory,
@@ -80,6 +88,7 @@ namespace Light.DependencyInjection.Services
                                          _containerScopeFactory,
                                          _resolveDelegateFactory,
                                          _automaticRegistrationFactory,
+                                         _resolveContextFactory,
                                          _setupContainer);
         }
     }
