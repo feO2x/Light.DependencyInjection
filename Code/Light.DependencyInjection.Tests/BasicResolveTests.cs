@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Threading;
 using FluentAssertions;
 using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
@@ -193,5 +195,40 @@ namespace Light.DependencyInjection.Tests
             firstObjectGraph.A.Should().NotBeSameAs(secondOjbectGraph.A);
         }
 
+        [Fact(DisplayName = "The DI Container must be able to resolve instances per thread when they are configured with the PerThreadLifetime.")]
+        public void PerThreadInstance()
+        {
+            var container = new DiContainer().Register<ThreadSaveClass>(options => options.UsePerThreadLifetime());
+            var exceptions = new ConcurrentBag<Exception>();
+
+            void ResolvePerThreadInstances()
+            {
+                var firstInstance = container.Resolve<ThreadSaveClass>();
+                var secondInstance = container.Resolve<ThreadSaveClass>();
+
+                try
+                {
+                    firstInstance.Should().BeSameAs(secondInstance);
+                }
+                catch (Exception exception)
+                {
+                    exceptions.Add(exception);
+                }
+            }
+
+            var thread1 = new Thread(ResolvePerThreadInstances);
+            var thread2 = new Thread(ResolvePerThreadInstances);
+            var thread3 = new Thread(ResolvePerThreadInstances);
+
+            thread1.Start();
+            thread2.Start();
+            thread3.Start();
+            thread1.Join();
+            thread2.Join();
+            thread3.Join();
+
+            ThreadSaveClass.NumberOfInstancesCreated.Should().Be(3);
+            exceptions.Should().BeEmpty();
+        }
     }
 }

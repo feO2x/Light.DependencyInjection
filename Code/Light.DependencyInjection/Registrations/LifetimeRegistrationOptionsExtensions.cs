@@ -28,5 +28,10 @@ namespace Light.DependencyInjection.Registrations
         {
             return registrationOptions.UseLifetime(PerResolveLifetime.Instance);
         }
+
+        public static TOptions UsePerThreadLifetime<TOptions>(this TOptions registrationOptions) where TOptions : ICreateInstanceOptions<TOptions>
+        {
+            return registrationOptions.UseLifetime(new PerThreadLifetime());
+        }
     }
 }

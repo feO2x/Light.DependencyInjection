@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using FluentAssertions;
 
 namespace Light.DependencyInjection.Tests
@@ -76,5 +77,17 @@ namespace Light.DependencyInjection.Tests
     public class ClassWithPublicField
     {
         public bool PublicField;
+    }
+
+    public class ThreadSaveClass
+    {
+        private static int _numberOfInstancesCreated;
+
+        public static int NumberOfInstancesCreated => _numberOfInstancesCreated;
+        
+        public ThreadSaveClass()
+        {
+            Interlocked.Increment(ref _numberOfInstancesCreated);
+        }
     }
 }
