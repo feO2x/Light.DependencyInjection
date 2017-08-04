@@ -9,7 +9,7 @@ namespace Light.DependencyInjection
     public class DiContainer : IDisposable
     {
         private readonly IConcurrentDictionary<Type, IConcurrentList<Registration>> _registrationMappings;
-        private readonly IConcurrentDictionary<TypeKey, Func<object>> _resolveDelegates;
+        private readonly IConcurrentDictionary<TypeKey, Func<DiContainer, object>> _resolveDelegates;
         private readonly ContainerServices _services;
         public readonly ContainerScope ContainerScope;
 
@@ -18,7 +18,7 @@ namespace Light.DependencyInjection
             _services = services ?? new ContainerServicesBuilder().Build();
             ContainerScope = _services.ContainerScopeFactory.CreateScope();
             _registrationMappings = _services.ConcurrentDictionaryFactory.Create<Type, IConcurrentList<Registration>>();
-            _resolveDelegates = _services.ConcurrentDictionaryFactory.Create<TypeKey, Func<object>>();
+            _resolveDelegates = _services.ConcurrentDictionaryFactory.Create<TypeKey, Func<DiContainer, object>>();
 
             ContainerScope.TryAddDisposable(_registrationMappings);
             ContainerScope.TryAddDisposable(_resolveDelegates);
@@ -115,11 +115,11 @@ namespace Light.DependencyInjection
             typeKey.MustNotBeEmpty(nameof(typeKey));
 
             if (_resolveDelegates.TryGetValue(typeKey, out var resolveDelegate))
-                return resolveDelegate();
+                return resolveDelegate(this);
 
             resolveDelegate = _services.ResolveDelegateFactory.Create(typeKey, this);
             resolveDelegate = _resolveDelegates.GetOrAdd(typeKey, resolveDelegate);
-            return resolveDelegate();
+            return resolveDelegate(this);
         }
 
         public Registration GetRegistration(TypeKey typeKey)

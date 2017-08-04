@@ -8,9 +8,9 @@ namespace Light.DependencyInjection.TypeResolving
     {
         public readonly Registration Registration;
         public readonly DiContainer Container;
-        private readonly Func<object> _createInstance;
+        private readonly Func<DiContainer, object> _createInstance;
 
-        public ResolveContext(Func<object> createInstance, DiContainer container, Registration registration)
+        public ResolveContext(Func<DiContainer, object> createInstance, DiContainer container, Registration registration)
         {
             _createInstance = createInstance.MustNotBeNull(nameof(createInstance));
             Container = container.MustNotBeNull(nameof(container));
@@ -22,19 +22,9 @@ namespace Light.DependencyInjection.TypeResolving
             if (_createInstance == null)
                 throw new InvalidOperationException("You must not call CreateInstance when IsCreatingNewInstances is set to true.");
 
-            var instance = _createInstance();
+            var instance = _createInstance(Container);
             if (Registration.IsTrackingDisposables)
                 Container.ContainerScope.TryAddDisposable(instance);
-            return instance;
-        }
-
-        public object GetOrAddScopedInstance()
-        {
-            if (Container.ContainerScope.GetOrAddScopedInstance(Registration.TypeKey, _createInstance, out var instance) && Registration.IsTrackingDisposables)
-            {
-                Container.ContainerScope.TryAddDisposable(instance);
-            }
-
             return instance;
         }
     }

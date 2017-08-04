@@ -8,7 +8,7 @@ namespace Light.DependencyInjection.Lifetimes
 
         public override object ResolveInstance(ResolveContext resolveContext)
         {
-            return resolveContext.GetOrAddScopedInstance();
+            return resolveContext.Container.ContainerScope.GetOrAddScopedInstance(resolveContext.Registration.TypeKey, resolveContext.CreateInstance);
         }
     }
 }

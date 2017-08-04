@@ -61,9 +61,9 @@ namespace Light.DependencyInjection.Services
                      .AddDefaultContainerRegistration();
         }
 
-        public static DefaultResolveDelegateFactory CreateDefaultResolveDelegateFactory()
+        public static CompiledLinqExpressionFactory CreateDefaultResolveDelegateFactory()
         {
-            return new DefaultResolveDelegateFactory(new IInstantiationExpressionFactory[]
+            return new CompiledLinqExpressionFactory(new IInstantiationExpressionFactory[]
                                                      {
                                                          new ConstructorInstantiationExpressionFactory(),
                                                          new DelegateInstantiationExpressionFactory()
