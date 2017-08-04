@@ -61,7 +61,7 @@ namespace Light.DependencyInjection.TypeResolving
             // If it is a singleton lifetime, then immediately resolve the instance and return it as a constant expression
             if (registration.Lifetime is SingletonLifetime singletonLifetime)
             {
-                var singleton = singletonLifetime.ResolveInstance(new ResolveContext(container, registration, compiledDelegate));
+                var singleton = singletonLifetime.ResolveInstance(container.Services.ResolveContextFactory.Create(container).ChangeResolvedType(registration, compiledDelegate));
                 return Expression.Constant(singleton, registration.TargetType);
             }
 

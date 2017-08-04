@@ -17,13 +17,6 @@ namespace Light.DependencyInjection.TypeResolving
             _container = container.MustNotBeNull(nameof(container));
         }
 
-        public ResolveContext(DiContainer container, Registration registration, ResolveDelegate createInstance)
-        {
-            _container = container.MustNotBeNull(nameof(container));
-            _registration = registration.MustNotBeNull(nameof(registration));
-            _createInstance = createInstance.MustNotBeNull(nameof(createInstance));
-        }
-
         public object CreateInstance()
         {
             if (_createInstance == null)
