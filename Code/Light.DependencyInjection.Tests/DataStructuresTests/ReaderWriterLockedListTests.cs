@@ -13,9 +13,9 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
     {
         private readonly ReaderWriterLockSpy _lockSpy = new ReaderWriterLockSpy();
 
-        private ReaderWriterLockedListOptions<T> CreateOptions<T>(IEnumerable<T> existingItems = null)
+        private ReaderWriterLockedList<T> CreateTestTarget<T>(IEnumerable<T> existingItems = null)
         {
-            return new ReaderWriterLockedListOptions<T>(_lockSpy, initialItems: existingItems);
+            return new ReaderWriterLockedList<T>(existingItems, @lock: _lockSpy);
         }
 
         [Theory(DisplayName = "Add must insert the items at the end of the list.")]
@@ -25,7 +25,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         public void Add<T>(T[] existingItems, T itemToAdd)
         {
             // ReSharper disable once UseObjectOrCollectionInitializer
-            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
+            var testTarget = CreateTestTarget(existingItems);
 
             testTarget.Add(itemToAdd);
 
@@ -42,7 +42,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [InlineData(new int[] { }, 0, 42, new[] { 42 })]
         public void Insert<T>(T[] existingItems, int index, T item, T[] expected)
         {
-            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
+            var testTarget = CreateTestTarget(existingItems);
 
             testTarget.Insert(index, item);
 
@@ -57,7 +57,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         public void Overwrite<T>(T[] existingItems, int index, T item, T[] expected)
         {
             // ReSharper disable once UseObjectOrCollectionInitializer
-            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
+            var testTarget = CreateTestTarget(existingItems);
 
             testTarget[index] = item;
 
@@ -86,7 +86,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [InlineData(new int[] { })]
         public void Clear(int[] existingItems)
         {
-            var testTarget = new ReaderWriterLockedList<int>(CreateOptions(existingItems));
+            var testTarget = CreateTestTarget(existingItems);
 
             testTarget.Clear();
 
@@ -102,7 +102,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [InlineData(new string[] { }, "Foo", false)]
         public void Contains<T>(T[] existingItems, T item, bool expected)
         {
-            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
+            var testTarget = CreateTestTarget(existingItems);
 
             var actual = testTarget.Contains(item);
 
@@ -118,7 +118,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [InlineData(new string[] { }, "Foo", -1)]
         public void IndexOf<T>(T[] existingItems, T item, int expectedIndex)
         {
-            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
+            var testTarget = CreateTestTarget(existingItems);
 
             var actualIndex = testTarget.IndexOf(item);
 
@@ -133,7 +133,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [InlineData(new string[] { }, "Foo", new string[] { }, false)]
         public void Remove<T>(T[] existingItems, T item, T[] expectedCollection, bool expectedReturnValue)
         {
-            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
+            var testTarget = CreateTestTarget(existingItems);
 
             var wasRemoved = testTarget.Remove(item);
 
@@ -150,7 +150,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [InlineData(new[] { "Foo", "Bar", "Baz" }, 0, new[] { "Bar", "Baz" })]
         public void RemoveAt<T>(T[] existingItems, int index, T[] expectedCollection)
         {
-            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
+            var testTarget = CreateTestTarget(existingItems);
 
             testTarget.RemoveAt(index);
 
@@ -166,7 +166,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         public void Get<T>(T[] existingItems, int index, T expected)
         {
             // ReSharper disable once CollectionNeverUpdated.Local
-            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
+            var testTarget = CreateTestTarget(existingItems);
 
             var actual = testTarget[index];
 
@@ -178,7 +178,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [MemberData(nameof(CopyToData))]
         public void CopyTo<T>(T[] existingItems, T[] array, int startIndex)
         {
-            var testTarget = new ReaderWriterLockedList<T>(CreateOptions(existingItems));
+            var testTarget = CreateTestTarget(existingItems);
 
             testTarget.CopyTo(array, startIndex);
 
@@ -214,7 +214,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             var guid = Guid.NewGuid();
             var firstDummy = new DummyEntity(guid, "A");
             var secondDummy = new DummyEntity(guid, "B");
-            var testTarget = new ReaderWriterLockedList<DummyEntity>(CreateOptions(new[] { firstDummy }));
+            var testTarget = CreateTestTarget(new[] { firstDummy });
 
             var item = testTarget.GetOrAdd(secondDummy);
 
@@ -229,7 +229,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         {
             var firstDummy = new DummyEntity(Guid.NewGuid(), "A");
             var secondDummy = new DummyEntity(Guid.NewGuid(), "B");
-            var testTarget = new ReaderWriterLockedList<DummyEntity>(CreateOptions(new[] { firstDummy }));
+            var testTarget = CreateTestTarget(new[] { firstDummy });
 
             var item = testTarget.GetOrAdd(secondDummy);
 
@@ -245,7 +245,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             var guid = Guid.NewGuid();
             var firstDummy = new DummyEntity(guid, "A");
             var secondDummy = new DummyEntity(guid, "B");
-            var testTarget = new ReaderWriterLockedList<DummyEntity>(CreateOptions(new[] { firstDummy }));
+            var testTarget = CreateTestTarget(new[] { firstDummy });
 
             testTarget.AddOrUpdate(secondDummy);
 
@@ -259,7 +259,7 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         {
             var firstDummy = new DummyEntity(Guid.NewGuid(), "A");
             var secondDummy = new DummyEntity(Guid.NewGuid(), "B");
-            var testTarget = new ReaderWriterLockedList<DummyEntity>(CreateOptions(new[] { firstDummy }));
+            var testTarget = CreateTestTarget(new[] { firstDummy });
 
             testTarget.AddOrUpdate(secondDummy);
 

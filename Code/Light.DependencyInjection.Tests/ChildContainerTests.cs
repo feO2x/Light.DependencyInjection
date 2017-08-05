@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using Light.DependencyInjection.Registrations;
+using Light.DependencyInjection.Services;
 using Xunit;
 using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
@@ -61,6 +62,19 @@ namespace Light.DependencyInjection.Tests
 
             childInstance1.Should().BeSameAs(childInstance2);
             childInstance1.Should().NotBeSameAs(parentInstance1);
+        }
+
+        [Fact(DisplayName = "The registrations of a child container can be detached from its parent container.")]
+        public void DetachedChildContainer()
+        {
+            var containerServices = new ContainerServicesBuilder().WithAutomaticRegistrationFactory(new NoDefaultRegistrationsAllowedFactory()).Build();
+            var parentContainer = new DiContainer(containerServices);
+
+            var childContainer = parentContainer.CreateChildContainer(new ChildContainerOptions(true));
+            var instance = childContainer.Register<ClassWithoutDependencies>().Resolve<ClassWithoutDependencies>();
+
+            instance.Should().NotBeNull();
+            parentContainer.TryGetRegistration<ClassWithoutDependencies>().Should().BeNull();
         }
     }
 }

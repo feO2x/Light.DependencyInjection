@@ -4,20 +4,49 @@ using Light.DependencyInjection.DataStructures;
 using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.Threading;
 using Light.DependencyInjection.TypeResolving;
+using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Services
 {
     public sealed class ContainerServicesBuilder
     {
-        private IConcurrentDictionaryFactory _concurrentDictionaryFactory = new DefaultConcurrentDictionaryFactory();
-        private IConcurrentListFactory _concurrentListFactory = new ReaderWriterLockedListFactory();
-        private IContainerScopeFactory _containerScopeFactory = new DefaultContainerScopeFactory();
-        private IDefaultInstantiationInfoSelector _defaultInstantiationInfoSelector = new ConstructorWithMostParametersSelector();
-        private IReadOnlyList<Type> _ignoredAbstractionTypes = ContainerServices.DefaultIgnoredAbstractionTypes;
-        private IResolveDelegateFactory _resolveDelegateFactory = ContainerServices.CreateDefaultResolveDelegateFactory();
-        private Action<DiContainer> _setupContainer = ContainerServices.DefaultSetupContainer;
-        private IAutomaticRegistrationFactory _automaticRegistrationFactory = new DefaultAutomaticRegistrationFactory();
-        private IResolveContextFactory _resolveContextFactory = new PerThreadResolveContextFactory();
+        private IAutomaticRegistrationFactory _automaticRegistrationFactory;
+        private IConcurrentDictionaryFactory _concurrentDictionaryFactory;
+        private IConcurrentListFactory _concurrentListFactory;
+        private IContainerScopeFactory _containerScopeFactory;
+        private IDefaultInstantiationInfoSelector _defaultInstantiationInfoSelector;
+        private IReadOnlyList<Type> _ignoredAbstractionTypes;
+        private IResolveContextFactory _resolveContextFactory;
+        private IResolveDelegateFactory _resolveDelegateFactory;
+        private Action<DiContainer> _setupContainer;
+
+        public ContainerServicesBuilder()
+        {
+            _automaticRegistrationFactory = new DefaultAutomaticRegistrationFactory();
+            _concurrentDictionaryFactory = new DefaultConcurrentDictionaryFactory();
+            _concurrentListFactory = new ReaderWriterLockedListFactory();
+            _containerScopeFactory = new DefaultContainerScopeFactory();
+            _defaultInstantiationInfoSelector = new ConstructorWithMostParametersSelector();
+            _ignoredAbstractionTypes = ContainerServices.DefaultIgnoredAbstractionTypes;
+            _resolveContextFactory = new PerThreadResolveContextFactory();
+            _resolveDelegateFactory = ContainerServices.CreateDefaultResolveDelegateFactory();
+            _setupContainer = ContainerServices.DefaultSetupContainer;
+        }
+
+        public ContainerServicesBuilder(ContainerServices existingServices)
+        {
+            existingServices.MustNotBeNull(nameof(existingServices));
+
+            _concurrentDictionaryFactory = existingServices.ConcurrentDictionaryFactory;
+            _concurrentListFactory = existingServices.ConcurrentListFactory;
+            _containerScopeFactory = existingServices.ContainerScopeFactory;
+            _defaultInstantiationInfoSelector = existingServices.DefaultInstantiationInfoSelector;
+            _ignoredAbstractionTypes = existingServices.IgnoredAbstractionTypes;
+            _resolveDelegateFactory = existingServices.ResolveDelegateFactory;
+            _setupContainer = existingServices.SetupContainer;
+            _automaticRegistrationFactory = existingServices.AutomaticRegistrationFactory;
+            _resolveContextFactory = existingServices.ResolveContextFactory;
+        }
 
         public ContainerServicesBuilder WithConcurrentDictionaryFactory(IConcurrentDictionaryFactory concurrentDictionaryFactory)
         {

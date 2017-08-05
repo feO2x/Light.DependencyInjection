@@ -26,12 +26,23 @@ namespace Light.DependencyInjection
             Services.SetupContainer?.Invoke(this);
         }
 
-        private DiContainer(DiContainer parentContainer)
+        private DiContainer(DiContainer parentContainer, ChildContainerOptions childContainerOptions)
         {
-            _registrationMappings = parentContainer._registrationMappings;
-            _resolveDelegates = parentContainer._resolveDelegates;
-            Services = parentContainer.Services;
+            Services = childContainerOptions.NewContainerServices ?? parentContainer.Services;
+            _registrationMappings = childContainerOptions.DetachRegistrationMappingsFromParentContainer ? CreateCloneOfRegistrationMappings(parentContainer._registrationMappings) : parentContainer._registrationMappings;
+
+            _resolveDelegates = childContainerOptions.DetachResolveDelegatesFromParentContainer ? Services.ConcurrentDictionaryFactory.Create<TypeKey, ResolveDelegate>() : parentContainer._resolveDelegates;
             Scope = Services.ContainerScopeFactory.CreateScope(parentContainer.Scope);
+        }
+
+        private IConcurrentDictionary<Type, IConcurrentList<Registration>> CreateCloneOfRegistrationMappings(IConcurrentDictionary<Type, IConcurrentList<Registration>> parentRegistrationMappings)
+        {
+            var newRegistrationMappings = Services.ConcurrentDictionaryFactory.Create<Type, IConcurrentList<Registration>>();
+            foreach (var registrationMapping in parentRegistrationMappings)
+            {
+                newRegistrationMappings.TryAdd(registrationMapping.Key, Services.ConcurrentListFactory.Create(registrationMapping.Value));
+            }
+            return newRegistrationMappings;
         }
 
         public DiContainer Register<T>(Action<IRegistrationOptions<T>> configureRegistration = null)
@@ -109,7 +120,7 @@ namespace Light.DependencyInjection
             return Resolve(new TypeKey(type, registrationName));
         }
 
-        private object Resolve(TypeKey typeKey)
+        public object Resolve(TypeKey typeKey)
         {
             typeKey.MustNotBeEmpty(nameof(typeKey));
 
@@ -121,10 +132,20 @@ namespace Light.DependencyInjection
             return resolveDelegate(Services.ResolveContextFactory.Create(this));
         }
 
+        public Registration GetRegistration<T>(string registrationName = "")
+        {
+            return GetRegistration(new TypeKey(typeof(T)), registrationName);
+        }
+
+        public Registration GetRegistration(Type type, string registrationName = "")
+        {
+            return GetRegistration(new TypeKey(type, registrationName));
+        }
+
         public Registration GetRegistration(TypeKey typeKey)
         {
-            // TODO: check if generic type is asked
-            if (_registrationMappings.TryGetValue(typeKey.Type, out var registrations) && registrations.TryFindRegistration(typeKey, out var targetRegistration))
+            var targetRegistration = TryGetRegistration(typeKey);
+            if (targetRegistration != null)
                 return targetRegistration;
 
             targetRegistration = Services.AutomaticRegistrationFactory.CreateDefaultRegistration(typeKey, this);
@@ -134,9 +155,30 @@ namespace Light.DependencyInjection
             return targetRegistration;
         }
 
-        public DiContainer CreateChildContainer()
+        public Registration TryGetRegistration<T>(string registrationName = "")
         {
-            return new DiContainer(this);
+            return TryGetRegistration(new TypeKey(typeof(T), registrationName));
+        }
+
+        public Registration TryGetRegistration(Type type, string registrationName = "")
+        {
+            return TryGetRegistration(new TypeKey(type, registrationName));
+        }
+
+        public Registration TryGetRegistration(TypeKey typeKey)
+        {
+            typeKey.MustNotBeEmpty(nameof(typeKey));
+
+            // TODO: Check generic type definitions
+            if (_registrationMappings.TryGetValue(typeKey.Type, out var registrations) && registrations.TryFindRegistration(typeKey, out var targetRegistration))
+                return targetRegistration;
+
+            return null;
+        }
+
+        public DiContainer CreateChildContainer(ChildContainerOptions childContainerOptions = default (ChildContainerOptions))
+        {
+            return new DiContainer(this, childContainerOptions);
         }
 
         public void Dispose()

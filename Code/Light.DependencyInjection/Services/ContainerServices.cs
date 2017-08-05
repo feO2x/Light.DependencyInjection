@@ -77,5 +77,10 @@ namespace Light.DependencyInjection.Services
                                                          new FieldInjectionExpressionFactory()
                                                      }.ToDictionary(expressionFactory => expressionFactory.InstanceManipulationType));
         }
+
+        public ContainerServicesBuilder ToBuilder()
+        {
+            return new ContainerServicesBuilder(this);
+        }
     }
 }

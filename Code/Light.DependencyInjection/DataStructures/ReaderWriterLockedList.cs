@@ -15,18 +15,14 @@ namespace Light.DependencyInjection.DataStructures
         private int _count;
         private T[] _internalArray;
 
-        public ReaderWriterLockedList() : this(new ReaderWriterLockedListOptions<T>()) { }
-
-        public ReaderWriterLockedList(ReaderWriterLockedListOptions<T> options)
+        public ReaderWriterLockedList(IEnumerable<T> items = null, IEqualityComparer<T> equalityComparer = null, IReaderWriterLock @lock = null, IGrowArrayStrategy<T> growArrayStrategy = null)
         {
-            options.MustNotBeNull(nameof(options));
-
-            _equalityComparer = options.EqualityComparer;
-            _lock = options.Lock;
-            _growArrayStrategy = options.GrowArrayStrategy;
+            _equalityComparer = equalityComparer ?? EqualityComparer<T>.Default;
+            _lock = @lock ?? new ReaderWriterLockSlim();
+            _growArrayStrategy = growArrayStrategy ?? new DoubleArraySizeStrategy<T>();
             IReadOnlyList<T> initialItems = null;
-            if (options.InitialItems != null)
-                initialItems = options.InitialItems.AsReadOnlyList();
+            if (items != null)
+                initialItems = items.AsReadOnlyList();
             _internalArray = _growArrayStrategy.CreateInitialArray(initialItems);
             _count = initialItems?.Count ?? 0;
         }
@@ -110,7 +106,7 @@ namespace Light.DependencyInjection.DataStructures
             var result = false;
             for (var i = 0; i < _count; i++)
             {
-                if (_equalityComparer.Equals(_internalArray[i], item) == false)
+                if (_equalityComparer.EqualsWithHashCode(_internalArray[i], item) == false)
                     continue;
 
                 InternalRemoveAt(i);
@@ -289,7 +285,7 @@ namespace Light.DependencyInjection.DataStructures
         {
             for (var i = 0; i < _count; i++)
             {
-                if (_equalityComparer.Equals(_internalArray[i], item) == false)
+                if (_equalityComparer.EqualsWithHashCode(_internalArray[i], item) == false)
                     continue;
 
                 return i;
