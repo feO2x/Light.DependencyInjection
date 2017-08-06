@@ -169,8 +169,14 @@ namespace Light.DependencyInjection
         {
             typeKey.MustNotBeEmpty(nameof(typeKey));
 
-            // TODO: Check generic type definitions
             if (_registrationMappings.TryGetValue(typeKey.Type, out var registrations) && registrations.TryFindRegistration(typeKey, out var targetRegistration))
+                return targetRegistration;
+
+            if (typeKey.Type.IsClosedConstructedGenericType() == false)
+                return null;
+
+            var genericTypeDefinition = typeKey.Type.GetGenericTypeDefinition();
+            if (_registrationMappings.TryGetValue(genericTypeDefinition, out registrations) && registrations.TryFindRegistration(new TypeKey(genericTypeDefinition, typeKey.RegistrationName), out targetRegistration))
                 return targetRegistration;
 
             return null;

@@ -16,5 +16,16 @@ namespace Light.DependencyInjection.Tests
 
             instance.Should().NotBeNull();
         }
+
+        [Fact(DisplayName = "The DI Container must be able to perform registrations of generic type definitions and resolve bound closed instances of it.")]
+        public void GenericTypeDefinitions()
+        {
+            var container = new DiContainer().Register(typeof(List<>), options => options.UseDefaultConstructor()
+                                                                                         .MapToAbstractions(typeof(IList<>)));
+
+            var instance = container.Resolve<IList<string>>();
+
+            instance.Should().BeAssignableTo<List<string>>();
+        }
     }
 }

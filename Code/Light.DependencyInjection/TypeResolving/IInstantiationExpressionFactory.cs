@@ -8,6 +8,6 @@ namespace Light.DependencyInjection.TypeResolving
     {
         Type InstantiationInfoType { get; }
 
-        Expression Create(InstantiationInfo instantiationInfo, Expression[] parameterExpressions);
+        Expression Create(InstantiationInfo instantiationInfo, Type requestedType, Expression[] parameterExpressions);
     }
 }

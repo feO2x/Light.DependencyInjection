@@ -48,11 +48,11 @@ namespace Light.DependencyInjection.TypeResolving
             if (registration.Lifetime.IsCreatingNewInstances == false)
             {
                 var instance = registration.Lifetime.ResolveInstance(null);
-                return Expression.Constant(instance, registration.TargetType);
+                return Expression.Constant(instance, targetTypeKey.Type);
             }
 
             // Else we need to create a construction expression that instantiates the target type and performs any instance manipulations
-            var constructionExpression = CreateConstructionExpression(registration, container);
+            var constructionExpression = CreateConstructionExpression(targetTypeKey.Type, registration, container);
 
             // TODO: provide an extension point to create expressions for known lifetimes that do not require the compilation of the construction expression
             // Compile the construction expression to a delegate so that it can be used with lifetimes
@@ -62,7 +62,7 @@ namespace Light.DependencyInjection.TypeResolving
             if (registration.Lifetime is SingletonLifetime singletonLifetime)
             {
                 var singleton = singletonLifetime.ResolveInstance(container.Services.ResolveContextFactory.Create(container).ChangeResolvedType(registration, compiledDelegate));
-                return Expression.Constant(singleton, registration.TargetType);
+                return Expression.Constant(singleton, targetTypeKey.Type);
             }
 
             // Else create a expression that calls the target lifetime using the compiled delegate
@@ -73,10 +73,10 @@ namespace Light.DependencyInjection.TypeResolving
             return Expression.Convert(Expression.Call(Expression.Constant(registration.Lifetime),
                                                       LifetimeResolveInstanceMethod,
                                                       resolveContextExpression),
-                                      registration.TargetType);
+                                      targetTypeKey.Type);
         }
 
-        private Expression CreateConstructionExpression(Registration registration, DiContainer container)
+        private Expression CreateConstructionExpression(Type requestedType, Registration registration, DiContainer container)
         {
             // Create the expression that instantiates the target object
             var instantiationDependencies = registration.TypeConstructionInfo.InstantiationInfo.InstantiationDependencies;
@@ -85,7 +85,7 @@ namespace Light.DependencyInjection.TypeResolving
             // Use the correct factory to create the expression that instantiates the target type
             if (_instantiationExpressionFactories.TryGetValue(registration.TypeConstructionInfo.InstantiationInfo.GetType(), out var instantiationExpressionFactory) == false)
                 throw new InvalidOperationException($"There is no instantiationExpressionFactory present for \"{registration.TypeConstructionInfo.InstantiationInfo.GetType()}\". Please check that \"{nameof(CompiledLinqExpressionFactory)}\" is created with all necessary dependencies in \"{nameof(ContainerServices)}\".");
-            var instantiationExpression = instantiationExpressionFactory.Create(registration.TypeConstructionInfo.InstantiationInfo, parameterExpressions);
+            var instantiationExpression = instantiationExpressionFactory.Create(registration.TypeConstructionInfo.InstantiationInfo, requestedType, parameterExpressions);
 
             // If there are no instance manipulations, then simply return the instantiation expression
             if (registration.TypeConstructionInfo.InstanceManipulations.IsNullOrEmpty())

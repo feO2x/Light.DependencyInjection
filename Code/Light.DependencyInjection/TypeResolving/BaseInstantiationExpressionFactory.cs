@@ -9,11 +9,11 @@ namespace Light.DependencyInjection.TypeResolving
     {
         public Type InstantiationInfoType { get; } = typeof(T);
 
-        public Expression Create(InstantiationInfo instantiationInfo, Expression[] parameterExpressions)
+        public Expression Create(InstantiationInfo instantiationInfo, Type requestedType, Expression[] parameterExpressions)
         {
-            return Create(instantiationInfo.MustBeOfType<T>(nameof(instantiationInfo)), parameterExpressions);
+            return Create(instantiationInfo.MustBeOfType<T>(nameof(instantiationInfo)), requestedType.MustNotBeNull(nameof(requestedType)), parameterExpressions);
         }
 
-        protected abstract Expression Create(T instantiationInfo, Expression[] parameterExpressions);
+        protected abstract Expression Create(T instantiationInfo, Type requestedType, Expression[] parameterExpressions);
     }
 }
