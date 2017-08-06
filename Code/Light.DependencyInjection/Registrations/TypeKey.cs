@@ -5,7 +5,7 @@ using Light.GuardClauses.FrameworkExtensions;
 namespace Light.DependencyInjection.Registrations
 {
     /// <summary>
-    ///     Represents the combination of a Type and string to uniquely identify registrations.
+    ///     Represents the combination of a type and string to uniquely identify registrations.
     /// </summary>
     public struct TypeKey : IEquatable<TypeKey>
     {
@@ -90,23 +90,6 @@ namespace Light.DependencyInjection.Registrations
         public override string ToString()
         {
             return RegistrationName.IsNullOrWhiteSpace() ? Type.ToString() : $"\"{Type}\" with name \"{RegistrationName}\"";
-        }
-
-        /// <summary>
-        ///     Implicitely converts the specified type to a type key.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is null.</exception>
-        public static implicit operator TypeKey(Type type)
-        {
-            return new TypeKey(type);
-        }
-
-        /// <summary>
-        ///     Implicitely converts the specified type key to a type.
-        /// </summary>
-        public static implicit operator Type(TypeKey typeKey)
-        {
-            return typeKey.Type;
         }
 
         /// <summary>

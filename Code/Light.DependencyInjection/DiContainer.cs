@@ -134,7 +134,7 @@ namespace Light.DependencyInjection
 
         public Registration GetRegistration<T>(string registrationName = "")
         {
-            return GetRegistration(new TypeKey(typeof(T)), registrationName);
+            return GetRegistration(new TypeKey(typeof(T), registrationName));
         }
 
         public Registration GetRegistration(Type type, string registrationName = "")

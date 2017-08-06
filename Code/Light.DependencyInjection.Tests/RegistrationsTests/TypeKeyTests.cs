@@ -88,27 +88,6 @@ namespace Light.DependencyInjection.Tests.RegistrationsTests
                 new object[] { new TypeKey(typeof(int)), new TypeKey(typeof(int), "Baz") }
             };
 
-        [Theory(DisplayName = "Type objects can be implicitly converted to TypeKey instances.")]
-        [InlineData(typeof(string))]
-        [InlineData(typeof(bool))]
-        [InlineData(typeof(decimal))]
-        public void ImplicitConversionToTypeKey(Type type)
-        {
-            TypeKey typeKey = type;
-
-            CheckTypeKeyInvariantsAfterInitializationWithType(type, typeKey);
-        }
-
-        [Fact(DisplayName = "TypeKey instances can be implicitly converted to Type objects.")]
-        public void ImplicitConversionToType()
-        {
-            var typeKey = new TypeKey(typeof(string), "Foo");
-
-            Type type = typeKey;
-
-            type.Should().BeSameAs(typeKey.Type);
-        }
-
         [Theory(DisplayName = "The overridden GetHashCode method must return the HashCode computed on initialization.")]
         [InlineData(typeof(string), "")]
         [InlineData(typeof(float), "Foo")]
