@@ -7,6 +7,7 @@ using TestData = System.Collections.Generic.IEnumerable<object[]>;
 
 namespace Light.DependencyInjection.Tests
 {
+    [Trait("Category", "Functional Tests")]
     public sealed class ChildContainerTests
     {
         [Fact(DisplayName = "A child container must return the scoped instances of the parent container when possible.")]
