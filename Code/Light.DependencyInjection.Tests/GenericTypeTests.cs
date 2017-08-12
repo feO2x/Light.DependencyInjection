@@ -34,12 +34,25 @@ namespace Light.DependencyInjection.Tests
         public void StaticFactoryMethod()
         {
             var container = new DiContainer().Register(typeof(ObservableCollection<>),
-                                                       options => options.InstantiateVia(typeof(GenericTypeTests).GetTypeInfo().GetDeclaredMethod(nameof(CreateObservableCollection))));
+                                                       options => options.InstantiateVia(CreateObservableCollectionMethod));
 
             var resolvedCollection = container.Resolve<ObservableCollection<string>>();
 
             resolvedCollection.Should().NotBeNull();
         }
+
+        [Fact(DisplayName = "The DI Container must be able to instantiate generic type definitions using a generic static factory method when an abstraction is requested.")]
+        public void StaticFactoryMethodForAbstraction()
+        {
+            var container = new DiContainer().Register(typeof(IList<>),
+                                                       options => options.InstantiateVia(CreateObservableCollectionMethod));
+
+            var resolvedCollection = container.Resolve<IList<object>>();
+
+            resolvedCollection.Should().BeAssignableTo<ObservableCollection<object>>();
+        }
+
+        public static readonly MethodInfo CreateObservableCollectionMethod = typeof(GenericTypeTests).GetTypeInfo().GetDeclaredMethod(nameof(CreateObservableCollection));
 
         public static ObservableCollection<T> CreateObservableCollection<T>()
         {

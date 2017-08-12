@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using Light.GuardClauses;
 
@@ -16,7 +15,7 @@ namespace Light.DependencyInjection.Registrations
         {
             constructorInfo.MustNotBeNull(nameof(constructorInfo));
             if (constructorInfo.DeclaringType != typeKey.Type)
-                throw new ArgumentException($"The constructor \"{constructorInfo}\" is not a constructor of type \"{typeKey.Type}\", but of \"{constructorInfo.DeclaringType}\".", nameof(constructorInfo));
+                throw new RegistrationException($"The constructor \"{constructorInfo}\" is not a constructor of type \"{typeKey.Type}\", but of \"{constructorInfo.DeclaringType}\".", typeKey.Type);
 
             instantiationDependencies.VerifyDependencies(constructorInfo.GetParameters(), TypeKey.Type, "constructor");
 
