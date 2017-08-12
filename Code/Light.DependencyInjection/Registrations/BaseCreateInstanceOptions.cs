@@ -101,6 +101,15 @@ namespace Light.DependencyInjection.Registrations
             return UseConstructorWithParameters(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7), typeof(T8), typeof(T9), typeof(T10));
         }
 
+        public TOptions InstantiateVia(MethodInfo methodInfo)
+        {
+            if (methodInfo.IsStatic == false)
+                throw new NotSupportedException("Non-static methods are currently not supported.");
+
+            InstantiationInfoFactory = new StaticMethodInstantiationInfoFactory(TargetType, methodInfo);
+            return This;
+        }
+
         public TOptions AddPropertyInjection(PropertyInfo propertyInfo, string targetRegistrationName = "")
         {
             var propertyInjectionFactory = new PropertyInjectionFactory(propertyInfo);

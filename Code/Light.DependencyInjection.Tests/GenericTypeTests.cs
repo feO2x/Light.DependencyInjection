@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Reflection;
 using FluentAssertions;
 using Xunit;
 
@@ -26,6 +28,22 @@ namespace Light.DependencyInjection.Tests
             var instance = container.Resolve<IList<string>>();
 
             instance.Should().BeAssignableTo<List<string>>();
+        }
+
+        [Fact(DisplayName = "The DI Container must be able to instantiate closed constructed generic types of registered generic type definitions using a generic static factory method.")]
+        public void StaticFactoryMethod()
+        {
+            var container = new DiContainer().Register(typeof(ObservableCollection<>),
+                                                       options => options.InstantiateVia(typeof(GenericTypeTests).GetTypeInfo().GetDeclaredMethod(nameof(CreateObservableCollection))));
+
+            var resolvedCollection = container.Resolve<ObservableCollection<string>>();
+
+            resolvedCollection.Should().NotBeNull();
+        }
+
+        public static ObservableCollection<T> CreateObservableCollection<T>()
+        {
+            return new ObservableCollection<T>();
         }
     }
 }

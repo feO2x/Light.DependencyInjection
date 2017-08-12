@@ -11,16 +11,16 @@ namespace Light.DependencyInjection.Services
     public sealed class ContainerServices
     {
         public static readonly IReadOnlyList<Type> DefaultIgnoredAbstractionTypes = new[] { typeof(IDisposable) };
+        public readonly IAutomaticRegistrationFactory AutomaticRegistrationFactory;
 
         public readonly IConcurrentDictionaryFactory ConcurrentDictionaryFactory;
         public readonly IConcurrentListFactory ConcurrentListFactory;
         public readonly IContainerScopeFactory ContainerScopeFactory;
         public readonly IDefaultInstantiationInfoSelector DefaultInstantiationInfoSelector;
         public readonly IReadOnlyList<Type> IgnoredAbstractionTypes;
+        public readonly IResolveContextFactory ResolveContextFactory;
         public readonly IResolveDelegateFactory ResolveDelegateFactory;
         public readonly Action<DiContainer> SetupContainer;
-        public readonly IAutomaticRegistrationFactory AutomaticRegistrationFactory;
-        public readonly IResolveContextFactory ResolveContextFactory;
 
         public ContainerServices(IConcurrentDictionaryFactory concurrentDictionaryFactory,
                                  IConcurrentListFactory concurrentListFactory,
@@ -69,7 +69,8 @@ namespace Light.DependencyInjection.Services
             return new CompiledLinqExpressionFactory(new IInstantiationExpressionFactory[]
                                                      {
                                                          new ConstructorInstantiationExpressionFactory(),
-                                                         new DelegateInstantiationExpressionFactory()
+                                                         new DelegateInstantiationExpressionFactory(),
+                                                         new StaticMethodInstantiationExpressionFactory()
                                                      }.ToDictionary(expressionFactory => expressionFactory.InstantiationInfoType),
                                                      new IInstanceManipulationExpressionFactory[]
                                                      {
