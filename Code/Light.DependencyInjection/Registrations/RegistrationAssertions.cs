@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using Light.GuardClauses;
+using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.Registrations
 {
@@ -11,7 +15,30 @@ namespace Light.DependencyInjection.Registrations
             if (type.IsDerivingFromOrImplementing(baseClassOrInterfaceType, typeComparer))
                 return baseClassOrInterfaceType;
 
-            throw new TypeRegistrationException($"Type \"{baseClassOrInterfaceType}\" cannot be used as an abstraction for type \"{type}\" because the latter type does not derive from or implement the former one.", type);
+            throw new RegistrationException($"Type \"{baseClassOrInterfaceType}\" cannot be used as an abstraction for type \"{type}\" because the latter type does not derive from or implement the former one.", type);
+        }
+
+        public static IReadOnlyList<Dependency> VerifyDependencies(this IReadOnlyList<Dependency> dependencies, ParameterInfo[] parameters, Type targetType, string targetName = null)
+        {
+            targetName = targetName ?? "target";
+
+            if (dependencies == null)
+            {
+                if (parameters.Length > 0)
+                    throw new RegistrationException(new StringBuilder().AppendCollectionContent(parameters, $"There are no dependencies specified although the {targetName} has the following parameters:")
+                                                                       .ToString(),
+                                                    targetType);
+            }
+
+            else if (dependencies.Count != parameters.Length ||
+                     dependencies.Select(dependency => dependency.DependencyType).SequenceEqual(parameters.Select(parameter => parameter.ParameterType)) == false)
+                throw new RegistrationException(new StringBuilder().AppendCollectionContent(dependencies, "The following dependencies")
+                                                                   .AppendLine()
+                                                                   .AppendCollectionContent(parameters, $"do not correspond to the following parameters of the {targetName}:")
+                                                                   .ToString(),
+                                                targetType);
+
+            return dependencies;
         }
     }
 }

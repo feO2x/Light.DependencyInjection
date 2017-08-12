@@ -13,13 +13,13 @@ namespace Light.DependencyInjection.Registrations
         {
             var foundProperty = TypeKey.Type.GetRuntimeProperty(targetProperty.Name);
             if (foundProperty == null || foundProperty.Equals(targetProperty) == false)
-                throw new TypeRegistrationException($"The type \"{TypeKey.Type}\" does not contain the property \"{targetProperty}\".", typeKey.Type);
+                throw new RegistrationException($"The type \"{TypeKey.Type}\" does not contain the property \"{targetProperty}\".", typeKey.Type);
 
             if (targetProperty.CanWrite == false)
-                throw new TypeRegistrationException($"The specified property \"{targetProperty}\" does not have a set method and thus cannot be used for Property Injection.", TypeKey.Type);
+                throw new RegistrationException($"The specified property \"{targetProperty}\" does not have a set method and thus cannot be used for Property Injection.", TypeKey.Type);
 
             if (targetProperty.SetMethod.IsStatic)
-                throw new TypeRegistrationException($"The specified property \"{targetProperty}\" is a static property and thus cannot be used for Property Injection.", TypeKey.Type);
+                throw new RegistrationException($"The specified property \"{targetProperty}\" is a static property and thus cannot be used for Property Injection.", TypeKey.Type);
 
             dependencies.MustHaveCount(1, nameof(dependencies));
 

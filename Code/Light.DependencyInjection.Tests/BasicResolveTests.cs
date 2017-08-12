@@ -97,7 +97,7 @@ namespace Light.DependencyInjection.Tests
             var targetType = typeof(ClassWithoutDependencies);
             Action act = () => container.Register(invalidAbstractionType, targetType);
 
-            act.ShouldThrow<TypeRegistrationException>()
+            act.ShouldThrow<RegistrationException>()
                .And.Message.Should().Be($"Type \"{invalidAbstractionType}\" cannot be used as an abstraction for type \"{targetType}\" because the latter type does not derive from or implement the former one.");
         }
 

@@ -15,5 +15,11 @@ namespace Light.DependencyInjection.Registrations
             DependencyType = dependencyType.MustNotBeNull(nameof(dependencyType));
             TargetRegistrationName = targetRegistrationName.MustNotBeNull(nameof(targetRegistrationName));
         }
+
+        public override string ToString()
+        {
+            var registrationNameText = TargetRegistrationName == string.Empty ? string.Empty : $" (\"{TargetRegistrationName}\")";
+            return $"{DependencyType} {Name}{registrationNameText}";
+        }
     }
 }

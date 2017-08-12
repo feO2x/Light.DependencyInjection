@@ -148,18 +148,18 @@ namespace Light.DependencyInjection.Registrations
                 return targetConstructor;
 
             if (parameterTypes.IsNullOrEmpty())
-                throw new TypeRegistrationException($"You specified that the DI container should use the default constructor of type \"{TargetType}\", but this type contains no default constructor.", TargetType);
+                throw new RegistrationException($"You specified that the DI container should use the default constructor of type \"{TargetType}\", but this type contains no default constructor.", TargetType);
 
             // ReSharper disable once PossibleNullReferenceException
             if (parameterTypes.Length == 1)
-                throw new TypeRegistrationException($"You specified that the DI container should use the constructor with a single parameter of type \"{parameterTypes[0]}\", but type \"{TargetType}\" does not contain such a constructor.", TargetType);
+                throw new RegistrationException($"You specified that the DI container should use the constructor with a single parameter of type \"{parameterTypes[0]}\", but type \"{TargetType}\" does not contain such a constructor.", TargetType);
 
             var message = new StringBuilder().Append("You specified that the DI container should use the constructor with the type parameters ")
                                              .AppendItems(parameterTypes)
                                              .Append($", but type \"{TargetType}\" does not contain such a constructor.")
                                              .ToString();
 
-            throw new TypeRegistrationException(message, TargetType);
+            throw new RegistrationException(message, TargetType);
         }
 
         protected void AssignInstantiationInfoFactoryIfNecessary()

@@ -25,12 +25,12 @@ namespace Light.DependencyInjection.Registrations
         {
             var type = typeInfo.AsType();
             if (constructorGroup == null)
-                throw new TypeRegistrationException($"Cannot register \"{type}\" with the DI container because this type does not contain a public non-static constructor. Please specify an instantiation method using the registration options.", type);
+                throw new RegistrationException($"Cannot register \"{type}\" with the DI container because this type does not contain a public non-static constructor. Please specify an instantiation method using the registration options.", type);
 
             if (constructorGroup.Count() == 1)
                 return;
 
-            throw new TypeRegistrationException($"Cannot register \"{type}\" with the DI container because this type contains two or more constructors with the same number of parameters. Please specify an instantiation method using the registration options.", type); // TODO: append the constructors to the exception message
+            throw new RegistrationException($"Cannot register \"{type}\" with the DI container because this type contains two or more constructors with the same number of parameters. Please specify an instantiation method using the registration options.", type); // TODO: append the constructors to the exception message
         }
     }
 }
