@@ -14,5 +14,10 @@ namespace Light.DependencyInjection.Lifetimes
 
             return _threadLocal.Value;
         }
+
+        public override Lifetime GetLifetimeInstanceForConstructedGenericType()
+        {
+            return new PerThreadLifetime();
+        }
     }
 }

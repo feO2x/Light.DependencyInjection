@@ -10,5 +10,10 @@ namespace Light.DependencyInjection.Lifetimes
         {
             return resolveContext.Container.Scope.TryGetScopedInstance(resolveContext.Registration.TypeKey, out var instance) ? instance : resolveContext.Container.Scope.GetOrAddScopedInstance(resolveContext.Registration.TypeKey, resolveContext.CreateInstance);
         }
+
+        public override Lifetime GetLifetimeInstanceForConstructedGenericType()
+        {
+            return Instance;
+        }
     }
 }

@@ -59,9 +59,11 @@ namespace Light.DependencyInjection.TypeResolving
             var compiledDelegate = constructionExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
 
             // TODO: provide an extension point to create expressions for known lifetimes that do not require the compilation of the construction expression
+            var targetLifetime = resolveExpressionContext.IsResolvingGenericTypeDefinition ? registration.Lifetime.GetLifetimeInstanceForConstructedGenericType() : registration.Lifetime;
             // If it is a singleton lifetime, then immediately resolve the instance and return it as a constant expression
-            if (registration.Lifetime is SingletonLifetime singletonLifetime)
+            if (targetLifetime is SingletonLifetime singletonLifetime)
             {
+                // TODO: this code can be optimized because a singleton lifetime might already hold the value; in this case it would be unnecessary to create the compiled delegate
                 var singleton = singletonLifetime.ResolveInstance(container.Services.ResolveContextFactory.Create(container).ChangeResolvedType(registration, compiledDelegate));
                 return Expression.Constant(singleton, requestedTypeKey.Type);
             }
@@ -71,7 +73,7 @@ namespace Light.DependencyInjection.TypeResolving
                                                            ChangeResolvedTypeMethod,
                                                            Expression.Constant(registration),
                                                            Expression.Constant(compiledDelegate));
-            return Expression.Convert(Expression.Call(Expression.Constant(registration.Lifetime),
+            return Expression.Convert(Expression.Call(Expression.Constant(targetLifetime),
                                                       LifetimeResolveInstanceMethod,
                                                       resolveContextExpression),
                                       requestedTypeKey.Type);

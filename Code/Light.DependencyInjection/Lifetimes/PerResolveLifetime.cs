@@ -10,5 +10,10 @@ namespace Light.DependencyInjection.Lifetimes
         {
             return resolveContext.GetOrCreatePerResolveInstance(resolveContext.Registration.TypeKey);
         }
+
+        public override Lifetime GetLifetimeInstanceForConstructedGenericType()
+        {
+            return Instance;
+        }
     }
 }

@@ -23,5 +23,10 @@ namespace Light.DependencyInjection.Lifetimes
                 return _instance;
             }
         }
+
+        public override Lifetime GetLifetimeInstanceForConstructedGenericType()
+        {
+            return new SingletonLifetime();
+        }
     }
 }

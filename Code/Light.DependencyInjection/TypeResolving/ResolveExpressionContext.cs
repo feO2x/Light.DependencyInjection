@@ -43,6 +43,7 @@ namespace Light.DependencyInjection.TypeResolving
         public Type RequestedType => RequestedTypeKey.Type;
         public Type RegistrationType => Registration.TargetType;
         public Type InstanceType => ResolvedGenericRegistrationType ?? RegistrationType;
+        public bool IsResolvingGenericTypeDefinition => RegistrationType.IsGenericTypeDefinition();
 
         public Type ResolveGenericTypeParameter(Type genericTypeParameter)
         {

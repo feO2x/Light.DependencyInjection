@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Reflection;
 using FluentAssertions;
+using Light.DependencyInjection.Registrations;
 using Xunit;
 
 namespace Light.DependencyInjection.Tests
@@ -57,6 +58,20 @@ namespace Light.DependencyInjection.Tests
         public static ObservableCollection<T> CreateObservableCollection<T>()
         {
             return new ObservableCollection<T>();
+        }
+
+        [Fact(DisplayName = "The DI Container must use a dedicated lifetime instance for each different constructed generic type of a generic type definition.")]
+        public void LifetimesForGenericRegistrations()
+        {
+            var container = new DiContainer().Register(typeof(Dictionary<,>),
+                                                       options => options.UseDefaultConstructor()
+                                                                         .UseSingletonLifetime());
+
+            var firstDictionary = container.Resolve<Dictionary<string, object>>();
+            var secondDictionary = container.Resolve<Dictionary<int, string>>();
+
+            firstDictionary.Should().NotBeNull();
+            secondDictionary.Should().NotBeNull();
         }
     }
 }
