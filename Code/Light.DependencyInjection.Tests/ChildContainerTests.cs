@@ -77,5 +77,19 @@ namespace Light.DependencyInjection.Tests
             instance.Should().NotBeNull();
             parentContainer.TryGetRegistration<ClassWithoutDependencies>().Should().BeNull();
         }
+
+        // TODO: I have to bump up the model for lifetimes to complete the scoped external instance lifetime
+        //[Fact(DisplayName = "The DI Container must be able to store external instances in the container scope.")]
+        //public void ScopedExternalInstanceLifetime()
+        //{
+        //    var containerServices = new ContainerServicesBuilder().WithAutomaticRegistrationFactory(new NoDefaultRegistrationsAllowedFactory()).Build();
+        //    var parentContainer = new DiContainer(containerServices).Prepare;
+        //    var externalSpy = new DisposableSpy();
+        //    var childContainer = parentContainer.CreateChildContainer();
+
+        //    var resolvedInstance = childContainer.Resolve<DisposableSpy>();
+        //    resolvedInstance.Should().BeSameAs(externalSpy);
+
+        //}
     }
 }

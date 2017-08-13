@@ -17,10 +17,11 @@ namespace Light.DependencyInjection.Registrations
         {
             TypeKey = typeKey.MustNotBeEmpty(nameof(typeKey));
             Lifetime = lifeTime.MustNotBeNull(nameof(lifeTime));
-            if (lifeTime.IsCreatingNewInstances == false) return;
-
-            TypeConstructionInfo = typeConstructionInfo.MustNotBeNull(message: "The Type Construction Info must not be null when the Lifetime of the registration is able to create new instances of the target type.");
-            TypeConstructionInfo.TypeKey.MustBe(typeKey, message: "The Type Key of the Type Construction Info is not equal to the Type Key of the registration.");
+            if (lifeTime.IsCreatingNewInstances)
+            {
+                TypeConstructionInfo = typeConstructionInfo.MustNotBeNull(message: "The Type Construction Info must not be null when the Lifetime of the registration is able to create new instances of the target type.");
+                TypeConstructionInfo.TypeKey.MustBe(typeKey, message: "The Type Key of the Type Construction Info is not equal to the Type Key of the registration.");
+            }
             if (mappedAbstractionTypes.IsNullOrEmpty() == false)
             {
                 // ReSharper disable once PossibleNullReferenceException

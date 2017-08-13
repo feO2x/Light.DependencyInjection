@@ -5,7 +5,7 @@ using Light.DependencyInjection.Lifetimes;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public interface IExternalInstanceOptions<out TOptions> where TOptions : IExternalInstanceOptions<TOptions>
+    public interface ICommonRegistrationOptions<out TOptions> where TOptions : ICommonRegistrationOptions<TOptions>
     {
         TOptions UseRegistrationName(string registrationName);
 
@@ -24,9 +24,9 @@ namespace Light.DependencyInjection.Registrations
         TOptions MapToBaseClass();
     }
 
-    public interface IExternalInstanceOptions : IExternalInstanceOptions<IExternalInstanceOptions> { }
+    public interface IExternalInstanceOptions : ICommonRegistrationOptions<IExternalInstanceOptions> { }
 
-    public interface ICreateInstanceOptions<out TOptions> : IExternalInstanceOptions<TOptions> where TOptions : ICreateInstanceOptions<TOptions>
+    public interface ICreateInstanceOptions<out TOptions> : ICommonRegistrationOptions<TOptions> where TOptions : ICreateInstanceOptions<TOptions>
     {
         TOptions UseConstructor(ConstructorInfo constructorInfo);
 

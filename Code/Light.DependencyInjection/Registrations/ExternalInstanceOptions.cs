@@ -5,7 +5,7 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public sealed class ExternalInstanceOptions : BaseExternalInstanceOptions<IExternalInstanceOptions>, IExternalInstanceOptions
+    public sealed class ExternalInstanceOptions : CommonRegistrationOptions<IExternalInstanceOptions>, IExternalInstanceOptions
     {
         private readonly ExternalInstanceLifetime _lifeTime;
 

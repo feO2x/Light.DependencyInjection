@@ -9,7 +9,7 @@ using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public abstract class BaseCreateInstanceOptions<TOptions> : BaseExternalInstanceOptions<TOptions>, ICreateInstanceOptions<TOptions> where TOptions : class, ICreateInstanceOptions<TOptions>
+    public abstract class BaseCreateInstanceOptions<TOptions> : CommonRegistrationOptions<TOptions>, ICreateInstanceOptions<TOptions> where TOptions : class, ICreateInstanceOptions<TOptions>
     {
         protected readonly IDefaultInstantiationInfoSelector DefaultInstantiationInfoSelector;
         protected readonly List<InstanceManipulationFactory> InstanceManipulationFactories = new List<InstanceManipulationFactory>();

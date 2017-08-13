@@ -6,7 +6,7 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public abstract class BaseExternalInstanceOptions<TOptions> : IExternalInstanceOptions<TOptions> where TOptions : class, IExternalInstanceOptions<TOptions>
+    public abstract class CommonRegistrationOptions<TOptions> : ICommonRegistrationOptions<TOptions> where TOptions : class, ICommonRegistrationOptions<TOptions>
     {
         protected readonly IReadOnlyList<Type> IgnoredAbstractionTypes;
         protected readonly HashSet<Type> MappedAbstractionTypes = new HashSet<Type>();
@@ -16,7 +16,7 @@ namespace Light.DependencyInjection.Registrations
         private string _registrationName = string.Empty;
         protected bool IsTrackingDisposables = true;
 
-        protected BaseExternalInstanceOptions(Type targetType, IReadOnlyList<Type> ignoredAbstractionTypes)
+        protected CommonRegistrationOptions(Type targetType, IReadOnlyList<Type> ignoredAbstractionTypes)
         {
             TargetType = targetType.MustNotBeNull();
             TargetTypeInfo = TargetType.GetTypeInfo();
