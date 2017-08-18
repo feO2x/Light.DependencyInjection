@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
@@ -56,6 +57,39 @@ namespace Light.DependencyInjection.TypeResolving
             }
 
             throw new ArgumentException($"The type \"{genericTypeParameter}\" does not correspond to a generic parameter of type \"{RegistrationType}\".", nameof(genericTypeParameter));
+        }
+
+        public T FindResolvedGenericMethod<T>(T genericMethods, IReadOnlyList<T> constructedMethods) where T : MethodBase
+        {
+            var parametersOfGenericMethod = genericMethods.GetParameters();
+            for (var i = 0; i < constructedMethods.Count; i++)
+            {
+                var targetMethod = constructedMethods[i];
+                var parameters = targetMethod.GetParameters();
+                if (MatchParameters(parameters, parametersOfGenericMethod))
+                    return targetMethod;
+            }
+            return null;
+        }
+
+        public bool MatchParameters(ParameterInfo[] constructedGenericTypeParameters,
+                                    ParameterInfo[] genericTypeDefinitionParameters)
+        {
+            if (constructedGenericTypeParameters.Length != genericTypeDefinitionParameters.Length)
+                return false;
+
+            for (var i = 0; i < constructedGenericTypeParameters.Length; i++)
+            {
+                var firstParameter = constructedGenericTypeParameters[i];
+                var secondParameter = genericTypeDefinitionParameters[i];
+                var resolvedParameterType = secondParameter.ParameterType.IsGenericParameter
+                                                ? ResolveGenericTypeParameter(secondParameter.ParameterType)
+                                                : secondParameter.ParameterType;
+
+                if (resolvedParameterType != firstParameter.ParameterType)
+                    return false;
+            }
+            return true;
         }
     }
 }

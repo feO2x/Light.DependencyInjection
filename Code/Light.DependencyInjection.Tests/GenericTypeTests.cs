@@ -61,6 +61,25 @@ namespace Light.DependencyInjection.Tests
             return new ObservableCollection<T>();
         }
 
+        [Fact(DisplayName = "The DI Container must be able to instantiate generic type definitions using a static factory method residing in a generic type.")]
+        public void StaticFactoryMethodInGenericType()
+        {
+            var container = new DiContainer().Register(typeof(IReadOnlyList<>),
+                                                       options => options.InstantiateVia(typeof(GenericFactory<>).GetMethod("Create")));
+
+            var resolvedCollection = container.Resolve<IReadOnlyList<string>>();
+
+            resolvedCollection.Should().BeAssignableTo<List<string>>();
+        }
+
+        public static class GenericFactory<T>
+        {
+            public static List<T> Create()
+            {
+                return new List<T>();
+            }
+        }
+
         [Fact(DisplayName = "The DI Container must use a dedicated lifetime instance for each different constructed generic type of a generic type definition.")]
         public void LifetimesForGenericRegistrations()
         {
