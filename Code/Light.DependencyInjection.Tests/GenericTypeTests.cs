@@ -135,5 +135,18 @@ namespace Light.DependencyInjection.Tests
             act.ShouldThrow<RegistrationException>()
                .And.Message.Should().Contain($"You cannot register the open constructed generic type \"{openConstructedGenericType}\" with the DI Container");
         }
+
+        [Fact(DisplayName = "The DI Container must be able to resolve generic properties of generic types.")]
+        public void GenericTypeWithGenericProperty()
+        {
+            var @object = new object();
+            var container = new DiContainer().Register(typeof(GenericClassWithGenericProperty<>),
+                                                       options => options.AddPropertyInjection("Property"))
+                                             .Register(@object);
+
+            var resolvedInstance = container.Resolve<GenericClassWithGenericProperty<object>>();
+
+            resolvedInstance.Property.Should().BeSameAs(@object);
+        }
     }
 }

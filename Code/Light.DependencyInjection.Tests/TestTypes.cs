@@ -90,4 +90,9 @@ namespace Light.DependencyInjection.Tests
             Interlocked.Increment(ref _numberOfInstancesCreated);
         }
     }
+
+    public class GenericClassWithGenericProperty<T>
+    {
+        public T Property { get; set; }
+    }
 }

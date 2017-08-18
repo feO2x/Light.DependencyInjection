@@ -8,6 +8,6 @@ namespace Light.DependencyInjection.TypeResolving
     {
         Type InstanceManipulationType { get; }
 
-        Expression Create(InstanceManipulation instanceManipulation, ParameterExpression instanceVariableExpression, Expression[] parameterExpressions);
+        Expression Create(InstanceManipulation instanceManipulation, ParameterExpression instanceVariableExpression, ResolveExpressionContext context, Expression[] parameterExpressions);
     }
 }

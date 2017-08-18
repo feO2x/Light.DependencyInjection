@@ -9,11 +9,11 @@ namespace Light.DependencyInjection.TypeResolving
     {
         public Type InstanceManipulationType { get; } = typeof(T);
 
-        public Expression Create(InstanceManipulation instanceManipulation, ParameterExpression instanceVariableExpression, Expression[] parameterExpressions)
+        public Expression Create(InstanceManipulation instanceManipulation, ParameterExpression instanceVariableExpression, ResolveExpressionContext context, Expression[] parameterExpressions)
         {
-            return Create(instanceManipulation.MustBeOfType<T>(nameof(instanceManipulation)), instanceVariableExpression.MustNotBeNull(nameof(instanceVariableExpression)), parameterExpressions);
+            return Create(instanceManipulation.MustBeOfType<T>(nameof(instanceManipulation)), instanceVariableExpression.MustNotBeNull(nameof(instanceVariableExpression)), context, parameterExpressions);
         }
 
-        protected abstract Expression Create(T instanceManipulation, ParameterExpression instanceVariableExpression, Expression[] parameterExpressions);
+        protected abstract Expression Create(T instanceManipulation, ParameterExpression instanceVariableExpression, ResolveExpressionContext context, Expression[] parameterExpressions);
     }
 }
