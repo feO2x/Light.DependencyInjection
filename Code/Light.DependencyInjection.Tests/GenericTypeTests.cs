@@ -78,6 +78,24 @@ namespace Light.DependencyInjection.Tests
             {
                 return new List<T>();
             }
+
+            public static List<object> InvalidCreate()
+            {
+                return new List<object>();
+            }
+        }
+
+        [Fact(DisplayName = "The DI Container must throw a RegistrationException when the specified method info in a Generic Type Definition is not returning an open constructed generic type that resides in the same inheritance hierarchy as the registration type.")]
+        public void InvalidStaticFactoryMethodInGenericType()
+        {
+            var container = new DiContainer();
+            var invalidStaticFactoryMethod = typeof(GenericFactory<>).GetMethod("InvalidCreate");
+
+            Action act = () => container.Register(typeof(IList<>),
+                                                  options => options.InstantiateVia(invalidStaticFactoryMethod));
+
+            act.ShouldThrow<RegistrationException>()
+               .And.Message.Should().Contain($"You cannot instantiate type \"{typeof(IList<>)}\" with the static factory method \"{invalidStaticFactoryMethod}\".");
         }
 
         [Fact(DisplayName = "The DI Container must use a dedicated lifetime instance for each different constructed generic type of a generic type definition.")]
