@@ -95,4 +95,9 @@ namespace Light.DependencyInjection.Tests
     {
         public T Property { get; set; }
     }
+
+    public class GenericClassWithGenericField<T>
+    {
+        public T Field;
+    }
 }

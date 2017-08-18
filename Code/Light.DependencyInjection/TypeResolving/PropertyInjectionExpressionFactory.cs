@@ -10,7 +10,7 @@ namespace Light.DependencyInjection.TypeResolving
         {
             var targetProperty = propertyInjection.TargetProperty;
             if (context.IsResolvingGenericTypeDefinition)
-                targetProperty = context.ResolvedGenericRegistrationType.GetRuntimeProperty(propertyInjection.TargetProperty.Name);
+                targetProperty = context.ResolvedGenericRegistrationType.GetRuntimeProperty(targetProperty.Name);
             return Expression.Call(instanceVariableExpression, targetProperty.SetMethod, parameterExpressions);
         }
     }
