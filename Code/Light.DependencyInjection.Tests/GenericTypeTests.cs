@@ -75,7 +75,7 @@ namespace Light.DependencyInjection.Tests
             secondDictionary.Should().NotBeNull();
         }
 
-        [Fact(DisplayName = "The DI Container must throw a RegistrationException when the single specified type is a generic type definition.")]
+        [Fact(DisplayName = "The DI Container must throw a RegistrationException when the specified type is a generic type definition.")]
         public void GenericParameterInvalid()
         {
             var container = new DiContainer();
@@ -85,6 +85,18 @@ namespace Light.DependencyInjection.Tests
 
             act.ShouldThrow<RegistrationException>()
                .And.Message.Should().Contain($"You cannot register the generic type parameter \"{genericTypeParameter}\" with the DI Container.");
+        }
+
+        [Fact(DisplayName = "The DI Container must throw a RegistrationException when specified type is an open constructed generic type.")]
+        public void OpenConstructedGenericTypeInvalid()
+        {
+            var container = new DiContainer();
+            var openConstructedGenericType = CreateObservableCollectionMethod.ReturnType;
+
+            Action act = () => container.Register(openConstructedGenericType);
+
+            act.ShouldThrow<RegistrationException>()
+               .And.Message.Should().Contain($"You cannot register the open constructed generic type \"{openConstructedGenericType}\" with the DI Container");
         }
     }
 }

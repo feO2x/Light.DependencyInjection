@@ -55,6 +55,8 @@ namespace Light.DependencyInjection.Registrations
                 throw new RegistrationException($"You cannot register the generic type parameter \"{type}\" with the DI Container. For generic types, only closed constructed generic types and generic type definitions are allowed.", type);
             if (type.IsStaticClass())
                 throw new RegistrationException($"You cannot register the static class \"{type}\" with the DI Container.", type);
+            if (type.IsOpenConstructedGenericType())
+                throw new RegistrationException($"You cannot register the open constructed generic type \"{type}\" with the DI Container. For generic types, only closed constructed generic types and generic type definitions are allowed.", type);
 
             return type;
         }
