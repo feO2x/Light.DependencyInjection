@@ -230,5 +230,17 @@ namespace Light.DependencyInjection.Tests
             ThreadSaveClass.NumberOfInstancesCreated.Should().Be(3);
             exceptions.Should().BeEmpty();
         }
+
+        [Fact(DisplayName = "The DI Container must throw a RegistrationException when the specified type is a static class.")]
+        public void StaticClassInvalid()
+        {
+            var container = new DiContainer();
+            var staticClassType = typeof(Console);
+
+            Action act = () => container.Register(staticClassType);
+
+            act.ShouldThrow<RegistrationException>()
+               .And.Message.Should().Contain($"You cannot register the static class \"{staticClassType}\" with the DI Container.");
+        }
     }
 }

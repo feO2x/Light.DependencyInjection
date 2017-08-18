@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using FluentAssertions;
@@ -72,6 +73,18 @@ namespace Light.DependencyInjection.Tests
 
             firstDictionary.Should().NotBeNull();
             secondDictionary.Should().NotBeNull();
+        }
+
+        [Fact(DisplayName = "The DI Container must throw a RegistrationException when the single specified type is a generic type definition.")]
+        public void GenericParameterInvalid()
+        {
+            var container = new DiContainer();
+            var genericTypeParameter = typeof(List<>).GetTypeInfo().GenericTypeParameters[0];
+
+            Action act = () => container.Register(genericTypeParameter);
+
+            act.ShouldThrow<RegistrationException>()
+               .And.Message.Should().Contain($"You cannot register the generic type parameter \"{genericTypeParameter}\" with the DI Container.");
         }
     }
 }

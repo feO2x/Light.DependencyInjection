@@ -21,7 +21,7 @@ namespace Light.DependencyInjection.Registrations
             TargetType = targetType.MustBeValidRegistrationType();
             TargetTypeInfo = TargetType.GetTypeInfo();
             IgnoredAbstractionTypes = ignoredAbstractionTypes.MustNotBeNull();
-            This = (this as TOptions).MustNotBeNull(exception: () => new InvalidOperationException("You did not derive correctly from the base options type."));
+            This = (this as TOptions).MustNotBeNull(exception: () => new InvalidOperationException($"You did not derive correctly from \"{nameof(CommonRegistrationOptions<TOptions>)}\"."));
         }
 
         protected string RegistrationName
