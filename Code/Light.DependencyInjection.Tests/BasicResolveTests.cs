@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using Light.DependencyInjection.Registrations;
@@ -241,6 +242,22 @@ namespace Light.DependencyInjection.Tests
 
             act.ShouldThrow<RegistrationException>()
                .And.Message.Should().Contain($"You cannot register the static class \"{staticClassType}\" with the DI Container.");
+        }
+
+        [Fact(DisplayName = "The DI Container must be able to resolve types via a static method.")]
+        public void ResolveViaMethodInfo()
+        {
+            var container = new DiContainer().Register<IAbstractionA, ClassWithoutDependencies>(options => options.UseSingletonLifetime())
+                                             .Register<ClassWithDependency>(options => options.InstantiateVia(GetType().GetMethod(nameof(CreateClassWithDependency))));
+
+            var instance = container.Resolve<ClassWithDependency>();
+
+            instance.A.Should().BeSameAs(container.Resolve<ClassWithoutDependencies>());
+        }
+
+        public static ClassWithDependency CreateClassWithDependency(ClassWithoutDependencies instance)
+        {
+            return new ClassWithDependency(instance);
         }
     }
 }
