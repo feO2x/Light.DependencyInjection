@@ -15,12 +15,15 @@ namespace Light.DependencyInjection.Registrations
 
         public Registration(TypeKey typeKey, Lifetime lifeTime, TypeConstructionInfo typeConstructionInfo = null, IReadOnlyList<Type> mappedAbstractionTypes = null, bool isTrackingDisposables = true)
         {
-            TypeKey = typeKey.MustNotBeEmpty(nameof(typeKey));
+            TypeKey = typeKey.MustBeValidRegistrationTypeKey();
             Lifetime = lifeTime.MustNotBeNull(nameof(lifeTime));
             if (lifeTime.IsCreatingNewInstances)
             {
-                TypeConstructionInfo = typeConstructionInfo.MustNotBeNull(message: "The Type Construction Info must not be null when the Lifetime of the registration is able to create new instances of the target type.");
-                TypeConstructionInfo.TypeKey.MustBe(typeKey, message: "The Type Key of the Type Construction Info is not equal to the Type Key of the registration.");
+                if (typeConstructionInfo == null)
+                    throw new RegistrationException($"The Type Construction Info for {typeKey} must not be null when the Lifetime \"{lifeTime}\" of the registration is able to create new instances of the target type.", typeKey.Type);
+                if (typeConstructionInfo.TypeKey != typeKey)
+                    throw new RegistrationException($"The Type Key {typeConstructionInfo.TypeKey} of the Type Construction Info is not equal to the Type Key {typeKey} of the registration.", typeConstructionInfo.TypeKey.Type);
+                TypeConstructionInfo = typeConstructionInfo;
             }
             if (mappedAbstractionTypes.IsNullOrEmpty() == false)
             {

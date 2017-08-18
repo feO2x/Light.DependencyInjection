@@ -18,7 +18,7 @@ namespace Light.DependencyInjection.Registrations
 
         protected CommonRegistrationOptions(Type targetType, IReadOnlyList<Type> ignoredAbstractionTypes)
         {
-            TargetType = targetType.MustNotBeNull();
+            TargetType = targetType.MustBeValidRegistrationType();
             TargetTypeInfo = TargetType.GetTypeInfo();
             IgnoredAbstractionTypes = ignoredAbstractionTypes.MustNotBeNull();
             This = (this as TOptions).MustNotBeNull(exception: () => new InvalidOperationException("You did not derive correctly from the base options type."));

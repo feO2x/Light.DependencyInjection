@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Light.GuardClauses;
+using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.Registrations
 {
@@ -11,8 +12,9 @@ namespace Light.DependencyInjection.Registrations
 
         public TypeConstructionInfo(TypeKey typeKey, InstantiationInfo instantiationInfo, IReadOnlyList<InstanceManipulation> instanceManipulations = null)
         {
-            TypeKey = typeKey.MustNotBeEmpty();
-            InstantiationInfo = instantiationInfo.MustNotBeNull();
+            InstantiationInfo = instantiationInfo.MustNotBeNull(nameof(instantiationInfo));
+            TypeKey = typeKey.MustBe(instantiationInfo.TypeKey, parameterName: nameof(typeKey));
+            instanceManipulations?.ForEach(instanceManipulation => instanceManipulation.TypeKey.MustBe(typeKey));
             InstanceManipulations = instanceManipulations;
         }
     }

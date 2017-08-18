@@ -40,5 +40,21 @@ namespace Light.DependencyInjection.Registrations
 
             return dependencies;
         }
+
+        public static TypeKey MustBeValidRegistrationTypeKey(this TypeKey typeKey)
+        {
+            typeKey.MustNotBeEmpty(nameof(typeKey)).Type.MustBeValidRegistrationType();
+            return typeKey;
+        }
+
+        public static Type MustBeValidRegistrationType(this Type type)
+        {
+            type.MustNotBeNull(nameof(type));
+
+            if (type.IsGenericParameter)
+                throw new RegistrationException($"You cannot register the generic type parameter \"{type}\" with the DI Container. For generic types, only closed constructed generic types and generic type definitions are allowed.", type);
+
+            return type;
+        }
     }
 }

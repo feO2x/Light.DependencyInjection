@@ -9,7 +9,8 @@ namespace Light.DependencyInjection.Registrations
 
         protected InstantiationInfo(TypeKey typeKey, IReadOnlyList<Dependency> instantiationDependencies)
         {
-            TypeKey = typeKey.MustNotBeEmpty();
+            typeKey.MustBeValidRegistrationTypeKey();
+            TypeKey = typeKey;
             InstantiationDependencies = instantiationDependencies;
         }
 
