@@ -100,4 +100,8 @@ namespace Light.DependencyInjection.Tests
     {
         public T Field;
     }
+
+    public class Implementation1 : IAbstractionA { }
+    public class Implementation2 : IAbstractionA { }
+    public class Implementation3 : IAbstractionA { }
 }

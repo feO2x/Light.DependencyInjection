@@ -5,6 +5,7 @@ using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.Services;
 using Light.DependencyInjection.TypeResolving;
 using Light.GuardClauses;
+using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection
 {
@@ -104,6 +105,28 @@ namespace Light.DependencyInjection
             configureRegistration?.Invoke(registrationOptions);
 
             return Register(registrationOptions.CreateRegistration());
+        }
+
+        public DiContainer RegisterMany<TAbstraction>(IEnumerable<Type> concreteTypes, Action<IRegistrationOptions> configureRegistrations = null)
+        {
+            return RegisterMany(typeof(TAbstraction), concreteTypes, configureRegistrations);
+        }
+
+        public DiContainer RegisterMany(Type abstractionType, IEnumerable<Type> concreteTypes, Action<IRegistrationOptions> configureRegistrations = null)
+        {
+            abstractionType.MustNotBeNull(nameof(abstractionType));
+            var concreteTypesList = concreteTypes.AsReadOnlyList();
+            concreteTypesList.MustNotBeNullOrEmpty(nameof(concreteTypes));
+
+            for (var i = 0; i < concreteTypesList.Count; i++)
+            {
+                var registrationOptions = Services.CreateRegistrationOptions(concreteTypesList[i]);
+                registrationOptions.MapToAbstractions(abstractionType).UseTypeNameAsRegistrationName();
+                configureRegistrations?.Invoke(registrationOptions);
+                Register(registrationOptions.CreateRegistration());
+            }
+
+            return this;
         }
 
         private void AddMapping(Type type, Registration registration)
