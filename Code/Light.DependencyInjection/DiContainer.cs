@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Light.DependencyInjection.DataStructures;
 using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.Services;
@@ -130,6 +131,29 @@ namespace Light.DependencyInjection
                 resolveDelegate = _resolveDelegates.GetOrAdd(typeKey, resolveDelegate);
             }
             return resolveDelegate(Services.ResolveContextFactory.Create(this));
+        }
+
+        public IList<T> ResolveAll<T>()
+        {
+            return ResolveAll<T>(typeof(T));
+        }
+
+        public IList<object> ResolveAll(Type type)
+        {
+            return ResolveAll<object>(type);
+        }
+
+        private T[] ResolveAll<T>(Type type)
+        {
+            if (_registrationMappings.TryGetValue(type, out var registrations) == false)
+                throw new ResolveException($"There are no types registered with the DI Container that map to type \"{type}\".");
+
+            var array = new T[registrations.Count];
+            for (var i = 0; i < registrations.Count; i++)
+            {
+                array[i] = (T) Resolve(registrations[i].TypeKey);
+            }
+            return array;
         }
 
         public Registration GetRegistration<T>(string registrationName = "")
