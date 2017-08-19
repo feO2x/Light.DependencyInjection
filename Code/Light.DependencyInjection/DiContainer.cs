@@ -12,8 +12,8 @@ namespace Light.DependencyInjection
     {
         private readonly IConcurrentDictionary<Type, IConcurrentList<Registration>> _registrationMappings;
         private readonly IConcurrentDictionary<TypeKey, ResolveDelegate> _resolveDelegates;
-        public readonly ContainerServices Services;
         public readonly ContainerScope Scope;
+        public readonly ContainerServices Services;
 
         public DiContainer(ContainerServices services = null)
         {
@@ -34,6 +34,11 @@ namespace Light.DependencyInjection
 
             _resolveDelegates = childContainerOptions.DetachResolveDelegatesFromParentContainer ? Services.ConcurrentDictionaryFactory.Create<TypeKey, ResolveDelegate>() : parentContainer._resolveDelegates;
             Scope = Services.ContainerScopeFactory.CreateScope(parentContainer.Scope);
+        }
+
+        public void Dispose()
+        {
+            Scope.Dispose();
         }
 
         private IConcurrentDictionary<Type, IConcurrentList<Registration>> CreateCloneOfRegistrationMappings(IConcurrentDictionary<Type, IConcurrentList<Registration>> parentRegistrationMappings)
@@ -151,9 +156,27 @@ namespace Light.DependencyInjection
             var array = new T[registrations.Count];
             for (var i = 0; i < registrations.Count; i++)
             {
-                array[i] = (T) Resolve(registrations[i].TypeKey);
+                array[i] = (T) Resolve(registrations[i]);
             }
             return array;
+        }
+
+        public T Resolve<T>(Registration registration)
+        {
+            return (T) Resolve(registration);
+        }
+
+        public object Resolve(Registration registration)
+        {
+            registration.MustNotBeNull(nameof(registration));
+
+            if (_resolveDelegates.TryGetValue(registration.TypeKey, out var resolveDelegate) == false)
+            {
+                resolveDelegate = Services.ResolveDelegateFactory.Create(registration, this);
+                resolveDelegate = _resolveDelegates.GetOrAdd(registration.TypeKey, resolveDelegate);
+            }
+
+            return resolveDelegate(Services.ResolveContextFactory.Create(this));
         }
 
         public Registration GetRegistration<T>(string registrationName = "")
@@ -206,14 +229,9 @@ namespace Light.DependencyInjection
             return null;
         }
 
-        public DiContainer CreateChildContainer(ChildContainerOptions childContainerOptions = default (ChildContainerOptions))
+        public DiContainer CreateChildContainer(ChildContainerOptions childContainerOptions = default(ChildContainerOptions))
         {
             return new DiContainer(this, childContainerOptions);
-        }
-
-        public void Dispose()
-        {
-            Scope.Dispose();
         }
     }
 }

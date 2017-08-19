@@ -38,11 +38,23 @@ namespace Light.DependencyInjection.TypeResolving
             return resolveExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
         }
 
+        public ResolveDelegate Create(Registration registration, DiContainer container)
+        {
+            registration.MustNotBeNull(nameof(registration));
+            container.MustNotBeNull(nameof(container));
+
+            var resolveExpression = CreateResolveExpressionRecursively(registration.TypeKey, registration, container);
+            return resolveExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
+        }
+
         private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, DiContainer container)
         {
-            // First get the registration that maps to the target type key
             var registration = container.GetRegistration(requestedTypeKey);
+            return CreateResolveExpressionRecursively(requestedTypeKey, registration, container);
+        }
 
+        private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, Registration registration, DiContainer container)
+        {
             // Check if the lifetime of the registration would need to create a new instance.
             // If not, then we can immediately get the instance of the lifetime without creating a ResolveContext
             if (registration.Lifetime.IsCreatingNewInstances == false)
