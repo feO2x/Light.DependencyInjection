@@ -89,7 +89,7 @@ namespace Light.DependencyInjection.Registrations
         /// </summary>
         public override string ToString()
         {
-            return RegistrationName.IsNullOrWhiteSpace() ? Type.ToString() : $"\"{Type}\" with name \"{RegistrationName}\"";
+            return RegistrationName.IsNullOrWhiteSpace() ? $"\"{Type}\"" : $"\"{Type}\" with name \"{RegistrationName}\"";
         }
 
         /// <summary>
@@ -105,9 +105,7 @@ namespace Light.DependencyInjection.Registrations
         /// <param name="parameterName">The name of the parameter (optional).</param>
         public TypeKey MustNotBeEmpty(string parameterName = null)
         {
-            if (IsEmpty)
-                throw new ArgumentException("The specified type key must not be empty.", parameterName);
-
+            if (IsEmpty) throw new ArgumentException("The specified type key must not be empty.", parameterName);
             return this;
         }
     }

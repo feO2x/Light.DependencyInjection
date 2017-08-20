@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
+using Light.DependencyInjection.Registrations;
 
 namespace Light.DependencyInjection.DataStructures
 {
-    public sealed class ReaderWriterLockedListFactory : IConcurrentListFactory
+    public sealed class ReaderWriterLockedListFactory : IRegistrationCollectionFactory
     {
-        public IConcurrentList<T> Create<T>()
+        public IConcurrentList<Registration> Create()
         {
-            return new ReaderWriterLockedList<T>();
+            return new ReaderWriterLockedList<Registration>(equalityComparer: RegistrationNameComparer.Instance);
         }
 
-        public IConcurrentList<T> Create<T>(IEnumerable<T> items)
+        public IConcurrentList<Registration> Create(IEnumerable<Registration> existingRegistrations)
         {
-            return new ReaderWriterLockedList<T>(items);
+            return new ReaderWriterLockedList<Registration>(existingRegistrations, RegistrationNameComparer.Instance);
         }
     }
 }

@@ -15,10 +15,10 @@ namespace Light.DependencyInjection.Registrations
             if (type.IsDerivingFromOrImplementing(baseClassOrInterfaceType, typeComparer))
                 return baseClassOrInterfaceType;
 
-            throw new RegistrationException($"Type \"{baseClassOrInterfaceType}\" cannot be used as an abstraction for type \"{type}\" because the latter type does not derive from or implement the former one.", type);
+            throw new RegistrationException($"Type \"{baseClassOrInterfaceType}\" cannot be used as an abstraction for type \"{type}\" because the latter type does not derive from or implement the former one.");
         }
 
-        public static IReadOnlyList<Dependency> VerifyDependencies(this IReadOnlyList<Dependency> dependencies, ParameterInfo[] parameters, Type targetType, string targetName = null)
+        public static IReadOnlyList<Dependency> VerifyDependencies(this IReadOnlyList<Dependency> dependencies, ParameterInfo[] parameters, string targetName = null)
         {
             targetName = targetName ?? "target";
 
@@ -26,8 +26,7 @@ namespace Light.DependencyInjection.Registrations
             {
                 if (parameters.Length > 0)
                     throw new RegistrationException(new StringBuilder().AppendCollectionContent(parameters, $"There are no dependencies specified although the {targetName} has the following parameters:")
-                                                                       .ToString(),
-                                                    targetType);
+                                                                       .ToString());
             }
 
             else if (dependencies.Count != parameters.Length ||
@@ -35,8 +34,7 @@ namespace Light.DependencyInjection.Registrations
                 throw new RegistrationException(new StringBuilder().AppendCollectionContent(dependencies, "The following dependencies")
                                                                    .AppendLine()
                                                                    .AppendCollectionContent(parameters, $"do not correspond to the following parameters of the {targetName}:")
-                                                                   .ToString(),
-                                                targetType);
+                                                                   .ToString());
 
             return dependencies;
         }
@@ -52,11 +50,11 @@ namespace Light.DependencyInjection.Registrations
             type.MustNotBeNull(nameof(type));
 
             if (type.IsGenericParameter)
-                throw new RegistrationException($"You cannot register the generic type parameter \"{type}\" with the DI Container. For generic types, only closed constructed generic types and generic type definitions are allowed.", type);
+                throw new RegistrationException($"You cannot register the generic type parameter \"{type}\" with the DI Container. For generic types, only closed constructed generic types and generic type definitions are allowed.");
             if (type.IsStaticClass())
-                throw new RegistrationException($"You cannot register the static class \"{type}\" with the DI Container.", type);
+                throw new RegistrationException($"You cannot register the static class \"{type}\" with the DI Container.");
             if (type.IsOpenConstructedGenericType())
-                throw new RegistrationException($"You cannot register the open constructed generic type \"{type}\" with the DI Container. For generic types, only closed constructed generic types and generic type definitions are allowed.", type);
+                throw new RegistrationException($"You cannot register the open constructed generic type \"{type}\" with the DI Container. For generic types, only closed constructed generic types and generic type definitions are allowed.");
 
             return type;
         }

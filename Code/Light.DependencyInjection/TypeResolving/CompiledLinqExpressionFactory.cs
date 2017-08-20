@@ -47,10 +47,15 @@ namespace Light.DependencyInjection.TypeResolving
             return resolveExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
         }
 
-        private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, DiContainer container)
+        private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, DiContainer container, bool? tryResolveAll = null)
         {
-            var registration = container.GetRegistration(requestedTypeKey);
-            return CreateResolveExpressionRecursively(requestedTypeKey, registration, container);
+            var resolveInfo = container.GetResolveInfo(requestedTypeKey, tryResolveAll);
+            if (resolveInfo is ResolveRegistrationInfo resolveRegistrationInfo)
+                return CreateResolveExpressionRecursively(requestedTypeKey, resolveRegistrationInfo.Registration, container);
+            if (resolveInfo is ResolveAllInfo resolveAllInfo)
+                return CreateResolveAllExpressionRecursively(resolveAllInfo, container);
+
+            throw new InvalidOperationException($"Cannot handle ResolveInfo \"{resolveInfo}\" in this current implementation of \"{nameof(CompiledLinqExpressionFactory)}\"");
         }
 
         private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, Registration registration, DiContainer container)
@@ -89,6 +94,39 @@ namespace Light.DependencyInjection.TypeResolving
                                                       LifetimeResolveInstanceMethod,
                                                       resolveContextExpression),
                                       requestedTypeKey.Type);
+        }
+
+        private Expression CreateResolveAllExpressionRecursively(ResolveAllInfo resolveAllInfo, DiContainer container)
+        {
+            // Create the expression that instantiates the target collection
+            var collectionRegistration = container.GetRegistration(resolveAllInfo.CollectionType);
+            if (collectionRegistration == null)
+                throw new ResolveException($"There is no registration present to resolve collection type \"{resolveAllInfo.CollectionType}\".");
+            var createCollectionExpression = CreateConstructionExpression(new ResolveExpressionContext(new TypeKey(resolveAllInfo.CollectionType), collectionRegistration, container));
+            
+            // Create the expression block that assigns the created collection to a variable, casts this variable to IList<TargetType>, and then resolves all registrations, adding the resulting the expressions
+            var blockExpressions = new Expression[resolveAllInfo.Registrations.Count + 3]; // +3 for initial assignment, casting to IList<ItemType>, and return statement
+            var variableExpression = Expression.Variable(resolveAllInfo.CollectionType);
+            var assignVariableExpression = Expression.Assign(variableExpression, createCollectionExpression);
+            blockExpressions[0] = assignVariableExpression; // Assign created collection to variable
+            var closedConstructedICollectionType = KnownTypes.ICollectionGenericTypeDefinition.MakeGenericType(resolveAllInfo.ItemType);
+            var castedICollectionVariableExpression = Expression.Variable(closedConstructedICollectionType);
+            var assignCastedListExpression = Expression.Assign(castedICollectionVariableExpression, Expression.ConvertChecked(variableExpression, closedConstructedICollectionType));
+            blockExpressions[1] = assignCastedListExpression; // Assign casted list to variable
+
+            // Resolve all registrations and add them to the collection
+            var addMethodInfo = closedConstructedICollectionType.GetRuntimeMethod("Add", new[] { resolveAllInfo.ItemType });
+            for (var i = 0; i < resolveAllInfo.Registrations.Count; i++)
+            {
+                var registration = resolveAllInfo.Registrations[i];
+                var itemTypeKey = new TypeKey(resolveAllInfo.ItemType, registration.RegistrationName);
+                var resolveRegistrationExpression = CreateResolveExpressionRecursively(itemTypeKey, registration, container);
+                blockExpressions[i + 2] = Expression.Call(castedICollectionVariableExpression, addMethodInfo, resolveRegistrationExpression);
+            }
+
+            blockExpressions[blockExpressions.Length - 1] = variableExpression; // Return statement
+
+            return Expression.Block(resolveAllInfo.CollectionType, new[] { variableExpression, castedICollectionVariableExpression }, blockExpressions);
         }
 
         private Expression CreateConstructionExpression(ResolveExpressionContext context)
@@ -142,7 +180,7 @@ namespace Light.DependencyInjection.TypeResolving
                 var dependencyType = dependency.DependencyType;
                 if (dependencyType.IsGenericTypeParameter())
                     dependencyType = context.ResolveGenericTypeParameter(dependencyType);
-                resolvedDependencyExpressions[i] = CreateResolveExpressionRecursively(new TypeKey(dependencyType, dependency.TargetRegistrationName), context.Container);
+                resolvedDependencyExpressions[i] = CreateResolveExpressionRecursively(new TypeKey(dependencyType, dependency.TargetRegistrationName), context.Container, dependency.ResolveAll);
             }
 
             return resolvedDependencyExpressions;

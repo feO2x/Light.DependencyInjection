@@ -9,21 +9,11 @@ namespace Light.DependencyInjection
     public class RegistrationException : ArgumentException
     {
         /// <summary>
-        ///     Gets the type that could not be registered.
-        /// </summary>
-        public readonly Type TargetType;
-
-        /// <summary>
         ///     Initializes a new instance of <see cref="RegistrationException" />.
         /// </summary>
         /// <param name="message">The message of the exception.</param>
-        /// <param name="targetType">The type that could not be registered properly.</param>
         /// <param name="innerException">The exception that led to this one.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="targetType" /> is null.</exception>
-        public RegistrationException(string message, Type targetType, Exception innerException = null)
-            : base(message, innerException)
-        {
-            TargetType = targetType.MustNotBeNull(nameof(targetType));
-        }
+        public RegistrationException(string message, Exception innerException = null)
+            : base(message.MustNotBeNullOrWhiteSpace(nameof(message)), innerException) { }
     }
 }

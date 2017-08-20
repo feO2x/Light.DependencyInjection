@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using FluentAssertions;
 
@@ -104,4 +105,14 @@ namespace Light.DependencyInjection.Tests
     public class Implementation1 : IAbstractionA { }
     public class Implementation2 : IAbstractionA { }
     public class Implementation3 : IAbstractionA { }
+
+    public class ClassWithCollectionDependency
+    {
+        public readonly IReadOnlyList<IAbstractionA> Instances;
+
+        public ClassWithCollectionDependency(IReadOnlyList<IAbstractionA> instances)
+        {
+            Instances = instances;
+        }
+    }
 }

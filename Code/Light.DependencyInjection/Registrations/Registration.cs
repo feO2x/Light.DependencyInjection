@@ -20,9 +20,9 @@ namespace Light.DependencyInjection.Registrations
             if (lifeTime.IsCreatingNewInstances)
             {
                 if (typeConstructionInfo == null)
-                    throw new RegistrationException($"The Type Construction Info for {typeKey} must not be null when the Lifetime \"{lifeTime}\" of the registration is able to create new instances of the target type.", typeKey.Type);
+                    throw new RegistrationException($"The Type Construction Info for {typeKey} must not be null when the Lifetime \"{lifeTime}\" of the registration is able to create new instances of the target type.");
                 if (typeConstructionInfo.TypeKey != typeKey)
-                    throw new RegistrationException($"The Type Key {typeConstructionInfo.TypeKey} of the Type Construction Info is not equal to the Type Key {typeKey} of the registration.", typeConstructionInfo.TypeKey.Type);
+                    throw new RegistrationException($"The Type Key {typeConstructionInfo.TypeKey} of the Type Construction Info is not equal to the Type Key {typeKey} of the registration.");
                 TypeConstructionInfo = typeConstructionInfo;
             }
             if (mappedAbstractionTypes.IsNullOrEmpty() == false)
@@ -39,6 +39,8 @@ namespace Light.DependencyInjection.Registrations
 
         public Type TargetType => TypeKey.Type;
         public string RegistrationName => TypeKey.RegistrationName;
+        public bool IsGenericRegistration => TargetType.IsGenericTypeDefinition();
+        public bool IsDefaultRegistration => RegistrationName == string.Empty;
 
         public bool Equals(Registration other)
         {

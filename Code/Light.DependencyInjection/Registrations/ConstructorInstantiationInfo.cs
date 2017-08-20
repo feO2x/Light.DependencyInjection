@@ -15,9 +15,9 @@ namespace Light.DependencyInjection.Registrations
         {
             constructorInfo.MustNotBeNull(nameof(constructorInfo));
             if (constructorInfo.DeclaringType != typeKey.Type)
-                throw new RegistrationException($"The constructor \"{constructorInfo}\" is not a constructor of type \"{typeKey.Type}\", but of \"{constructorInfo.DeclaringType}\".", typeKey.Type);
+                throw new RegistrationException($"The constructor \"{constructorInfo}\" is not a constructor of type \"{typeKey.Type}\", but of \"{constructorInfo.DeclaringType}\".");
 
-            instantiationDependencies.VerifyDependencies(constructorInfo.GetParameters(), TypeKey.Type, "constructor");
+            instantiationDependencies.VerifyDependencies(constructorInfo.GetParameters(), "constructor");
 
             ConstructorInfo = constructorInfo;
         }

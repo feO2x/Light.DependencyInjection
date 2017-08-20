@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Services
@@ -15,6 +16,13 @@ namespace Light.DependencyInjection.Services
         {
             return container.MustNotBeNull(nameof(container))
                             .Register(container, options => options.DisableIDisposableTracking());
+        }
+
+        public static DiContainer AddDefaultListRegistration(this DiContainer container)
+        {
+            return container.MustNotBeNull(nameof(container))
+                            .Register(typeof(List<>), options => options.UseDefaultConstructor()
+                                                                        .MapToAbstractions(typeof(IEnumerable<>), typeof(ICollection<>), typeof(IList<>), typeof(IReadOnlyCollection<>), typeof(IReadOnlyList<>)));
         }
     }
 }

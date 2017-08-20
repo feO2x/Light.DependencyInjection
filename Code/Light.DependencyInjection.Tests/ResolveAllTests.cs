@@ -33,5 +33,21 @@ namespace Light.DependencyInjection.Tests
                 instances[i].GetType().Should().Be(concreteTypes[i]);
             }
         }
+
+        [Fact(DisplayName = "The DI Container must be able to resolve all registrations as part of a complex object graph.")]
+        public void ResolveAllHierarchically()
+        {
+            var concreteTypes = new[] { typeof(Implementation2), typeof(Implementation3), typeof(Implementation1) };
+            var container = new DiContainer().RegisterMany<IAbstractionA>(concreteTypes)
+                                             .Register<ClassWithCollectionDependency>();
+
+            var resolvedInstance = container.Resolve<ClassWithCollectionDependency>();
+
+            resolvedInstance.Instances.Should().HaveCount(3);
+            for (var i = 0; i < resolvedInstance.Instances.Count; i++)
+            {
+                resolvedInstance.Instances[i].GetType().Should().Be(concreteTypes[i]);
+            }
+        }
     }
 }

@@ -14,32 +14,35 @@ namespace Light.DependencyInjection.Services
         public readonly IAutomaticRegistrationFactory AutomaticRegistrationFactory;
 
         public readonly IConcurrentDictionaryFactory ConcurrentDictionaryFactory;
-        public readonly IConcurrentListFactory ConcurrentListFactory;
+        public readonly IRegistrationCollectionFactory RegistrationCollectionFactory;
         public readonly IContainerScopeFactory ContainerScopeFactory;
         public readonly IDefaultInstantiationInfoSelector DefaultInstantiationInfoSelector;
         public readonly IReadOnlyList<Type> IgnoredAbstractionTypes;
         public readonly IResolveContextFactory ResolveContextFactory;
         public readonly IResolveDelegateFactory ResolveDelegateFactory;
+        public readonly IResolveInfoAlgorithm ResolveInfoAlgorithm;
         public readonly Action<DiContainer> SetupContainer;
 
         public ContainerServices(IConcurrentDictionaryFactory concurrentDictionaryFactory,
-                                 IConcurrentListFactory concurrentListFactory,
+                                 IRegistrationCollectionFactory registrationCollectionFactory,
                                  IDefaultInstantiationInfoSelector defaultInstantiationInfoSelector,
                                  IReadOnlyList<Type> ignoredAbstractionTypes,
                                  IContainerScopeFactory containerScopeFactory,
                                  IResolveDelegateFactory resolveDelegateFactory,
                                  IAutomaticRegistrationFactory automaticRegistrationFactory,
                                  IResolveContextFactory resolveContextFactory,
+                                 IResolveInfoAlgorithm resolveInfoAlgorithm,
                                  Action<DiContainer> setupContainer = null)
         {
             ConcurrentDictionaryFactory = concurrentDictionaryFactory.MustNotBeNull(nameof(concurrentDictionaryFactory));
-            ConcurrentListFactory = concurrentListFactory.MustNotBeNull(nameof(concurrentListFactory));
+            RegistrationCollectionFactory = registrationCollectionFactory.MustNotBeNull(nameof(registrationCollectionFactory));
             DefaultInstantiationInfoSelector = defaultInstantiationInfoSelector.MustNotBeNull(nameof(defaultInstantiationInfoSelector));
             IgnoredAbstractionTypes = ignoredAbstractionTypes.MustNotBeNull(nameof(ignoredAbstractionTypes));
             ContainerScopeFactory = containerScopeFactory.MustNotBeNull(nameof(containerScopeFactory));
             ResolveDelegateFactory = resolveDelegateFactory.MustNotBeNull(nameof(resolveDelegateFactory));
             AutomaticRegistrationFactory = automaticRegistrationFactory.MustNotBeNull(nameof(automaticRegistrationFactory));
             ResolveContextFactory = resolveContextFactory.MustNotBeNull(nameof(resolveContextFactory));
+            ResolveInfoAlgorithm = resolveInfoAlgorithm.MustNotBeNull(nameof(resolveInfoAlgorithm));
             SetupContainer = setupContainer;
         }
 
@@ -61,7 +64,8 @@ namespace Light.DependencyInjection.Services
         public static void DefaultSetupContainer(DiContainer container)
         {
             container.AddDefaultGuidRegistration()
-                     .AddDefaultContainerRegistration();
+                     .AddDefaultContainerRegistration()
+                     .AddDefaultListRegistration();
         }
 
         public static CompiledLinqExpressionFactory CreateDefaultResolveDelegateFactory()

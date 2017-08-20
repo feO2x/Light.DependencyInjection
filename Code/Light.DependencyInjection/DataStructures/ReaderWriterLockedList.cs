@@ -7,7 +7,7 @@ using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.DataStructures
 {
-    public sealed class ReaderWriterLockedList<T> : IConcurrentList<T>, IDisposable
+    public sealed class ReaderWriterLockedList<T> : IConcurrentList<T>, IReadOnlyList<T>, IDisposable
     {
         private readonly IEqualityComparer<T> _equalityComparer;
         private readonly IGrowArrayStrategy<T> _growArrayStrategy;

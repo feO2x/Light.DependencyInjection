@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Light.DependencyInjection.TypeResolving;
 using Light.GuardClauses;
 using Light.GuardClauses.FrameworkExtensions;
 
@@ -103,6 +104,19 @@ namespace Light.DependencyInjection.Registrations
             }
 
             return array;
+        }
+
+        public static Type FindClosedConstructedIEnumerableType(this Type type)
+        {
+            var implementedInterfaces = type.GetTypeInfo().ImplementedInterfaces.AsReadOnlyList();
+            for (var i = 0; i < implementedInterfaces.Count; i++)
+            {
+                var @interface = implementedInterfaces[i];
+                if (@interface.IsEquivalentTo(KnownTypes.IEnumerableGenericTypeDefinition))
+                    return @interface;
+            }
+
+            return null;
         }
     }
 }

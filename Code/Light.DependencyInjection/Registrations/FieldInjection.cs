@@ -13,11 +13,10 @@ namespace Light.DependencyInjection.Registrations
         {
             var foundField = TypeKey.Type.GetRuntimeField(targetField.Name);
             if (foundField == null || foundField.Equals(targetField) == false)
-                throw new RegistrationException($"The type \"{TypeKey.Type}\" does not contain the field \"{targetField}\".", typeKey.Type);
+                throw new RegistrationException($"The type \"{TypeKey.Type}\" does not contain the field \"{targetField}\".");
 
             if (foundField.IsStatic)
-                throw new RegistrationException($"The specified field \"{targetField}\" is a static field and thus cannot be used for Field Injection.", TypeKey.Type);
-
+                throw new RegistrationException($"The specified field \"{targetField}\" is a static field and thus cannot be used for Field Injection.");
             TargetField = targetField;
         }
     }

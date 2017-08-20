@@ -47,7 +47,7 @@ namespace Light.DependencyInjection
             var newRegistrationMappings = Services.ConcurrentDictionaryFactory.Create<Type, IConcurrentList<Registration>>();
             foreach (var registrationMapping in parentRegistrationMappings)
             {
-                newRegistrationMappings.TryAdd(registrationMapping.Key, Services.ConcurrentListFactory.Create(registrationMapping.Value));
+                newRegistrationMappings.TryAdd(registrationMapping.Key, Services.RegistrationCollectionFactory.Create(registrationMapping.Value));
             }
             return newRegistrationMappings;
         }
@@ -133,7 +133,7 @@ namespace Light.DependencyInjection
         {
             if (_registrationMappings.TryGetValue(type, out var typeRegistrations) == false)
             {
-                typeRegistrations = Services.ConcurrentListFactory.Create<Registration>();
+                typeRegistrations = Services.RegistrationCollectionFactory.Create();
                 typeRegistrations = _registrationMappings.GetOrAdd(type, typeRegistrations);
             }
             typeRegistrations.AddOrUpdate(registration);
@@ -252,9 +252,30 @@ namespace Light.DependencyInjection
             return null;
         }
 
+        public IReadOnlyList<Registration> GetRegistrationsForType<T>()
+        {
+            return GetRegistrationsForType(typeof(T));
+        }
+
+        public IReadOnlyList<Registration> GetRegistrationsForType(Type type)
+        {
+            type.MustNotBeNull(nameof(type));
+            return _registrationMappings.TryGetValue(type, out var registrations) ? registrations.AsReadOnlyList() : null;
+        }
+
         public DiContainer CreateChildContainer(ChildContainerOptions childContainerOptions = default(ChildContainerOptions))
         {
             return new DiContainer(this, childContainerOptions);
+        }
+
+        public ResolveInfo GetResolveInfo(Type type, string registrationName = "", bool? tryResolveAll = null)
+        {
+            return GetResolveInfo(new TypeKey(type, registrationName), tryResolveAll);
+        }
+
+        public ResolveInfo GetResolveInfo(TypeKey typeKey, bool? tryResolveAll = null)
+        {
+            return Services.ResolveInfoAlgorithm.Search(typeKey, this, tryResolveAll);
         }
     }
 }

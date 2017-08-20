@@ -12,24 +12,26 @@ namespace Light.DependencyInjection.Services
     {
         private IAutomaticRegistrationFactory _automaticRegistrationFactory;
         private IConcurrentDictionaryFactory _concurrentDictionaryFactory;
-        private IConcurrentListFactory _concurrentListFactory;
+        private IRegistrationCollectionFactory _registrationCollectionFactory;
         private IContainerScopeFactory _containerScopeFactory;
         private IDefaultInstantiationInfoSelector _defaultInstantiationInfoSelector;
         private IReadOnlyList<Type> _ignoredAbstractionTypes;
         private IResolveContextFactory _resolveContextFactory;
         private IResolveDelegateFactory _resolveDelegateFactory;
+        private IResolveInfoAlgorithm _resolveInfoAlgorithm;
         private Action<DiContainer> _setupContainer;
 
         public ContainerServicesBuilder()
         {
             _automaticRegistrationFactory = new DefaultAutomaticRegistrationFactory();
             _concurrentDictionaryFactory = new DefaultConcurrentDictionaryFactory();
-            _concurrentListFactory = new ReaderWriterLockedListFactory();
+            _registrationCollectionFactory = new ReaderWriterLockedListFactory();
             _containerScopeFactory = new DefaultContainerScopeFactory();
             _defaultInstantiationInfoSelector = new ConstructorWithMostParametersSelector();
             _ignoredAbstractionTypes = ContainerServices.DefaultIgnoredAbstractionTypes;
             _resolveContextFactory = new PerThreadResolveContextFactory();
             _resolveDelegateFactory = ContainerServices.CreateDefaultResolveDelegateFactory();
+            _resolveInfoAlgorithm = new PreferResolveAllOverGenericTypeDefinitionAlgorithm();
             _setupContainer = ContainerServices.DefaultSetupContainer;
         }
 
@@ -38,7 +40,7 @@ namespace Light.DependencyInjection.Services
             existingServices.MustNotBeNull(nameof(existingServices));
 
             _concurrentDictionaryFactory = existingServices.ConcurrentDictionaryFactory;
-            _concurrentListFactory = existingServices.ConcurrentListFactory;
+            _registrationCollectionFactory = existingServices.RegistrationCollectionFactory;
             _containerScopeFactory = existingServices.ContainerScopeFactory;
             _defaultInstantiationInfoSelector = existingServices.DefaultInstantiationInfoSelector;
             _ignoredAbstractionTypes = existingServices.IgnoredAbstractionTypes;
@@ -54,9 +56,9 @@ namespace Light.DependencyInjection.Services
             return this;
         }
 
-        public ContainerServicesBuilder WithConcurrenteListFactory(IConcurrentListFactory concurrentListFactory)
+        public ContainerServicesBuilder WithConcurrenteListFactory(IRegistrationCollectionFactory registrationCollectionFactory)
         {
-            _concurrentListFactory = concurrentListFactory;
+            _registrationCollectionFactory = registrationCollectionFactory;
             return this;
         }
 
@@ -108,16 +110,23 @@ namespace Light.DependencyInjection.Services
             return this;
         }
 
+        public ContainerServicesBuilder WithResolveInfoAlgorithm(IResolveInfoAlgorithm algorithm)
+        {
+            _resolveInfoAlgorithm = algorithm;
+            return this;
+        }
+
         public ContainerServices Build()
         {
             return new ContainerServices(_concurrentDictionaryFactory,
-                                         _concurrentListFactory,
+                                         _registrationCollectionFactory,
                                          _defaultInstantiationInfoSelector,
                                          _ignoredAbstractionTypes,
                                          _containerScopeFactory,
                                          _resolveDelegateFactory,
                                          _automaticRegistrationFactory,
                                          _resolveContextFactory,
+                                         _resolveInfoAlgorithm,
                                          _setupContainer);
         }
     }
