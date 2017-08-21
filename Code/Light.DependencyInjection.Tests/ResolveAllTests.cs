@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Generic;
+using FluentAssertions;
 using Xunit;
 
 namespace Light.DependencyInjection.Tests
@@ -47,6 +48,21 @@ namespace Light.DependencyInjection.Tests
             for (var i = 0; i < resolvedInstance.Instances.Count; i++)
             {
                 resolvedInstance.Instances[i].GetType().Should().Be(concreteTypes[i]);
+            }
+        }
+
+        [Fact(DisplayName = "The DI Container should perform a Resolve All by default when a collection of abstraction instances is requested.")]
+        public void ResolveAllViaStandardResolve()
+        {
+            var concreteTypes = new[] { typeof(Implementation3), typeof(Implementation2), typeof(Implementation1) };
+            var container = new DiContainer().RegisterMany<IAbstractionA>(concreteTypes);
+
+            var resolvedInstances = container.Resolve<IReadOnlyList<IAbstractionA>>();
+
+            resolvedInstances.Should().HaveCount(3);
+            for (var i = 0; i < resolvedInstances.Count; i++)
+            {
+                resolvedInstances[i].GetType().Should().Be(concreteTypes[i]);
             }
         }
     }
