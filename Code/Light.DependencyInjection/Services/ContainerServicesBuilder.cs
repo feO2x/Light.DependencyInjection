@@ -45,9 +45,10 @@ namespace Light.DependencyInjection.Services
             _defaultInstantiationInfoSelector = existingServices.DefaultInstantiationInfoSelector;
             _ignoredAbstractionTypes = existingServices.IgnoredAbstractionTypes;
             _resolveDelegateFactory = existingServices.ResolveDelegateFactory;
-            _setupContainer = existingServices.SetupContainer;
             _automaticRegistrationFactory = existingServices.AutomaticRegistrationFactory;
             _resolveContextFactory = existingServices.ResolveContextFactory;
+            _resolveInfoAlgorithm = existingServices.ResolveInfoAlgorithm;
+            _setupContainer = existingServices.SetupContainer;
         }
 
         public ContainerServicesBuilder WithConcurrentDictionaryFactory(IConcurrentDictionaryFactory concurrentDictionaryFactory)
