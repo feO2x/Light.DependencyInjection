@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using Light.DependencyInjection.DataStructures;
@@ -110,10 +111,58 @@ namespace Light.DependencyInjection.Registrations
             return This;
         }
 
+        public TOptions ConfigureInstantiationParameter<TParameter>(Action<IDependencyOptions> configureDependency)
+        {
+            return ConfigureInstantiationParameter(typeof(TParameter), configureDependency);
+        }
+
+        public TOptions ConfigureInstantiationParameter(Type parameterType, Action<IDependencyOptions> configureDependency)
+        {
+            parameterType.MustNotBeNull(nameof(parameterType));
+            configureDependency.MustNotBeNull(nameof(configureDependency));
+
+            AssignInstantiationInfoFactoryIfNecessary();
+
+            var targetDependencyFactories = _instantiationInfoFactory.InstantiationDependencyFactories
+                                                                     .Where(dependency => dependency.DependencyType == parameterType)
+                                                                     .ToList();
+
+            if (targetDependencyFactories.Count > 1)
+                throw new RegistrationException($"There are several parameters with type \"{parameterType}\" - please use the overload of {nameof(ConfigureInstantiationParameter)} that accepts a unique parameter name.");
+            if (targetDependencyFactories.Count == 0)
+                throw new RegistrationException($"There is no parameter with type \"{parameterType}\".");
+
+            configureDependency(targetDependencyFactories[0]);
+
+            return This;
+        }
+
+        public TOptions ConfigureInstantiationParameter(string parameterName, Action<IDependencyOptions> configureDependency, StringComparison nameComparisonType = StringComparison.CurrentCulture)
+        {
+            parameterName.MustNotBeNullOrWhiteSpace(nameof(parameterName));
+            configureDependency.MustNotBeNull(nameof(configureDependency));
+            nameComparisonType.MustBeValidEnumValue(nameof(nameComparisonType));
+
+            AssignInstantiationInfoFactoryIfNecessary();
+
+            var targetDependencyFactories = _instantiationInfoFactory.InstantiationDependencyFactories
+                                                                   .Where(dependency => dependency.Name.Equals(parameterName, nameComparisonType))
+                                                                   .ToList();
+            if (targetDependencyFactories.Count > 1)
+                throw new RegistrationException($"There are several parameters that equal the parameterName \"{parameterName}\" (using comparison type \"{nameComparisonType}\").");
+
+            if (targetDependencyFactories.Count == 0)
+                throw new RegistrationException($"There is no parameter with name \"{parameterName}\".");
+
+            configureDependency(targetDependencyFactories[0]);
+
+            return This;
+        }
+
         public TOptions AddPropertyInjection(PropertyInfo propertyInfo, string targetRegistrationName = "")
         {
             var propertyInjectionFactory = new PropertyInjectionFactory(propertyInfo);
-            propertyInjectionFactory.DependencyFactory.TargetRegistrationName = targetRegistrationName;
+            propertyInjectionFactory.DependencyFactory.WithTargetRegistrationName(targetRegistrationName);
             InstanceManipulationFactories.AddOrReplace(propertyInjectionFactory);
             return This;
         }
@@ -126,7 +175,7 @@ namespace Light.DependencyInjection.Registrations
         public TOptions AddFieldInjection(FieldInfo fieldInfo, string targetRegistrationName = "")
         {
             var fieldInjectionFactory = new FieldInjectionFactory(fieldInfo);
-            fieldInjectionFactory.DependencyFactory.TargetRegistrationName = targetRegistrationName;
+            fieldInjectionFactory.DependencyFactory.WithTargetRegistrationName(targetRegistrationName);
             InstanceManipulationFactories.AddOrReplace(fieldInjectionFactory);
             return This;
         }

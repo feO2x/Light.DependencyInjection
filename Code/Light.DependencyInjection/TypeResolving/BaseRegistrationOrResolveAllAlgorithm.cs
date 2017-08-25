@@ -40,7 +40,7 @@ namespace Light.DependencyInjection.TypeResolving
 
         private static ResolveAllInfo FindAllRegistrations(Type requestedCollectionType, Type itemType, DiContainer container)
         {
-            var registrations = container.GetRegistrationsForType(requestedCollectionType);
+            var registrations = container.GetRegistrationsForType(itemType);
             if (registrations != null)
                 return new ResolveAllInfo(new TypeKey(requestedCollectionType), registrations, itemType);
 

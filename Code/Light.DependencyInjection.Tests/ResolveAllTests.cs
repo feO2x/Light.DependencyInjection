@@ -80,5 +80,39 @@ namespace Light.DependencyInjection.Tests
 
             resolvedInstance.Instances.Should().HaveCount(0).And.Subject.Should().BeAssignableTo<List<IAbstractionA>>();
         }
+
+        [Fact(DisplayName = "The DI Container must allow clients to explicitely set ResolveAll for instantiation dependencies by type.")]
+        public void ExplicitelyEnableResolveAllForInstantiationDependency()
+        {
+            var containerServices = new ContainerServicesBuilder().WithResolveInfoAlgorithm(new ResolveOnlyRegistrationsAlgorithm()).Build();
+            var concreteTypes = new[] { typeof(Implementation1), typeof(Implementation3), typeof(Implementation2) };
+            var container = new DiContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
+                                                              .Register<ClassWithCollectionDependency>(options => options.ConfigureInstantiationParameter<IReadOnlyList<IAbstractionA>>(parameter => parameter.SetResolveAllTo(true)));
+
+            var resolvedInstance = container.Resolve<ClassWithCollectionDependency>();
+
+            resolvedInstance.Instances.Should().HaveCount(3);
+            for (var i = 0; i < resolvedInstance.Instances.Count; i++)
+            {
+                resolvedInstance.Instances[i].GetType().Should().Be(concreteTypes[i]);
+            }
+        }
+
+        [Fact(DisplayName = "The DI Container must allow clients to explicitely set ResolveAll for instantiation dependencies by name.")]
+        public void ExplicitelyResolveAllForInstantiationDependencyByName()
+        {
+            var containerServices = new ContainerServicesBuilder().WithResolveInfoAlgorithm(new ResolveOnlyRegistrationsAlgorithm()).Build();
+            var concreteTypes = new[] { typeof(Implementation1), typeof(Implementation3), typeof(Implementation2) };
+            var container = new DiContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
+                                                              .Register<ClassWithCollectionDependency>(options => options.ConfigureInstantiationParameter("instances", parameter => parameter.SetResolveAllTo(true)));
+
+            var resolvedInstance = container.Resolve<ClassWithCollectionDependency>();
+
+            resolvedInstance.Instances.Should().HaveCount(3);
+            for (var i = 0; i < resolvedInstance.Instances.Count; i++)
+            {
+                resolvedInstance.Instances[i].GetType().Should().Be(concreteTypes[i]);
+            }
+        }
     }
 }

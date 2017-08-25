@@ -3,27 +3,36 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
-    public sealed class DependencyFactory
+    public sealed class DependencyFactory : IDependencyOptions
     {
-        private readonly Type _dependencyType;
-        private readonly string _name;
+        public readonly Type DependencyType;
+        public readonly string Name;
+        private bool? _resolveAll;
         private string _targetRegistrationName = "";
 
         public DependencyFactory(string name, Type dependencyType)
         {
-            _name = name.MustNotBeNullOrWhiteSpace(nameof(name));
-            _dependencyType = dependencyType.MustNotBeNull(nameof(dependencyType));
+            Name = name.MustNotBeNullOrWhiteSpace(nameof(name));
+            DependencyType = dependencyType.MustNotBeNull(nameof(dependencyType));
         }
 
-        public string TargetRegistrationName
+        public string TargetRegistrationName => _targetRegistrationName;
+
+        public IDependencyOptions WithTargetRegistrationName(string registrationName)
         {
-            get => _targetRegistrationName;
-            set => _targetRegistrationName = value.MustNotBeNull();
+            _targetRegistrationName = registrationName;
+            return this;
+        }
+
+        public IDependencyOptions SetResolveAllTo(bool? resolveAll)
+        {
+            _resolveAll = resolveAll;
+            return this;
         }
 
         public Dependency Create()
         {
-            return new Dependency(_name, _dependencyType, TargetRegistrationName);
+            return new Dependency(Name, DependencyType, TargetRegistrationName, _resolveAll);
         }
     }
 }
