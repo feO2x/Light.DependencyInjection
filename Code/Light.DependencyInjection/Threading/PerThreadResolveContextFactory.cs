@@ -1,12 +1,18 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Light.DependencyInjection.Services;
 using Light.DependencyInjection.TypeResolving;
 
 namespace Light.DependencyInjection.Threading
 {
-    public sealed class PerThreadResolveContextFactory : IResolveContextFactory
+    public sealed class PerThreadResolveContextFactory : IResolveContextFactory, IDisposable
     {
         private readonly ThreadLocal<ResolveContext> _perThreadResolveContext = new ThreadLocal<ResolveContext>();
+
+        public void Dispose()
+        {
+            _perThreadResolveContext.Dispose();
+        }
 
         public ResolveContext Create(DiContainer container)
         {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Light.GuardClauses;
+using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.Registrations
 {
@@ -89,6 +90,11 @@ namespace Light.DependencyInjection.Registrations
 
             MappedAbstractionTypes.Add(TargetTypeInfo.BaseType);
             return This;
+        }
+
+        protected IReadOnlyList<Type> CreateMappedAbstractionsList()
+        {
+            return MappedAbstractionTypes.Count > 0 ? MappedAbstractionTypes.AsReadOnlyList() : null;
         }
     }
 }

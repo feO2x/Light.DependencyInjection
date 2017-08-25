@@ -62,5 +62,12 @@ namespace Light.DependencyInjection.Services
             _disposableObjects.Add(disposable);
             return true;
         }
+
+        public virtual bool AddOrUpdateScopedInstance(TypeKey typeKey, object value)
+        {
+            var returnValue = _scopedObjects.ContainsKey(typeKey);
+            _scopedObjects[typeKey] = value;
+            return !returnValue;
+        }
     }
 }

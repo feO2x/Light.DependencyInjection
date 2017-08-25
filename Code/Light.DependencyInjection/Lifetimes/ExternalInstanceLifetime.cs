@@ -8,7 +8,7 @@ namespace Light.DependencyInjection.Lifetimes
     {
         public readonly object Value;
 
-        public ExternalInstanceLifetime(object value) : base(false)
+        public ExternalInstanceLifetime(object value) : base(false, true)
         {
             Value = value.MustNotBeNull(nameof(value));
         }

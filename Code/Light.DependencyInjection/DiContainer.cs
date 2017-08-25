@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Light.DependencyInjection.DataStructures;
+using Light.DependencyInjection.Lifetimes;
 using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.Services;
 using Light.DependencyInjection.TypeResolving;
@@ -125,6 +126,51 @@ namespace Light.DependencyInjection
                 configureRegistrations?.Invoke(registrationOptions);
                 Register(registrationOptions.CreateRegistration());
             }
+
+            return this;
+        }
+
+        public DiContainer PrepareScopedExternalInstance<T>(Action<IExternalInstanceOptions> configureRegistration = null)
+        {
+            return PrepareScopedExternalInstance(typeof(T), configureRegistration);
+        }
+
+        public DiContainer PrepareScopedExternalInstance(Type type, Action<IExternalInstanceOptions> configureRegistration = null)
+        {
+            var registrationOptions = Services.CreateScopedExternalInstanceOptions(type);
+            configureRegistration?.Invoke(registrationOptions);
+            return Register(registrationOptions.CreateRegistration());
+        }
+
+        public DiContainer PrepareScopedExternalInstance<TAbstract, TConcrete>(Action<IExternalInstanceOptions> configureRegistration = null) where TConcrete : TAbstract
+        {
+            return PrepareScopedExternalInstance(typeof(TAbstract), typeof(TConcrete), configureRegistration);
+        }
+
+        public DiContainer PrepareScopedExternalInstance(Type abstractionType, Type concreteType, Action<IExternalInstanceOptions> configureRegistration = null)
+        {
+            var registrationOptions = Services.CreateScopedExternalInstanceOptions(concreteType);
+            registrationOptions.MapToAbstractions(abstractionType);
+            configureRegistration?.Invoke(registrationOptions);
+            return Register(registrationOptions.CreateRegistration());
+        }
+
+        public DiContainer AddPreparedExternalInstanceToScope<T>(T instance, string registrationName = "")
+        {
+            return AddPreparedExternalInstanceToScope(instance, typeof(T), registrationName);
+        }
+
+        public DiContainer AddPreparedExternalInstanceToScope(object instance, Type targetType, string registrationName = "")
+        {
+            instance.MustNotBeNull(nameof(instance));
+
+            var registration = TryGetRegistration(new TypeKey(targetType, registrationName));
+            if (registration == null || registration.Lifetime is ScopedExternalInstanceLifetime == false)
+                throw new RegistrationException($"There is no registration present for the Scoped External Instance \"{instance}\".");
+
+            Scope.AddOrUpdateScopedInstance(registration.TypeKey, instance);
+            if (registration.IsTrackingDisposables)
+                Scope.TryAddDisposable(instance);
 
             return this;
         }

@@ -263,7 +263,7 @@ namespace Light.DependencyInjection.Registrations
                                     new TypeConstructionInfo(typeKey,
                                                              _instantiationInfoFactory.Create(RegistrationName),
                                                              InstanceManipulationFactories.CreateInstanceManipulations(RegistrationName)),
-                                    MappedAbstractionTypes.Count > 0 ? MappedAbstractionTypes.AsReadOnlyList() : null,
+                                    CreateMappedAbstractionsList(),
                                     IsTrackingDisposables);
         }
     }

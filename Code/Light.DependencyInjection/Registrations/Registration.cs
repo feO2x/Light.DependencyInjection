@@ -25,12 +25,15 @@ namespace Light.DependencyInjection.Registrations
                     throw new RegistrationException($"The Type Key {typeConstructionInfo.TypeKey} of the Type Construction Info is not equal to the Type Key {typeKey} of the registration.");
                 TypeConstructionInfo = typeConstructionInfo;
             }
+            else if (TargetType.IsGenericTypeDefinition())
+                throw new RegistrationException($"You cannot register the generic type definition \"{TargetType}\" when the corresponding lifetime does not create instances.");
+
             if (mappedAbstractionTypes.IsNullOrEmpty() == false)
             {
                 // ReSharper disable once PossibleNullReferenceException
                 for (var i = 0; i < mappedAbstractionTypes.Count; i++)
                 {
-                    mappedAbstractionTypes[i].MustBeBaseTypeOf(typeKey.Type);
+                    mappedAbstractionTypes[i].MustBeBaseTypeOf(TargetType);
                 }
             }
             MappedAbstractionTypes = mappedAbstractionTypes;

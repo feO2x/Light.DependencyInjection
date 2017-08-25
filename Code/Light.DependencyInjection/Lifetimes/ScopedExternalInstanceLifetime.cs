@@ -1,24 +1,20 @@
 using System;
-using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.TypeResolving;
 
 namespace Light.DependencyInjection.Lifetimes
 {
     public sealed class ScopedExternalInstanceLifetime : Lifetime
     {
-        public readonly TypeKey TypeKey;
+        public static readonly ScopedExternalInstanceLifetime Instance = new ScopedExternalInstanceLifetime();
 
-        public ScopedExternalInstanceLifetime(TypeKey typeKey)
-        {
-            TypeKey = typeKey.MustNotBeEmpty(nameof(typeKey));
-        }
+        public ScopedExternalInstanceLifetime() : base(false) { }
 
         public override object ResolveInstance(IResolveContext resolveContext)
         {
-            if (resolveContext.TryGetPerResolveInstance(TypeKey, out var instance))
+            if (resolveContext.Container.Scope.TryGetScopedInstance(resolveContext.Registration.TypeKey, out var instance))
                 return instance;
 
-            throw new ResolveException($"There is no external instance available in the current scope for {TypeKey}.");
+            throw new ResolveException($"There is no external instance available in the current scope for {resolveContext.Registration.TypeKey}.");
         }
 
         public override Lifetime GetLifetimeInstanceForConstructedGenericType()

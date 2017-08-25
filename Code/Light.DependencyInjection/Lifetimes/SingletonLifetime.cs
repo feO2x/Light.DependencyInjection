@@ -7,6 +7,8 @@ namespace Light.DependencyInjection.Lifetimes
     {
         private object _instance;
 
+        public SingletonLifetime() : base(canBeResolvedDuringCompilation: true) { }
+
         public override object ResolveInstance(IResolveContext resolveContext)
         {
             if (_instance != null)

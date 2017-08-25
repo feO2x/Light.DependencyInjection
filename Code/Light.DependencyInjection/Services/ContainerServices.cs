@@ -61,6 +61,11 @@ namespace Light.DependencyInjection.Services
             return new ExternalInstanceOptions(value, IgnoredAbstractionTypes);
         }
 
+        public ExternalInstanceOptions CreateScopedExternalInstanceOptions(Type targetType)
+        {
+            return new ExternalInstanceOptions(targetType, IgnoredAbstractionTypes);
+        }
+
         public static void DefaultSetupContainer(DiContainer container)
         {
             container.AddDefaultGuidRegistration()

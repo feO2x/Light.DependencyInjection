@@ -13,13 +13,16 @@ namespace Light.DependencyInjection.Lifetimes
         public static readonly TransientLifetime Instance = new TransientLifetime();
 
         /// <summary>
-        ///     Always creates a new instance using the specified delegate.
+        ///     Always creates a new instance using the specified resolve context.
         /// </summary>
         public override object ResolveInstance(IResolveContext resolveContext)
         {
             return resolveContext.CreateInstance();
         }
 
+        /// <summary>
+        ///     Gets the singleton instance of this lifetime.
+        /// </summary>
         public override Lifetime GetLifetimeInstanceForConstructedGenericType()
         {
             return Instance;

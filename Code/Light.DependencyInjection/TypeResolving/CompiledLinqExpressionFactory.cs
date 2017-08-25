@@ -15,6 +15,7 @@ namespace Light.DependencyInjection.TypeResolving
                                                                                            .GetDeclaredMethod(nameof(Lifetime.ResolveInstance));
 
         private static readonly MethodInfo ChangeResolvedTypeMethod = KnownTypes.ResolveContextType.GetTypeInfo().GetDeclaredMethod(nameof(ResolveContext.ChangeResolvedType));
+        private static readonly MethodInfo ChangeRegistrationMethod = KnownTypes.ResolveContextType.GetTypeInfo().GetDeclaredMethod(nameof(ResolveContext.ChangeRegistration));
         private static readonly ParameterExpression ResolveContextParameterExpression = Expression.Parameter(KnownTypes.ResolveContextType);
         private readonly IReadOnlyDictionary<Type, IInstanceManipulationExpressionFactory> _instanceManipulationExpressionFactories;
         private readonly IReadOnlyDictionary<Type, IInstantiationExpressionFactory> _instantiationExpressionFactories;
@@ -61,35 +62,50 @@ namespace Light.DependencyInjection.TypeResolving
         private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, Registration registration, DiContainer container)
         {
             // Check if the lifetime of the registration would need to create a new instance.
-            // If not, then we can immediately get the instance of the lifetime without creating a ResolveContext
+            // If not, then we can do not need to create a construction expression
+            Expression resolveContextExpression;
             if (registration.Lifetime.IsCreatingNewInstances == false)
             {
-                var instance = registration.Lifetime.ResolveInstance(null);
-                return Expression.Constant(instance, requestedTypeKey.Type);
+                // If the lifetime can be resolved during compilation, then create a resolve context and immediately
+                // call ResolveInstance to compile a constant reference to the instance into the resolve method
+                if (registration.Lifetime.CanBeResolvedDuringCompilation)
+                {
+                    var instance = registration.Lifetime.ResolveInstance(container.Services.ResolveContextFactory.Create(container).ChangeRegistration(registration));
+                    return Expression.Constant(instance, requestedTypeKey.Type);
+                }
+
+                // Else prepare the resolve context parameter with the target registration and call the ResolveInstance dynamically
+                resolveContextExpression = Expression.Call(ResolveContextParameterExpression,
+                                                           ChangeRegistrationMethod,
+                                                           Expression.Constant(registration));
+                return Expression.Convert(Expression.Call(Expression.Constant(registration.Lifetime),
+                                                          LifetimeResolveInstanceMethod,
+                                                          resolveContextExpression),
+                                          requestedTypeKey.Type);
             }
 
             // Else we need to create a construction expression that instantiates the target type and performs any instance manipulations
             var resolveExpressionContext = new ResolveExpressionContext(requestedTypeKey, registration, container);
             var constructionExpression = CreateConstructionExpression(resolveExpressionContext);
 
-            // Compile the construction expression to a delegate so that it can be used with lifetimes
+            // Compile the construction expression to a delegate so that it can be injected into the ResolveContext
             var compiledDelegate = constructionExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
 
-            // TODO: provide an extension point to create expressions for known lifetimes that do not require the compilation of the construction expression
             var targetLifetime = resolveExpressionContext.IsResolvingGenericTypeDefinition ? registration.Lifetime.GetLifetimeInstanceForConstructedGenericType() : registration.Lifetime;
-            // If it is a singleton lifetime, then immediately resolve the instance and return it as a constant expression
-            if (targetLifetime is SingletonLifetime singletonLifetime)
+
+            // If the lifetime can be resolved during compilation, then create a resolve context and immediately
+            // call ResolveInstance to compile a constant reference to the instance into the resolve method
+            if (targetLifetime.CanBeResolvedDuringCompilation)
             {
-                // TODO: this code can be optimized because a singleton lifetime might already hold the value; in this case it would be unnecessary to create the compiled delegate
-                var singleton = singletonLifetime.ResolveInstance(container.Services.ResolveContextFactory.Create(container).ChangeResolvedType(registration, compiledDelegate));
-                return Expression.Constant(singleton, requestedTypeKey.Type);
+                var instance = targetLifetime.ResolveInstance(container.Services.ResolveContextFactory.Create(container).ChangeResolvedType(registration, compiledDelegate));
+                return Expression.Constant(instance);
             }
 
             // Else create a expression that calls the target lifetime using the compiled delegate
-            var resolveContextExpression = Expression.Call(ResolveContextParameterExpression,
-                                                           ChangeResolvedTypeMethod,
-                                                           Expression.Constant(registration),
-                                                           Expression.Constant(compiledDelegate));
+            resolveContextExpression = Expression.Call(ResolveContextParameterExpression,
+                                                       ChangeResolvedTypeMethod,
+                                                       Expression.Constant(registration),
+                                                       Expression.Constant(compiledDelegate));
             return Expression.Convert(Expression.Call(Expression.Constant(targetLifetime),
                                                       LifetimeResolveInstanceMethod,
                                                       resolveContextExpression),
@@ -103,7 +119,7 @@ namespace Light.DependencyInjection.TypeResolving
             if (collectionRegistration == null)
                 throw new ResolveException($"There is no registration present to resolve collection type \"{resolveAllInfo.CollectionType}\".");
             var createCollectionExpression = CreateConstructionExpression(new ResolveExpressionContext(new TypeKey(resolveAllInfo.CollectionType), collectionRegistration, container));
-            
+
             // Create the expression block that assigns the created collection to a variable, casts this variable to IList<TargetType>, and then resolves all registrations, adding the resulting the expressions
             var blockExpressions = new Expression[resolveAllInfo.Registrations.Count + 3]; // +3 for initial assignment, casting to IList<ItemType>, and return statement
             var variableExpression = Expression.Variable(resolveAllInfo.CollectionType);

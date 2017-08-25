@@ -7,16 +7,24 @@ namespace Light.DependencyInjection.Registrations
 {
     public sealed class ExternalInstanceOptions : CommonRegistrationOptions<IExternalInstanceOptions>, IExternalInstanceOptions
     {
-        private readonly ExternalInstanceLifetime _lifeTime;
+        private readonly Lifetime _lifeTime;
 
         public ExternalInstanceOptions(object value, IReadOnlyList<Type> ignoredAbstractionTypes) : base(value.MustNotBeNull(nameof(value)).GetType(), ignoredAbstractionTypes)
         {
             _lifeTime = new ExternalInstanceLifetime(value);
         }
 
+        public ExternalInstanceOptions(Type targetType, IReadOnlyList<Type> ignoredAbstractionTypes) : base(targetType, ignoredAbstractionTypes)
+        {
+            _lifeTime = ScopedExternalInstanceLifetime.Instance;
+        }
+
         public Registration CreateRegistration()
         {
-            return new Registration(new TypeKey(TargetType, RegistrationName), _lifeTime, isTrackingDisposables: IsTrackingDisposables);
+            return new Registration(new TypeKey(TargetType, RegistrationName),
+                                    _lifeTime,
+                                    mappedAbstractionTypes: CreateMappedAbstractionsList(),
+                                    isTrackingDisposables: IsTrackingDisposables);
         }
     }
 }

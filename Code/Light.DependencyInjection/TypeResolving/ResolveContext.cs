@@ -35,7 +35,7 @@ namespace Light.DependencyInjection.TypeResolving
         public bool TryGetPerResolveInstance(TypeKey typeKey, out object instance)
         {
             if (_createInstance == null)
-                throw new InvalidOperationException("You must not call TryGetPerResolveInstance when IsCreatingNewInstances is set to false.");
+                throw new InvalidOperationException("You must not call TryGetPerResolveInstance when Lifetime.IsCreatingNewInstances is set to false.");
 
             if (_perResolveInstances != null)
                 return _perResolveInstances.TryGetValue(typeKey, out instance);
@@ -47,7 +47,7 @@ namespace Light.DependencyInjection.TypeResolving
         public bool GetOrCreatePerResolveInstance(TypeKey typeKey, out object instance)
         {
             if (_createInstance == null)
-                throw new InvalidOperationException("You must not call TryGetPerResolveInstance when IsCreatingNewInstances is set to false.");
+                throw new InvalidOperationException("You must not call TryGetPerResolveInstance when Lifetime.IsCreatingNewInstances is set to false.");
 
             if (_perResolveInstances == null)
             {
@@ -77,14 +77,25 @@ namespace Light.DependencyInjection.TypeResolving
             return this;
         }
 
+        public ResolveContext ChangeRegistration(Registration registration)
+        {
+            _createInstance = null;
+            _registration = registration.MustNotBeNull(nameof(registration));
+            return this;
+        }
+
         public ResolveContext ChangeContainer(DiContainer container)
         {
+            _registration = null;
+            _createInstance = null;
             _container = container.MustNotBeNull(nameof(container));
             return this;
         }
 
         public ResolveContext Clear()
         {
+            _registration = null;
+            _createInstance = null;
             _perResolveInstances?.Clear();
             return this;
         }

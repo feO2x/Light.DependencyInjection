@@ -11,6 +11,11 @@ namespace Light.DependencyInjection.Lifetimes
         private readonly string _toStringText;
 
         /// <summary>
+        ///     Gets the value indicating whether this lifetime can be resolved during compilation of the resolve method.
+        /// </summary>
+        public readonly bool CanBeResolvedDuringCompilation;
+
+        /// <summary>
         ///     Gets the value indicating whether this lifetime creates instances at some point in time.
         /// </summary>
         public readonly bool IsCreatingNewInstances;
@@ -23,13 +28,19 @@ namespace Light.DependencyInjection.Lifetimes
         ///     This value should only be set to false when <see cref="ResolveInstance" /> never calls <see cref="IResolveContext.CreateInstance" />
         ///     and thusly, the container does not need to construct a <see cref="TypeConstructionInfo" /> for the target type.
         /// </param>
+        /// <param name="canBeResolvedDuringCompilation">
+        ///     The value indicating whether the lifetime can be resolved during compilation of the resolve method. This results in a resolve method
+        ///     that executes faster because the corresponding dependency is directly referenced by the resolve method, instead of calling <see cref="ResolveInstance" />
+        ///     dynamically. Only set this value to true when you return the same instance on a <see cref="ResolveInstance" /> call.
+        /// </param>
         /// <param name="toStringText">
         ///     The text that is returned when <see cref="ToString" /> is called.
         ///     If null is specified, <see cref="ToString" /> will return the name of the lifetime's type (not the fully qualified name).
         /// </param>
-        protected Lifetime(bool isCreatingNewInstances = true, string toStringText = null)
+        protected Lifetime(bool isCreatingNewInstances = true, bool canBeResolvedDuringCompilation = false, string toStringText = null)
         {
             IsCreatingNewInstances = isCreatingNewInstances;
+            CanBeResolvedDuringCompilation = canBeResolvedDuringCompilation;
             _toStringText = toStringText;
         }
 
