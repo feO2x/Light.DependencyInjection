@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Light.DependencyInjection.Services;
 using Light.DependencyInjection.TypeResolving;
+using Light.GuardClauses.FrameworkExtensions;
 using Xunit;
 
 namespace Light.DependencyInjection.Tests
@@ -129,6 +130,24 @@ namespace Light.DependencyInjection.Tests
             for (var i = 0; i < resolvedInstance.Instances.Count; i++)
             {
                 resolvedInstance.Instances[i].GetType().Should().Be(concreteTypes[i]);
+            }
+        }
+
+        [Fact(DisplayName = "The DI Container must allow clients to explicitly set ResolveAll for field injections.")]
+        public void ExplicitelyResolveAllForFieldInjection()
+        {
+            var containerServices = new ContainerServicesBuilder().WithResolveInfoAlgorithm(new ResolveOnlyRegistrationsAlgorithm()).Build();
+            var concreteTypes = new[] { typeof(Implementation1), typeof(Implementation2), typeof(Implementation3) };
+            var container = new DiContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
+                                                              .Register<ClassWithCollectionDependencyOnField>(options => options.AddFieldInjection(nameof(ClassWithCollectionDependencyOnField.Instances), dependency => dependency.SetResolveAllTo(true)));
+
+            var resolvedInstance = container.Resolve<ClassWithCollectionDependencyOnField>();
+
+            var instances = resolvedInstance.Instances.AsReadOnlyList();
+            instances.Should().HaveCount(3);
+            for (var i = 0; i < instances.Count; i++)
+            {
+                instances[i].GetType().Should().Be(concreteTypes[i]);
             }
         }
     }

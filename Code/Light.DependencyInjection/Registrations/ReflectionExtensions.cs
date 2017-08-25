@@ -108,6 +108,8 @@ namespace Light.DependencyInjection.Registrations
 
         public static Type FindClosedConstructedIEnumerableType(this Type type)
         {
+            if (type.IsEquivalentTo(KnownTypes.IEnumerableGenericTypeDefinition))
+                return type;
             var implementedInterfaces = type.GetTypeInfo().ImplementedInterfaces.AsReadOnlyList();
             for (var i = 0; i < implementedInterfaces.Count; i++)
             {

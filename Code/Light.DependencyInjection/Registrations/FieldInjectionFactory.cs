@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
@@ -7,8 +8,8 @@ namespace Light.DependencyInjection.Registrations
     {
         public readonly FieldInfo FieldInfo;
 
-        public FieldInjectionFactory(FieldInfo fieldInfo)
-            : base(fieldInfo.MustNotBeNull(nameof(fieldInfo)).DeclaringType, fieldInfo.Name, fieldInfo.ExtractDependency())
+        public FieldInjectionFactory(Type targetType, FieldInfo fieldInfo)
+            : base(targetType, fieldInfo.MustNotBeNull(nameof(fieldInfo)).Name, fieldInfo.ExtractDependency())
         {
             FieldInfo = fieldInfo;
         }

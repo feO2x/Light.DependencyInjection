@@ -58,7 +58,9 @@ namespace Light.DependencyInjection.Registrations
         TOptions AddPropertyInjection(string propertyName, Action<IDependencyOptions> configureDependency);
 
         TOptions AddFieldInjection(FieldInfo fieldInfo, string targetRegistrationName = "");
+        TOptions AddFieldInjection(FieldInfo fieldInfo, Action<IDependencyOptions> configureDependency);
         TOptions AddFieldInjection(string fieldName, string targetRegistrationName = "");
+        TOptions AddFieldInjection(string fieldName, Action<IDependencyOptions> configureDependency);
 
         TOptions UseLifetime(Lifetime lifetime);
     }

@@ -121,4 +121,9 @@ namespace Light.DependencyInjection.Tests
     {
         public List<IAbstractionA> Instances { get; set; }
     }
+
+    public class ClassWithCollectionDependencyOnField
+    {
+        public IEnumerable<IAbstractionA> Instances;
+    }
 }

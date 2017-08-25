@@ -189,8 +189,18 @@ namespace Light.DependencyInjection.Registrations
 
         public TOptions AddFieldInjection(FieldInfo fieldInfo, string targetRegistrationName = "")
         {
-            var fieldInjectionFactory = new FieldInjectionFactory(fieldInfo);
+            var fieldInjectionFactory = new FieldInjectionFactory(TargetType, fieldInfo);
             fieldInjectionFactory.DependencyFactory.WithTargetRegistrationName(targetRegistrationName);
+            InstanceManipulationFactories.AddOrReplace(fieldInjectionFactory);
+            return This;
+        }
+
+        public TOptions AddFieldInjection(FieldInfo fieldInfo, Action<IDependencyOptions> configureDependency)
+        {
+            configureDependency.MustNotBeNull(nameof(configureDependency));
+
+            var fieldInjectionFactory = new FieldInjectionFactory(TargetType, fieldInfo);
+            configureDependency(fieldInjectionFactory.DependencyFactory);
             InstanceManipulationFactories.AddOrReplace(fieldInjectionFactory);
             return This;
         }
@@ -198,6 +208,11 @@ namespace Light.DependencyInjection.Registrations
         public TOptions AddFieldInjection(string fieldName, string targetRegistrationName = "")
         {
             return AddFieldInjection(TargetType.GetRuntimeField(fieldName), targetRegistrationName);
+        }
+
+        public TOptions AddFieldInjection(string fieldName, Action<IDependencyOptions> configureDependency)
+        {
+            return AddFieldInjection(TargetType.GetRuntimeField(fieldName), configureDependency);
         }
 
         public TOptions UseLifetime(Lifetime lifetime)
