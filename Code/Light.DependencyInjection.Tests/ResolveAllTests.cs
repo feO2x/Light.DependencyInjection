@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
+using Light.DependencyInjection.Services;
+using Light.DependencyInjection.TypeResolving;
 using Xunit;
 
 namespace Light.DependencyInjection.Tests
@@ -64,6 +66,19 @@ namespace Light.DependencyInjection.Tests
             {
                 resolvedInstances[i].GetType().Should().Be(concreteTypes[i]);
             }
+        }
+
+        [Fact(DisplayName = "The DI Container should not perform a ResolveAll for nested dependencies when the default IResolveInfoAlgorithm is replaced.")]
+        public void DisableResolveAllByDefault()
+        {
+            var containerServices = new ContainerServicesBuilder().WithResolveInfoAlgorithm(new ResolveOnlyRegistrationsAlgorithm()).Build();
+            var concreteTypes = new[] { typeof(Implementation2), typeof(Implementation3), typeof(Implementation1) };
+            var container = new DiContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
+                                                              .Register<ClassWithCollectionDependency>();
+
+            var resolvedInstance = container.Resolve<ClassWithCollectionDependency>();
+
+            resolvedInstance.Instances.Should().HaveCount(0).And.Subject.Should().BeAssignableTo<List<IAbstractionA>>();
         }
     }
 }
