@@ -53,7 +53,9 @@ namespace Light.DependencyInjection.Registrations
         TOptions ConfigureInstantiationParameter(string parameterName, Action<IDependencyOptions> configureDependency, StringComparison nameComparisonType = StringComparison.CurrentCulture);
 
         TOptions AddPropertyInjection(PropertyInfo propertyInfo, string targetRegistrationName = "");
+        TOptions AddPropertyInjection(PropertyInfo propertyInfo, Action<IDependencyOptions> configureDependency);
         TOptions AddPropertyInjection(string propertyName, string targetRegistrationName = "");
+        TOptions AddPropertyInjection(string propertyName, Action<IDependencyOptions> configureDependency);
 
         TOptions AddFieldInjection(FieldInfo fieldInfo, string targetRegistrationName = "");
         TOptions AddFieldInjection(string fieldName, string targetRegistrationName = "");

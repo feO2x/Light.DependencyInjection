@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using FluentAssertions;
 
@@ -114,5 +115,10 @@ namespace Light.DependencyInjection.Tests
         {
             Instances = instances;
         }
+    }
+
+    public class ClassWithCollectionDependencyOnProperty
+    {
+        public List<IAbstractionA> Instances { get; set; }
     }
 }

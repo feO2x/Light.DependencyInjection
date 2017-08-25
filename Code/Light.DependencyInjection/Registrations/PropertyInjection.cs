@@ -12,7 +12,7 @@ namespace Light.DependencyInjection.Registrations
             : base(typeKey, targetProperty.MustNotBeNull(nameof(targetProperty)).Name, dependencies)
         {
             var foundProperty = TypeKey.Type.GetRuntimeProperty(targetProperty.Name);
-            if (foundProperty == null || foundProperty.Equals(targetProperty) == false)
+            if (foundProperty == null || foundProperty.Name != targetProperty.Name || foundProperty.PropertyType.IsEquivalentTo(targetProperty.PropertyType) == false)
                 throw new RegistrationException($"The type \"{TypeKey.Type}\" does not contain the property \"{targetProperty}\".");
 
             if (targetProperty.CanWrite == false)
@@ -23,7 +23,7 @@ namespace Light.DependencyInjection.Registrations
 
             dependencies.MustHaveCount(1, nameof(dependencies));
 
-            TargetProperty = targetProperty;
+            TargetProperty = foundProperty;
         }
     }
 }

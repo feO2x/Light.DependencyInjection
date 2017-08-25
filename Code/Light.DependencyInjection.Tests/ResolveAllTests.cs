@@ -68,7 +68,7 @@ namespace Light.DependencyInjection.Tests
             }
         }
 
-        [Fact(DisplayName = "The DI Container should not perform a ResolveAll for nested dependencies when the default IResolveInfoAlgorithm is replaced.")]
+        [Fact(DisplayName = "The DI Container should not perform a automatic ResolveAll for nested dependencies when the default IResolveInfoAlgorithm is replaced.")]
         public void DisableResolveAllByDefault()
         {
             var containerServices = new ContainerServicesBuilder().WithResolveInfoAlgorithm(new ResolveOnlyRegistrationsAlgorithm()).Build();
@@ -81,7 +81,7 @@ namespace Light.DependencyInjection.Tests
             resolvedInstance.Instances.Should().HaveCount(0).And.Subject.Should().BeAssignableTo<List<IAbstractionA>>();
         }
 
-        [Fact(DisplayName = "The DI Container must allow clients to explicitely set ResolveAll for instantiation dependencies by type.")]
+        [Fact(DisplayName = "The DI Container must allow clients to explicitly set ResolveAll for instantiation dependencies by type.")]
         public void ExplicitelyEnableResolveAllForInstantiationDependency()
         {
             var containerServices = new ContainerServicesBuilder().WithResolveInfoAlgorithm(new ResolveOnlyRegistrationsAlgorithm()).Build();
@@ -98,7 +98,7 @@ namespace Light.DependencyInjection.Tests
             }
         }
 
-        [Fact(DisplayName = "The DI Container must allow clients to explicitely set ResolveAll for instantiation dependencies by name.")]
+        [Fact(DisplayName = "The DI Container must allow clients to explicitly set ResolveAll for instantiation dependencies by name.")]
         public void ExplicitelyResolveAllForInstantiationDependencyByName()
         {
             var containerServices = new ContainerServicesBuilder().WithResolveInfoAlgorithm(new ResolveOnlyRegistrationsAlgorithm()).Build();
@@ -107,6 +107,23 @@ namespace Light.DependencyInjection.Tests
                                                               .Register<ClassWithCollectionDependency>(options => options.ConfigureInstantiationParameter("instances", parameter => parameter.SetResolveAllTo(true)));
 
             var resolvedInstance = container.Resolve<ClassWithCollectionDependency>();
+
+            resolvedInstance.Instances.Should().HaveCount(3);
+            for (var i = 0; i < resolvedInstance.Instances.Count; i++)
+            {
+                resolvedInstance.Instances[i].GetType().Should().Be(concreteTypes[i]);
+            }
+        }
+
+        [Fact(DisplayName = "The DI Container must allow clients to explicitly set ResolveAll for property injections.")]
+        public void ExplicitelyResolveAllForPropertyInjection()
+        {
+            var containerServices = new ContainerServicesBuilder().WithResolveInfoAlgorithm(new ResolveOnlyRegistrationsAlgorithm()).Build();
+            var concreteTypes = new[] { typeof(Implementation1), typeof(Implementation3), typeof(Implementation2) };
+            var container = new DiContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
+                                                              .Register<ClassWithCollectionDependencyOnProperty>(options => options.AddPropertyInjection(nameof(ClassWithCollectionDependencyOnProperty.Instances), dependency => dependency.SetResolveAllTo(true)));
+
+            var resolvedInstance = container.Resolve<ClassWithCollectionDependencyOnProperty>();
 
             resolvedInstance.Instances.Should().HaveCount(3);
             for (var i = 0; i < resolvedInstance.Instances.Count; i++)

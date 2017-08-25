@@ -161,8 +161,18 @@ namespace Light.DependencyInjection.Registrations
 
         public TOptions AddPropertyInjection(PropertyInfo propertyInfo, string targetRegistrationName = "")
         {
-            var propertyInjectionFactory = new PropertyInjectionFactory(propertyInfo);
+            var propertyInjectionFactory = new PropertyInjectionFactory(TargetType, propertyInfo);
             propertyInjectionFactory.DependencyFactory.WithTargetRegistrationName(targetRegistrationName);
+            InstanceManipulationFactories.AddOrReplace(propertyInjectionFactory);
+            return This;
+        }
+
+        public TOptions AddPropertyInjection(PropertyInfo propertyInfo, Action<IDependencyOptions> configureDependency)
+        {
+            configureDependency.MustNotBeNull(nameof(configureDependency));
+
+            var propertyInjectionFactory = new PropertyInjectionFactory(TargetType, propertyInfo);
+            configureDependency(propertyInjectionFactory.DependencyFactory);
             InstanceManipulationFactories.AddOrReplace(propertyInjectionFactory);
             return This;
         }
@@ -170,6 +180,11 @@ namespace Light.DependencyInjection.Registrations
         public TOptions AddPropertyInjection(string propertyName, string targetRegistrationName = "")
         {
             return AddPropertyInjection(TargetType.GetRuntimeProperty(propertyName), targetRegistrationName);
+        }
+
+        public TOptions AddPropertyInjection(string propertyName, Action<IDependencyOptions> configureDependency)
+        {
+            return AddPropertyInjection(TargetType.GetRuntimeProperty(propertyName), configureDependency);
         }
 
         public TOptions AddFieldInjection(FieldInfo fieldInfo, string targetRegistrationName = "")
