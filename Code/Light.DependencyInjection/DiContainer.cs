@@ -13,7 +13,7 @@ namespace Light.DependencyInjection
     public class DiContainer : IDisposable
     {
         private readonly IConcurrentDictionary<Type, IConcurrentList<Registration>> _registrationMappings;
-        private readonly IConcurrentDictionary<TypeKey, ResolveDelegate> _resolveDelegates;
+        private readonly IConcurrentDictionary<ResolveDelegateId, ResolveDelegate> _resolveDelegates;
         public readonly ContainerScope Scope;
         public readonly ContainerServices Services;
 
@@ -22,7 +22,7 @@ namespace Light.DependencyInjection
             Services = services ?? new ContainerServicesBuilder().Build();
             Scope = Services.ContainerScopeFactory.CreateScope();
             _registrationMappings = Services.ConcurrentDictionaryFactory.Create<Type, IConcurrentList<Registration>>();
-            _resolveDelegates = Services.ConcurrentDictionaryFactory.Create<TypeKey, ResolveDelegate>();
+            _resolveDelegates = Services.ConcurrentDictionaryFactory.Create<ResolveDelegateId, ResolveDelegate>();
 
             Scope.TryAddDisposable(_registrationMappings);
             Scope.TryAddDisposable(_resolveDelegates);
@@ -34,7 +34,7 @@ namespace Light.DependencyInjection
             Services = childContainerOptions.NewContainerServices ?? parentContainer.Services;
             _registrationMappings = childContainerOptions.DetachRegistrationMappingsFromParentContainer ? CreateCloneOfRegistrationMappings(parentContainer._registrationMappings) : parentContainer._registrationMappings;
 
-            _resolveDelegates = childContainerOptions.DetachResolveDelegatesFromParentContainer ? Services.ConcurrentDictionaryFactory.Create<TypeKey, ResolveDelegate>() : parentContainer._resolveDelegates;
+            _resolveDelegates = childContainerOptions.DetachResolveDelegatesFromParentContainer ? Services.ConcurrentDictionaryFactory.Create<ResolveDelegateId, ResolveDelegate>() : parentContainer._resolveDelegates;
             Scope = Services.ContainerScopeFactory.CreateScope(parentContainer.Scope);
         }
 
@@ -187,24 +187,36 @@ namespace Light.DependencyInjection
 
         public T Resolve<T>(string registrationName = "")
         {
-            return (T) Resolve(new TypeKey(typeof(T), registrationName));
+            return (T) Resolve(new TypeKey(typeof(T), registrationName), null);
         }
 
         public object Resolve(Type type, string registrationName = "")
         {
-            return Resolve(new TypeKey(type, registrationName));
+            return Resolve(new TypeKey(type, registrationName), null);
         }
 
-        public object Resolve(TypeKey typeKey)
+        public object Resolve(TypeKey typeKey, IDependencyOverrideOptions dependencyOverrideOptions)
         {
             typeKey.MustNotBeEmpty(nameof(typeKey));
 
-            if (_resolveDelegates.TryGetValue(typeKey, out var resolveDelegate) == false)
+            var dependencyOverrides = dependencyOverrideOptions?.MustBeOfType<DependencyOverrideOptions>(nameof(dependencyOverrideOptions)).Build();
+            var resolveDelegateId = new ResolveDelegateId(typeKey, dependencyOverrides);
+            if (_resolveDelegates.TryGetValue(resolveDelegateId, out var resolveDelegate) == false)
             {
                 resolveDelegate = Services.ResolveDelegateFactory.Create(typeKey, this);
-                resolveDelegate = _resolveDelegates.GetOrAdd(typeKey, resolveDelegate);
+                resolveDelegate = _resolveDelegates.GetOrAdd(resolveDelegateId, resolveDelegate);
             }
-            return resolveDelegate(Services.ResolveContextFactory.Create(this));
+            return resolveDelegate(Services.ResolveContextFactory.Create(this, dependencyOverrides));
+        }
+
+        public T Resolve<T>(IDependencyOverrideOptions dependencyOverrides, string registrationName = "")
+        {
+            return (T) Resolve(new TypeKey(typeof(T), registrationName), dependencyOverrides);
+        }
+
+        public object Resolve(Type type, IDependencyOverrideOptions dependencyOverrideOptions, string registrationName = "")
+        {
+            return Resolve(new TypeKey(type, registrationName), dependencyOverrideOptions);
         }
 
         public IList<T> ResolveAll<T>()
@@ -239,13 +251,14 @@ namespace Light.DependencyInjection
         {
             registration.MustNotBeNull(nameof(registration));
 
-            if (_resolveDelegates.TryGetValue(registration.TypeKey, out var resolveDelegate) == false)
+            var resolveDelegateId = new ResolveDelegateId(registration.TypeKey);
+            if (_resolveDelegates.TryGetValue(resolveDelegateId, out var resolveDelegate) == false)
             {
                 resolveDelegate = Services.ResolveDelegateFactory.Create(registration, this);
-                resolveDelegate = _resolveDelegates.GetOrAdd(registration.TypeKey, resolveDelegate);
+                resolveDelegate = _resolveDelegates.GetOrAdd(resolveDelegateId, resolveDelegate);
             }
 
-            return resolveDelegate(Services.ResolveContextFactory.Create(this));
+            return resolveDelegate(Services.ResolveContextFactory.Create(this, null));
         }
 
         public Registration GetRegistration<T>(string registrationName = "")
@@ -322,6 +335,11 @@ namespace Light.DependencyInjection
         public ResolveInfo GetResolveInfo(TypeKey typeKey, bool? tryResolveAll = null)
         {
             return Services.ResolveInfoAlgorithm.Search(typeKey, this, tryResolveAll);
+        }
+
+        public IDependencyOverrideOptions OverrideDependenciesFor<T>(string registrationName = "")
+        {
+            throw new NotImplementedException();
         }
     }
 }

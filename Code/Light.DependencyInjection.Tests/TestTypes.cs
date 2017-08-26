@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Threading;
 using FluentAssertions;
 
@@ -85,12 +84,12 @@ namespace Light.DependencyInjection.Tests
     {
         private static int _numberOfInstancesCreated;
 
-        public static int NumberOfInstancesCreated => _numberOfInstancesCreated;
-        
         public ThreadSaveClass()
         {
             Interlocked.Increment(ref _numberOfInstancesCreated);
         }
+
+        public static int NumberOfInstancesCreated => _numberOfInstancesCreated;
     }
 
     public class GenericClassWithGenericProperty<T>
@@ -104,7 +103,9 @@ namespace Light.DependencyInjection.Tests
     }
 
     public class Implementation1 : IAbstractionA { }
+
     public class Implementation2 : IAbstractionA { }
+
     public class Implementation3 : IAbstractionA { }
 
     public class ClassWithCollectionDependency

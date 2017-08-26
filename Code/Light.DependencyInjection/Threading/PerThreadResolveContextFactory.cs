@@ -14,16 +14,12 @@ namespace Light.DependencyInjection.Threading
             _perThreadResolveContext.Dispose();
         }
 
-        public ResolveContext Create(DiContainer container)
+        public ResolveContext Create(DiContainer container, DependencyOverrides dependencyOverrides)
         {
             if (_perThreadResolveContext.IsValueCreated == false)
-                return _perThreadResolveContext.Value = new ResolveContext(container);
+                return _perThreadResolveContext.Value = new ResolveContext(container, dependencyOverrides);
 
-            var existingContext = _perThreadResolveContext.Value;
-            if (ReferenceEquals(existingContext.Container, container) == false)
-                existingContext.ChangeContainer(container);
-
-            return existingContext.Clear();
+            return _perThreadResolveContext.Value.ChangeInitialContext(container, dependencyOverrides);
         }
     }
 }

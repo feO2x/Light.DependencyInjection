@@ -11,10 +11,12 @@ namespace Light.DependencyInjection.TypeResolving
         private Dictionary<TypeKey, object> _perResolveInstances;
         private Registration _registration;
         private DiContainer _container;
+        private DependencyOverrides _dependencyOverrides;
 
-        public ResolveContext(DiContainer container)
+        public ResolveContext(DiContainer container, DependencyOverrides dependencyOverrides)
         {
             _container = container.MustNotBeNull(nameof(container));
+            _dependencyOverrides = dependencyOverrides;
         }
 
         public object CreateInstance()
@@ -31,6 +33,8 @@ namespace Light.DependencyInjection.TypeResolving
         public DiContainer Container => _container;
 
         public Registration Registration => _registration;
+
+        public DependencyOverrides DependencyOverrides => _dependencyOverrides;
 
         public bool TryGetPerResolveInstance(TypeKey typeKey, out object instance)
         {
@@ -84,11 +88,12 @@ namespace Light.DependencyInjection.TypeResolving
             return this;
         }
 
-        public ResolveContext ChangeContainer(DiContainer container)
+        public ResolveContext ChangeInitialContext(DiContainer container, DependencyOverrides dependencyOverrides)
         {
             _registration = null;
             _createInstance = null;
             _container = container.MustNotBeNull(nameof(container));
+            _dependencyOverrides = dependencyOverrides;
             return this;
         }
 

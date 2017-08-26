@@ -56,7 +56,7 @@ namespace Light.DependencyInjection.Registrations
         public override bool Equals(object @object)
         {
             if (ReferenceEquals(@object, null)) return false;
-            return @object is TypeKey && Equals((TypeKey) @object);
+            return @object is TypeKey typeKey && Equals(typeKey);
         }
 
         /// <summary>

@@ -4,9 +4,9 @@ namespace Light.DependencyInjection.Services
 {
     public sealed class TransientResolveContextFactory : IResolveContextFactory
     {
-        public ResolveContext Create(DiContainer container)
+        public ResolveContext Create(DiContainer container, DependencyOverrides dependencyOverrides)
         {
-            return new ResolveContext(container);
+            return new ResolveContext(container, dependencyOverrides);
         }
     }
 }
