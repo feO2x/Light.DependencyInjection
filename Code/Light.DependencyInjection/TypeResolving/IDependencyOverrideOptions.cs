@@ -1,4 +1,5 @@
-﻿using Light.DependencyInjection.Registrations;
+﻿using System;
+using Light.DependencyInjection.Registrations;
 
 namespace Light.DependencyInjection.TypeResolving
 {
@@ -6,6 +7,7 @@ namespace Light.DependencyInjection.TypeResolving
     {
         Registration TargetRegistration { get; }
 
-        IDependencyOverrideOptions Override<TDependency>(TDependency value);
+        IDependencyOverrideOptions OverrideDependency<TDependency>(TDependency value);
+        IDependencyOverrideOptions OverrideDependency<TDependency>(string dependencyName, TDependency value, StringComparison nameComparisonType = StringComparison.CurrentCulture);
     }
 }

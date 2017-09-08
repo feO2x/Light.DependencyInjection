@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
 
@@ -20,7 +21,7 @@ namespace Light.DependencyInjection.TypeResolving
 
         public Registration TargetRegistration => _targetRegistration;
 
-        public IDependencyOverrideOptions Override<TDependency>(TDependency value)
+        public IDependencyOverrideOptions OverrideDependency<TDependency>(TDependency value)
         {
             var dependencyType = typeof(TDependency);
             if (_targetRegistration.TypeConstructionInfo.AllDependencies.IsNullOrEmpty())
@@ -35,16 +36,36 @@ namespace Light.DependencyInjection.TypeResolving
                     continue;
 
                 if (targetDependency != null)
-                    throw new ResolveException($"There are several dependencies of type \"{dependencyType}\" on the target type {_targetRegistration.TypeKey} so that the dependency to be overridden cannot be selected uniquely. Please use the overload of {nameof(Override)} that accepts a name to uniquely identify the target dependency.");
+                    throw new ResolveException($"There are several dependencies of type \"{dependencyType}\" on the target type {_targetRegistration} so that the dependency to be overridden cannot be selected uniquely. Please use the overload of {nameof(OverrideDependency)} that accepts a name to uniquely identify the target dependency.");
 
                 targetDependency = currentDependency;
             }
 
             if (targetDependency == null)
-                throw new ResolveException($"There is no dependency of type \"{dependencyType}\" configured on the target type {_targetRegistration.TargetType}.");
+                throw new ResolveException($"There is no dependency of type \"{dependencyType}\" configured on the target type {_targetRegistration}.");
 
             OverriddenDependencies.Add(targetDependency, value);
             return this;
+        }
+
+        public IDependencyOverrideOptions OverrideDependency<TDependency>(string dependencyName, TDependency value, StringComparison nameComparisonType = StringComparison.CurrentCulture)
+        {
+            dependencyName.MustNotBeNullOrEmpty(nameof(dependencyName));
+            if (_targetRegistration.TypeConstructionInfo.AllDependencies.IsNullOrEmpty())
+                throw new ResolveException($"You cannot override dependencies because the registration {_targetRegistration} has no dependencies configured.");
+
+            var allRegisteredDependencies = _targetRegistration.TypeConstructionInfo.AllDependencies;
+            for (var i = 0; i < allRegisteredDependencies.Count; i++)
+            {
+                var currentDependency = allRegisteredDependencies[i];
+                if (currentDependency.Name.Equals(dependencyName, nameComparisonType) == false)
+                    continue;
+
+                OverriddenDependencies.Add(currentDependency, value);
+                return this;
+            }
+
+            throw new ResolveException($"There is no dependency with name \"{dependencyName}\" configured on the target type {_targetRegistration}.");
         }
 
         public DependencyOverrides Build()
