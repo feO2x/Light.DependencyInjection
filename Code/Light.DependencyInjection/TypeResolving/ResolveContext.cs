@@ -92,16 +92,9 @@ namespace Light.DependencyInjection.TypeResolving
         {
             _registration = null;
             _createInstance = null;
+            _perResolveInstances?.Clear();
             _container = container.MustNotBeNull(nameof(container));
             _dependencyOverrides = dependencyOverrides;
-            return this;
-        }
-
-        public ResolveContext Clear()
-        {
-            _registration = null;
-            _createInstance = null;
-            _perResolveInstances?.Clear();
             return this;
         }
     }

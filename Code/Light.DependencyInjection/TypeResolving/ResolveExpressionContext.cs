@@ -15,11 +15,13 @@ namespace Light.DependencyInjection.TypeResolving
         public readonly TypeInfo RegistrationTypeInfo;
         public readonly TypeInfo RequestedTypeInfo;
         public readonly TypeInfo ResolvedGenericRegistrationTypeInfo;
+        public readonly DependencyOverrides DependencyOverrides;
 
-        public ResolveExpressionContext(TypeKey requestedTypeKey, Registration registration, DiContainer container)
+        public ResolveExpressionContext(TypeKey requestedTypeKey, Registration registration, DependencyOverrides dependencyOverrides, DiContainer container)
         {
             RequestedTypeKey = requestedTypeKey.MustNotBeEmpty(nameof(requestedTypeKey));
             Registration = registration.MustNotBeNull(nameof(registration));
+            DependencyOverrides = dependencyOverrides;
             Container = container.MustNotBeNull(nameof(container));
             RequestedTypeInfo = requestedTypeKey.Type.GetTypeInfo();
             RegistrationTypeInfo = registration.TypeKey.Type.GetTypeInfo();

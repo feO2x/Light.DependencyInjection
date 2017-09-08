@@ -188,12 +188,12 @@ namespace Light.DependencyInjection.Tests
                                              .Register<ClassWithDependency>()
                                              .Register<ClassWithTwoDependencies>();
 
-            var firstObjectGraph = container.Resolve<ClassWithTwoDependencies>();
-            var secondOjbectGraph = container.Resolve<ClassWithTwoDependencies>();
+            var objectGraph1 = container.Resolve<ClassWithTwoDependencies>();
+            var objectGraph2 = container.Resolve<ClassWithTwoDependencies>();
 
-            firstObjectGraph.A.Should().BeSameAs(firstObjectGraph.B.A);
-            secondOjbectGraph.A.Should().BeSameAs(secondOjbectGraph.B.A);
-            firstObjectGraph.A.Should().NotBeSameAs(secondOjbectGraph.A);
+            objectGraph1.A.Should().BeSameAs(objectGraph1.B.A);
+            objectGraph2.A.Should().BeSameAs(objectGraph2.B.A);
+            objectGraph1.A.Should().NotBeSameAs(objectGraph2.A);
         }
 
         [Fact(DisplayName = "The DI Container must be able to resolve instances per thread when they are configured with the PerThreadLifetime.")]

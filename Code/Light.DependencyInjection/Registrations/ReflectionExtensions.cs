@@ -59,21 +59,21 @@ namespace Light.DependencyInjection.Registrations
 
         public static IReadOnlyList<DependencyFactory> ExtractDependency(this PropertyInfo propertyInfo)
         {
-            return propertyInfo.MustNotBeNull(nameof(propertyInfo)).SetMethod.ExtractDependencies();
+            return propertyInfo.MustNotBeNull(nameof(propertyInfo)).SetMethod.ExtractDependencies(DependencyTypes.PropertyInjection);
         }
 
         public static IReadOnlyList<DependencyFactory> ExtractDependency(this FieldInfo fieldInfo)
         {
             fieldInfo.MustNotBeNull(nameof(fieldInfo));
-            return new[] { new DependencyFactory(fieldInfo.Name, fieldInfo.FieldType) };
+            return new[] { new DependencyFactory(fieldInfo.Name, fieldInfo.FieldType, DependencyTypes.FieldInjection) };
         }
 
-        public static IReadOnlyList<DependencyFactory> ExtractDependencies(this MethodBase instantiationMethod)
+        public static IReadOnlyList<DependencyFactory> ExtractDependencies(this MethodBase instantiationMethod, string dependencyType)
         {
             instantiationMethod.MustNotBeNull(nameof(instantiationMethod));
 
             return instantiationMethod.GetParameters()
-                                      .Select(parameterInfo => new DependencyFactory(parameterInfo.Name, parameterInfo.ParameterType))
+                                      .Select(parameterInfo => new DependencyFactory(parameterInfo.Name, parameterInfo.ParameterType, dependencyType))
                                       .ToList();
         }
 

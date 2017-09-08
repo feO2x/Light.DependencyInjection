@@ -203,8 +203,9 @@ namespace Light.DependencyInjection
             var resolveDelegateId = new ResolveDelegateId(typeKey, dependencyOverrides);
             if (_resolveDelegates.TryGetValue(resolveDelegateId, out var resolveDelegate) == false)
             {
-                resolveDelegate = Services.ResolveDelegateFactory.Create(typeKey, this);
-                resolveDelegate = _resolveDelegates.GetOrAdd(resolveDelegateId, resolveDelegate);
+                var dependencyOverridesKey = dependencyOverrides?.CreateDependencyOverridesKey();
+                resolveDelegate = Services.ResolveDelegateFactory.Create(typeKey, dependencyOverridesKey, this);
+                resolveDelegate = _resolveDelegates.GetOrAdd(new ResolveDelegateId(typeKey, dependencyOverridesKey), resolveDelegate);
             }
             return resolveDelegate(Services.ResolveContextFactory.Create(this, dependencyOverrides));
         }
@@ -242,23 +243,25 @@ namespace Light.DependencyInjection
             return array;
         }
 
-        public T Resolve<T>(Registration registration)
+        public T Resolve<T>(Registration registration, IDependencyOverrideOptions dependencyOverrideOptions = null)
         {
-            return (T) Resolve(registration);
+            return (T) Resolve(registration, dependencyOverrideOptions);
         }
 
-        public object Resolve(Registration registration)
+        public object Resolve(Registration registration, IDependencyOverrideOptions dependencyOverrideOptions = null)
         {
             registration.MustNotBeNull(nameof(registration));
 
+            var dependencyOverrides = dependencyOverrideOptions?.MustBeOfType<DependencyOverrideOptions>(nameof(dependencyOverrideOptions)).Build();
             var resolveDelegateId = new ResolveDelegateId(registration.TypeKey);
             if (_resolveDelegates.TryGetValue(resolveDelegateId, out var resolveDelegate) == false)
             {
-                resolveDelegate = Services.ResolveDelegateFactory.Create(registration, this);
-                resolveDelegate = _resolveDelegates.GetOrAdd(resolveDelegateId, resolveDelegate);
+                var dependencyOverridesKey = dependencyOverrides?.CreateDependencyOverridesKey();
+                resolveDelegate = Services.ResolveDelegateFactory.Create(registration, dependencyOverridesKey, this);
+                resolveDelegate = _resolveDelegates.GetOrAdd(new ResolveDelegateId(registration.TypeKey, dependencyOverridesKey), resolveDelegate);
             }
 
-            return resolveDelegate(Services.ResolveContextFactory.Create(this, null));
+            return resolveDelegate(Services.ResolveContextFactory.Create(this));
         }
 
         public Registration GetRegistration<T>(string registrationName = "")
@@ -339,7 +342,17 @@ namespace Light.DependencyInjection
 
         public IDependencyOverrideOptions OverrideDependenciesFor<T>(string registrationName = "")
         {
-            throw new NotImplementedException();
+            return OverrideDependenciesFor(typeof(T), registrationName);
+        }
+
+        public IDependencyOverrideOptions OverrideDependenciesFor(Type type, string registrationName = "")
+        {
+            var typeKey = new TypeKey(type, registrationName);
+            var targetRegistration = GetRegistration(typeKey);
+            if (targetRegistration == null)
+                throw new ResolveException($"You cannot override the dependencies for {typeKey} because the DI Container has no registration for this type.");
+
+            return new DependencyOverrideOptions(targetRegistration);
         }
     }
 }

@@ -1,19 +1,20 @@
 using System;
-using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Registrations
 {
     public sealed class DependencyFactory : IDependencyOptions
     {
-        public readonly Type DependencyType;
+        public readonly string DependencyType;
         public readonly string Name;
+        public readonly Type TargetType;
         private bool? _resolveAll;
         private string _targetRegistrationName = "";
 
-        public DependencyFactory(string name, Type dependencyType)
+        public DependencyFactory(string name, Type targetType, string dependencyType)
         {
-            Name = name.MustNotBeNullOrWhiteSpace(nameof(name));
-            DependencyType = dependencyType.MustNotBeNull(nameof(dependencyType));
+            Name = name;
+            TargetType = targetType;
+            DependencyType = dependencyType;
         }
 
         public string TargetRegistrationName => _targetRegistrationName;
@@ -32,7 +33,7 @@ namespace Light.DependencyInjection.Registrations
 
         public Dependency Create()
         {
-            return new Dependency(Name, DependencyType, TargetRegistrationName, _resolveAll);
+            return new Dependency(Name, TargetType, DependencyType, TargetRegistrationName, _resolveAll);
         }
     }
 }

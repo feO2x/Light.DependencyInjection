@@ -30,7 +30,7 @@ namespace Light.DependencyInjection.Registrations
             }
 
             else if (dependencies.Count != parameters.Length ||
-                     dependencies.Select(dependency => dependency.DependencyType).SequenceEqual(parameters.Select(parameter => parameter.ParameterType)) == false)
+                     dependencies.Select(dependency => dependency.TargetType).SequenceEqual(parameters.Select(parameter => parameter.ParameterType)) == false)
                 throw new RegistrationException(new StringBuilder().AppendCollectionContent(dependencies, "The following dependencies")
                                                                    .AppendLine()
                                                                    .AppendCollectionContent(parameters, $"do not correspond to the following parameters of the {targetName}:")

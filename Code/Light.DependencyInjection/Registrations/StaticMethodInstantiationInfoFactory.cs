@@ -9,7 +9,7 @@ namespace Light.DependencyInjection.Registrations
         public readonly MethodInfo StaticMethodInfo;
 
         public StaticMethodInstantiationInfoFactory(Type targetType, MethodInfo staticMethodInfo)
-            : base(targetType, staticMethodInfo.MustNotBeNull(nameof(staticMethodInfo)).ExtractDependencies())
+            : base(targetType, staticMethodInfo.MustNotBeNull(nameof(staticMethodInfo)).ExtractDependencies(DependencyTypes.InstantiationDependency))
         {
             StaticMethodInfo = staticMethodInfo;
         }

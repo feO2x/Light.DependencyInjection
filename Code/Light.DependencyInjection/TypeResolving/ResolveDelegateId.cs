@@ -20,7 +20,7 @@ namespace Light.DependencyInjection.TypeResolving
         public bool Equals(ResolveDelegateId other)
         {
             return TypeKey == other.TypeKey &&
-                   Overrides.Equals(other.Overrides);
+                   Overrides == other.Overrides;
         }
 
         public override bool Equals(object obj)

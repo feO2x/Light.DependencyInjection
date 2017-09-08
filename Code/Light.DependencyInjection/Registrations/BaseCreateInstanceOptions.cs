@@ -124,7 +124,7 @@ namespace Light.DependencyInjection.Registrations
             AssignInstantiationInfoFactoryIfNecessary();
 
             var targetDependencyFactories = _instantiationInfoFactory.InstantiationDependencyFactories
-                                                                     .Where(dependency => dependency.DependencyType == parameterType)
+                                                                     .Where(dependency => dependency.TargetType == parameterType)
                                                                      .ToList();
 
             if (targetDependencyFactories.Count > 1)

@@ -8,7 +8,7 @@ namespace Light.DependencyInjection.Registrations
         public readonly ConstructorInfo ConstructorInfo;
 
         public ConstructorInstantiationInfoFactory(ConstructorInfo constructorInfo)
-            : base(constructorInfo.MustNotBeNull(nameof(constructorInfo)).DeclaringType, constructorInfo.ExtractDependencies())
+            : base(constructorInfo.MustNotBeNull(nameof(constructorInfo)).DeclaringType, constructorInfo.ExtractDependencies(DependencyTypes.InstantiationDependency))
         {
             ConstructorInfo = constructorInfo;
         }

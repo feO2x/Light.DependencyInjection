@@ -16,6 +16,8 @@ namespace Light.DependencyInjection.TypeResolving
 
         private static readonly MethodInfo ChangeResolvedTypeMethod = KnownTypes.ResolveContextType.GetTypeInfo().GetDeclaredMethod(nameof(ResolveContext.ChangeResolvedType));
         private static readonly MethodInfo ChangeRegistrationMethod = KnownTypes.ResolveContextType.GetTypeInfo().GetDeclaredMethod(nameof(ResolveContext.ChangeRegistration));
+        private static readonly MethodInfo GetDependencyOverridesProperty = KnownTypes.ResolveContextType.GetTypeInfo().GetDeclaredProperty(nameof(ResolveContext.DependencyOverrides)).GetMethod;
+        private static readonly MethodInfo GetDependencyInstanceMethod = KnownTypes.DependencyOverridesType.GetTypeInfo().GetDeclaredMethod(nameof(DependencyOverrides.GetDependencyInstance));
         private static readonly ParameterExpression ResolveContextParameterExpression = Expression.Parameter(KnownTypes.ResolveContextType);
         private readonly IReadOnlyDictionary<Type, IInstanceManipulationExpressionFactory> _instanceManipulationExpressionFactories;
         private readonly IReadOnlyDictionary<Type, IInstantiationExpressionFactory> _instantiationExpressionFactories;
@@ -30,36 +32,36 @@ namespace Light.DependencyInjection.TypeResolving
             _instanceManipulationExpressionFactories = instanceManipulationExpressionFactories;
         }
 
-        public ResolveDelegate Create(TypeKey typeKey, DiContainer container)
+        public ResolveDelegate Create(TypeKey typeKey, DependencyOverrides dependencyOverrides, DiContainer container)
         {
             typeKey.MustNotBeEmpty(nameof(typeKey));
             container.MustNotBeNull(nameof(container));
 
-            var resolveExpression = CreateResolveExpressionRecursively(typeKey, container);
+            var resolveExpression = CreateResolveExpressionRecursively(typeKey, container, dependencyOverrides);
             return resolveExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
         }
 
-        public ResolveDelegate Create(Registration registration, DiContainer container)
+        public ResolveDelegate Create(Registration registration, DependencyOverrides dependencyOverrides, DiContainer container)
         {
             registration.MustNotBeNull(nameof(registration));
             container.MustNotBeNull(nameof(container));
 
-            var resolveExpression = CreateResolveExpressionRecursively(registration.TypeKey, registration, container);
+            var resolveExpression = CreateResolveExpressionRecursively(registration.TypeKey, registration, dependencyOverrides, container);
             return resolveExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
         }
 
-        private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, DiContainer container, bool? tryResolveAll = null)
+        private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, DiContainer container, DependencyOverrides dependencyOverrides, bool? tryResolveAll = null)
         {
             var resolveInfo = container.GetResolveInfo(requestedTypeKey, tryResolveAll);
             if (resolveInfo is ResolveRegistrationInfo resolveRegistrationInfo)
-                return CreateResolveExpressionRecursively(requestedTypeKey, resolveRegistrationInfo.Registration, container);
+                return CreateResolveExpressionRecursively(requestedTypeKey, resolveRegistrationInfo.Registration, dependencyOverrides, container);
             if (resolveInfo is ResolveAllInfo resolveAllInfo)
-                return CreateResolveAllExpressionRecursively(resolveAllInfo, container);
+                return CreateResolveAllExpressionRecursively(resolveAllInfo, dependencyOverrides, container);
 
             throw new InvalidOperationException($"Cannot handle ResolveInfo \"{resolveInfo}\" in this current implementation of \"{nameof(CompiledLinqExpressionFactory)}\"");
         }
 
-        private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, Registration registration, DiContainer container)
+        private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, Registration registration, DependencyOverrides dependencyOverrides, DiContainer container)
         {
             // Check if the lifetime of the registration would need to create a new instance.
             // If not, then we can do not need to create a construction expression
@@ -85,7 +87,7 @@ namespace Light.DependencyInjection.TypeResolving
             }
 
             // Else we need to create a construction expression that instantiates the target type and performs any instance manipulations
-            var resolveExpressionContext = new ResolveExpressionContext(requestedTypeKey, registration, container);
+            var resolveExpressionContext = new ResolveExpressionContext(requestedTypeKey, registration, dependencyOverrides, container);
             var constructionExpression = CreateConstructionExpression(resolveExpressionContext);
 
             // Compile the construction expression to a delegate so that it can be injected into the ResolveContext
@@ -112,13 +114,13 @@ namespace Light.DependencyInjection.TypeResolving
                                       requestedTypeKey.Type);
         }
 
-        private Expression CreateResolveAllExpressionRecursively(ResolveAllInfo resolveAllInfo, DiContainer container)
+        private Expression CreateResolveAllExpressionRecursively(ResolveAllInfo resolveAllInfo, DependencyOverrides dependencyOverrides, DiContainer container)
         {
             // Create the expression that instantiates the target collection
             var collectionRegistration = container.GetRegistration(resolveAllInfo.CollectionType);
             if (collectionRegistration == null)
                 throw new ResolveException($"There is no registration present to resolve collection type \"{resolveAllInfo.CollectionType}\".");
-            var createCollectionExpression = CreateConstructionExpression(new ResolveExpressionContext(new TypeKey(resolveAllInfo.CollectionType), collectionRegistration, container));
+            var createCollectionExpression = CreateConstructionExpression(new ResolveExpressionContext(new TypeKey(resolveAllInfo.CollectionType), collectionRegistration, dependencyOverrides, container));
 
             // Create the expression block that assigns the created collection to a variable, casts this variable to IList<TargetType>, and then resolves all registrations, adding the resulting the expressions
             var blockExpressions = new Expression[resolveAllInfo.Registrations.Count + 3]; // +3 for initial assignment, casting to IList<ItemType>, and return statement
@@ -136,7 +138,7 @@ namespace Light.DependencyInjection.TypeResolving
             {
                 var registration = resolveAllInfo.Registrations[i];
                 var itemTypeKey = new TypeKey(resolveAllInfo.ItemType, registration.RegistrationName);
-                var resolveRegistrationExpression = CreateResolveExpressionRecursively(itemTypeKey, registration, container);
+                var resolveRegistrationExpression = CreateResolveExpressionRecursively(itemTypeKey, registration, dependencyOverrides, container);
                 blockExpressions[i + 2] = Expression.Call(castedICollectionVariableExpression, addMethodInfo, resolveRegistrationExpression);
             }
 
@@ -190,13 +192,24 @@ namespace Light.DependencyInjection.TypeResolving
                 return null;
 
             var resolvedDependencyExpressions = new Expression[dependencies.Count];
-            for (var i = 0; i < dependencies.Count; i++)
+            for (var i = 0; i < resolvedDependencyExpressions.Length; i++)
             {
                 var dependency = dependencies[i];
-                var dependencyType = dependency.DependencyType;
+                var dependencyType = dependency.TargetType;
                 if (dependencyType.IsGenericTypeParameter())
                     dependencyType = context.ResolveGenericTypeParameter(dependencyType);
-                resolvedDependencyExpressions[i] = CreateResolveExpressionRecursively(new TypeKey(dependencyType, dependency.TargetRegistrationName), context.Container, dependency.ResolveAll);
+
+                // Check if the dependency is overridden - if yes, then resolve it via the ResolveContext parameter
+                if (context.DependencyOverrides?.HasDependency(dependency) == true)
+                {
+                    resolvedDependencyExpressions[i] = Expression.Convert(Expression.Call(Expression.Call(ResolveContextParameterExpression, GetDependencyOverridesProperty),
+                                                                                          GetDependencyInstanceMethod,
+                                                                                          Expression.Constant(dependency)),
+                                                                          dependency.TargetType);
+                    continue;
+                }
+
+                resolvedDependencyExpressions[i] = CreateResolveExpressionRecursively(new TypeKey(dependencyType, dependency.TargetRegistrationName), context.Container, null, dependency.ResolveAll);
             }
 
             return resolvedDependencyExpressions;
