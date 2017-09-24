@@ -9,6 +9,7 @@ namespace Light.DependencyInjection.TypeResolving
     {
         private readonly Registration _targetRegistration;
         private Dictionary<Dependency, object> _overriddenDependencies;
+        private Dictionary<TypeKey, object> _overriddenRegistrations;
 
         public DependencyOverrideOptions(Registration targetRegistration)
         {
@@ -18,6 +19,7 @@ namespace Light.DependencyInjection.TypeResolving
         }
 
         private Dictionary<Dependency, object> OverriddenDependencies => _overriddenDependencies ?? (_overriddenDependencies = new Dictionary<Dependency, object>());
+        private Dictionary<TypeKey, object> OverriddenRegistrations => _overriddenRegistrations ?? (_overriddenRegistrations = new Dictionary<TypeKey, object>());
 
         public Registration TargetRegistration => _targetRegistration;
 
@@ -68,9 +70,21 @@ namespace Light.DependencyInjection.TypeResolving
             throw new ResolveException($"There is no dependency with name \"{dependencyName}\" configured on the target type {_targetRegistration}.");
         }
 
+        public IDependencyOverrideOptions OverrideRegistration<T>(T value, string registrationName = "")
+        {
+            var typeKey = new TypeKey(typeof(T), registrationName);
+            var overriddenDependencies = OverriddenRegistrations;
+            if (overriddenDependencies.ContainsKey(typeKey))
+                overriddenDependencies[typeKey] = value;
+            else
+                overriddenDependencies.Add(typeKey, value);
+
+            return this;
+        }
+
         public DependencyOverrides Build()
         {
-            return new DependencyOverrides(_overriddenDependencies);
+            return new DependencyOverrides(_overriddenDependencies, _overriddenRegistrations);
         }
     }
 }

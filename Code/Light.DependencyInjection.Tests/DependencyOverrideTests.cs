@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
 using Xunit;
 
@@ -66,6 +67,22 @@ namespace Light.DependencyInjection.Tests
                 First = first;
                 Second = second;
             }
+        }
+
+        [Fact(DisplayName = "The client must be able to override all instances of a certain type during a resolve call.")]
+        public void OverrideInstanceByType()
+        {
+            var container = new DiContainer().Register<ClassWithoutDependencies>(options => options.UseSingletonLifetime())
+                                             .Register<ClassWithDependency>()
+                                             .Register<ClassWithTwoDependencies>();
+
+            var overriddenInstance = new ClassWithoutDependencies();
+            var dependencyOverrides = container.OverrideDependenciesFor<ClassWithTwoDependencies>()
+                                               .OverrideRegistration(overriddenInstance);
+            var resolvedInstance = container.Resolve<ClassWithTwoDependencies>(dependencyOverrides);
+
+            resolvedInstance.A.Should().BeSameAs(overriddenInstance);
+            resolvedInstance.B.A.Should().BeSameAs(overriddenInstance);
         }
     }
 }

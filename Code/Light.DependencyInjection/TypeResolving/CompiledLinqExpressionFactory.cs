@@ -18,6 +18,7 @@ namespace Light.DependencyInjection.TypeResolving
         private static readonly MethodInfo ChangeRegistrationMethod = KnownTypes.ResolveContextType.GetTypeInfo().GetDeclaredMethod(nameof(ResolveContext.ChangeRegistration));
         private static readonly MethodInfo GetDependencyOverridesProperty = KnownTypes.ResolveContextType.GetTypeInfo().GetDeclaredProperty(nameof(ResolveContext.DependencyOverrides)).GetMethod;
         private static readonly MethodInfo GetDependencyInstanceMethod = KnownTypes.DependencyOverridesType.GetTypeInfo().GetDeclaredMethod(nameof(DependencyOverrides.GetDependencyInstance));
+        private static readonly MethodInfo GetOverriddenInstanceMethod = KnownTypes.DependencyOverridesType.GetTypeInfo().GetDeclaredMethod(nameof(DependencyOverrides.GetOverriddenInstance));
         private static readonly ParameterExpression ResolveContextParameterExpression = Expression.Parameter(KnownTypes.ResolveContextType);
         private readonly IReadOnlyDictionary<Type, IInstanceManipulationExpressionFactory> _instanceManipulationExpressionFactories;
         private readonly IReadOnlyDictionary<Type, IInstantiationExpressionFactory> _instantiationExpressionFactories;
@@ -63,6 +64,15 @@ namespace Light.DependencyInjection.TypeResolving
 
         private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, Registration registration, DependencyOverrides dependencyOverrides, DiContainer container)
         {
+            // Check if the instance is overridden
+            if (dependencyOverrides?.HasOverriddenInstance(requestedTypeKey) == true)
+            {
+                return Expression.Convert(Expression.Call(Expression.Call(ResolveContextParameterExpression, GetDependencyOverridesProperty),
+                                                          GetOverriddenInstanceMethod,
+                                                          Expression.Constant(requestedTypeKey)),
+                                          requestedTypeKey.Type);
+            }
+
             // Check if the lifetime of the registration would need to create a new instance.
             // If not, then we can do not need to create a construction expression
             Expression resolveContextExpression;
@@ -209,7 +219,10 @@ namespace Light.DependencyInjection.TypeResolving
                     continue;
                 }
 
-                resolvedDependencyExpressions[i] = CreateResolveExpressionRecursively(new TypeKey(dependencyType, dependency.TargetRegistrationName), context.Container, null, dependency.ResolveAll);
+                resolvedDependencyExpressions[i] = CreateResolveExpressionRecursively(new TypeKey(dependencyType, dependency.TargetRegistrationName),
+                                                                                      context.Container,
+                                                                                      context.DependencyOverrides,
+                                                                                      dependency.ResolveAll);
             }
 
             return resolvedDependencyExpressions;
