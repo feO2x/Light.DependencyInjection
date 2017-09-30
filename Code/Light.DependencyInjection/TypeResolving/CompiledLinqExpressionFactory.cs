@@ -53,6 +53,16 @@ namespace Light.DependencyInjection.TypeResolving
 
         private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, DiContainer container, DependencyOverrides dependencyOverrides, bool? tryResolveAll = null)
         {
+            // Check if the instance is overridden
+            if (dependencyOverrides?.HasOverriddenInstance(requestedTypeKey) == true)
+            {
+                return Expression.Convert(Expression.Call(Expression.Call(ResolveContextParameterExpression, GetDependencyOverridesProperty),
+                                                          GetOverriddenInstanceMethod,
+                                                          Expression.Constant(requestedTypeKey)),
+                                          requestedTypeKey.Type);
+            }
+
+            // Else ask the container for a ResolveInfo to identify how the returned expression should be composed
             var resolveInfo = container.GetResolveInfo(requestedTypeKey, tryResolveAll);
             if (resolveInfo is ResolveRegistrationInfo resolveRegistrationInfo)
                 return CreateResolveExpressionRecursively(requestedTypeKey, resolveRegistrationInfo.Registration, dependencyOverrides, container);
@@ -64,15 +74,6 @@ namespace Light.DependencyInjection.TypeResolving
 
         private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, Registration registration, DependencyOverrides dependencyOverrides, DiContainer container)
         {
-            // Check if the instance is overridden
-            if (dependencyOverrides?.HasOverriddenInstance(requestedTypeKey) == true)
-            {
-                return Expression.Convert(Expression.Call(Expression.Call(ResolveContextParameterExpression, GetDependencyOverridesProperty),
-                                                          GetOverriddenInstanceMethod,
-                                                          Expression.Constant(requestedTypeKey)),
-                                          requestedTypeKey.Type);
-            }
-
             // Check if the lifetime of the registration would need to create a new instance.
             // If not, then we can do not need to create a construction expression
             Expression resolveContextExpression;

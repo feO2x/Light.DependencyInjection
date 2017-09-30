@@ -68,7 +68,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The registrations of a child container can be detached from its parent container.")]
         public void DetachedChildContainer()
         {
-            var containerServices = new ContainerServicesBuilder().WithAutomaticRegistrationFactory(new NoDefaultRegistrationsAllowedFactory()).Build();
+            var containerServices = new ContainerServicesBuilder().WithAutomaticRegistrationFactory(new NoAutoRegistrationsAllowedFactory()).Build();
             var parentContainer = new DiContainer(containerServices);
 
             var childContainer = parentContainer.CreateChildContainer(new ChildContainerOptions(true));
@@ -81,7 +81,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must be able to store external instances in the container scope.")]
         public void ScopedExternalInstanceLifetime()
         {
-            var containerServices = new ContainerServicesBuilder().WithAutomaticRegistrationFactory(new NoDefaultRegistrationsAllowedFactory()).Build();
+            var containerServices = new ContainerServicesBuilder().WithAutomaticRegistrationFactory(new NoAutoRegistrationsAllowedFactory()).Build();
             var parentContainer = new DiContainer(containerServices).PrepareScopedExternalInstance<DisposableSpy>();
             var externalSpy = new DisposableSpy();
             var childContainer = parentContainer.CreateChildContainer();

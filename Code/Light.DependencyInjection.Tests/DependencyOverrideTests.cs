@@ -1,7 +1,9 @@
 ﻿using FluentAssertions;
 using Light.DependencyInjection.Registrations;
+using Light.DependencyInjection.Services;
 using Light.GuardClauses;
 using Xunit;
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace Light.DependencyInjection.Tests
 {
@@ -75,6 +77,40 @@ namespace Light.DependencyInjection.Tests
             var container = new DiContainer().Register<ClassWithoutDependencies>(options => options.UseSingletonLifetime())
                                              .Register<ClassWithDependency>()
                                              .Register<ClassWithTwoDependencies>();
+
+            var overriddenInstance = new ClassWithoutDependencies();
+            var dependencyOverrides = container.OverrideDependenciesFor<ClassWithTwoDependencies>()
+                                               .OverrideRegistration(overriddenInstance);
+            var resolvedInstance = container.Resolve<ClassWithTwoDependencies>(dependencyOverrides);
+
+            resolvedInstance.A.Should().BeSameAs(overriddenInstance);
+            resolvedInstance.B.A.Should().BeSameAs(overriddenInstance);
+        }
+
+        [Fact(DisplayName = "The DI Container must be able to resolve object graphs where dependencies are not registered but provided via DependencyOverrides.")]
+        public void OverrideDependencyThatIsNotRegistered()
+        {
+            var containerServices = new ContainerServicesBuilder().WithAutomaticRegistrationFactory(new NoAutoRegistrationsAllowedFactory())
+                                                                 .Build();
+            var container = new DiContainer(containerServices).Register<ClassWithDependency>()
+                                                              .Register<ClassWithTwoDependencies>();
+
+            var overriddenInstance = new ClassWithoutDependencies();
+            var dependencyOverrides = container.OverrideDependenciesFor<ClassWithTwoDependencies>()
+                                               .OverrideDependency(overriddenInstance);
+            var resolvedInstance = container.Resolve<ClassWithTwoDependencies>(dependencyOverrides);
+
+            resolvedInstance.A.Should().BeSameAs(overriddenInstance);
+            resolvedInstance.B.A.Should().BeSameAs(overriddenInstance);
+        }
+
+        [Fact(DisplayName = "The DI Container must be able to resolve object graphs where the overridden registration does not exist.")]
+        public void OverrideNonExisitingRegistration()
+        {
+            var containerServices = new ContainerServicesBuilder().WithAutomaticRegistrationFactory(new NoAutoRegistrationsAllowedFactory())
+                                                                  .Build();
+            var container = new DiContainer(containerServices).Register<ClassWithDependency>()
+                                                              .Register<ClassWithTwoDependencies>();
 
             var overriddenInstance = new ClassWithoutDependencies();
             var dependencyOverrides = container.OverrideDependenciesFor<ClassWithTwoDependencies>()
