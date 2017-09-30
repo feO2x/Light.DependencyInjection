@@ -25,7 +25,16 @@ namespace Light.DependencyInjection.TypeResolving
 
         public IDependencyOverrideOptions OverrideDependency<TDependency>(TDependency value)
         {
-            var dependencyType = typeof(TDependency);
+            return OverrideDependency(typeof(TDependency), value);
+        }
+
+        public IDependencyOverrideOptions OverrideDependency<TDependency>(string dependencyName, TDependency value, StringComparison nameComparisonType = StringComparison.CurrentCulture)
+        {
+            return OverrideDependency(dependencyName, (object)value, nameComparisonType);
+        }
+
+        public IDependencyOverrideOptions OverrideDependency(Type dependencyType, object dependencyValue)
+        {
             if (_targetRegistration.TypeConstructionInfo.AllDependencies.IsNullOrEmpty())
                 throw new ResolveException($"You cannot override dependencies because the registration {_targetRegistration} has no dependencies configured.");
 
@@ -46,11 +55,11 @@ namespace Light.DependencyInjection.TypeResolving
             if (targetDependency == null)
                 throw new ResolveException($"There is no dependency of type \"{dependencyType}\" configured on the target type {_targetRegistration}.");
 
-            OverriddenDependencies.Add(targetDependency, value);
+            OverriddenDependencies.Add(targetDependency, dependencyValue);
             return this;
         }
 
-        public IDependencyOverrideOptions OverrideDependency<TDependency>(string dependencyName, TDependency value, StringComparison nameComparisonType = StringComparison.CurrentCulture)
+        public IDependencyOverrideOptions OverrideDependency(string dependencyName, object dependencyValue, StringComparison nameComparisonType = StringComparison.CurrentCulture)
         {
             dependencyName.MustNotBeNullOrEmpty(nameof(dependencyName));
             if (_targetRegistration.TypeConstructionInfo.AllDependencies.IsNullOrEmpty())
@@ -63,7 +72,7 @@ namespace Light.DependencyInjection.TypeResolving
                 if (currentDependency.Name.Equals(dependencyName, nameComparisonType) == false)
                     continue;
 
-                OverriddenDependencies.Add(currentDependency, value);
+                OverriddenDependencies.Add(currentDependency, dependencyValue);
                 return this;
             }
 
@@ -72,7 +81,12 @@ namespace Light.DependencyInjection.TypeResolving
 
         public IDependencyOverrideOptions OverrideRegistration<T>(T value, string registrationName = "")
         {
-            var typeKey = new TypeKey(typeof(T), registrationName);
+            return OverrideRegistration(typeof(T), value, registrationName);
+        }
+
+        public IDependencyOverrideOptions OverrideRegistration(Type type, object value, string registrationName = "")
+        {
+            var typeKey = new TypeKey(type, registrationName);
             var overriddenDependencies = OverriddenRegistrations;
             if (overriddenDependencies.ContainsKey(typeKey))
                 overriddenDependencies[typeKey] = value;
