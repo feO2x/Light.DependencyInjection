@@ -10,7 +10,8 @@ using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection
 {
-    public class DiContainer : IDisposable
+
+    public class DiContainer : IServiceProvider, IDisposable
     {
         private readonly IConcurrentDictionary<Type, IConcurrentList<Registration>> _registrationMappings;
         private readonly IConcurrentDictionary<ResolveDelegateId, ResolveDelegate> _resolveDelegates;
@@ -353,6 +354,11 @@ namespace Light.DependencyInjection
                 throw new ResolveException($"You cannot override the dependencies for {typeKey} because the DI Container has no registration for this type.");
 
             return new DependencyOverrideOptions(targetRegistration);
+        }
+
+        object IServiceProvider.GetService(Type serviceType)
+        {
+            return Resolve(serviceType);
         }
     }
 }

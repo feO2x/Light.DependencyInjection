@@ -13,6 +13,23 @@ namespace Light.DependencyInjection.Tests
     [Trait("Category", "Functional Tests")]
     public sealed class BasicResolveTests
     {
+        [Fact(DisplayName = "The DI Container must implement IServiceProvider.")]
+        public void ImplementsIServiceProvider()
+        {
+            typeof(DiContainer).Should().Implement<IServiceProvider>();
+        }
+
+        [Fact(DisplayName = "The DI container must allow resolving an instance using the IServiceProvider interface.")]
+        public void ResolveAsIServiceProvider()
+        {
+            var instance = new ClassWithoutDependencies();
+            var container = (IServiceProvider) new DiContainer().Register(instance);
+
+            var resolvedInstance = container.GetService(typeof(ClassWithoutDependencies));
+
+            resolvedInstance.Should().BeSameAs(instance);
+        }
+
         [Fact(DisplayName = "The DI Container must create two instances when a type with a transient lifetime is resolved two times.")]
         public void TransientResolve()
         {
