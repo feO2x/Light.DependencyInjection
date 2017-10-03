@@ -2,6 +2,22 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.1</TargetFramework>
+    <Description>The DI Container you always wanted.</Description>
+    <Version>0.2.0</Version>
+    <Authors>Kenny Pflug</Authors>
+    <Company>Kenny Pflug</Company>
+    <Copyright>Copyright © Kenny Pflug</Copyright>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/feO2x/Light.DependencyInjection/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/feO2x/Light.DependencyInjection</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/feO2x/Light.GuardClauses/master/Images/light_logo.png</PackageIconUrl>
+    <RepositoryType>Git</RepositoryType>
+    <RepositoryUrl>https://github.com/feO2x/Light.DependencyInjection</RepositoryUrl>
+    <PackageTags>DependencyInjection DependencyInjectionContainer DI LooseCoupling</PackageTags>
+    <PackageReleaseNotes>Version 0.2.0 release notes
+---------------------------------
+- Resolving object graphs is now performed via dynamically compiled methods
+- Multiple objects are resolved in the same order as they were registered</PackageReleaseNotes>
+    
   </PropertyGroup>
 
   <ItemGroup>
