@@ -4,7 +4,7 @@ namespace Light.DependencyInjection.TypeResolving
 {
     public interface IResolveContext
     {
-        DiContainer Container { get; }
+        DependencyInjectionContainer Container { get; }
         Registration Registration { get; }
 
         object CreateInstance();

@@ -13,27 +13,10 @@ namespace Light.DependencyInjection.Tests
     [Trait("Category", "Functional Tests")]
     public sealed class BasicResolveTests
     {
-        [Fact(DisplayName = "The DI Container must implement IServiceProvider.")]
-        public void ImplementsIServiceProvider()
-        {
-            typeof(DiContainer).Should().Implement<IServiceProvider>();
-        }
-
-        [Fact(DisplayName = "The DI container must allow resolving an instance using the IServiceProvider interface.")]
-        public void ResolveAsIServiceProvider()
-        {
-            var instance = new ClassWithoutDependencies();
-            var container = (IServiceProvider) new DiContainer().Register(instance);
-
-            var resolvedInstance = container.GetService(typeof(ClassWithoutDependencies));
-
-            resolvedInstance.Should().BeSameAs(instance);
-        }
-
         [Fact(DisplayName = "The DI Container must create two instances when a type with a transient lifetime is resolved two times.")]
         public void TransientResolve()
         {
-            var container = new DiContainer().Register<ClassWithoutDependencies>();
+            var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>();
 
             var first = container.Resolve<ClassWithoutDependencies>();
             var second = container.Resolve<ClassWithoutDependencies>();
@@ -46,7 +29,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must resolve the same instance when the target type is registered with a singleton lifetime.")]
         public void SingletonResolve()
         {
-            var container = new DiContainer().Register<ClassWithoutDependencies>(options => options.UseSingletonLifetime());
+            var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>(options => options.UseSingletonLifetime());
 
             var first = container.Resolve<ClassWithoutDependencies>();
             var second = container.Resolve<ClassWithoutDependencies>();
@@ -59,7 +42,7 @@ namespace Light.DependencyInjection.Tests
         [MemberData(nameof(ExternalInstanceData))]
         public void ExternalInstanceResolve<T>(T instance)
         {
-            var container = new DiContainer().Register(instance);
+            var container = new DependencyInjectionContainer().Register(instance);
 
             var resolvedInstance = container.Resolve<T>();
 
@@ -76,7 +59,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI container must be able to resolve types with dependencies to other types.")]
         public void SimpleHierarchicalResolve()
         {
-            var container = new DiContainer().Register<ClassWithoutDependencies>()
+            var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>()
                                              .Register<ClassWithDependency>();
 
             var instance = container.Resolve<ClassWithDependency>();
@@ -88,7 +71,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI container must be able to resolve a complex object graph where a singleton instance is injected in several other objects.")]
         public void TwoLevelHierarchicalResolveWithSingletonLeaf()
         {
-            var container = new DiContainer().Register<ClassWithoutDependencies>(options => options.UseSingletonLifetime())
+            var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>(options => options.UseSingletonLifetime())
                                              .Register<ClassWithDependency>()
                                              .Register<ClassWithTwoDependencies>(options => options.UseSingletonLifetime());
 
@@ -100,7 +83,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI container must be able to resolve a concrete type for an interface when this mapping was registered beforehand.")]
         public void InterfaceMapping()
         {
-            var instance = new DiContainer().Register<IAbstractionA, ClassWithoutDependencies>()
+            var instance = new DependencyInjectionContainer().Register<IAbstractionA, ClassWithoutDependencies>()
                                             .Resolve<IAbstractionA>();
 
             instance.Should().BeOfType<ClassWithoutDependencies>();
@@ -111,7 +94,7 @@ namespace Light.DependencyInjection.Tests
         [InlineData(typeof(Random))]
         public void InvalidAbstractionType(Type invalidAbstractionType)
         {
-            var container = new DiContainer();
+            var container = new DependencyInjectionContainer();
             var targetType = typeof(ClassWithoutDependencies);
             Action act = () => container.Register(invalidAbstractionType, targetType);
 
@@ -122,13 +105,13 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must implement IDisposable.")]
         public void Disposable()
         {
-            typeof(DiContainer).Should().Implement<IDisposable>();
+            typeof(DependencyInjectionContainer).Should().Implement<IDisposable>();
         }
 
         [Fact(DisplayName = "The DI Container must dispose of disposable instances by default when it is disposed itself.")]
         public void DisposeDisposableObjectsByDefault()
         {
-            var container = new DiContainer().Register<DisposableSpy>();
+            var container = new DependencyInjectionContainer().Register<DisposableSpy>();
             var disposableInstance = container.Resolve<DisposableSpy>();
 
             container.Dispose();
@@ -139,13 +122,13 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must be able to automatically resolve GUIDs.")]
         public void AutomaticGuidResolving()
         {
-            new DiContainer().Resolve<Guid>().Should().NotBeEmpty();
+            new DependencyInjectionContainer().Resolve<Guid>().Should().NotBeEmpty();
         }
 
         [Fact(DisplayName = "The DI Container must be able to automatically resolve itself.")]
         public void AutomaticContainerResolving()
         {
-            var container = new DiContainer().Register<ServiceLocatorClient>();
+            var container = new DependencyInjectionContainer().Register<ServiceLocatorClient>();
 
             var serviceLocatorClient = container.Resolve<ServiceLocatorClient>();
 
@@ -155,7 +138,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must be able to perform Property Injection when this is configured for the target type.")]
         public void PropertyInjection()
         {
-            var container = new DiContainer().Register<ClassWithoutDependencies>()
+            var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>()
                                              .Register<ClassWithProperty>(options => options.AddPropertyInjection(nameof(ClassWithProperty.InstanceWithoutDependencies)));
 
             var instanceWithProperty = container.Resolve<ClassWithProperty>();
@@ -166,7 +149,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must be able to resolve a polymorphic graph where a child object performs property injection.")]
         public void ComplexGraphWithPropertyInjectionAndPolymorphism()
         {
-            var container = new DiContainer().Register<ClassWithoutDependencies>()
+            var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>()
                                              .Register<IEmptyInterface, ClassWithProperty>(options => options.AddPropertyInjection(nameof(ClassWithProperty.InstanceWithoutDependencies)))
                                              .Register<ClassWithPropertyInjectionDependency>();
 
@@ -180,7 +163,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must be able to perform Field Injection when this is configured for the target type.")]
         public void FieldInjection()
         {
-            var container = new DiContainer().Register(true, options => options.UseRegistrationName("The Boolean"))
+            var container = new DependencyInjectionContainer().Register(true, options => options.UseRegistrationName("The Boolean"))
                                              .Register<ClassWithPublicField>(options => options.AddFieldInjection(nameof(ClassWithPublicField.PublicField), "The Boolean"));
 
             var instanceWithPublicField = container.Resolve<ClassWithPublicField>();
@@ -193,7 +176,7 @@ namespace Light.DependencyInjection.Tests
         [InlineData(typeof(ClassWithDependency))]
         public void AutomaticRegistration(Type targetType)
         {
-            var instance = new DiContainer().Resolve(targetType);
+            var instance = new DependencyInjectionContainer().Resolve(targetType);
 
             instance.Should().NotBeNull().And.BeAssignableTo(targetType);
         }
@@ -201,7 +184,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must be able to inject the same instance during a single Resolve call when the PerResolveLifetime is used.")]
         public void PerResolveInstance()
         {
-            var container = new DiContainer().Register<ClassWithoutDependencies>(options => options.UsePerResolveLifetime())
+            var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>(options => options.UsePerResolveLifetime())
                                              .Register<ClassWithDependency>()
                                              .Register<ClassWithTwoDependencies>();
 
@@ -216,7 +199,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must be able to resolve instances per thread when they are configured with the PerThreadLifetime.")]
         public void PerThreadInstance()
         {
-            var container = new DiContainer().Register<ThreadSaveClass>(options => options.UsePerThreadLifetime());
+            var container = new DependencyInjectionContainer().Register<ThreadSaveClass>(options => options.UsePerThreadLifetime());
             var exceptions = new ConcurrentBag<Exception>();
 
             void ResolvePerThreadInstances()
@@ -252,7 +235,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must throw a RegistrationException when the specified type is a static class.")]
         public void StaticClassInvalid()
         {
-            var container = new DiContainer();
+            var container = new DependencyInjectionContainer();
             var staticClassType = typeof(Console);
 
             Action act = () => container.Register(staticClassType);
@@ -264,7 +247,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must be able to resolve types via a static method.")]
         public void ResolveViaMethodInfo()
         {
-            var container = new DiContainer().Register<IAbstractionA, ClassWithoutDependencies>(options => options.UseSingletonLifetime())
+            var container = new DependencyInjectionContainer().Register<IAbstractionA, ClassWithoutDependencies>(options => options.UseSingletonLifetime())
                                              .Register<ClassWithDependency>(options => options.InstantiateVia(GetType().GetMethod(nameof(CreateClassWithDependency))));
 
             var instance = container.Resolve<ClassWithDependency>();

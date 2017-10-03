@@ -4,6 +4,6 @@ namespace Light.DependencyInjection.TypeResolving
 {
     public interface IResolveInfoAlgorithm
     {
-        ResolveInfo Search(TypeKey requestedTypeKey, DiContainer container, bool? tryResolveAll);
+        ResolveInfo Search(TypeKey requestedTypeKey, DependencyInjectionContainer container, bool? tryResolveAll);
     }
 }

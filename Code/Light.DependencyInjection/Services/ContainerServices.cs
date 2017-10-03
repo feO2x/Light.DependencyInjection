@@ -11,17 +11,19 @@ namespace Light.DependencyInjection.Services
     public sealed class ContainerServices
     {
         public static readonly IReadOnlyList<Type> DefaultIgnoredAbstractionTypes = new[] { typeof(IDisposable) };
+
+        public static readonly ContainerServices DefaultServices = new ContainerServicesBuilder().Build();
         public readonly IAutomaticRegistrationFactory AutomaticRegistrationFactory;
 
         public readonly IConcurrentDictionaryFactory ConcurrentDictionaryFactory;
-        public readonly IRegistrationCollectionFactory RegistrationCollectionFactory;
         public readonly IContainerScopeFactory ContainerScopeFactory;
         public readonly IDefaultInstantiationInfoSelector DefaultInstantiationInfoSelector;
         public readonly IReadOnlyList<Type> IgnoredAbstractionTypes;
+        public readonly IRegistrationCollectionFactory RegistrationCollectionFactory;
         public readonly IResolveContextFactory ResolveContextFactory;
         public readonly IResolveDelegateFactory ResolveDelegateFactory;
         public readonly IResolveInfoAlgorithm ResolveInfoAlgorithm;
-        public readonly Action<DiContainer> SetupContainer;
+        public readonly Action<DependencyInjectionContainer> SetupContainer;
 
         public ContainerServices(IConcurrentDictionaryFactory concurrentDictionaryFactory,
                                  IRegistrationCollectionFactory registrationCollectionFactory,
@@ -32,7 +34,7 @@ namespace Light.DependencyInjection.Services
                                  IAutomaticRegistrationFactory automaticRegistrationFactory,
                                  IResolveContextFactory resolveContextFactory,
                                  IResolveInfoAlgorithm resolveInfoAlgorithm,
-                                 Action<DiContainer> setupContainer = null)
+                                 Action<DependencyInjectionContainer> setupContainer = null)
         {
             ConcurrentDictionaryFactory = concurrentDictionaryFactory.MustNotBeNull(nameof(concurrentDictionaryFactory));
             RegistrationCollectionFactory = registrationCollectionFactory.MustNotBeNull(nameof(registrationCollectionFactory));
@@ -66,7 +68,7 @@ namespace Light.DependencyInjection.Services
             return new ExternalInstanceOptions(targetType, IgnoredAbstractionTypes);
         }
 
-        public static void DefaultSetupContainer(DiContainer container)
+        public static void DefaultSetupContainer(DependencyInjectionContainer container)
         {
             container.AddDefaultGuidRegistration()
                      .AddDefaultContainerRegistration()

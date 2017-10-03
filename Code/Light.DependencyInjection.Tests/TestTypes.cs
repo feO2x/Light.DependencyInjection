@@ -50,9 +50,9 @@ namespace Light.DependencyInjection.Tests
 
     public class ServiceLocatorClient
     {
-        public readonly DiContainer Container;
+        public readonly DependencyInjectionContainer Container;
 
-        public ServiceLocatorClient(DiContainer container)
+        public ServiceLocatorClient(DependencyInjectionContainer container)
         {
             Container = container;
         }

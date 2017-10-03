@@ -14,7 +14,7 @@ namespace Light.DependencyInjection.Threading
             _perThreadResolveContext.Dispose();
         }
 
-        public ResolveContext Create(DiContainer container, DependencyOverrides dependencyOverrides = null)
+        public ResolveContext Create(DependencyInjectionContainer container, DependencyOverrides dependencyOverrides = null)
         {
             if (_perThreadResolveContext.IsValueCreated == false)
                 return _perThreadResolveContext.Value = new ResolveContext(container, dependencyOverrides);

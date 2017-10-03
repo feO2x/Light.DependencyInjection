@@ -10,10 +10,10 @@ namespace Light.DependencyInjection.TypeResolving
         private ResolveDelegate _createInstance;
         private Dictionary<TypeKey, object> _perResolveInstances;
         private Registration _registration;
-        private DiContainer _container;
+        private DependencyInjectionContainer _container;
         private DependencyOverrides _dependencyOverrides;
 
-        public ResolveContext(DiContainer container, DependencyOverrides dependencyOverrides)
+        public ResolveContext(DependencyInjectionContainer container, DependencyOverrides dependencyOverrides)
         {
             _container = container.MustNotBeNull(nameof(container));
             _dependencyOverrides = dependencyOverrides;
@@ -30,7 +30,7 @@ namespace Light.DependencyInjection.TypeResolving
             return instance;
         }
 
-        public DiContainer Container => _container;
+        public DependencyInjectionContainer Container => _container;
 
         public Registration Registration => _registration;
 
@@ -88,7 +88,7 @@ namespace Light.DependencyInjection.TypeResolving
             return this;
         }
 
-        public ResolveContext ChangeInitialContext(DiContainer container, DependencyOverrides dependencyOverrides)
+        public ResolveContext ChangeInitialContext(DependencyInjectionContainer container, DependencyOverrides dependencyOverrides)
         {
             _registration = null;
             _createInstance = null;

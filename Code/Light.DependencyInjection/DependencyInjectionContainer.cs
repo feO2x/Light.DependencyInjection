@@ -10,17 +10,16 @@ using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection
 {
-
-    public class DiContainer : IServiceProvider, IDisposable
+    public class DependencyInjectionContainer : IDisposable
     {
         private readonly IConcurrentDictionary<Type, IConcurrentList<Registration>> _registrationMappings;
         private readonly IConcurrentDictionary<ResolveDelegateId, ResolveDelegate> _resolveDelegates;
         public readonly ContainerScope Scope;
         public readonly ContainerServices Services;
 
-        public DiContainer(ContainerServices services = null)
+        public DependencyInjectionContainer(ContainerServices services = null)
         {
-            Services = services ?? new ContainerServicesBuilder().Build();
+            Services = services ?? ContainerServices.DefaultServices;
             Scope = Services.ContainerScopeFactory.CreateScope();
             _registrationMappings = Services.ConcurrentDictionaryFactory.Create<Type, IConcurrentList<Registration>>();
             _resolveDelegates = Services.ConcurrentDictionaryFactory.Create<ResolveDelegateId, ResolveDelegate>();
@@ -30,7 +29,7 @@ namespace Light.DependencyInjection
             Services.SetupContainer?.Invoke(this);
         }
 
-        private DiContainer(DiContainer parentContainer, ChildContainerOptions childContainerOptions)
+        private DependencyInjectionContainer(DependencyInjectionContainer parentContainer, ChildContainerOptions childContainerOptions)
         {
             Services = childContainerOptions.NewContainerServices ?? parentContainer.Services;
             _registrationMappings = childContainerOptions.DetachRegistrationMappingsFromParentContainer ? CreateCloneOfRegistrationMappings(parentContainer._registrationMappings) : parentContainer._registrationMappings;
@@ -54,21 +53,21 @@ namespace Light.DependencyInjection
             return newRegistrationMappings;
         }
 
-        public DiContainer Register<T>(Action<IRegistrationOptions<T>> configureRegistration = null)
+        public DependencyInjectionContainer Register<T>(Action<IRegistrationOptions<T>> configureRegistration = null)
         {
             var registrationOptions = Services.CreateRegistrationOptions<T>();
             configureRegistration?.Invoke(registrationOptions);
             return Register(registrationOptions.CreateRegistration());
         }
 
-        public DiContainer Register(Type targetType, Action<IRegistrationOptions> configureRegistration = null)
+        public DependencyInjectionContainer Register(Type targetType, Action<IRegistrationOptions> configureRegistration = null)
         {
             var registrationOptions = Services.CreateRegistrationOptions(targetType);
             configureRegistration?.Invoke(registrationOptions);
             return Register(registrationOptions.CreateRegistration());
         }
 
-        public DiContainer Register<TAbstract, TConcrete>(Action<IRegistrationOptions<TConcrete>> configureRegistration = null) where TConcrete : TAbstract
+        public DependencyInjectionContainer Register<TAbstract, TConcrete>(Action<IRegistrationOptions<TConcrete>> configureRegistration = null) where TConcrete : TAbstract
         {
             var registrationOptions = Services.CreateRegistrationOptions<TConcrete>();
             registrationOptions.MapToAbstractions(typeof(TAbstract));
@@ -76,7 +75,7 @@ namespace Light.DependencyInjection
             return Register(registrationOptions.CreateRegistration());
         }
 
-        public DiContainer Register(Type abstractionType, Type concreteType, Action<IRegistrationOptions> configureRegistration = null)
+        public DependencyInjectionContainer Register(Type abstractionType, Type concreteType, Action<IRegistrationOptions> configureRegistration = null)
         {
             var registrationOptions = Services.CreateRegistrationOptions(concreteType);
             registrationOptions.MapToAbstractions(abstractionType);
@@ -84,7 +83,7 @@ namespace Light.DependencyInjection
             return Register(registrationOptions.CreateRegistration());
         }
 
-        public DiContainer Register(Registration registration)
+        public DependencyInjectionContainer Register(Registration registration)
         {
             registration.MustNotBeNull();
 
@@ -99,7 +98,7 @@ namespace Light.DependencyInjection
             return this;
         }
 
-        public DiContainer Register(object value, Action<IExternalInstanceOptions> configureRegistration = null)
+        public DependencyInjectionContainer Register(object value, Action<IExternalInstanceOptions> configureRegistration = null)
         {
             value.MustNotBeNull(nameof(value));
 
@@ -109,12 +108,12 @@ namespace Light.DependencyInjection
             return Register(registrationOptions.CreateRegistration());
         }
 
-        public DiContainer RegisterMany<TAbstraction>(IEnumerable<Type> concreteTypes, Action<IRegistrationOptions> configureRegistrations = null)
+        public DependencyInjectionContainer RegisterMany<TAbstraction>(IEnumerable<Type> concreteTypes, Action<IRegistrationOptions> configureRegistrations = null)
         {
             return RegisterMany(typeof(TAbstraction), concreteTypes, configureRegistrations);
         }
 
-        public DiContainer RegisterMany(Type abstractionType, IEnumerable<Type> concreteTypes, Action<IRegistrationOptions> configureRegistrations = null)
+        public DependencyInjectionContainer RegisterMany(Type abstractionType, IEnumerable<Type> concreteTypes, Action<IRegistrationOptions> configureRegistrations = null)
         {
             abstractionType.MustNotBeNull(nameof(abstractionType));
             var concreteTypesList = concreteTypes.AsReadOnlyList();
@@ -131,24 +130,24 @@ namespace Light.DependencyInjection
             return this;
         }
 
-        public DiContainer PrepareScopedExternalInstance<T>(Action<IExternalInstanceOptions> configureRegistration = null)
+        public DependencyInjectionContainer PrepareScopedExternalInstance<T>(Action<IExternalInstanceOptions> configureRegistration = null)
         {
             return PrepareScopedExternalInstance(typeof(T), configureRegistration);
         }
 
-        public DiContainer PrepareScopedExternalInstance(Type type, Action<IExternalInstanceOptions> configureRegistration = null)
+        public DependencyInjectionContainer PrepareScopedExternalInstance(Type type, Action<IExternalInstanceOptions> configureRegistration = null)
         {
             var registrationOptions = Services.CreateScopedExternalInstanceOptions(type);
             configureRegistration?.Invoke(registrationOptions);
             return Register(registrationOptions.CreateRegistration());
         }
 
-        public DiContainer PrepareScopedExternalInstance<TAbstract, TConcrete>(Action<IExternalInstanceOptions> configureRegistration = null) where TConcrete : TAbstract
+        public DependencyInjectionContainer PrepareScopedExternalInstance<TAbstract, TConcrete>(Action<IExternalInstanceOptions> configureRegistration = null) where TConcrete : TAbstract
         {
             return PrepareScopedExternalInstance(typeof(TAbstract), typeof(TConcrete), configureRegistration);
         }
 
-        public DiContainer PrepareScopedExternalInstance(Type abstractionType, Type concreteType, Action<IExternalInstanceOptions> configureRegistration = null)
+        public DependencyInjectionContainer PrepareScopedExternalInstance(Type abstractionType, Type concreteType, Action<IExternalInstanceOptions> configureRegistration = null)
         {
             var registrationOptions = Services.CreateScopedExternalInstanceOptions(concreteType);
             registrationOptions.MapToAbstractions(abstractionType);
@@ -156,12 +155,12 @@ namespace Light.DependencyInjection
             return Register(registrationOptions.CreateRegistration());
         }
 
-        public DiContainer AddPreparedExternalInstanceToScope<T>(T instance, string registrationName = "")
+        public DependencyInjectionContainer AddPreparedExternalInstanceToScope<T>(T instance, string registrationName = "")
         {
             return AddPreparedExternalInstanceToScope(instance, typeof(T), registrationName);
         }
 
-        public DiContainer AddPreparedExternalInstanceToScope(object instance, Type targetType, string registrationName = "")
+        public DependencyInjectionContainer AddPreparedExternalInstanceToScope(object instance, Type targetType, string registrationName = "")
         {
             instance.MustNotBeNull(nameof(instance));
 
@@ -326,9 +325,9 @@ namespace Light.DependencyInjection
             return _registrationMappings.TryGetValue(type, out var registrations) ? registrations.AsReadOnlyList() : null;
         }
 
-        public DiContainer CreateChildContainer(ChildContainerOptions childContainerOptions = default(ChildContainerOptions))
+        public DependencyInjectionContainer CreateChildContainer(ChildContainerOptions childContainerOptions = default(ChildContainerOptions))
         {
-            return new DiContainer(this, childContainerOptions);
+            return new DependencyInjectionContainer(this, childContainerOptions);
         }
 
         public ResolveInfo GetResolveInfo(Type type, string registrationName = "", bool? tryResolveAll = null)
@@ -354,11 +353,6 @@ namespace Light.DependencyInjection
                 throw new ResolveException($"You cannot override the dependencies for {typeKey} because the DI Container has no registration for this type.");
 
             return new DependencyOverrideOptions(targetRegistration);
-        }
-
-        object IServiceProvider.GetService(Type serviceType)
-        {
-            return Resolve(serviceType);
         }
     }
 }

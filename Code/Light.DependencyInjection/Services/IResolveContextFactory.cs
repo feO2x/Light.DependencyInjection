@@ -4,6 +4,6 @@ namespace Light.DependencyInjection.Services
 {
     public interface IResolveContextFactory
     {
-        ResolveContext Create(DiContainer container, DependencyOverrides dependencyOverrides = null);
+        ResolveContext Create(DependencyInjectionContainer container, DependencyOverrides dependencyOverrides = null);
     }
 }

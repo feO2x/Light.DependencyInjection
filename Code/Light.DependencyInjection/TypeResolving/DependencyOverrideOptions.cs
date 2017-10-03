@@ -30,7 +30,7 @@ namespace Light.DependencyInjection.TypeResolving
 
         public IDependencyOverrideOptions OverrideDependency<TDependency>(string dependencyName, TDependency value, StringComparison nameComparisonType = StringComparison.CurrentCulture)
         {
-            return OverrideDependency(dependencyName, (object)value, nameComparisonType);
+            return OverrideDependency(dependencyName, (object) value, nameComparisonType);
         }
 
         public IDependencyOverrideOptions OverrideDependency(Type dependencyType, object dependencyValue)

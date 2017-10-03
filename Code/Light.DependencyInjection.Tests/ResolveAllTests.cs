@@ -13,9 +13,9 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The DI Container must be able to resolve all registrations of a concrete type.")]
         public void ResolveAll()
         {
-            var container = new DiContainer().Register<ClassWithoutDependencies>(options => options.UseRegistrationName("Foo"))
-                                             .Register<ClassWithoutDependencies>(options => options.UseRegistrationName("Bar"))
-                                             .Register<ClassWithoutDependencies>(options => options.UseRegistrationName("Baz"));
+            var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>(options => options.UseRegistrationName("Foo"))
+                                                              .Register<ClassWithoutDependencies>(options => options.UseRegistrationName("Bar"))
+                                                              .Register<ClassWithoutDependencies>(options => options.UseRegistrationName("Baz"));
 
             var resolvedInstance = container.ResolveAll<ClassWithoutDependencies>();
 
@@ -27,7 +27,7 @@ namespace Light.DependencyInjection.Tests
         public void ResolveAllViaAbstraction()
         {
             var concreteTypes = new[] { typeof(Implementation1), typeof(Implementation2), typeof(Implementation3) };
-            var container = new DiContainer().RegisterMany<IAbstractionA>(concreteTypes);
+            var container = new DependencyInjectionContainer().RegisterMany<IAbstractionA>(concreteTypes);
 
             var instances = container.ResolveAll<IAbstractionA>();
 
@@ -42,8 +42,8 @@ namespace Light.DependencyInjection.Tests
         public void ResolveAllHierarchically()
         {
             var concreteTypes = new[] { typeof(Implementation2), typeof(Implementation3), typeof(Implementation1) };
-            var container = new DiContainer().RegisterMany<IAbstractionA>(concreteTypes)
-                                             .Register<ClassWithCollectionDependency>();
+            var container = new DependencyInjectionContainer().RegisterMany<IAbstractionA>(concreteTypes)
+                                                              .Register<ClassWithCollectionDependency>();
 
             var resolvedInstance = container.Resolve<ClassWithCollectionDependency>();
 
@@ -58,7 +58,7 @@ namespace Light.DependencyInjection.Tests
         public void ResolveAllViaStandardResolve()
         {
             var concreteTypes = new[] { typeof(Implementation3), typeof(Implementation2), typeof(Implementation1) };
-            var container = new DiContainer().RegisterMany<IAbstractionA>(concreteTypes);
+            var container = new DependencyInjectionContainer().RegisterMany<IAbstractionA>(concreteTypes);
 
             var resolvedInstances = container.Resolve<IReadOnlyList<IAbstractionA>>();
 
@@ -74,8 +74,8 @@ namespace Light.DependencyInjection.Tests
         {
             var containerServices = new ContainerServicesBuilder().WithResolveInfoAlgorithm(new ResolveOnlyRegistrationsAlgorithm()).Build();
             var concreteTypes = new[] { typeof(Implementation2), typeof(Implementation3), typeof(Implementation1) };
-            var container = new DiContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
-                                                              .Register<ClassWithCollectionDependency>();
+            var container = new DependencyInjectionContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
+                                                                               .Register<ClassWithCollectionDependency>();
 
             var resolvedInstance = container.Resolve<ClassWithCollectionDependency>();
 
@@ -87,8 +87,8 @@ namespace Light.DependencyInjection.Tests
         {
             var containerServices = new ContainerServicesBuilder().WithResolveInfoAlgorithm(new ResolveOnlyRegistrationsAlgorithm()).Build();
             var concreteTypes = new[] { typeof(Implementation1), typeof(Implementation3), typeof(Implementation2) };
-            var container = new DiContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
-                                                              .Register<ClassWithCollectionDependency>(options => options.ConfigureInstantiationParameter<IReadOnlyList<IAbstractionA>>(parameter => parameter.SetResolveAllTo(true)));
+            var container = new DependencyInjectionContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
+                                                                               .Register<ClassWithCollectionDependency>(options => options.ConfigureInstantiationParameter<IReadOnlyList<IAbstractionA>>(parameter => parameter.SetResolveAllTo(true)));
 
             var resolvedInstance = container.Resolve<ClassWithCollectionDependency>();
 
@@ -104,8 +104,8 @@ namespace Light.DependencyInjection.Tests
         {
             var containerServices = new ContainerServicesBuilder().WithResolveInfoAlgorithm(new ResolveOnlyRegistrationsAlgorithm()).Build();
             var concreteTypes = new[] { typeof(Implementation1), typeof(Implementation3), typeof(Implementation2) };
-            var container = new DiContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
-                                                              .Register<ClassWithCollectionDependency>(options => options.ConfigureInstantiationParameter("instances", parameter => parameter.SetResolveAllTo(true)));
+            var container = new DependencyInjectionContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
+                                                                               .Register<ClassWithCollectionDependency>(options => options.ConfigureInstantiationParameter("instances", parameter => parameter.SetResolveAllTo(true)));
 
             var resolvedInstance = container.Resolve<ClassWithCollectionDependency>();
 
@@ -121,8 +121,8 @@ namespace Light.DependencyInjection.Tests
         {
             var containerServices = new ContainerServicesBuilder().WithResolveInfoAlgorithm(new ResolveOnlyRegistrationsAlgorithm()).Build();
             var concreteTypes = new[] { typeof(Implementation1), typeof(Implementation3), typeof(Implementation2) };
-            var container = new DiContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
-                                                              .Register<ClassWithCollectionDependencyOnProperty>(options => options.AddPropertyInjection(nameof(ClassWithCollectionDependencyOnProperty.Instances), dependency => dependency.SetResolveAllTo(true)));
+            var container = new DependencyInjectionContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
+                                                                               .Register<ClassWithCollectionDependencyOnProperty>(options => options.AddPropertyInjection(nameof(ClassWithCollectionDependencyOnProperty.Instances), dependency => dependency.SetResolveAllTo(true)));
 
             var resolvedInstance = container.Resolve<ClassWithCollectionDependencyOnProperty>();
 
@@ -138,8 +138,8 @@ namespace Light.DependencyInjection.Tests
         {
             var containerServices = new ContainerServicesBuilder().WithResolveInfoAlgorithm(new ResolveOnlyRegistrationsAlgorithm()).Build();
             var concreteTypes = new[] { typeof(Implementation1), typeof(Implementation2), typeof(Implementation3) };
-            var container = new DiContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
-                                                              .Register<ClassWithCollectionDependencyOnField>(options => options.AddFieldInjection(nameof(ClassWithCollectionDependencyOnField.Instances), dependency => dependency.SetResolveAllTo(true)));
+            var container = new DependencyInjectionContainer(containerServices).RegisterMany<IAbstractionA>(concreteTypes)
+                                                                               .Register<ClassWithCollectionDependencyOnField>(options => options.AddFieldInjection(nameof(ClassWithCollectionDependencyOnField.Instances), dependency => dependency.SetResolveAllTo(true)));
 
             var resolvedInstance = container.Resolve<ClassWithCollectionDependencyOnField>();
 

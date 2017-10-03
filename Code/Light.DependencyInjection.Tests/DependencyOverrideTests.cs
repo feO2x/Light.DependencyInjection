@@ -3,6 +3,7 @@ using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.Services;
 using Light.GuardClauses;
 using Xunit;
+
 // ReSharper disable ClassNeverInstantiated.Global
 
 namespace Light.DependencyInjection.Tests
@@ -13,9 +14,9 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The client must be able to override an instantiation dependency by type.")]
         public void OverrideInstantitationDependencyByType()
         {
-            var container = new DiContainer().Register<A>()
-                                             .Register<B>()
-                                             .Register<C>();
+            var container = new DependencyInjectionContainer().Register<A>()
+                                                              .Register<B>()
+                                                              .Register<C>();
 
             var dependencyOverrides = container.OverrideDependenciesFor<C>();
             var myInstance = new B();
@@ -44,10 +45,10 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The client must be able to override an instantiation dependency by type.")]
         public void OverrideInstantitationDependencyByName()
         {
-            var container = new DiContainer().Register("Foo", options => options.UseRegistrationName("The First String"))
-                                             .Register("Bar", options => options.UseRegistrationName("The Second String"))
-                                             .Register<D>(options => options.ConfigureInstantiationParameter("first", paramter => paramter.WithTargetRegistrationName("The First String"))
-                                                                            .ConfigureInstantiationParameter("second", parameter => parameter.WithTargetRegistrationName("The Second String")));
+            var container = new DependencyInjectionContainer().Register("Foo", options => options.UseRegistrationName("The First String"))
+                                                              .Register("Bar", options => options.UseRegistrationName("The Second String"))
+                                                              .Register<D>(options => options.ConfigureInstantiationParameter("first", paramter => paramter.WithTargetRegistrationName("The First String"))
+                                                                                             .ConfigureInstantiationParameter("second", parameter => parameter.WithTargetRegistrationName("The Second String")));
 
             const string overriddenString = "Baz";
             var dependencyOverrides = container.OverrideDependenciesFor<D>()
@@ -74,9 +75,9 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "The client must be able to override all instances of a certain type during a resolve call.")]
         public void OverrideInstanceByType()
         {
-            var container = new DiContainer().Register<ClassWithoutDependencies>(options => options.UseSingletonLifetime())
-                                             .Register<ClassWithDependency>()
-                                             .Register<ClassWithTwoDependencies>();
+            var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>(options => options.UseSingletonLifetime())
+                                                              .Register<ClassWithDependency>()
+                                                              .Register<ClassWithTwoDependencies>();
 
             var overriddenInstance = new ClassWithoutDependencies();
             var dependencyOverrides = container.OverrideDependenciesFor<ClassWithTwoDependencies>()
@@ -91,9 +92,9 @@ namespace Light.DependencyInjection.Tests
         public void OverrideDependencyThatIsNotRegistered()
         {
             var containerServices = new ContainerServicesBuilder().WithAutomaticRegistrationFactory(new NoAutoRegistrationsAllowedFactory())
-                                                                 .Build();
-            var container = new DiContainer(containerServices).Register<ClassWithDependency>()
-                                                              .Register<ClassWithTwoDependencies>();
+                                                                  .Build();
+            var container = new DependencyInjectionContainer(containerServices).Register<ClassWithDependency>()
+                                                                               .Register<ClassWithTwoDependencies>();
 
             var overriddenInstance = new ClassWithoutDependencies();
             var dependencyOverrides = container.OverrideDependenciesFor<ClassWithTwoDependencies>()
@@ -109,8 +110,8 @@ namespace Light.DependencyInjection.Tests
         {
             var containerServices = new ContainerServicesBuilder().WithAutomaticRegistrationFactory(new NoAutoRegistrationsAllowedFactory())
                                                                   .Build();
-            var container = new DiContainer(containerServices).Register<ClassWithDependency>()
-                                                              .Register<ClassWithTwoDependencies>();
+            var container = new DependencyInjectionContainer(containerServices).Register<ClassWithDependency>()
+                                                                               .Register<ClassWithTwoDependencies>();
 
             var overriddenInstance = new ClassWithoutDependencies();
             var dependencyOverrides = container.OverrideDependenciesFor<ClassWithTwoDependencies>()

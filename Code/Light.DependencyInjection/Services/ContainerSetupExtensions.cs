@@ -4,21 +4,21 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.Services
 {
-    public static class DiContainerSetupExtensions
+    public static class ContainerSetupExtensions
     {
-        public static DiContainer AddDefaultGuidRegistration(this DiContainer container)
+        public static DependencyInjectionContainer AddDefaultGuidRegistration(this DependencyInjectionContainer container)
         {
             return container.MustNotBeNull(nameof(container))
                             .Register<Guid>(options => options.InstantiateVia(Guid.NewGuid));
         }
 
-        public static DiContainer AddDefaultContainerRegistration(this DiContainer container)
+        public static DependencyInjectionContainer AddDefaultContainerRegistration(this DependencyInjectionContainer container)
         {
             return container.MustNotBeNull(nameof(container))
                             .Register(container, options => options.DisableIDisposableTracking());
         }
 
-        public static DiContainer AddDefaultListRegistration(this DiContainer container)
+        public static DependencyInjectionContainer AddDefaultListRegistration(this DependencyInjectionContainer container)
         {
             return container.MustNotBeNull(nameof(container))
                             .Register(typeof(List<>), options => options.UseDefaultConstructor()

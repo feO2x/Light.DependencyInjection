@@ -19,7 +19,7 @@ namespace Light.DependencyInjection.Services
         private IResolveContextFactory _resolveContextFactory;
         private IResolveDelegateFactory _resolveDelegateFactory;
         private IResolveInfoAlgorithm _resolveInfoAlgorithm;
-        private Action<DiContainer> _setupContainer;
+        private Action<DependencyInjectionContainer> _setupContainer;
 
         public ContainerServicesBuilder()
         {
@@ -87,7 +87,7 @@ namespace Light.DependencyInjection.Services
             return this;
         }
 
-        public ContainerServicesBuilder WithSetupContainer(Action<DiContainer> setupContainer)
+        public ContainerServicesBuilder WithSetupContainer(Action<DependencyInjectionContainer> setupContainer)
         {
             _setupContainer = setupContainer;
             return this;

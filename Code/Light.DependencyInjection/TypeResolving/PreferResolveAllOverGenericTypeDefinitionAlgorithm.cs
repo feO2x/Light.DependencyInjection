@@ -3,9 +3,9 @@ using Light.DependencyInjection.Registrations;
 
 namespace Light.DependencyInjection.TypeResolving
 {
-    public sealed class PreferResolveAllOverGenericTypeDefinitionAlgorithm : BaseRegistrationOrResolveAllAlgorithm
+    public sealed class PreferResolveAllOverGenericTypeDefinitionAlgorithm : RegistrationOrResolveAllAlgorithm
     {
-        protected override ResolveInfo FindForCollectionType(TypeKey requestedTypeKey, DiContainer container, Type closedConstructedIEnumerableType, Registration existingGenericCollectionRegistration)
+        protected override ResolveInfo FindForCollectionType(TypeKey requestedTypeKey, DependencyInjectionContainer container, Type closedConstructedIEnumerableType, Registration existingGenericCollectionRegistration)
         {
             var itemType = GetItemTypeOfCollection(closedConstructedIEnumerableType, requestedTypeKey);
             var registrations = container.GetRegistrationsForType(itemType);

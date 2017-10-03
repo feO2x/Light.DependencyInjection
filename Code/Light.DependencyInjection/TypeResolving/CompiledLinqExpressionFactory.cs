@@ -33,7 +33,7 @@ namespace Light.DependencyInjection.TypeResolving
             _instanceManipulationExpressionFactories = instanceManipulationExpressionFactories;
         }
 
-        public ResolveDelegate Create(TypeKey typeKey, DependencyOverrides dependencyOverrides, DiContainer container)
+        public ResolveDelegate Create(TypeKey typeKey, DependencyOverrides dependencyOverrides, DependencyInjectionContainer container)
         {
             typeKey.MustNotBeEmpty(nameof(typeKey));
             container.MustNotBeNull(nameof(container));
@@ -42,7 +42,7 @@ namespace Light.DependencyInjection.TypeResolving
             return resolveExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
         }
 
-        public ResolveDelegate Create(Registration registration, DependencyOverrides dependencyOverrides, DiContainer container)
+        public ResolveDelegate Create(Registration registration, DependencyOverrides dependencyOverrides, DependencyInjectionContainer container)
         {
             registration.MustNotBeNull(nameof(registration));
             container.MustNotBeNull(nameof(container));
@@ -51,7 +51,7 @@ namespace Light.DependencyInjection.TypeResolving
             return resolveExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
         }
 
-        private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, DiContainer container, DependencyOverrides dependencyOverrides, bool? tryResolveAll = null)
+        private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, DependencyInjectionContainer container, DependencyOverrides dependencyOverrides, bool? tryResolveAll = null)
         {
             // Check if the instance is overridden
             if (dependencyOverrides?.HasOverriddenInstance(requestedTypeKey) == true)
@@ -72,7 +72,7 @@ namespace Light.DependencyInjection.TypeResolving
             throw new InvalidOperationException($"Cannot handle ResolveInfo \"{resolveInfo}\" in this current implementation of \"{nameof(CompiledLinqExpressionFactory)}\"");
         }
 
-        private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, Registration registration, DependencyOverrides dependencyOverrides, DiContainer container)
+        private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, Registration registration, DependencyOverrides dependencyOverrides, DependencyInjectionContainer container)
         {
             // Check if the lifetime of the registration would need to create a new instance.
             // If not, then we can do not need to create a construction expression
@@ -125,7 +125,7 @@ namespace Light.DependencyInjection.TypeResolving
                                       requestedTypeKey.Type);
         }
 
-        private Expression CreateResolveAllExpressionRecursively(ResolveAllInfo resolveAllInfo, DependencyOverrides dependencyOverrides, DiContainer container)
+        private Expression CreateResolveAllExpressionRecursively(ResolveAllInfo resolveAllInfo, DependencyOverrides dependencyOverrides, DependencyInjectionContainer container)
         {
             // Create the expression that instantiates the target collection
             var collectionRegistration = container.GetRegistration(resolveAllInfo.CollectionType);

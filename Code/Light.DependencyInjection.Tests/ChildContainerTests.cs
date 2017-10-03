@@ -13,7 +13,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "A child container must return the scoped instances of the parent container when possible.")]
         public void AccessParentScopedInstances()
         {
-            var container = new DiContainer().Register<ClassWithoutDependencies>(options => options.UseScopedLifetime());
+            var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>(options => options.UseScopedLifetime());
             var scopedInstanceFromParentContainer = container.Resolve<ClassWithoutDependencies>();
 
             var childContainer = container.CreateChildContainer();
@@ -26,7 +26,7 @@ namespace Light.DependencyInjection.Tests
         [MemberData(nameof(DifferentScopedInstancesData))]
         public void DifferentScopedInstances(Action<IRegistrationOptions<ClassWithoutDependencies>> configureLifetime)
         {
-            var parentContainer = new DiContainer().Register(configureLifetime);
+            var parentContainer = new DependencyInjectionContainer().Register(configureLifetime);
 
             var childContainer1 = parentContainer.CreateChildContainer();
             var instanceOf1 = childContainer1.Resolve<ClassWithoutDependencies>();
@@ -52,7 +52,7 @@ namespace Light.DependencyInjection.Tests
         [Fact(DisplayName = "A child container must not return the scoped instances of the parent when a HierarchicalScopedLifetime is used.")]
         public void DoNotAccessParentScopedInstancesForHierarchicalScopedLifetimeRegistrations()
         {
-            var parentContainer = new DiContainer().Register<ClassWithoutDependencies>(options => options.UseHierarchicalScopedLifetime());
+            var parentContainer = new DependencyInjectionContainer().Register<ClassWithoutDependencies>(options => options.UseHierarchicalScopedLifetime());
             var parentInstance1 = parentContainer.Resolve<ClassWithoutDependencies>();
             var parentInstance2 = parentContainer.Resolve<ClassWithoutDependencies>();
             parentInstance1.Should().BeSameAs(parentInstance2);
@@ -69,7 +69,7 @@ namespace Light.DependencyInjection.Tests
         public void DetachedChildContainer()
         {
             var containerServices = new ContainerServicesBuilder().WithAutomaticRegistrationFactory(new NoAutoRegistrationsAllowedFactory()).Build();
-            var parentContainer = new DiContainer(containerServices);
+            var parentContainer = new DependencyInjectionContainer(containerServices);
 
             var childContainer = parentContainer.CreateChildContainer(new ChildContainerOptions(true));
             var instance = childContainer.Register<ClassWithoutDependencies>().Resolve<ClassWithoutDependencies>();
@@ -82,7 +82,7 @@ namespace Light.DependencyInjection.Tests
         public void ScopedExternalInstanceLifetime()
         {
             var containerServices = new ContainerServicesBuilder().WithAutomaticRegistrationFactory(new NoAutoRegistrationsAllowedFactory()).Build();
-            var parentContainer = new DiContainer(containerServices).PrepareScopedExternalInstance<DisposableSpy>();
+            var parentContainer = new DependencyInjectionContainer(containerServices).PrepareScopedExternalInstance<DisposableSpy>();
             var externalSpy = new DisposableSpy();
             var childContainer = parentContainer.CreateChildContainer();
             childContainer.AddPreparedExternalInstanceToScope(externalSpy);

@@ -5,7 +5,7 @@ namespace Light.DependencyInjection.Services
 {
     public sealed class DefaultAutomaticRegistrationFactory : IAutomaticRegistrationFactory
     {
-        public Registration CreateDefaultRegistration(TypeKey typeKey, DiContainer container)
+        public Registration CreateDefaultRegistration(TypeKey typeKey, DependencyInjectionContainer container)
         {
             typeKey.MustNotBeEmpty(nameof(typeKey));
             container.MustNotBeNull(nameof(container));

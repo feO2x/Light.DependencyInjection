@@ -4,9 +4,9 @@ using Light.GuardClauses;
 
 namespace Light.DependencyInjection.TypeResolving
 {
-    public abstract class BaseRegistrationOrResolveAllAlgorithm : IResolveInfoAlgorithm
+    public abstract class RegistrationOrResolveAllAlgorithm : IResolveInfoAlgorithm
     {
-        public ResolveInfo Search(TypeKey requestedTypeKey, DiContainer container, bool? tryResolveAll)
+        public ResolveInfo Search(TypeKey requestedTypeKey, DependencyInjectionContainer container, bool? tryResolveAll)
         {
             requestedTypeKey.MustNotBeEmpty(nameof(requestedTypeKey));
             container.MustNotBeNull(nameof(container));
@@ -27,9 +27,9 @@ namespace Light.DependencyInjection.TypeResolving
             return FindForCollectionType(requestedTypeKey, container, closedConstructedIEnumerableType, existingRegistration);
         }
 
-        protected abstract ResolveInfo FindForCollectionType(TypeKey requestedTypeKey, DiContainer container, Type closedConstructedIEnumerableType, Registration existingGenericCollectionRegistration);
+        protected abstract ResolveInfo FindForCollectionType(TypeKey requestedTypeKey, DependencyInjectionContainer container, Type closedConstructedIEnumerableType, Registration existingGenericCollectionRegistration);
 
-        private static ResolveRegistrationInfo FindRegistration(TypeKey requestedTypeKey, DiContainer container)
+        private static ResolveRegistrationInfo FindRegistration(TypeKey requestedTypeKey, DependencyInjectionContainer container)
         {
             var registration = container.GetRegistration(requestedTypeKey);
             if (registration != null)
@@ -38,7 +38,7 @@ namespace Light.DependencyInjection.TypeResolving
             throw new ResolveException($"There is no registration present for type {requestedTypeKey}.");
         }
 
-        private static ResolveAllInfo FindAllRegistrations(Type requestedCollectionType, Type itemType, DiContainer container)
+        private static ResolveAllInfo FindAllRegistrations(Type requestedCollectionType, Type itemType, DependencyInjectionContainer container)
         {
             var registrations = container.GetRegistrationsForType(itemType);
             if (registrations != null)
