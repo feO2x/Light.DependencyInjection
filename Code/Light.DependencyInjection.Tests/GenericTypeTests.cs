@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using FluentAssertions;
 using Light.DependencyInjection.Registrations;
+using Light.DependencyInjection.Services;
 using Xunit;
 
 namespace Light.DependencyInjection.Tests
@@ -160,6 +161,31 @@ namespace Light.DependencyInjection.Tests
             var resolvedInstace = container.Resolve<GenericClassWithGenericField<string>>();
 
             resolvedInstace.Field.Should().BeSameAs(foo);
+        }
+
+        [Fact(DisplayName = "The DI Container must be able to resolve generic types that have a dependency to another generic type.")]
+        public void MultiLevelGenericTypes()
+        {
+            var containerServices = new ContainerServicesBuilder().DisallowAutomaticRegistrations()
+                                                                  .Build();
+            var container = new DependencyInjectionContainer(containerServices).Register(typeof(ObservableCollection<>),
+                                                                                         options => options.UseDefaultConstructor()
+                                                                                                           .MapToAbstractions(typeof(IList<>)))
+                                                                               .Register(typeof(GenericTypeWithDependencyToOtherGenericType<>));
+
+            var instance = container.Resolve<GenericTypeWithDependencyToOtherGenericType<int>>();
+
+            instance.Collection.Should().BeOfType<ObservableCollection<int>>();
+        }
+
+        public class GenericTypeWithDependencyToOtherGenericType<T>
+        {
+            public readonly IList<T> Collection;
+
+            public GenericTypeWithDependencyToOtherGenericType(IList<T> collection)
+            {
+                Collection = collection;
+            }
         }
     }
 }

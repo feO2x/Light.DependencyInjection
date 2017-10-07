@@ -207,9 +207,9 @@ namespace Light.DependencyInjection.TypeResolving
             {
                 var dependency = dependencies[i];
                 var dependencyType = dependency.TargetType;
-                if (dependencyType.IsGenericTypeParameter())
-                    dependencyType = context.ResolveGenericTypeParameter(dependencyType);
-
+                dependencyType = context.ResolveGenericTypeParameterIfNecessary(dependencyType);
+                dependencyType = context.ResolveOpenConstructedGenericTypeIfNecessary(dependencyType);
+                    
                 // Check if the dependency is overridden - if yes, then resolve it via the ResolveContext parameter
                 if (context.DependencyOverrides?.HasDependency(dependency) == true)
                 {

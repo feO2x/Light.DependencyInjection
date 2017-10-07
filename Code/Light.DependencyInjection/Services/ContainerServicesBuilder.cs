@@ -105,6 +105,12 @@ namespace Light.DependencyInjection.Services
             return this;
         }
 
+        public ContainerServicesBuilder DisallowAutomaticRegistrations()
+        {
+            _automaticRegistrationFactory = new NoAutoRegistrationsAllowedFactory();
+            return this;
+        }
+
         public ContainerServicesBuilder WithResolveContextFactory(IResolveContextFactory resolveContextFactory)
         {
             _resolveContextFactory = resolveContextFactory;

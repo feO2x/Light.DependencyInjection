@@ -46,17 +46,20 @@ namespace Light.DependencyInjection.TypeResolving
         public Type InstanceType => ResolvedGenericRegistrationType ?? RegistrationType;
         public bool IsResolvingGenericTypeDefinition => RegistrationType.IsGenericTypeDefinition();
 
-        public Type ResolveGenericTypeParameter(Type genericTypeParameter)
+        public Type ResolveGenericTypeParameterIfNecessary(Type type)
         {
-            genericTypeParameter.MustNotBeNull(nameof(genericTypeParameter));
+            return type.IsGenericTypeParameter() == false ? type : ResolveGenericTypeParameter(type);
+        }
 
+        private Type ResolveGenericTypeParameter(Type type)
+        {
             for (var i = 0; i < RegistrationTypeInfo.GenericTypeParameters.Length; i++)
             {
-                if (RegistrationTypeInfo.GenericTypeParameters[i] == genericTypeParameter)
+                if (RegistrationTypeInfo.GenericTypeParameters[i] == type)
                     return ResolvedGenericRegistrationTypeInfo.GenericTypeArguments[i];
             }
 
-            throw new ArgumentException($"The type \"{genericTypeParameter}\" does not correspond to a generic parameter of type \"{RegistrationType}\".", nameof(genericTypeParameter));
+            throw new ArgumentException($"The type \"{type}\" does not correspond to a generic parameter of type \"{RegistrationType}\".", nameof(type));
         }
 
         public T FindResolvedGenericMethod<T>(T genericMethods, IReadOnlyList<T> constructedMethods) where T : MethodBase
@@ -82,14 +85,33 @@ namespace Light.DependencyInjection.TypeResolving
             {
                 var firstParameter = constructedGenericTypeParameters[i];
                 var secondParameter = genericTypeDefinitionParameters[i];
-                var resolvedParameterType = secondParameter.ParameterType.IsGenericParameter
-                                                ? ResolveGenericTypeParameter(secondParameter.ParameterType)
-                                                : secondParameter.ParameterType;
+                var resolvedParameterType = ResolveGenericTypeParameterIfNecessary(secondParameter.ParameterType);
+                resolvedParameterType = ResolveOpenConstructedGenericTypeIfNecessary(resolvedParameterType);
 
                 if (resolvedParameterType != firstParameter.ParameterType)
                     return false;
             }
             return true;
+        }
+
+        public Type ResolveOpenConstructedGenericTypeIfNecessary(Type dependencyType)
+        {
+            var openConstructedGenericTypeInfo = dependencyType.GetTypeInfo();
+
+            if (openConstructedGenericTypeInfo.IsOpenConstructedGenericType() == false)
+                return dependencyType;
+
+            var resolvedGenericParameters = new Type[openConstructedGenericTypeInfo.GenericTypeArguments.Length];
+            for (var i = 0; i < resolvedGenericParameters.Length; i++)
+            {
+                var typeArgument = openConstructedGenericTypeInfo.GenericTypeArguments[i];
+                if (typeArgument.IsGenericParameter == false)
+                    resolvedGenericParameters[i] = typeArgument;
+                else
+                    resolvedGenericParameters[i] = ResolveGenericTypeParameter(typeArgument);
+            }
+
+            return dependencyType.GetGenericTypeDefinition().MakeGenericType(resolvedGenericParameters);
         }
     }
 }
