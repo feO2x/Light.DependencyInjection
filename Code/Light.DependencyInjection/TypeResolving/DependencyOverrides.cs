@@ -8,9 +8,9 @@ namespace Light.DependencyInjection.TypeResolving
 {
     public sealed class DependencyOverrides : IEquatable<DependencyOverrides>
     {
+        private readonly int _hashCode;
         private readonly Dictionary<Dependency, object> _overriddenDependencies;
         private readonly Dictionary<TypeKey, object> _overriddenRegistrations;
-        private readonly int _hashCode;
 
         public DependencyOverrides(Dictionary<Dependency, object> overriddenDependencies, Dictionary<TypeKey, object> overriddenRegistrations)
         {

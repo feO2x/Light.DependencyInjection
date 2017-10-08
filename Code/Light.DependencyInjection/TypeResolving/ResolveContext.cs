@@ -7,17 +7,19 @@ namespace Light.DependencyInjection.TypeResolving
 {
     public sealed class ResolveContext : IResolveContext
     {
+        private DependencyInjectionContainer _container;
         private ResolveDelegate _createInstance;
+        private DependencyOverrides _dependencyOverrides;
         private Dictionary<TypeKey, object> _perResolveInstances;
         private Registration _registration;
-        private DependencyInjectionContainer _container;
-        private DependencyOverrides _dependencyOverrides;
 
         public ResolveContext(DependencyInjectionContainer container, DependencyOverrides dependencyOverrides)
         {
             _container = container.MustNotBeNull(nameof(container));
             _dependencyOverrides = dependencyOverrides;
         }
+
+        public DependencyOverrides DependencyOverrides => _dependencyOverrides;
 
         public object CreateInstance()
         {
@@ -33,8 +35,6 @@ namespace Light.DependencyInjection.TypeResolving
         public DependencyInjectionContainer Container => _container;
 
         public Registration Registration => _registration;
-
-        public DependencyOverrides DependencyOverrides => _dependencyOverrides;
 
         public bool TryGetPerResolveInstance(TypeKey typeKey, out object instance)
         {
@@ -70,7 +70,7 @@ namespace Light.DependencyInjection.TypeResolving
 
         public object GetOrCreatePerResolveInstance(TypeKey typeKey)
         {
-            GetOrCreatePerResolveInstance(typeKey, out object instance);
+            GetOrCreatePerResolveInstance(typeKey, out var instance);
             return instance;
         }
 

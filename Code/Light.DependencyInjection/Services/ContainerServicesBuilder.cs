@@ -12,10 +12,10 @@ namespace Light.DependencyInjection.Services
     {
         private IAutomaticRegistrationFactory _automaticRegistrationFactory;
         private IConcurrentDictionaryFactory _concurrentDictionaryFactory;
-        private IRegistrationCollectionFactory _registrationCollectionFactory;
         private IContainerScopeFactory _containerScopeFactory;
         private IDefaultInstantiationInfoSelector _defaultInstantiationInfoSelector;
         private IReadOnlyList<Type> _ignoredAbstractionTypes;
+        private IRegistrationCollectionFactory _registrationCollectionFactory;
         private IResolveContextFactory _resolveContextFactory;
         private IResolveDelegateFactory _resolveDelegateFactory;
         private IResolveInfoAlgorithm _resolveInfoAlgorithm;

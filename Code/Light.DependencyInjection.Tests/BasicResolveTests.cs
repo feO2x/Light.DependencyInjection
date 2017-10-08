@@ -60,7 +60,7 @@ namespace Light.DependencyInjection.Tests
         public void SimpleHierarchicalResolve()
         {
             var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>()
-                                             .Register<ClassWithDependency>();
+                                                              .Register<ClassWithDependency>();
 
             var instance = container.Resolve<ClassWithDependency>();
 
@@ -72,8 +72,8 @@ namespace Light.DependencyInjection.Tests
         public void TwoLevelHierarchicalResolveWithSingletonLeaf()
         {
             var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>(options => options.UseSingletonLifetime())
-                                             .Register<ClassWithDependency>()
-                                             .Register<ClassWithTwoDependencies>(options => options.UseSingletonLifetime());
+                                                              .Register<ClassWithDependency>()
+                                                              .Register<ClassWithTwoDependencies>(options => options.UseSingletonLifetime());
 
             var instance = container.Resolve<ClassWithTwoDependencies>();
 
@@ -84,7 +84,7 @@ namespace Light.DependencyInjection.Tests
         public void InterfaceMapping()
         {
             var instance = new DependencyInjectionContainer().Register<IAbstractionA, ClassWithoutDependencies>()
-                                            .Resolve<IAbstractionA>();
+                                                             .Resolve<IAbstractionA>();
 
             instance.Should().BeOfType<ClassWithoutDependencies>();
         }
@@ -139,7 +139,7 @@ namespace Light.DependencyInjection.Tests
         public void PropertyInjection()
         {
             var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>()
-                                             .Register<ClassWithProperty>(options => options.AddPropertyInjection(nameof(ClassWithProperty.InstanceWithoutDependencies)));
+                                                              .Register<ClassWithProperty>(options => options.AddPropertyInjection(nameof(ClassWithProperty.InstanceWithoutDependencies)));
 
             var instanceWithProperty = container.Resolve<ClassWithProperty>();
 
@@ -150,8 +150,8 @@ namespace Light.DependencyInjection.Tests
         public void ComplexGraphWithPropertyInjectionAndPolymorphism()
         {
             var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>()
-                                             .Register<IEmptyInterface, ClassWithProperty>(options => options.AddPropertyInjection(nameof(ClassWithProperty.InstanceWithoutDependencies)))
-                                             .Register<ClassWithPropertyInjectionDependency>();
+                                                              .Register<IEmptyInterface, ClassWithProperty>(options => options.AddPropertyInjection(nameof(ClassWithProperty.InstanceWithoutDependencies)))
+                                                              .Register<ClassWithPropertyInjectionDependency>();
 
             var instance = container.Resolve<ClassWithPropertyInjectionDependency>();
 
@@ -164,7 +164,7 @@ namespace Light.DependencyInjection.Tests
         public void FieldInjection()
         {
             var container = new DependencyInjectionContainer().Register(true, options => options.UseRegistrationName("The Boolean"))
-                                             .Register<ClassWithPublicField>(options => options.AddFieldInjection(nameof(ClassWithPublicField.PublicField), "The Boolean"));
+                                                              .Register<ClassWithPublicField>(options => options.AddFieldInjection(nameof(ClassWithPublicField.PublicField), "The Boolean"));
 
             var instanceWithPublicField = container.Resolve<ClassWithPublicField>();
 
@@ -185,8 +185,8 @@ namespace Light.DependencyInjection.Tests
         public void PerResolveInstance()
         {
             var container = new DependencyInjectionContainer().Register<ClassWithoutDependencies>(options => options.UsePerResolveLifetime())
-                                             .Register<ClassWithDependency>()
-                                             .Register<ClassWithTwoDependencies>();
+                                                              .Register<ClassWithDependency>()
+                                                              .Register<ClassWithTwoDependencies>();
 
             var objectGraph1 = container.Resolve<ClassWithTwoDependencies>();
             var objectGraph2 = container.Resolve<ClassWithTwoDependencies>();
@@ -248,7 +248,7 @@ namespace Light.DependencyInjection.Tests
         public void ResolveViaMethodInfo()
         {
             var container = new DependencyInjectionContainer().Register<IAbstractionA, ClassWithoutDependencies>(options => options.UseSingletonLifetime())
-                                             .Register<ClassWithDependency>(options => options.InstantiateVia(GetType().GetMethod(nameof(CreateClassWithDependency))));
+                                                              .Register<ClassWithDependency>(options => options.InstantiateVia(GetType().GetMethod(nameof(CreateClassWithDependency))));
 
             var instance = container.Resolve<ClassWithDependency>();
 

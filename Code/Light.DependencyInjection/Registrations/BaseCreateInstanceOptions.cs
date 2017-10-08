@@ -146,8 +146,8 @@ namespace Light.DependencyInjection.Registrations
             AssignInstantiationInfoFactoryIfNecessary();
 
             var targetDependencyFactories = _instantiationInfoFactory.InstantiationDependencyFactories
-                                                                   .Where(dependency => dependency.Name.Equals(parameterName, nameComparisonType))
-                                                                   .ToList();
+                                                                     .Where(dependency => dependency.Name.Equals(parameterName, nameComparisonType))
+                                                                     .ToList();
             if (targetDependencyFactories.Count > 1)
                 throw new RegistrationException($"There are several parameters that equal the parameterName \"{parameterName}\" (using comparison type \"{nameComparisonType}\").");
 

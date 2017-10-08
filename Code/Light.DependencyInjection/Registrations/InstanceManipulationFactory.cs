@@ -8,9 +8,9 @@ namespace Light.DependencyInjection.Registrations
     public abstract class InstanceManipulationFactory : IEquatable<InstanceManipulationFactory>
     {
         public readonly IReadOnlyList<DependencyFactory> DependencyFactories;
+        public readonly int HashCode;
         public readonly string MemberName;
         public readonly Type TargetType;
-        public readonly int HashCode;
 
         protected InstanceManipulationFactory(Type targetType, string memberName, IReadOnlyList<DependencyFactory> dependencyFactories)
         {
@@ -20,15 +20,14 @@ namespace Light.DependencyInjection.Registrations
             HashCode = Equality.CreateHashCode(targetType, memberName);
         }
 
-        public abstract InstanceManipulation Create(string registrationName = "");
-
         public bool Equals(InstanceManipulationFactory other)
         {
             if (other == null) return false;
 
             return TargetType == other.TargetType && MemberName == other.MemberName;
-
         }
+
+        public abstract InstanceManipulation Create(string registrationName = "");
 
         public override bool Equals(object obj)
         {

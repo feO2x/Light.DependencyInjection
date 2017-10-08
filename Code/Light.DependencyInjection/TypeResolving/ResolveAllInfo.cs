@@ -7,8 +7,8 @@ namespace Light.DependencyInjection.TypeResolving
 {
     public sealed class ResolveAllInfo : ResolveInfo
     {
-        public readonly IReadOnlyList<Registration> Registrations;
         public readonly Type ItemType;
+        public readonly IReadOnlyList<Registration> Registrations;
 
         public ResolveAllInfo(TypeKey requestedTypeKey, IReadOnlyList<Registration> registrations, Type itemType) : base(requestedTypeKey)
         {
