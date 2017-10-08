@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using Light.GuardClauses.FrameworkExtensions;
 
 namespace Light.DependencyInjection.Registrations
 {
@@ -120,6 +122,18 @@ namespace Light.DependencyInjection.Registrations
         public IRegistrationOptions<T> InstantiateVia<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T> createInstance)
         {
             return SetDelegateInstantiationInfoFactory(createInstance);
+        }
+
+        public IRegistrationOptions<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression, string targetRegistrationName = "")
+        {
+            var property = selectPropertyExpression.ExtractProperty();
+            return AddPropertyInjection(property, targetRegistrationName);
+        }
+
+        public IRegistrationOptions<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression, Action<IDependencyOptions> configureDependency)
+        {
+            var property = selectPropertyExpression.ExtractProperty();
+            return AddPropertyInjection(property, configureDependency);
         }
     }
 }

@@ -259,5 +259,18 @@ namespace Light.DependencyInjection.Tests
         {
             return new ClassWithDependency(instance);
         }
+
+        [Fact(DisplayName = "The client must be able to specify a property injection via a LINQ expression.")]
+        public void PropertyInjectionViaLinqExpression()
+        {
+            var container = new DependencyInjectionContainer().Register<ClassWithPropertyInjectionDependency>()
+                                                              .Register<ClassWithProperty>(options => options.AddPropertyInjection(o => o.InstanceWithoutDependencies)
+                                                                                                             .MapToAbstractions(typeof(IEmptyInterface)))
+                                                              .Register<ClassWithoutDependencies>();
+
+            var resolvedInstance = container.Resolve<ClassWithPropertyInjectionDependency>();
+
+            ((ClassWithProperty) resolvedInstance.InstanceWithProperty).InstanceWithoutDependencies.Should().NotBeNull();
+        }
     }
 }

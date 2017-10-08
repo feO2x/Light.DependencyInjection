@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 using Light.DependencyInjection.Lifetimes;
 
@@ -81,7 +82,7 @@ namespace Light.DependencyInjection.Registrations
     }
 
 
-    public interface IRegistrationOptions<in T> : ICreateInstanceOptions<IRegistrationOptions<T>>
+    public interface IRegistrationOptions<T> : ICreateInstanceOptions<IRegistrationOptions<T>>
     {
         IRegistrationOptions<T> InstantiateVia(Func<T> createInstance);
         IRegistrationOptions<T> InstantiateVia<T1>(Func<T1, T> createInstance);
@@ -94,5 +95,7 @@ namespace Light.DependencyInjection.Registrations
         IRegistrationOptions<T> InstantiateVia<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T> createInstance);
         IRegistrationOptions<T> InstantiateVia<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T> createInstance);
         IRegistrationOptions<T> InstantiateVia<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T> createInstance);
+        IRegistrationOptions<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression, string targetRegistrationName = "");
+        IRegistrationOptions<T> AddPropertyInjection<TProperty>(Expression<Func<T, TProperty>> selectPropertyExpression, Action<IDependencyOptions> configureDependency);
     }
 }
