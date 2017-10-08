@@ -272,5 +272,17 @@ namespace Light.DependencyInjection.Tests
 
             ((ClassWithProperty) resolvedInstance.InstanceWithProperty).InstanceWithoutDependencies.Should().NotBeNull();
         }
+
+        [Fact(DisplayName = "The client must be able to specify a field injection via a LINQ expression.")]
+        public void FieldInjectionViaLinqExpression()
+        {
+            const string boolDependencyName = "My Boolean";
+            var container = new DependencyInjectionContainer().Register<ClassWithPublicField>(options => options.AddFieldInjection(o => o.PublicField, boolDependencyName))
+                                                              .Register(true, options => options.UseRegistrationName(boolDependencyName));
+
+            var instance = container.Resolve<ClassWithPublicField>();
+
+            instance.PublicField.Should().BeTrue();
+        }
     }
 }

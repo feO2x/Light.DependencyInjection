@@ -9,7 +9,7 @@ namespace Light.DependencyInjection.Registrations
     {
         private readonly Lifetime _lifeTime;
 
-        public ExternalInstanceOptions(object value, IReadOnlyList<Type> ignoredAbstractionTypes) : base(value.MustNotBeNull(nameof(value)).GetType(), ignoredAbstractionTypes)
+        public ExternalInstanceOptions(object value, Type targetType, IReadOnlyList<Type> ignoredAbstractionTypes) : base(value.MustNotBeNull(nameof(value)).GetType(), ignoredAbstractionTypes)
         {
             _lifeTime = new ExternalInstanceLifetime(value);
         }

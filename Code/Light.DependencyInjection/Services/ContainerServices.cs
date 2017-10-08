@@ -58,9 +58,12 @@ namespace Light.DependencyInjection.Services
             return new RegistrationOptions(targetType, IgnoredAbstractionTypes, DefaultInstantiationInfoSelector);
         }
 
-        public ExternalInstanceOptions CreateExternalInstanceOptions(object value)
+        public ExternalInstanceOptions CreateExternalInstanceOptions(object value, Type targetType = null)
         {
-            return new ExternalInstanceOptions(value, IgnoredAbstractionTypes);
+            value.MustNotBeNull(nameof(value));
+
+            targetType = targetType ?? value.GetType();
+            return new ExternalInstanceOptions(value, targetType, IgnoredAbstractionTypes);
         }
 
         public ExternalInstanceOptions CreateScopedExternalInstanceOptions(Type targetType)

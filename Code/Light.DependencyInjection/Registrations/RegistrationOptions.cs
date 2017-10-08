@@ -135,5 +135,17 @@ namespace Light.DependencyInjection.Registrations
             var property = selectPropertyExpression.ExtractProperty();
             return AddPropertyInjection(property, configureDependency);
         }
+
+        public IRegistrationOptions<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression, string targetRegistrationName = "")
+        {
+            var field = selectFieldExpression.ExtractField();
+            return AddFieldInjection(field, targetRegistrationName);
+        }
+
+        public IRegistrationOptions<T> AddFieldInjection<TField>(Expression<Func<T, TField>> selectFieldExpression, Action<IDependencyOptions> configureDependency)
+        {
+            var field = selectFieldExpression.ExtractField();
+            return AddFieldInjection(field, configureDependency);
+        }
     }
 }

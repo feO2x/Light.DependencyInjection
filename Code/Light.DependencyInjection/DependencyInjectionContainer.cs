@@ -108,6 +108,24 @@ namespace Light.DependencyInjection
             return Register(registrationOptions.CreateRegistration());
         }
 
+        public DependencyInjectionContainer Register(object value, Type targetType, Action<IExternalInstanceOptions> configureRegistrations = null)
+        {
+            value.MustNotBeNull(nameof(value));
+
+            var registrationOptions = Services.CreateExternalInstanceOptions(value, targetType);
+            configureRegistrations?.Invoke(registrationOptions);
+
+            return Register(registrationOptions.CreateRegistration());
+        }
+
+        public DependencyInjectionContainer Register<T>(T value, Action<IExternalInstanceOptions> configureRegistration = null)
+        {
+            var registrationOptions = Services.CreateExternalInstanceOptions(value, typeof(T));
+            configureRegistration?.Invoke(registrationOptions);
+
+            return Register(registrationOptions.CreateRegistration());
+        }
+
         public DependencyInjectionContainer RegisterMany<TAbstraction>(IEnumerable<Type> concreteTypes, Action<IRegistrationOptions> configureRegistrations = null)
         {
             return RegisterMany(typeof(TAbstraction), concreteTypes, configureRegistrations);
