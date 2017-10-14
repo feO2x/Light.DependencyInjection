@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 using Light.DependencyInjection.Registrations;
 using Light.GuardClauses;
@@ -15,13 +16,19 @@ namespace Light.DependencyInjection.TypeResolving
         public readonly TypeInfo RegistrationTypeInfo;
         public readonly TypeInfo ResolvedGenericRegistrationTypeInfo;
         public readonly DependencyOverrides DependencyOverrides;
+        public readonly ParameterExpression ResolveContextParameterExpression;
 
-        public ResolveExpressionContext(TypeKey requestedTypeKey, Registration registration, DependencyOverrides dependencyOverrides, DependencyInjectionContainer container)
+        public ResolveExpressionContext(TypeKey requestedTypeKey,
+                                        Registration registration,
+                                        DependencyOverrides dependencyOverrides,
+                                        DependencyInjectionContainer container,
+                                        ParameterExpression resolveContextParameterExpression)
         {
             RequestedTypeKey = requestedTypeKey.MustNotBeEmpty(nameof(requestedTypeKey));
             Registration = registration.MustNotBeNull(nameof(registration));
             DependencyOverrides = dependencyOverrides;
             Container = container.MustNotBeNull(nameof(container));
+            ResolveContextParameterExpression = resolveContextParameterExpression.MustNotBeNull(nameof(resolveContextParameterExpression));
             RegistrationTypeInfo = registration.TypeKey.Type.GetTypeInfo();
             ResolvedGenericRegistrationType = null;
             ResolvedGenericRegistrationTypeInfo = null;
@@ -112,6 +119,20 @@ namespace Light.DependencyInjection.TypeResolving
             }
 
             return dependencyType.GetGenericTypeDefinition().MakeGenericType(resolvedGenericParameters);
+        }
+
+        public Expression CreateInstantiationAndTrackDisposableExpression(Expression createInstanceExpression)
+        {
+            if (Registration.IsTrackingDisposables == false)
+                return createInstanceExpression;
+
+            var createAndTrackExpressions = new Expression[3];
+            var variableExpression = Expression.Variable(InstanceType);
+            createAndTrackExpressions[0] = Expression.Assign(variableExpression, createInstanceExpression);
+            createAndTrackExpressions[1] = 
+                Expression.Call(
+                    Expression.Call(
+                        Expression.Call(ResolveContextParameterExpression)))
         }
     }
 }

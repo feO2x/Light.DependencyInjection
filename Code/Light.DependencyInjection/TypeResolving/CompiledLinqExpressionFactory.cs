@@ -11,15 +11,7 @@ namespace Light.DependencyInjection.TypeResolving
 {
     public sealed class CompiledLinqExpressionFactory : IResolveDelegateFactory
     {
-        private static readonly MethodInfo LifetimeResolveInstanceMethod = typeof(Lifetime).GetTypeInfo()
-                                                                                           .GetDeclaredMethod(nameof(Lifetime.ResolveInstance));
-
-        private static readonly MethodInfo ChangeResolvedTypeMethod = KnownTypes.ResolveContextType.GetTypeInfo().GetDeclaredMethod(nameof(ResolveContext.ChangeResolvedType));
-        private static readonly MethodInfo ChangeRegistrationMethod = KnownTypes.ResolveContextType.GetTypeInfo().GetDeclaredMethod(nameof(ResolveContext.ChangeRegistration));
-        private static readonly MethodInfo GetDependencyOverridesProperty = KnownTypes.ResolveContextType.GetTypeInfo().GetDeclaredProperty(nameof(ResolveContext.DependencyOverrides)).GetMethod;
-        private static readonly MethodInfo GetDependencyInstanceMethod = KnownTypes.DependencyOverridesType.GetTypeInfo().GetDeclaredMethod(nameof(DependencyOverrides.GetDependencyInstance));
-        private static readonly MethodInfo GetOverriddenInstanceMethod = KnownTypes.DependencyOverridesType.GetTypeInfo().GetDeclaredMethod(nameof(DependencyOverrides.GetOverriddenInstance));
-        private static readonly ParameterExpression ResolveContextParameterExpression = Expression.Parameter(KnownTypes.ResolveContextType);
+        
         private readonly IReadOnlyDictionary<Type, IInstanceManipulationExpressionFactory> _instanceManipulationExpressionFactories;
         private readonly IReadOnlyDictionary<Type, IInstantiationExpressionFactory> _instantiationExpressionFactories;
 
@@ -98,8 +90,14 @@ namespace Light.DependencyInjection.TypeResolving
             }
 
             // Else we need to create a construction expression that instantiates the target type and performs any instance manipulations
-            var resolveExpressionContext = new ResolveExpressionContext(requestedTypeKey, registration, dependencyOverrides, container);
+            var resolveExpressionContext = new ResolveExpressionContext(requestedTypeKey, registration, dependencyOverrides, container, ResolveContextParameterExpression);
             var constructionExpression = CreateConstructionExpression(resolveExpressionContext);
+
+            // Check if the lifetime implements IOptimizeLifetimeExpression to avoid compiling the construction expression to a delegate
+            if (registration.Lifetime is IOptimizeLifetimeExpression optimizeLifetimeExpression)
+            {
+                return optimizeLifetimeExpression.Optimize(constructionExpression, ResolveContextParameterExpression, resolveExpressionContext);
+            }
 
             // Compile the construction expression to a delegate so that it can be injected into the ResolveContext
             var compiledDelegate = constructionExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
@@ -131,7 +129,7 @@ namespace Light.DependencyInjection.TypeResolving
             var collectionRegistration = container.GetRegistration(resolveAllInfo.CollectionType);
             if (collectionRegistration == null)
                 throw new ResolveException($"There is no registration present to resolve collection type \"{resolveAllInfo.CollectionType}\".");
-            var createCollectionExpression = CreateConstructionExpression(new ResolveExpressionContext(new TypeKey(resolveAllInfo.CollectionType), collectionRegistration, dependencyOverrides, container));
+            var createCollectionExpression = CreateConstructionExpression(new ResolveExpressionContext(new TypeKey(resolveAllInfo.CollectionType), collectionRegistration, dependencyOverrides, container, ResolveContextParameterExpression));
 
             // Create the expression block that assigns the created collection to a variable, casts this variable to IList<TargetType>, and then resolves all registrations, adding the resulting the expressions
             var blockExpressions = new Expression[resolveAllInfo.Registrations.Count + 3]; // +3 for initial assignment, casting to IList<ItemType>, and return statement

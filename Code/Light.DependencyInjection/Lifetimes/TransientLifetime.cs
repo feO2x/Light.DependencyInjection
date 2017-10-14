@@ -1,11 +1,12 @@
-﻿using Light.DependencyInjection.TypeResolving;
+﻿using System.Linq.Expressions;
+using Light.DependencyInjection.TypeResolving;
 
 namespace Light.DependencyInjection.Lifetimes
 {
     /// <summary>
     ///     Represents a lifetime that always creates new instances.
     /// </summary>
-    public sealed class TransientLifetime : Lifetime
+    public sealed class TransientLifetime : Lifetime, IOptimizeLifetimeExpression
     {
         /// <summary>
         ///     Gets the singleton instance of this lifetime.
@@ -26,6 +27,11 @@ namespace Light.DependencyInjection.Lifetimes
         public override Lifetime GetLifetimeInstanceForConstructedGenericType()
         {
             return Instance;
+        }
+
+        public Expression Optimize(Expression createInstanceExpression, ParameterExpression resolveContextExpression, ResolveExpressionContext context)
+        {
+            return createInstanceExpression;
         }
     }
 }
