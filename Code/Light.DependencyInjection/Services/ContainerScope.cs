@@ -48,19 +48,23 @@ namespace Light.DependencyInjection.Services
 
         public object GetOrAddScopedInstance(TypeKey typeKey, Func<object> createInstance, bool searchInParentScope = true)
         {
-            object instance;
-            GetOrAddScopedInstance(typeKey, createInstance, out instance, searchInParentScope);
+            GetOrAddScopedInstance(typeKey, createInstance, out var instance, searchInParentScope);
             return instance;
         }
 
         public virtual bool TryAddDisposable(object instance)
         {
-            var disposable = instance as IDisposable;
-            if (disposable == null)
+            if (!(instance.MustNotBeNull(nameof(instance)) is IDisposable disposable))
                 return false;
 
             _disposableObjects.Add(disposable);
             return true;
+        }
+
+        public virtual ContainerScope AddDisposable(IDisposable disposable)
+        {
+            _disposableObjects.Add(disposable.MustNotBeNull(nameof(disposable)));
+            return this;
         }
 
         public virtual bool AddOrUpdateScopedInstance(TypeKey typeKey, object value)

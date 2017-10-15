@@ -4,6 +4,6 @@ namespace Light.DependencyInjection.TypeResolving
 {
     public interface IOptimizeLifetimeExpression
     {
-        Expression Optimize(Expression createInstanceExpression, ParameterExpression resolveContextExpression, ResolveExpressionContext context);
+        Expression Optimize(Expression createInstanceExpression, ResolveExpressionContext context);
     }
 }

@@ -27,10 +27,9 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [Theory(DisplayName = "DoubleArraySizeStrategy must increase the initial capacity when existing items exceed the default capacity.")]
         [InlineData(new[] { 1, 2, 3 }, 4)]
         [InlineData(new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, 8)]
-        [InlineData(new[] { "Foo", "Bar", "Baz", "Qux", "Quux", "Corge", "Grault" }, 8)]
-        public void InitialArrayWithExistingItems<T>(T[] existingItems, int expectedCapacity)
+        public void InitialArrayWithExistingItems(int[] existingItems, int expectedCapacity)
         {
-            var testTarget = new DoubleArraySizeStrategy<T>();
+            var testTarget = new DoubleArraySizeStrategy<int>();
 
             var array = testTarget.CreateInitialArray(existingItems);
 
@@ -41,9 +40,9 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [Theory(DisplayName = "DoubleArraySizeStrategy must double the capacity when CreateLargerArrayFrom is called.")]
         [InlineData(new[] { 1, 2, 3, 4, 5, 6 })]
         [InlineData(new[] { 1, 2, 3 })]
-        public void IncreaseArraySize<T>(T[] array)
+        public void IncreaseArraySize(int[] array)
         {
-            var testTarget = new DoubleArraySizeStrategy<T>();
+            var testTarget = new DoubleArraySizeStrategy<int>();
 
             var newArray = testTarget.CreateLargerArrayFrom(array);
 

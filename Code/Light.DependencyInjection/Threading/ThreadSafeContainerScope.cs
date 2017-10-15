@@ -49,6 +49,14 @@ namespace Light.DependencyInjection.Threading
             }
         }
 
+        public override ContainerScope AddDisposable(IDisposable disposable)
+        {
+            lock (_lock)
+            {
+                return base.AddDisposable(disposable);
+            }
+        }
+
         public override void Dispose()
         {
             lock (_lock)

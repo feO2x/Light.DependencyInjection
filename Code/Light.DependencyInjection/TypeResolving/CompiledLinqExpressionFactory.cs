@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Light.DependencyInjection.Lifetimes;
 using Light.DependencyInjection.Registrations;
 using Light.DependencyInjection.Services;
 using Light.GuardClauses;
@@ -11,7 +10,6 @@ namespace Light.DependencyInjection.TypeResolving
 {
     public sealed class CompiledLinqExpressionFactory : IResolveDelegateFactory
     {
-        
         private readonly IReadOnlyDictionary<Type, IInstanceManipulationExpressionFactory> _instanceManipulationExpressionFactories;
         private readonly IReadOnlyDictionary<Type, IInstantiationExpressionFactory> _instantiationExpressionFactories;
 
@@ -31,7 +29,7 @@ namespace Light.DependencyInjection.TypeResolving
             container.MustNotBeNull(nameof(container));
 
             var resolveExpression = CreateResolveExpressionRecursively(typeKey, container, dependencyOverrides);
-            return resolveExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
+            return resolveExpression.CompileToResolveDelegate(Constants.ResolveContextParameterExpression);
         }
 
         public ResolveDelegate Create(Registration registration, DependencyOverrides dependencyOverrides, DependencyInjectionContainer container)
@@ -40,7 +38,7 @@ namespace Light.DependencyInjection.TypeResolving
             container.MustNotBeNull(nameof(container));
 
             var resolveExpression = CreateResolveExpressionRecursively(registration.TypeKey, registration, dependencyOverrides, container);
-            return resolveExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
+            return resolveExpression.CompileToResolveDelegate(Constants.ResolveContextParameterExpression);
         }
 
         private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, DependencyInjectionContainer container, DependencyOverrides dependencyOverrides, bool? tryResolveAll = null)
@@ -48,8 +46,8 @@ namespace Light.DependencyInjection.TypeResolving
             // Check if the instance is overridden
             if (dependencyOverrides?.HasOverriddenInstance(requestedTypeKey) == true)
             {
-                return Expression.Convert(Expression.Call(Expression.Call(ResolveContextParameterExpression, GetDependencyOverridesProperty),
-                                                          GetOverriddenInstanceMethod,
+                return Expression.Convert(Expression.Call(Expression.Call(Constants.ResolveContextParameterExpression, Constants.GetDependencyOverridesProperty),
+                                                          Constants.GetOverriddenInstanceMethod,
                                                           Expression.Constant(requestedTypeKey)),
                                           requestedTypeKey.Type);
             }
@@ -80,27 +78,27 @@ namespace Light.DependencyInjection.TypeResolving
                 }
 
                 // Else prepare the resolve context parameter with the target registration and call the ResolveInstance dynamically
-                resolveContextExpression = Expression.Call(ResolveContextParameterExpression,
-                                                           ChangeRegistrationMethod,
+                resolveContextExpression = Expression.Call(Constants.ResolveContextParameterExpression,
+                                                           Constants.ChangeRegistrationMethod,
                                                            Expression.Constant(registration));
                 return Expression.Convert(Expression.Call(Expression.Constant(registration.Lifetime),
-                                                          LifetimeResolveInstanceMethod,
+                                                          Constants.LifetimeResolveInstanceMethod,
                                                           resolveContextExpression),
                                           requestedTypeKey.Type);
             }
 
             // Else we need to create a construction expression that instantiates the target type and performs any instance manipulations
-            var resolveExpressionContext = new ResolveExpressionContext(requestedTypeKey, registration, dependencyOverrides, container, ResolveContextParameterExpression);
+            var resolveExpressionContext = new ResolveExpressionContext(requestedTypeKey, registration, dependencyOverrides, container);
             var constructionExpression = CreateConstructionExpression(resolveExpressionContext);
 
             // Check if the lifetime implements IOptimizeLifetimeExpression to avoid compiling the construction expression to a delegate
             if (registration.Lifetime is IOptimizeLifetimeExpression optimizeLifetimeExpression)
             {
-                return optimizeLifetimeExpression.Optimize(constructionExpression, ResolveContextParameterExpression, resolveExpressionContext);
+                return optimizeLifetimeExpression.Optimize(constructionExpression, resolveExpressionContext);
             }
 
             // Compile the construction expression to a delegate so that it can be injected into the ResolveContext
-            var compiledDelegate = constructionExpression.CompileToResolveDelegate(ResolveContextParameterExpression);
+            var compiledDelegate = constructionExpression.CompileToResolveDelegate(Constants.ResolveContextParameterExpression);
 
             var targetLifetime = resolveExpressionContext.IsResolvingGenericTypeDefinition ? registration.Lifetime.GetLifetimeInstanceForConstructedGenericType() : registration.Lifetime;
 
@@ -113,12 +111,12 @@ namespace Light.DependencyInjection.TypeResolving
             }
 
             // Else create a expression that calls the target lifetime using the compiled delegate
-            resolveContextExpression = Expression.Call(ResolveContextParameterExpression,
-                                                       ChangeResolvedTypeMethod,
+            resolveContextExpression = Expression.Call(Constants.ResolveContextParameterExpression,
+                                                       Constants.ChangeResolvedTypeMethod,
                                                        Expression.Constant(registration),
                                                        Expression.Constant(compiledDelegate));
             return Expression.Convert(Expression.Call(Expression.Constant(targetLifetime),
-                                                      LifetimeResolveInstanceMethod,
+                                                      Constants.LifetimeResolveInstanceMethod,
                                                       resolveContextExpression),
                                       requestedTypeKey.Type);
         }
@@ -129,14 +127,14 @@ namespace Light.DependencyInjection.TypeResolving
             var collectionRegistration = container.GetRegistration(resolveAllInfo.CollectionType);
             if (collectionRegistration == null)
                 throw new ResolveException($"There is no registration present to resolve collection type \"{resolveAllInfo.CollectionType}\".");
-            var createCollectionExpression = CreateConstructionExpression(new ResolveExpressionContext(new TypeKey(resolveAllInfo.CollectionType), collectionRegistration, dependencyOverrides, container, ResolveContextParameterExpression));
+            var createCollectionExpression = CreateConstructionExpression(new ResolveExpressionContext(new TypeKey(resolveAllInfo.CollectionType), collectionRegistration, dependencyOverrides, container));
 
             // Create the expression block that assigns the created collection to a variable, casts this variable to IList<TargetType>, and then resolves all registrations, adding the resulting the expressions
             var blockExpressions = new Expression[resolveAllInfo.Registrations.Count + 3]; // +3 for initial assignment, casting to IList<ItemType>, and return statement
             var variableExpression = Expression.Variable(resolveAllInfo.CollectionType);
             var assignVariableExpression = Expression.Assign(variableExpression, createCollectionExpression);
             blockExpressions[0] = assignVariableExpression; // Assign created collection to variable
-            var closedConstructedICollectionType = KnownTypes.ICollectionGenericTypeDefinition.MakeGenericType(resolveAllInfo.ItemType);
+            var closedConstructedICollectionType = Constants.ICollectionGenericTypeDefinition.MakeGenericType(resolveAllInfo.ItemType);
             var castedICollectionVariableExpression = Expression.Variable(closedConstructedICollectionType);
             var assignCastedListExpression = Expression.Assign(castedICollectionVariableExpression, Expression.ConvertChecked(variableExpression, closedConstructedICollectionType));
             blockExpressions[1] = assignCastedListExpression; // Assign casted list to variable
@@ -211,8 +209,9 @@ namespace Light.DependencyInjection.TypeResolving
                 // Check if the dependency is overridden - if yes, then resolve it via the ResolveContext parameter
                 if (context.DependencyOverrides?.HasDependency(dependency) == true)
                 {
-                    resolvedDependencyExpressions[i] = Expression.Convert(Expression.Call(Expression.Call(ResolveContextParameterExpression, GetDependencyOverridesProperty),
-                                                                                          GetDependencyInstanceMethod,
+                    resolvedDependencyExpressions[i] = Expression.Convert(Expression.Call(Expression.Call(Constants.ResolveContextParameterExpression,
+                                                                                                          Constants.GetDependencyOverridesProperty),
+                                                                                          Constants.GetDependencyInstanceMethod,
                                                                                           Expression.Constant(dependency)),
                                                                           dependency.TargetType);
                     continue;

@@ -13,6 +13,11 @@ namespace Light.DependencyInjection.Lifetimes
         /// </summary>
         public static readonly TransientLifetime Instance = new TransientLifetime();
 
+        public Expression Optimize(Expression createInstanceExpression, ResolveExpressionContext context)
+        {
+            return context.CreateInstantiationAndTrackDisposableExpression(createInstanceExpression);
+        }
+
         /// <summary>
         ///     Always creates a new instance using the specified resolve context.
         /// </summary>
@@ -27,11 +32,6 @@ namespace Light.DependencyInjection.Lifetimes
         public override Lifetime GetLifetimeInstanceForConstructedGenericType()
         {
             return Instance;
-        }
-
-        public Expression Optimize(Expression createInstanceExpression, ParameterExpression resolveContextExpression, ResolveExpressionContext context)
-        {
-            return createInstanceExpression;
         }
     }
 }

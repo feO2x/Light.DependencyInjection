@@ -7,7 +7,7 @@ namespace Light.DependencyInjection.TypeResolving
     {
         public static Expression AdjustTypeToObjectIfNecessary(this Expression expression)
         {
-            return expression.MustNotBeNull(nameof(expression)).Type == KnownTypes.ObjectType ? expression : Expression.Convert(expression, KnownTypes.ObjectType);
+            return expression.MustNotBeNull(nameof(expression)).Type == Constants.ObjectType ? expression : Expression.Convert(expression, Constants.ObjectType);
         }
 
         public static ResolveDelegate CompileToResolveDelegate(this Expression expression, ParameterExpression resolveContextExpression)

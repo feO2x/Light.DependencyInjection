@@ -19,17 +19,16 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         }
 
         [Theory(DisplayName = "Add must insert the items at the end of the list.")]
-        [InlineData(new[] { 1, 2, 3 }, 4)]
         [InlineData(new[] { "Foo", "Bar" }, "Baz")]
         [InlineData(new string[] { }, "Foo")]
-        public void Add<T>(T[] existingItems, T itemToAdd)
+        public void Add(string[] existingItems, string itemToAdd)
         {
             // ReSharper disable once UseObjectOrCollectionInitializer
             var testTarget = CreateTestTarget(existingItems);
 
             testTarget.Add(itemToAdd);
 
-            var expected = new List<T>(existingItems) { itemToAdd };
+            var expected = new List<string>(existingItems) { itemToAdd };
             testTarget.Should().Equal(expected);
             testTarget.Count.Should().Be(existingItems.Length + 1);
             _lockSpy.MustHaveUsedWriteLockExactlyOnce();
@@ -37,10 +36,8 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
 
         [Theory(DisplayName = "Insert must insert the items at the specified index.")]
         [InlineData(new[] { 1, 2, 3, 4, 5 }, 0, 10, new[] { 10, 1, 2, 3, 4, 5 })]
-        [InlineData(new[] { "Foo", "Bar", "Baz" }, 1, "Qux", new[] { "Foo", "Qux", "Bar", "Baz" })]
-        [InlineData(new[] { "Foo", "Bar" }, "2", "Baz", new[] { "Foo", "Bar", "Baz" })]
         [InlineData(new int[] { }, 0, 42, new[] { 42 })]
-        public void Insert<T>(T[] existingItems, int index, T item, T[] expected)
+        public void Insert(int[] existingItems, int index, int item, int[] expected)
         {
             var testTarget = CreateTestTarget(existingItems);
 
@@ -51,10 +48,10 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
             _lockSpy.MustHaveUsedWriteLockExactlyOnce();
         }
 
-        [Theory(DisplayName = "The index property must overwrite the existing existing at the specified index with the given value.")]
-        [InlineData(new[] { 1, 2, 3 }, 2, 42, new[] { 1, 2, 42 })]
+        [Theory(DisplayName = "The index property must overwrite the existing item at the specified index with the given value.")]
         [InlineData(new[] { "Foo", "Bar" }, 0, "Baz", new[] { "Baz", "Bar" })]
-        public void Overwrite<T>(T[] existingItems, int index, T item, T[] expected)
+        [InlineData(new[] { "Foo", "Bar", "Baz" }, 1, "Baz", new[] { "Foo", "Baz", "Baz" })]
+        public void Overwrite(string[] existingItems, int index, string item, string[] expected)
         {
             // ReSharper disable once UseObjectOrCollectionInitializer
             var testTarget = CreateTestTarget(existingItems);
@@ -96,11 +93,11 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         }
 
         [Theory(DisplayName = "Contains must return true when the specified item is part of the list, else false.")]
-        [InlineData(new[] { 1, 2, 3, 4 }, 3, true)]
-        [InlineData(new[] { 42, -13, 5 }, 6, false)]
+        [InlineData(new[] { "1", "2", "3", "4" }, "3", true)]
+        [InlineData(new[] { "42", "-13", "5" }, "6", false)]
         [InlineData(new[] { "Foo", "Bar", "Baz" }, "Foo", true)]
         [InlineData(new string[] { }, "Foo", false)]
-        public void Contains<T>(T[] existingItems, T item, bool expected)
+        public void Contains(string[] existingItems, string item, bool expected)
         {
             var testTarget = CreateTestTarget(existingItems);
 
@@ -113,10 +110,10 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [Theory(DisplayName = "IndexOf must return the index of the target item if it is part of the list, or else -1.")]
         [InlineData(new[] { 1, 2, 3 }, 2, 1)]
         [InlineData(new[] { 42, 87, 1005 }, -4, -1)]
-        [InlineData(new[] { "Foo", "Bar", "Baz" }, "Foo", 0)]
-        [InlineData(new[] { "Foo", "Bar", "Baz" }, "Baz", 2)]
-        [InlineData(new string[] { }, "Foo", -1)]
-        public void IndexOf<T>(T[] existingItems, T item, int expectedIndex)
+        [InlineData(new[] { 42, 56, 89 }, 42, 0)]
+        [InlineData(new[] { 1, 2, 3 }, 3, 2)]
+        [InlineData(new int[] { }, 42, -1)]
+        public void IndexOf(int[] existingItems, int item, int expectedIndex)
         {
             var testTarget = CreateTestTarget(existingItems);
 
@@ -127,11 +124,11 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         }
 
         [Theory(DisplayName = "Remove must remove the specified item and return true if the item is part of the list, else it must return false.")]
-        [InlineData(new[] { 1, 2, 3 }, 2, new[] { 1, 3 }, true)]
-        [InlineData(new[] { 1, 2, 3 }, 5, new[] { 1, 2, 3 }, false)]
+        [InlineData(new[] { "1", "2", "3" }, "2", new[] { "1", "3" }, true)]
+        [InlineData(new[] { "1", "2", "3" }, "5", new[] { "1", "2", "3" }, false)]
         [InlineData(new[] { "Foo", "Bar" }, "Foo", new[] { "Bar" }, true)]
         [InlineData(new string[] { }, "Foo", new string[] { }, false)]
-        public void Remove<T>(T[] existingItems, T item, T[] expectedCollection, bool expectedReturnValue)
+        public void Remove(string[] existingItems, string item, string[] expectedCollection, bool expectedReturnValue)
         {
             var testTarget = CreateTestTarget(existingItems);
 
@@ -146,9 +143,9 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         }
 
         [Theory(DisplayName = "RemoveAt must remove the item at the specified index.")]
-        [InlineData(new[] { 1, 2, 3 }, 2, new[] { 1, 2 })]
+        [InlineData(new[] { "1", "2", "3" }, 2, new[] { "1", "2" })]
         [InlineData(new[] { "Foo", "Bar", "Baz" }, 0, new[] { "Bar", "Baz" })]
-        public void RemoveAt<T>(T[] existingItems, int index, T[] expectedCollection)
+        public void RemoveAt(string[] existingItems, int index, string[] expectedCollection)
         {
             var testTarget = CreateTestTarget(existingItems);
 
@@ -162,8 +159,8 @@ namespace Light.DependencyInjection.Tests.DataStructuresTests
         [Theory(DisplayName = "The property indexer must return an existing item if it is present.")]
         [InlineData(new[] { 1, 2, 3 }, 2, 3)]
         [InlineData(new[] { 1, 2, 3 }, 0, 1)]
-        [InlineData(new[] { "Foo", "Bar" }, 1, "Bar")]
-        public void Get<T>(T[] existingItems, int index, T expected)
+        [InlineData(new[] { 42, -1577 }, 1, -1577)]
+        public void Get(int[] existingItems, int index, int expected)
         {
             // ReSharper disable once CollectionNeverUpdated.Local
             var testTarget = CreateTestTarget(existingItems);
