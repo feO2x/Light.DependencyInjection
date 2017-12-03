@@ -75,6 +75,7 @@ namespace Light.DependencyInjection.Tests
 
         public static class GenericFactory<T>
         {
+            // ReSharper disable UnusedMember.Global
             public static List<T> Create()
             {
                 return new List<T>();
@@ -84,6 +85,7 @@ namespace Light.DependencyInjection.Tests
             {
                 return new List<object>();
             }
+            // ReSharper restore UnusedMember.Global
         }
 
         [Fact(DisplayName = "The DI Container must throw a RegistrationException when the specified method info in a Generic Type Definition is not returning an open constructed generic type that resides in the same inheritance hierarchy as the registration type.")]
@@ -176,6 +178,27 @@ namespace Light.DependencyInjection.Tests
             var instance = container.Resolve<GenericTypeWithDependencyToOtherGenericType<int>>();
 
             instance.Collection.Should().BeOfType<ObservableCollection<int>>();
+        }
+
+        [Fact(DisplayName = "The DI Container must be able to resolve a generic type definition with scoped lifetime several times using different constructed generic types.")]
+        public void MultipleResolvesWithDifferentConstructedTypes()
+        {
+            var containerServices = new ContainerServicesBuilder().DisallowAutomaticRegistrations()
+                                                                  .Build();
+            var container = new DependencyInjectionContainer(containerServices).Register(typeof(ObservableCollection<>),
+                                                                                         options => options.UseDefaultConstructor()
+                                                                                                           .UseScopedLifetime()
+                                                                                                           .MapToAbstractions(typeof(IList<>)))
+                                                                               .Register(typeof(GenericTypeWithDependencyToOtherGenericType<>));
+
+            using (var childContainer = container.CreateChildContainer())
+            {
+                var instance1 = childContainer.Resolve<GenericTypeWithDependencyToOtherGenericType<string>>();
+                instance1.Collection.Should().BeOfType<ObservableCollection<string>>();
+
+                var instance2 = childContainer.Resolve<GenericTypeWithDependencyToOtherGenericType<int>>();
+                instance2.Collection.Should().BeOfType<ObservableCollection<int>>();
+            }
         }
 
         public class GenericTypeWithDependencyToOtherGenericType<T>
