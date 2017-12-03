@@ -65,7 +65,7 @@ namespace Light.DependencyInjection.TypeResolving
         private Expression CreateResolveExpressionRecursively(TypeKey requestedTypeKey, Registration registration, DependencyOverrides dependencyOverrides, DependencyInjectionContainer container)
         {
             // Check if the lifetime of the registration would need to create a new instance.
-            // If not, then we can do not need to create a construction expression
+            // If not, then we do not need to create a construction expression
             Expression resolveContextExpression;
             if (registration.Lifetime.IsCreatingNewInstances == false)
             {
